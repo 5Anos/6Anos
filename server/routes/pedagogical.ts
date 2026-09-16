@@ -148,9 +148,28 @@ export async function evaluateBadges(userId: string) {
 }
 
 // GET all Worlds with student progression status
-router.get('/worlds', requireAuth, async (req: AuthRequest, res) => {
+router.get('/worlds', async (req: AuthRequest, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
+    if (!userId) {
+      const defaultWorlds = WORLDS_DATA.map((w) => ({
+        ...w,
+        isUnlocked: w.id === 1,
+        average: w.id === 1 ? 60 : 0,
+        completedCount: w.id === 1 ? 1 : 0,
+        totalComponents: w.simulators.length + 3,
+        challengeProgress: null,
+        missionProgress: null,
+        bestAssessmentPercentage: null,
+        simulatorsProgress: w.simulators.map((s) => ({
+          id: s.id,
+          completed: false,
+          score: 0,
+        })),
+      }));
+      return res.json({ worlds: defaultWorlds });
+    }
+
     const [userProgress, allMissions, allAssessments] = await Promise.all([
       getUserActivityProgress(userId),
       getMissionSubmissions({ userId }),
@@ -481,13 +500,13 @@ router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => 
 });
 
 // GET Daily Tip (+10 XP once per day)
-router.get('/daily-tip', requireAuth, async (req: AuthRequest, res) => {
+router.get('/daily-tip', async (req: AuthRequest, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const tipIndex = Math.abs(today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0)) % DAILY_TIPS.length;
     const tip = DAILY_TIPS[tipIndex];
 
-    const claim = await getDailyTipClaim(req.user!.id, today);
+    const claim = req.user ? await getDailyTipClaim(req.user.id, today) : null;
 
     return res.json({
       tip,
@@ -524,10 +543,10 @@ router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
 });
 
 // GET Weekly Challenge status
-router.get('/weekly-challenge', requireAuth, async (req: AuthRequest, res) => {
+router.get('/weekly-challenge', async (req: AuthRequest, res) => {
   try {
-    const userId = req.user!.id;
-    const challengeProg = await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id);
+    const userId = req.user?.id;
+    const challengeProg = userId ? await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id) : null;
 
     const sanitized = {
       ...WEEKLY_CHALLENGE,
@@ -656,10 +675,9 @@ router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res
 });
 
 // GET Class-Private Ranking
-// ONLY students in user's class, never exposes email, real name, or notes!
-router.get('/class-ranking', requireAuth, async (req: AuthRequest, res) => {
+router.get('/class-ranking', async (req: AuthRequest, res) => {
   try {
-    const userClassId = req.user!.classId;
+    const userClassId = req.user?.classId || 'class-6a';
     const allUsers = await getAllUsers();
 
     const classStudents = allUsers
@@ -673,7 +691,7 @@ router.get('/class-ranking', requireAuth, async (req: AuthRequest, res) => {
           xp: s.xp,
           level: levelInfo.level,
           levelName: levelInfo.name,
-          isCurrentUser: s.id === req.user!.id,
+          isCurrentUser: req.user ? s.id === req.user.id : false,
         };
       })
       .sort((a, b) => b.xp - a.xp)
@@ -685,7 +703,7 @@ router.get('/class-ranking', requireAuth, async (req: AuthRequest, res) => {
     const classroom = userClassId ? await getClassById(userClassId) : null;
 
     return res.json({
-      className: classroom ? classroom.name : 'A tua Turma',
+      className: classroom ? classroom.name : 'Turma 6.º A',
       ranking: classStudents,
     });
   } catch (err) {
@@ -695,10 +713,10 @@ router.get('/class-ranking', requireAuth, async (req: AuthRequest, res) => {
 });
 
 // GET Badges list (all badges + user ownership)
-router.get('/badges', requireAuth, async (req: AuthRequest, res) => {
+router.get('/badges', async (req: AuthRequest, res) => {
   try {
-    const userId = req.user!.id;
-    const userBadges = await getUserBadges(userId);
+    const userId = req.user?.id;
+    const userBadges = userId ? await getUserBadges(userId) : [];
 
     const badges = BADGES_CATALOG.map((badge) => {
       const owned = userBadges.find((b) => b.badgeId === badge.id);

@@ -3,8 +3,10 @@ import {
   Bell,
   Search,
   LogOut,
-  UserCheck,
   Globe,
+  LogIn,
+  GraduationCap,
+  User,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getNextLevelInfo } from '../../server/catalog';
@@ -20,24 +22,34 @@ import {
 interface HeaderProps {
   onOpenSearch?: () => void;
   onOpenNotifications?: () => void;
+  onOpenLoginModal?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = () => {
-  const { user, logout, quickSwitch, locale, setLocale } = useAuth();
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
+export const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
+  const { user, logout, locale, setLocale } = useAuth();
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  if (!user) return null;
+  // Compute level or use reference default for guest state
+  const nextLevel = user
+    ? getNextLevelInfo(user.xp)
+    : {
+        current: { level: 3, name: 'Guardião Digital', minXp: 300 },
+        next: { level: 4, name: 'Criador Digital', minXp: 500 },
+        percentage: 64,
+        nextMin: 500,
+      };
 
-  const nextLevel = getNextLevelInfo(user.xp);
+  const userXp = user ? user.xp : 320;
+  const firstName = user ? user.name.split(' ')[0] : 'Aluno';
 
   // Render appropriate avatar illustration
   const renderAvatar = () => {
-    if (user.avatar === 'avatar-girl-1') {
+    if (user?.avatar === 'avatar-girl-1') {
       return <LeonorAvatar size={84} className="border-4 border-white shadow-md" />;
     }
-    if (user.avatar === 'avatar-boy-2') {
+    if (user?.avatar === 'avatar-boy-2') {
       return <TiagoAvatar size={84} className="border-4 border-white shadow-md" />;
     }
     // Default Alex avatar matching reference mockup
@@ -63,14 +75,14 @@ export const Header: React.FC<HeaderProps> = () => {
           <div className="space-y-2">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
-                Olá, <span className="text-blue-600">{user.name.split(' ')[0]}!</span>
+                Olá, <span className="text-blue-600">{firstName}!</span>
               </h1>
               <p className="text-sm font-medium text-slate-500 mt-1">
                 {t('ready_prompt', locale)}
               </p>
             </div>
 
-            {/* Level Capsule matching exact mockup: Nível 3 - Explorador Digital [====] 320 / 500 XP */}
+            {/* Level Capsule matching exact mockup: Nível 3 - Guardião Digital [====] 320 / 500 XP */}
             <div className="bg-slate-50 border border-slate-200/90 rounded-2xl px-3.5 py-1.5 flex items-center gap-3 w-72 sm:w-96 shadow-xs">
               <span className="text-xs font-black text-slate-800 shrink-0">
                 Nível {nextLevel.current.level}
@@ -88,7 +100,7 @@ export const Header: React.FC<HeaderProps> = () => {
               </div>
 
               <span className="text-[11px] font-bold text-slate-600 shrink-0">
-                {user.xp} / {nextLevel.nextMin} XP
+                {userXp} / {nextLevel.nextMin} XP
               </span>
             </div>
           </div>
@@ -108,10 +120,11 @@ export const Header: React.FC<HeaderProps> = () => {
           <DoodleLightbulbWithText />
         </div>
 
-        {/* Right Side: Search, Notifications & Terminar Sessão Buttons */}
+        {/* Right Side: Search, Notifications, Iniciar Sessão or User Actions */}
         <div className="flex items-center gap-3 self-end lg:self-center">
           {/* Search Button */}
           <button
+            id="btn-header-search"
             onClick={() => setShowSearchModal(!showSearchModal)}
             className="w-10 h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 shadow-xs transition-colors"
             title="Pesquisar"
@@ -122,6 +135,7 @@ export const Header: React.FC<HeaderProps> = () => {
           {/* Notifications Button with Red Badge 3 */}
           <div className="relative">
             <button
+              id="btn-header-notifications"
               onClick={() => setShowNotifications(!showNotifications)}
               className="w-10 h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 shadow-xs transition-colors relative"
               title="Notificações"
@@ -151,80 +165,94 @@ export const Header: React.FC<HeaderProps> = () => {
             )}
           </div>
 
-          {/* Terminar Sessão Button */}
-          <button
-            onClick={() => logout()}
-            className="h-10 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-2 text-xs font-bold text-slate-700 shadow-xs transition-colors"
-          >
-            <LogOut className="w-4 h-4 text-slate-500" />
-            <span>Terminar sessão</span>
-          </button>
-
-          {/* Quick Role Switcher Menu (Alex / Professora) */}
-          <div className="relative">
+          {!user ? (
+            /* Botão para Iniciar a Sessão no canto superior direito */
             <button
-              onClick={() => setShowRoleMenu(!showRoleMenu)}
-              className="h-10 px-3 rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center gap-1 text-xs font-black text-blue-700 shadow-xs transition-colors"
-              title="Mudar Perfil ou Idioma"
+              id="btn-header-login"
+              onClick={onOpenLoginModal}
+              className="h-10 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 text-xs font-black shadow-xs transition-colors"
             >
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>{user.role === 'teacher' ? 'Professora' : 'Aluno'}</span>
+              <LogIn className="w-4 h-4" />
+              <span>Iniciar sessão</span>
             </button>
+          ) : (
+            <>
+              {/* Terminar Sessão Button */}
+              <button
+                id="btn-header-logout"
+                onClick={() => logout()}
+                className="h-10 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-2 text-xs font-bold text-slate-700 shadow-xs transition-colors"
+              >
+                <LogOut className="w-4 h-4 text-slate-500" />
+                <span>Terminar sessão</span>
+              </button>
 
-            {showRoleMenu && (
-              <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 text-xs space-y-1">
-                <div className="text-[10px] font-bold uppercase text-slate-400 px-2 py-1">
-                  Mudar Perfil Ativo
-                </div>
+              {/* Profile Badge & Language Selector */}
+              <div className="relative">
                 <button
-                  onClick={() => {
-                    quickSwitch('student');
-                    setShowRoleMenu(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl font-bold flex items-center justify-between ${
-                    user.role === 'student' ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50'
-                  }`}
+                  id="btn-header-profile-role"
+                  onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+                  className="h-10 px-3.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 flex items-center gap-1.5 text-xs font-bold text-slate-700 shadow-xs transition-colors"
+                  title="Idioma & Conta"
                 >
-                  <span>Alex (Aluno 6.º A)</span>
-                  {user.role === 'student' && <span>✓</span>}
+                  {user.role === 'teacher' ? (
+                    <>
+                      <GraduationCap className="w-4 h-4 text-indigo-600" />
+                      <span className="font-extrabold text-indigo-700">Professora</span>
+                    </>
+                  ) : (
+                    <>
+                      <User className="w-4 h-4 text-blue-600" />
+                      <span className="font-extrabold text-blue-700">Aluno</span>
+                    </>
+                  )}
+                  <span className="text-[11px] text-slate-400 ml-1 uppercase font-mono">
+                    {locale.toUpperCase()}
+                  </span>
                 </button>
-                <button
-                  onClick={() => {
-                    quickSwitch('teacher');
-                    setShowRoleMenu(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl font-bold flex items-center justify-between ${
-                    user.role === 'teacher' ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-slate-50'
-                  }`}
-                >
-                  <span>Prof. Carla Silva</span>
-                  {user.role === 'teacher' && <span>✓</span>}
-                </button>
-                <div className="border-t my-1" />
-                <div className="text-[10px] font-bold uppercase text-slate-400 px-2 py-1">
-                  Idioma
-                </div>
-                <div className="flex gap-1 px-2">
-                  <button
-                    onClick={() => setLocale('pt')}
-                    className={`flex-1 py-1 rounded-lg text-[11px] font-bold ${
-                      locale === 'pt' ? 'bg-blue-600 text-white' : 'bg-slate-100'
-                    }`}
-                  >
-                    🇵🇹 PT
-                  </button>
-                  <button
-                    onClick={() => setLocale('en')}
-                    className={`flex-1 py-1 rounded-lg text-[11px] font-bold ${
-                      locale === 'en' ? 'bg-blue-600 text-white' : 'bg-slate-100'
-                    }`}
-                  >
-                    🇬🇧 EN
-                  </button>
-                </div>
+
+                {showLanguageMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl border border-slate-200 shadow-xl p-2.5 z-50 text-xs space-y-2">
+                    <div className="text-[10px] font-bold uppercase text-slate-400 px-1">
+                      {user.role === 'teacher' ? 'Conta de Professora' : 'Conta de Aluno'}
+                    </div>
+                    <div className="px-2 py-1.5 bg-slate-50 rounded-xl text-slate-800 font-bold truncate">
+                      {user.email}
+                    </div>
+                    <div className="border-t border-slate-100 pt-1">
+                      <div className="text-[10px] font-bold uppercase text-slate-400 px-1 mb-1">
+                        Idioma
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => {
+                            setLocale('pt');
+                            setShowLanguageMenu(false);
+                          }}
+                          className={`flex-1 py-1.5 rounded-xl text-[11px] font-bold transition-colors ${
+                            locale === 'pt' ? 'bg-blue-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                          }`}
+                        >
+                          🇵🇹 PT
+                        </button>
+                        <button
+                          onClick={() => {
+                            setLocale('en');
+                            setShowLanguageMenu(false);
+                          }}
+                          className={`flex-1 py-1.5 rounded-xl text-[11px] font-bold transition-colors ${
+                            locale === 'en' ? 'bg-blue-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                          }`}
+                        >
+                          🇬🇧 EN
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
     </header>

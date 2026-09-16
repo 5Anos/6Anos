@@ -53,12 +53,31 @@ export function sanitizeUser(user: User) {
   };
 }
 
+// GET Available Classes (6.º A to 6.º E)
+router.get('/classes', async (_req, res) => {
+  try {
+    const classes = await getAllClasses();
+    const sorted = (classes.length > 0 ? classes : [
+      { id: 'class-6a', name: '6.º A', code: '', createdAt: new Date().toISOString() },
+      { id: 'class-6b', name: '6.º B', code: '', createdAt: new Date().toISOString() },
+      { id: 'class-6c', name: '6.º C', code: '', createdAt: new Date().toISOString() },
+      { id: 'class-6d', name: '6.º D', code: '', createdAt: new Date().toISOString() },
+      { id: 'class-6e', name: '6.º E', code: '', createdAt: new Date().toISOString() },
+    ]).sort((a, b) => a.name.localeCompare(b.name));
+
+    return res.json({ classes: sorted });
+  } catch (err) {
+    console.error('Error fetching classes:', err);
+    return res.status(500).json({ error: 'Erro ao listar turmas.' });
+  }
+});
+
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, classCode, nickname, avatar, locale } = req.body;
+    const { name, email, password, classId, classCode, classroomCode, nickname, avatar, locale } = req.body;
 
-    if (!name || !email || !password || !classCode || !nickname) {
+    if (!name || !email || !password || !nickname) {
       return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
     }
 
@@ -68,13 +87,23 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Já existe uma conta associada a este email.' });
     }
 
-    // Validate class code in Cloud Firestore
-    let classroom = await getClassByCode(classCode);
+    // Resolve classId (6.º A to 6.º E)
+    const targetClassId = classId || classCode || classroomCode || 'class-6a';
+    let classroom = await getClassById(targetClassId.trim());
     if (!classroom) {
-      classroom = await getClassById(classCode.trim());
+      // Try to find by name (e.g. "6.º A", "6A", etc.)
+      const allClasses = await getAllClasses();
+      classroom = allClasses.find(
+        (c) => c.id === targetClassId.trim() || c.name.toLowerCase() === targetClassId.trim().toLowerCase()
+      ) || null;
     }
     if (!classroom) {
-      return res.status(400).json({ error: 'Código de turma inválido. Pede o código correto ao teu professor.' });
+      classroom = {
+        id: targetClassId.startsWith('class-') ? targetClassId : 'class-6a',
+        name: targetClassId,
+        code: '',
+        createdAt: new Date().toISOString(),
+      };
     }
 
     // Prevent nicknames that expose email or full name

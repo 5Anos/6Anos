@@ -103,32 +103,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
             );
           })}
 
-          {/* Teacher Area Link */}
-          <div className="pt-4 mt-2">
-            <button
-              id="nav-teacher"
-              onClick={() => onSelectTab('teacher')}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
-                currentTab === 'teacher'
-                  ? 'bg-indigo-100/70 text-indigo-700 shadow-xs'
-                  : 'text-slate-700 hover:bg-slate-100/70 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3.5">
-                <GraduationCap
-                  className={`w-5 h-5 ${
-                    currentTab === 'teacher' ? 'text-indigo-600' : 'text-slate-500'
-                  }`}
-                />
-                <span>{t('nav_teacher', locale)}</span>
-              </div>
-              {isTeacher && (
+          {/* Teacher Area Link - Exclusively visible for teacher */}
+          {isTeacher && (
+            <div className="pt-4 mt-2">
+              <button
+                id="nav-teacher"
+                onClick={() => onSelectTab('teacher')}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
+                  currentTab === 'teacher'
+                    ? 'bg-indigo-100/70 text-indigo-700 shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100/70 hover:text-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-3.5">
+                  <GraduationCap
+                    className={`w-5 h-5 ${
+                      currentTab === 'teacher' ? 'text-indigo-600' : 'text-slate-500'
+                    }`}
+                  />
+                  <span>{t('nav_teacher', locale)}</span>
+                </div>
                 <span className="text-[10px] bg-indigo-200 text-indigo-800 font-extrabold px-2 py-0.5 rounded-lg">
                   Prof
                 </span>
-              )}
-            </button>
-          </div>
+              </button>
+            </div>
+          )}
         </nav>
       </div>
 

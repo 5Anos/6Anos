@@ -1,0 +1,209 @@
+import React, { useState } from 'react';
+import {
+  X,
+  Mail,
+  Lock,
+  User,
+  School,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export const LoginModal: React.FC<LoginModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+}) => {
+  const { login, register } = useAuth();
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [classId, setClassId] = useState('class-6a');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      if (isRegister) {
+        await register({
+          name,
+          email,
+          password,
+          nickname,
+          classId,
+        });
+      } else {
+        await login(email, password);
+      }
+      onClose();
+      if (onSuccess) onSuccess();
+    } catch (err: any) {
+      setError(err.message || 'Erro ao processar autenticação.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div
+        id="login-dialog"
+        className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden relative"
+      >
+        {/* Header with Title and Close Button */}
+        <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-black tracking-tight">
+              {isRegister ? 'Criar Conta de Aluno' : 'Iniciar Sessão'}
+            </h2>
+            <p className="text-xs text-blue-100 font-medium mt-0.5">
+              MISSÃO TIC 6.º ANO • Plataforma Educativa
+            </p>
+          </div>
+          <button
+            id="btn-close-login-modal"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-5">
+          {error && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-2xl font-medium">
+              {error}
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            {isRegister && (
+              <>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-blue-600" />
+                    Nome Completo:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Ex: Maria Santos"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    Alcunha de Jogo (visível no ranking):
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    placeholder="Ex: CyberExplorer"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <School className="w-3.5 h-3.5 text-indigo-600" />
+                    Turma do 6.º Ano:
+                  </label>
+                  <select
+                    id="select-register-class"
+                    required
+                    value={classId}
+                    onChange={(e) => setClassId(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-bold focus:outline-none focus:border-blue-500 focus:bg-white"
+                  >
+                    <option value="class-6a">6.º A</option>
+                    <option value="class-6b">6.º B</option>
+                    <option value="class-6c">6.º C</option>
+                    <option value="class-6d">6.º D</option>
+                    <option value="class-6e">6.º E</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-blue-600" />
+                Email Escolar:
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="aluno@escola.edu.pt"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-blue-600" />
+                Palavra-passe:
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+
+            <button
+              type="submit"
+              id="btn-submit-auth"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-3 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 mt-2"
+            >
+              <span>{isRegister ? 'Criar Conta de Aluno' : 'Entrar na Plataforma'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          <div className="text-center pt-2 border-t border-slate-100">
+            <button
+              type="button"
+              id="btn-toggle-auth-mode"
+              onClick={() => {
+                setIsRegister(!isRegister);
+                setError(null);
+              }}
+              className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              {isRegister
+                ? 'Já tens conta? Entra aqui'
+                : 'Novo aluno do 6.º ano? Cria a tua conta'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

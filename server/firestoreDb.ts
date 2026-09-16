@@ -789,41 +789,41 @@ export async function getFirestoreStats() {
 export async function seedInitialFirestoreData(): Promise<void> {
   const db = getFirestore();
 
-  // 1. Classes
-  const class6a = await getClassById('class-6a');
-  if (!class6a) {
-    await saveClass({
-      id: 'class-6a',
-      name: '6.º A',
-      code: '6A-2024',
-      createdAt: new Date().toISOString(),
-    });
+  // 1. Classes (6.º A to 6.º E)
+  const defaultClasses = [
+    { id: 'class-6a', name: '6.º A' },
+    { id: 'class-6b', name: '6.º B' },
+    { id: 'class-6c', name: '6.º C' },
+    { id: 'class-6d', name: '6.º D' },
+    { id: 'class-6e', name: '6.º E' },
+  ];
+
+  for (const c of defaultClasses) {
+    const existing = await getClassById(c.id);
+    if (!existing) {
+      await saveClass({
+        id: c.id,
+        name: c.name,
+        code: '',
+        createdAt: new Date().toISOString(),
+      });
+    }
   }
 
-  const class6b = await getClassById('class-6b');
-  if (!class6b) {
-    await saveClass({
-      id: 'class-6b',
-      name: '6.º B',
-      code: '6B-2024',
-      createdAt: new Date().toISOString(),
-    });
-  }
-
-  // 2. Teacher Carla
+  // 2. Teacher Carla (imaginebycarla2023@gmail.com / carlamo)
   const teacherEmail = 'imaginebycarla2023@gmail.com';
   const existingTeacher = await getUserByEmail(teacherEmail);
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync('carlamo', salt, 64).toString('hex');
+
   if (!existingTeacher) {
-    // Generate salt and hash for teacher
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync('ProfTIC2024!', salt, 64).toString('hex');
     await saveUser({
       id: 'teacher-carla',
-      name: 'Carla Silva',
+      name: 'Prof. Carla Silva',
       email: teacherEmail,
       passwordHash: hash,
       passwordSalt: salt,
-      nickname: 'Prof_Carla_TIC',
+      nickname: 'Prof_Carla',
       avatar: 'teacher-1',
       role: 'teacher',
       classId: 'class-6a',
@@ -833,114 +833,23 @@ export async function seedInitialFirestoreData(): Promise<void> {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
-  }
-
-  // 3. Student Alex
-  const existingAlex = await getUserById('student-alex');
-  if (!existingAlex) {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync('Aluno123!', salt, 64).toString('hex');
-    await saveUser({
-      id: 'student-alex',
-      name: 'Alex Rodrigues',
-      email: 'alex@escola.pt',
+  } else {
+    // Update password to carlamo
+    await updateUser(existingTeacher.id, {
+      name: 'Prof. Carla Silva',
       passwordHash: hash,
       passwordSalt: salt,
-      nickname: 'Panda_Feliz_701',
-      avatar: 'avatar-boy-1',
-      role: 'student',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 320,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-
-    // Seed Alex's initial activities in Firestore
-    await saveActivityProgress({
-      id: 'prog-alex-pwd',
-      userId: 'student-alex',
-      activityId: 'sim-password',
-      worldId: 1,
-      bestScore: 90,
-      attempts: 2,
-      completed: true,
-      firstCompletedAt: new Date().toISOString(),
-      lastAttemptAt: new Date().toISOString(),
-    });
-
-    await saveActivityProgress({
-      id: 'prog-alex-phishing',
-      userId: 'student-alex',
-      activityId: 'sim-phishing',
-      worldId: 1,
-      bestScore: 80,
-      attempts: 1,
-      completed: true,
-      firstCompletedAt: new Date().toISOString(),
-      lastAttemptAt: new Date().toISOString(),
-    });
-
-    await saveActivityProgress({
-      id: 'prog-alex-w1-ch',
-      userId: 'student-alex',
-      activityId: 'ch-guarda-digital',
-      worldId: 1,
-      bestScore: 50,
-      attempts: 1,
-      completed: true,
-      firstCompletedAt: new Date().toISOString(),
-      lastAttemptAt: new Date().toISOString(),
-    });
-
-    // Seed Alex's badges
-    await awardBadge('student-alex', 'primeiros-passos');
-    await awardBadge('student-alex', 'guardiao-digital');
-  }
-
-  // 4. Classmates Leonor and Tiago (for class ranking)
-  const existingLeonor = await getUserById('student-leonor');
-  if (!existingLeonor) {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync('Aluno123!', salt, 64).toString('hex');
-    await saveUser({
-      id: 'student-leonor',
-      name: 'Leonor Fernandes',
-      email: 'leonor@escola.pt',
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Raposa_Curiosa_284',
-      avatar: 'avatar-girl-1',
-      role: 'student',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 920,
-      blocked: false,
-      createdAt: new Date().toISOString(),
+      role: 'teacher',
       updatedAt: new Date().toISOString(),
     });
   }
 
-  const existingTiago = await getUserById('student-tiago');
-  if (!existingTiago) {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync('Aluno123!', salt, 64).toString('hex');
-    await saveUser({
-      id: 'student-tiago',
-      name: 'Tiago Santos',
-      email: 'tiago@escola.pt',
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Robo_Azul_532',
-      avatar: 'avatar-boy-2',
-      role: 'student',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 850,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+  // 3. Remove any legacy demo students
+  const demoStudentIds = ['student-alex', 'student-leonor', 'student-tiago'];
+  for (const id of demoStudentIds) {
+    const existing = await getUserById(id);
+    if (existing) {
+      await deleteUser(id);
+    }
   }
 }

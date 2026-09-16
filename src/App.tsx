@@ -10,13 +10,20 @@ import { BadgesView } from './components/BadgesView';
 import { ProfileView } from './components/ProfileView';
 import { TeacherArea } from './components/TeacherArea';
 import { GrandeMissaoView } from './components/GrandeMissaoView';
-import { AuthModal } from './components/AuthModal';
+import { LoginModal } from './components/LoginModal';
 
 const MainLayout: React.FC = () => {
   const { user, loading } = useAuth();
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [selectedWorldId, setSelectedWorldId] = useState<number>(1);
   const [activeSimulatorId, setActiveSimulatorId] = useState<string>('sim-password');
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (currentTab === 'teacher' && user?.role !== 'teacher') {
+      setCurrentTab('dashboard');
+    }
+  }, [user, currentTab]);
 
   if (loading) {
     return (
@@ -31,10 +38,6 @@ const MainLayout: React.FC = () => {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    return <AuthModal />;
   }
 
   const handleSelectWorld = (worldId: number) => {
@@ -56,15 +59,25 @@ const MainLayout: React.FC = () => {
     setCurrentTab('grande_missao');
   };
 
+  const handleSelectTab = (tab: string) => {
+    if (tab === 'teacher' && user?.role !== 'teacher') {
+      if (!user) {
+        setShowLoginModal(true);
+      }
+      return;
+    }
+    setCurrentTab(tab);
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row antialiased text-slate-800">
       {/* Persistent Navigation Sidebar matching mockup */}
-      <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
+      <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto">
-        {/* Top Header Banner matching mockup */}
-        <Header />
+        {/* Top Header Banner with greeting 'Olá, Aluno!' or 'Olá, [Nome]!' and Login button */}
+        <Header onOpenLoginModal={() => setShowLoginModal(true)} />
 
         {/* Dynamic Main View */}
         <main className="flex-1 p-6 sm:p-8 lg:p-10">
@@ -103,13 +116,24 @@ const MainLayout: React.FC = () => {
 
           {currentTab === 'profile' && <ProfileView />}
 
-          {currentTab === 'teacher' && <TeacherArea />}
+          {currentTab === 'teacher' && user?.role === 'teacher' && <TeacherArea />}
 
           {currentTab === 'grande_missao' && (
             <GrandeMissaoView onBack={() => setCurrentTab('dashboard')} />
           )}
         </main>
       </div>
+
+      {/* Interactive Login & Registration Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => {
+          if (user?.role === 'teacher') {
+            setCurrentTab('teacher');
+          }
+        }}
+      />
     </div>
   );
 };

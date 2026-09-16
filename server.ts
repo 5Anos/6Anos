@@ -20,18 +20,7 @@ async function startServer() {
   // Attach user to req if valid session exists
   app.use(authMiddleware);
 
-  // Initialize and verify Firebase Firestore Cloud Database
-  console.log('[FIREBASE FIRESTORE] Connecting to Google Cloud Firestore...');
-  const isConnected = await testFirestoreConnection();
-  if (isConnected) {
-    console.log('[FIREBASE FIRESTORE] Connected successfully to Cloud Firestore! Seeding initial data if needed...');
-    await initSeedAccounts();
-    console.log('[FIREBASE FIRESTORE] Seed check completed.');
-  } else {
-    console.warn('[FIREBASE FIRESTORE] Warning: Cloud Firestore test connection returned false or empty.');
-  }
-
-  // API Routes
+  // API Routes FIRST
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
@@ -66,6 +55,15 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`MISSÃO TIC 6.º ANO Server listening on http://0.0.0.0:${PORT} [Firestore Active]`);
+
+    // Perform Firestore seed asynchronously in background so server listens immediately
+    initSeedAccounts()
+      .then(() => {
+        console.log('[FIREBASE FIRESTORE] Initial seed data verified.');
+      })
+      .catch((err) => {
+        console.warn('[FIREBASE FIRESTORE] Background seed warning:', err?.message || err);
+      });
   });
 }
 

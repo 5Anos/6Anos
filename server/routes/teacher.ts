@@ -624,17 +624,11 @@ router.get('/classes', async (req: AuthRequest, res) => {
 router.post('/classes', async (req: AuthRequest, res) => {
   try {
     const { name, code } = req.body;
-    if (!name || !code) {
-      return res.status(400).json({ error: 'Nome e código da turma são obrigatórios.' });
+    if (!name) {
+      return res.status(400).json({ error: 'Nome da turma é obrigatório.' });
     }
 
-    const cleanCode = code.trim().toUpperCase();
-    const existing = await getAllClasses().then((list) =>
-      list.find((c) => c.code.toUpperCase() === cleanCode)
-    );
-    if (existing) {
-      return res.status(400).json({ error: 'Já existe uma turma com esse código.' });
-    }
+    const cleanCode = code ? code.trim().toUpperCase() : '';
 
     const newClass: ClassRoom = {
       id: `class-${crypto.randomUUID().slice(0, 8)}`,
@@ -667,15 +661,8 @@ router.put('/classes/:classId', async (req: AuthRequest, res) => {
 
     const updates: Partial<ClassRoom> = {};
     if (name) updates.name = name.trim();
-    if (code) {
-      const cleanCode = code.trim().toUpperCase();
-      const duplicate = await getAllClasses().then((list) =>
-        list.find((c) => c.code.toUpperCase() === cleanCode && c.id !== classId)
-      );
-      if (duplicate) {
-        return res.status(400).json({ error: 'Código de turma já utilizado por outra turma.' });
-      }
-      updates.code = cleanCode;
+    if (typeof code === 'string') {
+      updates.code = code.trim().toUpperCase();
     }
 
     await updateClass(classId, updates);

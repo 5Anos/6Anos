@@ -47,5 +47,10 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
     return (await response.text()) as any;
   }
 
+  if (contentType && !contentType.includes('application/json')) {
+    const text = await response.text();
+    throw new Error(`Resposta inesperada do servidor (${contentType}): ${text.slice(0, 100)}`);
+  }
+
   return response.json();
 }

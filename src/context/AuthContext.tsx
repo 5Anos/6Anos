@@ -37,18 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLocaleState(res.user.locale);
       }
     } catch {
-      // Not logged in or expired; try quick-switch to default demo student Alex on first load!
-      try {
-        const switchRes = await apiRequest('/api/auth/quick-switch', {
-          method: 'POST',
-          body: JSON.stringify({ role: 'student' }),
-        });
-        if (switchRes.token) setStoredToken(switchRes.token);
-        setUser(switchRes.user);
-        if (switchRes.user?.locale) setLocaleState(switchRes.user.locale);
-      } catch {
-        setUser(null);
-      }
+      setUser(null);
     } finally {
       setLoading(false);
     }

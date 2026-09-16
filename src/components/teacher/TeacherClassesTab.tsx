@@ -48,8 +48,8 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
 
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newClassName.trim() || !newClassCode.trim()) {
-      alert('Preenche o nome e o código da turma.');
+    if (!newClassName.trim()) {
+      alert('Preenche o nome da turma (ex: 6.º A).');
       return;
     }
     try {
@@ -58,7 +58,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
         method: 'POST',
         body: JSON.stringify({
           name: newClassName.trim(),
-          code: newClassCode.trim().toUpperCase(),
+          code: '',
         }),
       });
       setNewClassName('');
@@ -75,19 +75,19 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
   const handleOpenClassDetails = (c: any) => {
     setSelectedClassForDetails(c);
     setEditClassName(c.name);
-    setEditClassCode(c.code);
+    setEditClassCode(c.code || '');
   };
 
   const handleUpdateClass = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedClassForDetails) return;
+    if (!selectedClassForDetails || !editClassName.trim()) return;
     try {
       setSavingEdit(true);
       await apiRequest(`/api/teacher/classes/${selectedClassForDetails.id}`, {
         method: 'PUT',
         body: JSON.stringify({
           name: editClassName.trim(),
-          code: editClassCode.trim().toUpperCase(),
+          code: '',
         }),
       });
       setSelectedClassForDetails(null);
@@ -183,9 +183,6 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="text-[10px] font-bold text-amber-400 font-mono uppercase">
-                        Código: {c.code}
-                      </div>
                       <h4 className="text-lg font-bold text-white mt-0.5">Turma {c.name}</h4>
                     </div>
 
@@ -258,7 +255,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
             <form onSubmit={handleCreateClass} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-300">
-                  Nome da Turma (ex: 6.º A, 6.º B):
+                  Nome da Turma (ex: 6.º A, 6.º B, 6.º C, 6.º D, 6.º E):
                 </label>
                 <input
                   type="text"
@@ -266,20 +263,6 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                   value={newClassName}
                   onChange={(e) => setNewClassName(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">
-                  Código da Turma (ex: 6A, 6B):
-                </label>
-                <input
-                  type="text"
-                  placeholder="ex: 6A"
-                  value={newClassCode}
-                  onChange={(e) => setNewClassCode(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white uppercase focus:outline-none focus:border-amber-500 font-mono"
                   required
                 />
               </div>
@@ -316,9 +299,6 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                   <Users className="w-5 h-5 text-amber-400" />
                   Turma {selectedClassForDetails.name}
                 </h3>
-                <p className="text-xs text-slate-400">
-                  Código: <span className="font-mono text-amber-400 font-bold">{selectedClassForDetails.code}</span>
-                </p>
               </div>
 
               <button
@@ -333,25 +313,14 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
               {/* Edit form */}
               <form onSubmit={handleUpdateClass} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
                 <div className="text-xs font-bold text-slate-300 uppercase">Editar Informação da Turma</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-slate-400">Nome:</label>
-                    <input
-                      type="text"
-                      value={editClassName}
-                      onChange={(e) => setEditClassName(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-400">Código:</label>
-                    <input
-                      type="text"
-                      value={editClassCode}
-                      onChange={(e) => setEditClassCode(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white uppercase font-mono"
-                    />
-                  </div>
+                <div>
+                  <label className="text-xs text-slate-400">Nome da Turma:</label>
+                  <input
+                    type="text"
+                    value={editClassName}
+                    onChange={(e) => setEditClassName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                  />
                 </div>
                 <div className="flex justify-end pt-1">
                   <button
