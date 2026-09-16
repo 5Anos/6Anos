@@ -28,6 +28,11 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
+import {
+  clientGetTeacherDashboardData,
+  clientTeacherToggleBlock,
+  clientTeacherResetPassword,
+} from '../services/clientFirestore';
 import { TeacherStudentsTab } from './teacher/TeacherStudentsTab';
 import { StudentDossierModal } from './teacher/StudentDossierModal';
 import { TeacherPautasTab } from './teacher/TeacherPautasTab';
@@ -135,7 +140,19 @@ export const TeacherArea: React.FC = () => {
       setBadgesData(badgeRes);
       setAuditLogs(auditRes.auditLogs || []);
     } catch (err: any) {
-      console.error('Failed to load teacher dashboard data', err);
+      console.warn('Backend API request returned error, falling back to direct Firestore:', err?.message);
+      try {
+        const directData = await clientGetTeacherDashboardData(selectedClass);
+        setDashboardStats(directData.dashboardStats);
+        setStudents(directData.students || []);
+        setClasses(directData.classes || []);
+        setMissions(directData.missions || []);
+        setAssessmentsData(directData.assessments || []);
+        setActivitiesData(directData.activities || []);
+        setAuditLogs(directData.auditLogs || []);
+      } catch (clientErr) {
+        console.error('Failed to load teacher dashboard data from client Firestore:', clientErr);
+      }
     } finally {
       setLoading(false);
     }
