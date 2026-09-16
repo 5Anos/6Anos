@@ -93,11 +93,11 @@ export async function computeWorldStats(userId: string, worldId: number): Promis
 
   // Progression rule:
   // Mundo 1 is unlocked initially
-  // Mundo N (N > 1) is unlocked ONLY IF previous world average > 65
+  // Mundo N (N > 1) is unlocked ONLY IF previous world average > 80
   let isUnlocked = worldId === 1;
   if (worldId > 1) {
     const prevStats = await computeWorldStats(userId, worldId - 1);
-    isUnlocked = prevStats.average > 65; // Strict inequality: 65.1 unlocks
+    isUnlocked = prevStats.average > 80; // Strict inequality: 80.1 unlocks
   }
 
   return {
@@ -106,7 +106,7 @@ export async function computeWorldStats(userId: string, worldId: number): Promis
     completedCount,
     totalComponents,
     isUnlocked,
-    hasAssessmentPassed: assessmentAttempts.some((a) => a.percentage >= 65),
+    hasAssessmentPassed: assessmentAttempts.some((a) => a.percentage >= 80),
   };
 }
 
@@ -125,7 +125,7 @@ export async function evaluateBadges(userId: string) {
 
   for (let w = 1; w <= 5; w++) {
     const stats = await computeWorldStats(userId, w);
-    if (stats.average > 65 && stats.completedCount >= 3) {
+    if (stats.average > 80 && stats.completedCount >= 3) {
       await awardBadge(userId, worldBadgeMap[w]);
     }
   }
@@ -137,11 +137,11 @@ export async function evaluateBadges(userId: string) {
     await awardBadge(userId, 'centuriao-digital');
   }
 
-  // Master: Grande Missão completed + all 5 worlds average > 65
+  // Master: Grande Missão completed + all 5 worlds average > 80
   const userTx = await getUserXPTransactions(userId);
   const hasGM = userTx.some((t) => t.sourceType === 'grande_missao');
   const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w)));
-  const allUnlocked = allStats.every((st) => st.average > 65);
+  const allUnlocked = allStats.every((st) => st.average > 80);
   if (hasGM && allUnlocked) {
     await awardBadge(userId, 'mestre-da-missao-tic');
   }
@@ -259,7 +259,7 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
 
     const stats = await computeWorldStats(req.user!.id, worldId);
     if (!stats.isUnlocked) {
-      return res.status(403).json({ error: 'Este Mundo ainda está bloqueado. Completa o Mundo anterior com média > 65%.' });
+      return res.status(403).json({ error: 'Este Mundo ainda está bloqueado. Completa o Mundo anterior com média > 80%.' });
     }
 
     // Strip correctIndex and explanation from payload!
@@ -354,7 +354,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       percentage,
       correctCount,
       totalQuestions: assess.questions.length,
-      passed: percentage > 65,
+      passed: percentage > 80,
       previousBest,
       newBest,
       xpGain,

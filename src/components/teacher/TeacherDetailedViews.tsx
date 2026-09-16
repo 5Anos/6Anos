@@ -82,7 +82,7 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
               <div className="text-2xl font-bold text-slate-200 mt-1">{currentWorld.totalAttempted || 0}</div>
             </div>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">Aprovados (&gt;65%)</div>
+              <div className="text-xs text-slate-400 font-semibold">Aprovados (&gt;80%)</div>
               <div className="text-2xl font-bold text-emerald-400 mt-1">{currentWorld.totalPassed || 0}</div>
             </div>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
@@ -122,11 +122,11 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
                     <td className="py-3 px-4 text-center">
                       {s.passed ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                          <CheckCircle2 className="w-3 h-3" /> Aprovado (&gt;65%)
+                          <CheckCircle2 className="w-3 h-3" /> Aprovado (&gt;80%)
                         </span>
                       ) : s.attempts > 0 ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30">
-                          <XCircle className="w-3 h-3" /> Insuficiente (≤65%)
+                          <XCircle className="w-3 h-3" /> Insuficiente (≤80%)
                         </span>
                       ) : (
                         <span className="text-xs text-slate-500">Não Realizou</span>

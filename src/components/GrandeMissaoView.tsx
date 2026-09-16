@@ -13,13 +13,14 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { clientCompleteGrandeMissao } from '../services/clientFirestore';
 
 interface GrandeMissaoViewProps {
   onBack: () => void;
 }
 
 export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) => {
-  const { refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [currentStage, setCurrentStage] = useState(0);
   const [stageAnswers, setStageAnswers] = useState<Record<number, string>>({});
   const [completed, setCompleted] = useState(false);
@@ -103,12 +104,19 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
     } else {
       // Completed all 5 stages!
       try {
-        const res = await apiRequest('/api/pedagogical/grande-missao/complete', {
-          method: 'POST',
-          body: JSON.stringify({ answers: stageAnswers }),
-        });
+        try {
+          const res = await apiRequest('/api/pedagogical/grande-missao/complete', {
+            method: 'POST',
+            body: JSON.stringify({ answers: stageAnswers }),
+          });
+          setXpWon(res.xpGain || 150);
+        } catch {
+          if (user) {
+            await clientCompleteGrandeMissao(user.id);
+            setXpWon(150);
+          }
+        }
         setCompleted(true);
-        setXpWon(res.xpGain || 150);
         await refreshUser();
       } catch (err: any) {
         console.error('Failed to complete grande missao', err);

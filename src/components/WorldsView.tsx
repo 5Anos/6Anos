@@ -20,6 +20,7 @@ import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
 import { AssessmentModal } from './AssessmentModal';
+import { clientGetWorlds, clientSubmitMission } from '../services/clientFirestore';
 
 interface WorldsViewProps {
   initialWorldId?: number;
@@ -30,7 +31,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   initialWorldId = 1,
   onOpenSimulator,
 }) => {
-  const { locale, refreshUser } = useAuth();
+  const { user, locale, refreshUser } = useAuth();
   const [worlds, setWorlds] = useState<WorldSummary[]>([]);
   const [selectedWorldId, setSelectedWorldId] = useState<number>(initialWorldId);
   const [activeTab, setActiveTab] = useState<'descobre' | 'experimenta' | 'desafio' | 'missao' | 'avaliacao'>('descobre');
@@ -46,14 +47,25 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
 
   useEffect(() => {
     loadWorlds();
-  }, []);
+  }, [user?.id]);
 
   const loadWorlds = async () => {
     try {
       const res = await apiRequest('/api/pedagogical/worlds');
-      setWorlds(res.worlds || []);
+      if (res && res.worlds && res.worlds.length > 0) {
+        setWorlds(res.worlds);
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // Static host fallback
+    }
+
+    try {
+      const clientRes = await clientGetWorlds(user?.id);
+      setWorlds(clientRes.worlds || []);
     } catch (err) {
-      console.error('Failed to load worlds', err);
+      console.error('Failed to load worlds from client fallback', err);
     } finally {
       setLoading(false);
     }
@@ -68,11 +80,18 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     setSubmittingMission(true);
     setMissionMessage(null);
     try {
-      const res = await apiRequest(`/api/pedagogical/missions/${currentWorld.id}`, {
-        method: 'POST',
-        body: JSON.stringify({ submission: missionText }),
-      });
-      setMissionMessage(res.message || 'Missão Real submetida com sucesso!');
+      try {
+        const res = await apiRequest(`/api/pedagogical/missions/${currentWorld.id}`, {
+          method: 'POST',
+          body: JSON.stringify({ submission: missionText }),
+        });
+        setMissionMessage(res.message || 'Missão Real submetida com sucesso!');
+      } catch {
+        if (user) {
+          const clientRes = await clientSubmitMission(user.id, currentWorld.id, missionText);
+          setMissionMessage(clientRes.message);
+        }
+      }
       setMissionText('');
       await loadWorlds();
       await refreshUser();
@@ -494,7 +513,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           </div>
 
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl max-w-md mx-auto text-xs text-blue-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloqueio do próximo Mundo: Média &gt; 65%</p>
+            <p>🏆 Requisito para desbloqueio do próximo Mundo: Média &gt; 80%</p>
             <p>
               Melhor resultado registado:{' '}
               {currentWorld.bestAssessmentPercentage !== null

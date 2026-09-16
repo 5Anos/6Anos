@@ -358,7 +358,7 @@ export const TeacherArea: React.FC = () => {
                 {dashboardStats.globalAverageScore}%
               </div>
               <div className="text-[11px] text-slate-400 mt-1">
-                Critério de desbloqueio: &gt;65%
+                Critério de desbloqueio: &gt;80%
               </div>
             </div>
           </div>
@@ -411,14 +411,14 @@ export const TeacherArea: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
                     <Compass className="w-5 h-5 text-amber-400" />
-                    Desempenho Médio por Mundo (Critério &gt; 65%)
+                    Desempenho Médio por Mundo (Critério &gt; 80%)
                   </h3>
                   <span className="text-xs text-slate-400">5 Mundos Temáticos</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   {dashboardStats.worldPerformance?.map((w: any) => {
-                    const isPassed = w.averageScore > 65;
+                    const isPassed = w.averageScore > 80;
                     return (
                       <div
                         key={w.worldId}
@@ -444,7 +444,7 @@ export const TeacherArea: React.FC = () => {
                                 : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
                             }`}
                           >
-                            {isPassed ? 'Aprovado (>65%)' : 'Abaixo da Média'}
+                            {isPassed ? 'Aprovado (>80%)' : 'Abaixo da Média'}
                           </span>
                         </div>
 

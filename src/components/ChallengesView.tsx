@@ -14,6 +14,7 @@ import {
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { RankingStudent, WeeklyChallengeData } from '../types';
+import { clientGetClassRanking, clientGetWeeklyChallenge, clientSubmitWeeklyChallenge } from '../services/clientFirestore';
 import { t } from '../i18n';
 
 interface ChallengesViewProps {
@@ -30,7 +31,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [user?.id]);
 
   const loadData = async () => {
     try {
@@ -40,8 +41,20 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
       ]);
       setRanking(rankRes.ranking || []);
       setWeeklyChallenge(chalRes);
+      return;
+    } catch {
+      // Fallback
+    }
+
+    try {
+      const [clientRank, clientChal] = await Promise.all([
+        clientGetClassRanking(user?.classId || 'class-6a', user?.id),
+        clientGetWeeklyChallenge(user?.id),
+      ]);
+      setRanking(clientRank.ranking || []);
+      setWeeklyChallenge(clientChal as any);
     } catch (err) {
-      console.error('Failed to load challenges data', err);
+      console.error('Failed to load challenges data via client Firestore:', err);
     }
   };
 
@@ -51,11 +64,19 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
     setSubmitting(true);
     try {
       const isPhishing = option === 'phishing';
-      const res = await apiRequest('/api/pedagogical/weekly-challenge/submit', {
-        method: 'POST',
-        body: JSON.stringify({ isPhishing }),
-      });
-      setFeedback(res.message);
+      try {
+        const res = await apiRequest('/api/pedagogical/weekly-challenge/submit', {
+          method: 'POST',
+          body: JSON.stringify({ isPhishing }),
+        });
+        setFeedback(res.message);
+      } catch {
+        if (user) {
+          const optIdx = isPhishing ? 1 : 0;
+          const clientRes = await clientSubmitWeeklyChallenge(user.id, optIdx);
+          setFeedback(clientRes.feedback);
+        }
+      }
       await loadData();
       await refreshUser();
     } catch (err: any) {

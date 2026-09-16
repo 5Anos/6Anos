@@ -182,7 +182,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   </tr>
                 ) : (
                   filteredPautaGeral.map((item: any) => {
-                    const isPassedGlobal = item.globalAverage > 65;
+                    const isPassedGlobal = item.globalAverage > 80;
 
                     return (
                       <tr
@@ -206,7 +206,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         </td>
 
                         {item.worldScores.map((score: number, idx: number) => {
-                          const isWorldPassed = score > 65;
+                          const isWorldPassed = score > 80;
                           return (
                             <td key={idx} className="py-3 px-4 text-center font-mono">
                               <span
@@ -297,7 +297,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   </tr>
                 ) : (
                   filteredWorldStudents.map((st: any) => {
-                    const isWorldPassed = st.worldAverage > 65;
+                    const isWorldPassed = st.worldAverage > 80;
 
                     return (
                       <tr
@@ -344,7 +344,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                           {st.assessmentScore > 0 ? (
                             <span
                               className={`font-bold ${
-                                st.assessmentScore > 65 ? 'text-emerald-400' : 'text-rose-400'
+                                st.assessmentScore > 80 ? 'text-emerald-400' : 'text-rose-400'
                               }`}
                             >
                               {st.assessmentScore}%

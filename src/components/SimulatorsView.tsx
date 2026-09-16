@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { clientSaveActivityProgress } from '../services/clientFirestore';
 
 interface SimulatorsViewProps {
   worldId?: number;
@@ -27,7 +28,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   simulatorId = 'sim-password',
   onBack,
 }) => {
-  const { refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [currentSim, setCurrentSim] = useState(simulatorId);
   const [completedFeedback, setCompletedFeedback] = useState<{
     score: number;
@@ -58,19 +59,30 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   // Complete simulator API caller
   const reportCompletion = async (simId: string, wId: number, score: number) => {
     try {
-      const res = await apiRequest('/api/pedagogical/activities/complete', {
-        method: 'POST',
-        body: JSON.stringify({
-          activityId: simId,
-          worldId: wId,
-          score,
-        }),
-      });
-      setCompletedFeedback({
-        score: res.score,
-        xpGain: res.xpGain,
-        newBest: res.newBest,
-      });
+      try {
+        const res = await apiRequest('/api/pedagogical/activities/complete', {
+          method: 'POST',
+          body: JSON.stringify({
+            activityId: simId,
+            worldId: wId,
+            score,
+          }),
+        });
+        setCompletedFeedback({
+          score: res.score,
+          xpGain: res.xpGain,
+          newBest: res.newBest,
+        });
+      } catch {
+        if (user) {
+          const clientRes = await clientSaveActivityProgress(user.id, simId, score);
+          setCompletedFeedback({
+            score,
+            xpGain: clientRes.xpGain,
+            newBest: clientRes.newBest,
+          });
+        }
+      }
       await refreshUser();
     } catch (err: any) {
       console.error('Failed to report simulator completion', err);

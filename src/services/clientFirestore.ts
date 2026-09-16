@@ -15,6 +15,14 @@ import {
   limit,
 } from 'firebase/firestore';
 import { AuthUser } from '../types';
+import {
+  WORLDS_DATA,
+  FINAL_ASSESSMENTS,
+  DAILY_TIPS,
+  WEEKLY_CHALLENGE,
+  GRANDE_MISSAO,
+  BADGES_CATALOG,
+} from '../../server/catalog';
 
 export const firebaseConfig = {
   projectId: 'gen-lang-client-0684360526',
@@ -491,4 +499,646 @@ export async function clientTeacherResetPassword(studentId: string, newPass: str
     updatedAt: new Date().toISOString(),
   });
 }
+
+// Client Award XP
+export async function clientAwardXP(
+  userId: string,
+  deltaXP: number,
+  meta: {
+    sourceType: string;
+    sourceId: string;
+    previousBest?: number;
+    newBest?: number;
+  }
+) {
+  if (deltaXP <= 0) return;
+  const db = getClientDb();
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) return;
+  const currentXP = userSnap.data().xp || 0;
+  const newTotalXP = currentXP + deltaXP;
+  await updateDoc(userRef, {
+    xp: newTotalXP,
+    updatedAt: new Date().toISOString(),
+  });
+  const txId = `tx-${crypto.randomUUID()}`;
+  await setDoc(doc(db, 'xpTransactions', txId), {
+    id: txId,
+    userId,
+    amount: deltaXP,
+    sourceType: meta.sourceType,
+    sourceId: meta.sourceId,
+    previousBest: meta.previousBest ?? 0,
+    newBest: meta.newBest ?? 0,
+    createdAt: new Date().toISOString(),
+  });
+  await clientEvaluateBadges(userId);
+}
+
+// Client Award Badge
+export async function clientAwardBadge(userId: string, badgeId: string) {
+  const db = getClientDb();
+  const badgeDef = BADGES_CATALOG.find((b) => b.id === badgeId);
+  if (!badgeDef) return;
+  const userBadgeRef = doc(db, 'userBadges', `${userId}_${badgeId}`);
+  const snap = await getDoc(userBadgeRef);
+  if (snap.exists()) return;
+  await setDoc(userBadgeRef, {
+    id: `${userId}_${badgeId}`,
+    userId,
+    badgeId,
+    name: badgeDef.title,
+    title: badgeDef.title,
+    description: badgeDef.description,
+    icon: badgeDef.icon,
+    earnedAt: new Date().toISOString(),
+  });
+}
+
+// Client Evaluate Badges
+export async function clientEvaluateBadges(userId: string) {
+  const db = getClientDb();
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) return;
+  const user = userSnap.data();
+
+  const worldBadgeMap: Record<number, string> = {
+    1: 'guardiao-digital',
+    2: 'detetive-digital',
+    3: 'criador-digital',
+    4: 'engenheiro-digital',
+    5: 'explorador-da-ia',
+  };
+
+  const [actSnap, missSnap, assessSnap] = await Promise.all([
+    getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'missions'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+  ]);
+
+  const actDocs = actSnap.docs.map((d) => d.data());
+  const missDocs = missSnap.docs.map((d) => d.data());
+  const assessDocs = assessSnap.docs.map((d) => d.data());
+
+  for (let w = 1; w <= 5; w++) {
+    const stats = computeWorldStatsSync(w, actDocs, missDocs, assessDocs);
+    if (stats.average > 80 && stats.completedCount >= 3) {
+      await clientAwardBadge(userId, worldBadgeMap[w]);
+    }
+  }
+
+  const has100Assess = assessDocs.some((a) => a.percentage === 100);
+  if ((user.xp || 0) >= 1000 || has100Assess) {
+    await clientAwardBadge(userId, 'centuriao-digital');
+  }
+
+  const txSnap = await getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', userId)));
+  const txDocs = txSnap.docs.map((d) => d.data());
+  const hasGM = txDocs.some((t) => t.sourceType === 'grande_missao');
+  const allStats = [1, 2, 3, 4, 5].map((w) => computeWorldStatsSync(w, actDocs, missDocs, assessDocs));
+  const allUnlocked = allStats.every((st) => st.average > 80);
+  if (hasGM && allUnlocked) {
+    await clientAwardBadge(userId, 'mestre-da-missao-tic');
+  }
+}
+
+// Compute world stats synchronously from cached documents
+export function computeWorldStatsSync(
+  worldId: number,
+  userProgress: any[],
+  missions: any[],
+  assessmentAttempts: any[]
+) {
+  const world = WORLDS_DATA.find((w) => w.id === worldId);
+  if (!world) {
+    return { worldId, average: 0, completedCount: 0, totalComponents: 0, isUnlocked: false, hasAssessmentPassed: false };
+  }
+
+  const scores: number[] = [];
+
+  // Simulators
+  for (const sim of world.simulators) {
+    const prog = userProgress.find((p) => p.activityId === sim.id);
+    if (prog && prog.completed) {
+      scores.push(prog.bestScore);
+    }
+  }
+
+  // Challenge
+  const chalProg = userProgress.find((p) => p.activityId === world.challenge.id);
+  if (chalProg && chalProg.completed) {
+    scores.push(chalProg.bestScore);
+  }
+
+  // Real Mission
+  const worldMissions = missions.filter((m) => m.worldId === worldId && (m.status === 'graded' || m.score > 0));
+  if (worldMissions.length > 0) {
+    scores.push(worldMissions[0].score);
+  }
+
+  // Final Assessment (best percentage)
+  const worldAssessments = assessmentAttempts.filter((a) => a.worldId === worldId);
+  if (worldAssessments.length > 0) {
+    const bestAssess = Math.max(...worldAssessments.map((a: any) => a.percentage));
+    scores.push(bestAssess);
+  }
+
+  const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
+  const totalComponents = world.simulators.length + 3;
+  const completedCount = scores.length;
+
+  let isUnlocked = worldId === 1;
+  if (worldId > 1) {
+    const prevStats = computeWorldStatsSync(worldId - 1, userProgress, missions, assessmentAttempts);
+    isUnlocked = prevStats.average > 80;
+  }
+
+  return {
+    worldId,
+    average,
+    completedCount,
+    totalComponents,
+    isUnlocked,
+    hasAssessmentPassed: worldAssessments.some((a: any) => a.percentage >= 80),
+  };
+}
+
+// Client Get Worlds
+export async function clientGetWorlds(userId?: string) {
+  if (!userId) {
+    const defaultWorlds = WORLDS_DATA.map((w) => ({
+      ...w,
+      isUnlocked: w.id === 1,
+      average: 0,
+      completedCount: 0,
+      totalComponents: w.simulators.length + 3,
+      challengeProgress: null,
+      missionProgress: null,
+      bestAssessmentPercentage: null,
+      simulatorsProgress: w.simulators.map((s) => ({
+        id: s.id,
+        completed: false,
+        score: 0,
+      })),
+    }));
+    return { worlds: defaultWorlds };
+  }
+
+  const db = getClientDb();
+  let actDocs: any[] = [];
+  let missDocs: any[] = [];
+  let assessDocs: any[] = [];
+
+  try {
+    const [actSnap, missSnap, assessSnap] = await Promise.all([
+      getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
+      getDocs(query(collection(db, 'missions'), where('userId', '==', userId))),
+      getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+    ]);
+    actDocs = actSnap.docs.map((d) => d.data());
+    missDocs = missSnap.docs.map((d) => d.data());
+    assessDocs = assessSnap.docs.map((d) => d.data());
+  } catch (err) {
+    console.warn('Could not read user progress from Firestore directly:', err);
+  }
+
+  const worlds = WORLDS_DATA.map((w) => {
+    const stats = computeWorldStatsSync(w.id, actDocs, missDocs, assessDocs);
+    const mission = missDocs.find((m) => m.worldId === w.id);
+    const chalProg = actDocs.find((p) => p.activityId === w.challenge.id);
+    const worldAssessments = assessDocs.filter((a) => a.worldId === w.id);
+
+    return {
+      ...w,
+      isUnlocked: stats.isUnlocked,
+      average: stats.average,
+      completedCount: stats.completedCount,
+      totalComponents: stats.totalComponents,
+      challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
+      missionProgress: mission
+        ? { status: mission.status, score: mission.score, feedback: mission.feedback }
+        : null,
+      bestAssessmentPercentage:
+        worldAssessments.length > 0 ? Math.max(...worldAssessments.map((a: any) => a.percentage)) : null,
+      simulatorsProgress: w.simulators.map((s) => {
+        const prog = actDocs.find((p) => p.activityId === s.id);
+        return {
+          id: s.id,
+          completed: prog ? prog.completed : false,
+          score: prog ? prog.bestScore : 0,
+        };
+      }),
+    };
+  });
+
+  return { worlds };
+}
+
+// Client Submit Mission
+export async function clientSubmitMission(userId: string, worldId: number, submission: string) {
+  const db = getClientDb();
+  const missionId = `mission-${userId}-${worldId}`;
+  await setDoc(doc(db, 'missions', missionId), {
+    id: missionId,
+    userId,
+    worldId,
+    submissionText: submission,
+    status: 'pending',
+    score: 0,
+    feedback: null,
+    submittedAt: new Date().toISOString(),
+  });
+  return { success: true, message: 'Missão Real submetida com sucesso ao professor!' };
+}
+
+// Client Save Activity / Simulator Progress
+export async function clientSaveActivityProgress(userId: string, activityId: string, score: number) {
+  const db = getClientDb();
+  const progId = `prog-${userId}-${activityId}`;
+  const progRef = doc(db, 'activityProgress', progId);
+  const snap = await getDoc(progRef);
+  const prevBest = snap.exists() ? snap.data().bestScore || 0 : 0;
+  const newBest = Math.max(prevBest, score);
+  const xpGain = Math.max(0, newBest - prevBest);
+
+  await setDoc(
+    progRef,
+    {
+      id: progId,
+      userId,
+      activityId,
+      completed: true,
+      bestScore: newBest,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+
+  if (xpGain > 0) {
+    await clientAwardXP(userId, xpGain, {
+      sourceType: 'activity',
+      sourceId: activityId,
+      previousBest: prevBest,
+      newBest,
+    });
+  }
+
+  return { success: true, xpGain, newBest };
+}
+
+// Client Get Assessment
+export async function clientGetAssessment(worldId: number) {
+  const assess = FINAL_ASSESSMENTS[worldId];
+  if (!assess) throw new Error('Avaliação não encontrada.');
+  return {
+    id: assess.id,
+    worldId: assess.worldId,
+    title: assess.title,
+    questionCount: assess.questions.length,
+    questions: assess.questions.map((q) => ({
+      id: q.id,
+      text: q.text,
+      options: q.options,
+    })),
+  };
+}
+
+// Client Submit Assessment
+export async function clientSubmitAssessment(
+  userId: string,
+  worldId: number,
+  answers: Record<string, number>
+) {
+  const assess = FINAL_ASSESSMENTS[worldId];
+  if (!assess) throw new Error('Avaliação não encontrada.');
+
+  let correctCount = 0;
+  const resultsFeedback = assess.questions.map((q) => {
+    const chosenIndex = answers[q.id];
+    const isCorrect = chosenIndex === q.correctIndex;
+    if (isCorrect) correctCount++;
+    return {
+      id: q.id,
+      text: q.text,
+      chosenIndex,
+      isCorrect,
+      explanation: q.explanation,
+    };
+  });
+
+  const percentage = Math.round((correctCount / assess.questions.length) * 100);
+
+  const db = getClientDb();
+  const prevAssessSnap = await getDocs(
+    query(
+      collection(db, 'assessmentAttempts'),
+      where('userId', '==', userId),
+      where('worldId', '==', worldId)
+    )
+  );
+  const prevAttempts = prevAssessSnap.docs.map((d) => d.data());
+  const previousBest = prevAttempts.length > 0 ? Math.max(...prevAttempts.map((a: any) => a.percentage)) : 0;
+  const newBest = Math.max(previousBest, percentage);
+  const xpGain = Math.max(0, newBest - previousBest);
+
+  const passed = percentage > 80;
+
+  const attemptId = `attempt-${crypto.randomUUID()}`;
+  await setDoc(doc(db, 'assessmentAttempts', attemptId), {
+    id: attemptId,
+    userId,
+    assessmentId: assess.id,
+    worldId,
+    percentage,
+    correctCount,
+    totalQuestions: assess.questions.length,
+    passed,
+    answers,
+    completedAt: new Date().toISOString(),
+  });
+
+  if (xpGain > 0) {
+    await clientAwardXP(userId, xpGain, {
+      sourceType: 'assessment',
+      sourceId: assess.id,
+      previousBest,
+      newBest,
+    });
+  }
+
+  await clientEvaluateBadges(userId);
+
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;
+
+  return {
+    worldId,
+    percentage,
+    correctCount,
+    totalQuestions: assess.questions.length,
+    passed,
+    previousBest,
+    newBest,
+    xpGain,
+    totalXp,
+    results: resultsFeedback,
+    resultsFeedback,
+  };
+}
+
+// Client Weekly Challenge
+export async function clientGetWeeklyChallenge(userId?: string) {
+  const db = getClientDb();
+  let completed = false;
+  if (userId) {
+    try {
+      const snap = await getDocs(
+        query(
+          collection(db, 'weeklyChallengeProgress'),
+          where('userId', '==', userId),
+          where('challengeId', '==', WEEKLY_CHALLENGE.id)
+        )
+      );
+      completed = !snap.empty;
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  return {
+    challenge: {
+      ...WEEKLY_CHALLENGE,
+      options: WEEKLY_CHALLENGE.options.map((o, idx) => ({
+        id: idx,
+        text: o.text,
+      })),
+      completed,
+    },
+  };
+}
+
+export async function clientSubmitWeeklyChallenge(userId: string, optionIndex: number) {
+  const selected = WEEKLY_CHALLENGE.options[optionIndex];
+  if (!selected) throw new Error('Opção inválida.');
+
+  if (!selected.isCorrect) {
+    return {
+      isCorrect: false,
+      feedback: selected.explanation,
+      xpGain: 0,
+    };
+  }
+
+  const db = getClientDb();
+  const snap = await getDocs(
+    query(
+      collection(db, 'weeklyChallengeProgress'),
+      where('userId', '==', userId),
+      where('challengeId', '==', WEEKLY_CHALLENGE.id)
+    )
+  );
+
+  let xpGain = 0;
+  if (snap.empty) {
+    const id = `wc-${crypto.randomUUID()}`;
+    await setDoc(doc(db, 'weeklyChallengeProgress', id), {
+      id,
+      userId,
+      challengeId: WEEKLY_CHALLENGE.id,
+      status: 'completed',
+      score: 100,
+      completedAt: new Date().toISOString(),
+    });
+    xpGain = WEEKLY_CHALLENGE.xpReward;
+    await clientAwardXP(userId, xpGain, {
+      sourceType: 'challenge',
+      sourceId: WEEKLY_CHALLENGE.id,
+      previousBest: 0,
+      newBest: 100,
+    });
+  }
+
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;
+
+  return {
+    isCorrect: true,
+    feedback: selected.explanation,
+    xpGain,
+    totalXp,
+  };
+}
+
+// Client Daily Tip
+export async function clientGetDailyTip(userId?: string) {
+  const today = new Date().toISOString().split('T')[0];
+  const tipIndex = Math.abs(today.split('-').reduce((acc, part) => acc + parseInt(part, 10), 0)) % DAILY_TIPS.length;
+  const tip = DAILY_TIPS[tipIndex];
+
+  let alreadyClaimed = false;
+  if (userId) {
+    try {
+      const db = getClientDb();
+      const snap = await getDocs(
+        query(
+          collection(db, 'dailyTipClaims'),
+          where('userId', '==', userId),
+          where('date', '==', today)
+        )
+      );
+      alreadyClaimed = !snap.empty;
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  return {
+    tip,
+    alreadyClaimed,
+    xpReward: 10,
+  };
+}
+
+export async function clientClaimDailyTip(userId: string) {
+  const today = new Date().toISOString().split('T')[0];
+  const db = getClientDb();
+  const claimId = `${userId}_${today}`;
+  const claimRef = doc(db, 'dailyTipClaims', claimId);
+  const snap = await getDoc(claimRef);
+  if (snap.exists()) {
+    throw new Error('Já recolheste a recompensa da Dica Rápida de hoje!');
+  }
+
+  await setDoc(claimRef, {
+    id: claimId,
+    userId,
+    date: today,
+    claimedAt: new Date().toISOString(),
+  });
+
+  await clientAwardXP(userId, 10, {
+    sourceType: 'daily_tip',
+    sourceId: today,
+    previousBest: 0,
+    newBest: 10,
+  });
+
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;
+
+  return {
+    success: true,
+    message: 'Parabéns! Ganhaste +10 XP pela Dica Rápida!',
+    totalXp,
+  };
+}
+
+// Client Grande Missão
+export async function clientGetGrandeMissao(userId?: string) {
+  let progress = {
+    userId: userId || 'anonymous',
+    status: 'not_started',
+    currentStage: 1,
+    completedStages: [] as number[],
+    stageResponses: {},
+  };
+
+  if (userId) {
+    try {
+      const db = getClientDb();
+      const snap = await getDoc(doc(db, 'grandeMissaoProgress', userId));
+      if (snap.exists()) {
+        progress = snap.data() as any;
+      }
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  return {
+    grandeMissao: GRANDE_MISSAO,
+    progress,
+    completed: progress.status === 'completed',
+  };
+}
+
+export async function clientCompleteGrandeMissao(userId: string) {
+  const db = getClientDb();
+  const docRef = doc(db, 'grandeMissaoProgress', userId);
+  const snap = await getDoc(docRef);
+  if (snap.exists() && snap.data().status === 'completed') {
+    throw new Error('Já concluíste a Grande Missão!');
+  }
+
+  await setDoc(
+    docRef,
+    {
+      userId,
+      status: 'completed',
+      currentStage: 5,
+      completedStages: [1, 2, 3, 4, 5],
+      completedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+
+  await clientAwardXP(userId, GRANDE_MISSAO.totalXp, {
+    sourceType: 'grande_missao',
+    sourceId: GRANDE_MISSAO.id,
+    previousBest: 0,
+    newBest: 150,
+  });
+
+  await clientEvaluateBadges(userId);
+
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;
+
+  return {
+    success: true,
+    message: 'Parabéns! Concluíste a Grande Missão A ESCOLA DO FUTURO! +150 XP!',
+    totalXp,
+  };
+}
+
+// Client Class Ranking
+export async function clientGetClassRanking(classId: string = 'class-6a', currentUserId?: string) {
+  const db = getClientDb();
+  let students: any[] = [];
+  try {
+    const q = query(
+      collection(db, 'users'),
+      where('role', '==', 'student'),
+      where('classId', '==', classId)
+    );
+    const snap = await getDocs(q);
+    students = snap.docs.map((d) => d.data()).filter((u) => !u.blocked);
+  } catch (err) {
+    console.warn('Could not read class ranking from Firestore:', err);
+  }
+
+  const sorted = students
+    .map((s) => {
+      const levelInfo = calculateLevel(s.xp || 0);
+      return {
+        id: s.id,
+        nickname: s.nickname || s.name,
+        avatar: s.avatar || 'avatar-boy-1',
+        xp: s.xp || 0,
+        level: levelInfo.level,
+        levelName: levelInfo.name,
+        isCurrentUser: s.id === currentUserId,
+      };
+    })
+    .sort((a, b) => b.xp - a.xp)
+    .map((s, idx) => ({
+      position: idx + 1,
+      ...s,
+    }));
+
+  return { ranking: sorted };
+}
+
 

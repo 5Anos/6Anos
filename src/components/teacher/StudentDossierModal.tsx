@@ -333,7 +333,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                   {worldDetails.map((w: any) => {
-                    const isPassed = w.average > 65;
+                    const isPassed = w.average > 80;
                     const isUnlocked = w.isUnlocked;
 
                     return (
@@ -414,9 +414,9 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                                   : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
                               }`}
                             >
-                              {w.average > 65
-                                ? 'MÉDIA > 65% (APROVADO)'
-                                : 'MÉDIA ≤ 65% (BLOQUEADO)'}
+                              {w.average > 80
+                                ? 'MÉDIA > 80% (APROVADO)'
+                                : 'MÉDIA ≤ 80% (BLOQUEADO)'}
                             </span>
                           </div>
                         </div>
@@ -452,7 +452,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                         <div className="text-[10px] text-slate-400 uppercase font-semibold">Média do Mundo</div>
                         <div
                           className={`text-lg font-black font-mono ${
-                            w.average > 65 ? 'text-emerald-400' : 'text-rose-400'
+                            w.average > 80 ? 'text-emerald-400' : 'text-rose-400'
                           }`}
                         >
                           {w.average > 0 ? `${w.average}%` : '0%'}
@@ -558,7 +558,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                           </div>
                           <span
                             className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
-                              w.assessments.length > 0 && w.assessments[0].percentage > 65
+                              w.assessments.length > 0 && w.assessments[0].percentage > 80
                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                                 : w.assessments.length > 0
                                 ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'

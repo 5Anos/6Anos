@@ -232,7 +232,7 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
               ) : (
                 filteredStudents.map((s) => {
                   const isSelected = selectedIds.includes(s.id);
-                  const isPassGlobal = s.globalAverage > 65;
+                  const isPassGlobal = s.globalAverage > 80;
 
                   return (
                     <tr

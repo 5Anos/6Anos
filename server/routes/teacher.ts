@@ -104,7 +104,7 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
             sumAvg += stats.average;
             count++;
           }
-          if (stats.average > 65) {
+          if (stats.average > 80) {
             passedCount++;
           }
         }
@@ -170,7 +170,7 @@ router.get('/students', async (req: AuthRequest, res) => {
         const levelInfo = calculateLevel(s.xp);
         const classroom = classes.find((c) => c.id === s.classId);
 
-        // Calculate world averages strictly with > 65% unlock rule
+        // Calculate world averages strictly with > 80% unlock rule
         const worldAverages = await Promise.all(
           [1, 2, 3, 4, 5].map(async (wId) => {
             const st = await computeWorldStats(s.id, wId);
@@ -1013,7 +1013,7 @@ router.get('/assessments-summary', async (req: AuthRequest, res) => {
           hasAttempted: studentAttempts.length > 0,
           attemptsCount: studentAttempts.length,
           bestPercentage: bestAttempt ? bestAttempt.percentage : null,
-          passed: bestAttempt ? bestAttempt.percentage > 65 : false,
+          passed: bestAttempt ? bestAttempt.percentage > 80 : false,
           lastAttemptAt: bestAttempt ? bestAttempt.createdAt : null,
         };
       });
@@ -1436,10 +1436,10 @@ router.get('/export/csv', async (req: AuthRequest, res: Response) => {
           : 0;
 
       let unlockedCount = 1;
-      if (m1 > 65) unlockedCount = 2;
-      if (m1 > 65 && m2 > 65) unlockedCount = 3;
-      if (m1 > 65 && m2 > 65 && m3 > 65) unlockedCount = 4;
-      if (m1 > 65 && m2 > 65 && m3 > 65 && m4 > 65) unlockedCount = 5;
+      if (m1 > 80) unlockedCount = 2;
+      if (m1 > 80 && m2 > 80) unlockedCount = 3;
+      if (m1 > 80 && m2 > 80 && m3 > 80) unlockedCount = 4;
+      if (m1 > 80 && m2 > 80 && m3 > 80 && m4 > 80) unlockedCount = 5;
 
       const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
       const needsHelp = failedAttempts >= 2 || (m1 > 0 && m1 < 50) ? 'SIM' : 'NAO';
@@ -1525,10 +1525,10 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
           : 0;
 
       let unlockedCount = 1;
-      if (m1 > 65) unlockedCount = 2;
-      if (m1 > 65 && m2 > 65) unlockedCount = 3;
-      if (m1 > 65 && m2 > 65 && m3 > 65) unlockedCount = 4;
-      if (m1 > 65 && m2 > 65 && m3 > 65 && m4 > 65) unlockedCount = 5;
+      if (m1 > 80) unlockedCount = 2;
+      if (m1 > 80 && m2 > 80) unlockedCount = 3;
+      if (m1 > 80 && m2 > 80 && m3 > 80) unlockedCount = 4;
+      if (m1 > 80 && m2 > 80 && m3 > 80 && m4 > 80) unlockedCount = 5;
 
       pautaRows.push({
         'Nickname': s.nickname,
@@ -1562,7 +1562,7 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
         'Mundo': a.worldId,
         'Pontuação (Questões)': a.score,
         'Percentagem (%)': a.percentage,
-        'Aprovado (>65%)': a.percentage > 65 ? 'Sim' : 'Não',
+        'Aprovado (>80%)': a.percentage > 80 ? 'Sim' : 'Não',
         'Data': new Date(a.createdAt).toLocaleString('pt-PT'),
       };
     });

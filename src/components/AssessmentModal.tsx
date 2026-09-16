@@ -12,6 +12,7 @@ import {
 import { AssessmentQuestion, AssessmentSubmissionResult } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { clientGetAssessment, clientSubmitAssessment } from '../services/clientFirestore';
 import { t } from '../i18n';
 
 interface AssessmentModalProps {
@@ -27,7 +28,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
   onClose,
   onCompleted,
 }) => {
-  const { locale, refreshUser } = useAuth();
+  const { user, locale, refreshUser } = useAuth();
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
@@ -43,7 +44,18 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
   const fetchQuestions = async () => {
     try {
       const res = await apiRequest(`/api/pedagogical/assessments/${worldId}`);
-      setQuestions(res.questions || []);
+      if (res && res.questions && res.questions.length > 0) {
+        setQuestions(res.questions);
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+
+    try {
+      const clientRes = await clientGetAssessment(worldId);
+      setQuestions(clientRes.questions || []);
     } catch (err: any) {
       setError(err.message || 'Erro ao carregar avaliação.');
     } finally {
@@ -68,14 +80,21 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
     setSubmitting(true);
     setError(null);
     try {
-      const res: AssessmentSubmissionResult = await apiRequest(
-        `/api/pedagogical/assessments/${worldId}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ answers: selectedAnswers }),
+      try {
+        const res: AssessmentSubmissionResult = await apiRequest(
+          `/api/pedagogical/assessments/${worldId}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ answers: selectedAnswers }),
+          }
+        );
+        setResult(res);
+      } catch {
+        if (user) {
+          const clientRes = await clientSubmitAssessment(user.id, worldId, selectedAnswers);
+          setResult(clientRes as any);
         }
-      );
-      setResult(res);
+      }
       await refreshUser();
       if (onCompleted) onCompleted();
     } catch (err: any) {
@@ -139,8 +158,8 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 </h3>
                 <p className="text-sm font-medium mt-1">
                   {result.passed
-                    ? 'Parabéns! Cumpriste o requisito curricular (> 65%)!'
-                    : 'Ainda não atingiste os 65%. Revê os conteúdos e tenta novamente para melhorar a tua pontuação!'}
+                    ? 'Parabéns! Cumpriste o requisito curricular (> 80%)!'
+                    : 'Ainda não atingiste os 80%. Revê os conteúdos e tenta novamente para melhorar a tua pontuação!'}
                 </p>
                 {result.xpGain > 0 && (
                   <div className="mt-3 inline-block bg-blue-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full shadow-xs">
@@ -154,9 +173,9 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
                   Revisão Pedagógica de Respostas:
                 </h4>
-                {result.resultsFeedback.map((item, idx) => (
+                {(result.resultsFeedback || (result as any).results || []).map((item: any, idx: number) => (
                   <div
-                    key={item.id}
+                    key={item.id || idx}
                     className={`p-4 rounded-2xl border text-xs leading-relaxed ${
                       item.isCorrect
                         ? 'bg-emerald-50/60 border-emerald-200 text-slate-800'

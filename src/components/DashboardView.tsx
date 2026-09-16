@@ -9,6 +9,13 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { WorldSummary, RankingStudent, DailyTipData, WeeklyChallengeData } from '../types';
 import { apiRequest } from '../api';
+import {
+  clientGetWorlds,
+  clientGetClassRanking,
+  clientGetDailyTip,
+  clientClaimDailyTip,
+  clientGetWeeklyChallenge,
+} from '../services/clientFirestore';
 import { t } from '../i18n';
 import {
   Island1Artwork,
@@ -52,7 +59,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [user?.id]);
 
   const loadDashboardData = async () => {
     try {
@@ -66,8 +73,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       setRanking(rankingRes.ranking || []);
       setDailyTip(tipRes);
       setWeeklyChallenge(challengeRes);
+      setLoading(false);
+      return;
+    } catch {
+      // Fallback to client Firestore
+    }
+
+    try {
+      const [clientWorlds, clientRanking, clientTip, clientChal] = await Promise.all([
+        clientGetWorlds(user?.id),
+        clientGetClassRanking(user?.classId || 'class-6a', user?.id),
+        clientGetDailyTip(user?.id),
+        clientGetWeeklyChallenge(user?.id),
+      ]);
+      setWorlds(clientWorlds.worlds || []);
+      setRanking(clientRanking.ranking || []);
+      setDailyTip(clientTip as any);
+      setWeeklyChallenge(clientChal as any);
     } catch (err) {
-      console.error('Error loading dashboard data', err);
+      console.error('Error loading dashboard data via client Firestore:', err);
     } finally {
       setLoading(false);
     }
@@ -77,8 +101,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     if (!dailyTip || dailyTip.alreadyClaimed || claimingTip) return;
     setClaimingTip(true);
     try {
-      const res = await apiRequest('/api/pedagogical/daily-tip/claim', { method: 'POST' });
-      setTipSuccessMsg(res.message);
+      try {
+        const res = await apiRequest('/api/pedagogical/daily-tip/claim', { method: 'POST' });
+        setTipSuccessMsg(res.message);
+      } catch {
+        if (user) {
+          const clientRes = await clientClaimDailyTip(user.id);
+          setTipSuccessMsg(clientRes.message);
+        }
+      }
       setDailyTip({ ...dailyTip, alreadyClaimed: true });
       await refreshUser();
       setTimeout(() => setTipSuccessMsg(null), 4000);
@@ -333,7 +364,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
-                        avg >= 65
+                        avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-blue-100 text-blue-800'
@@ -341,7 +372,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       }`}
                     >
                       <span>
-                        {avg >= 65
+                        {avg > 80
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -396,7 +427,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
                         !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
-                          : avg >= 65
+                          : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-sky-100 text-sky-800'
@@ -407,7 +438,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!isUnlocked
                           ? 'Bloqueado'
-                          : avg >= 65
+                          : avg > 80
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -462,7 +493,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
                         !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
-                          : avg >= 65
+                          : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-purple-100 text-purple-800'
@@ -473,7 +504,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!isUnlocked
                           ? 'Bloqueado'
-                          : avg >= 65
+                          : avg > 80
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -528,7 +559,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
                         !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
-                          : avg >= 65
+                          : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-amber-100 text-amber-800'
@@ -539,7 +570,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!isUnlocked
                           ? 'Bloqueado'
-                          : avg >= 65
+                          : avg > 80
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -594,7 +625,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
                         !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
-                          : avg >= 65
+                          : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-indigo-100 text-indigo-800'
@@ -605,7 +636,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!isUnlocked
                           ? 'Bloqueado'
-                          : avg >= 65
+                          : avg > 80
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
