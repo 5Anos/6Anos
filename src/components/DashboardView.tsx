@@ -32,6 +32,7 @@ import {
   TiagoAvatar,
   AlexAvatar,
 } from './Illustrations';
+import { AvatarRenderer } from './avatar/AvatarRenderer';
 
 interface DashboardViewProps {
   onSelectWorld: (worldId: number) => void;
@@ -896,8 +897,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-base select-none">{medal}</span>
-                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
-                          {item.nickname.slice(0, 2).toUpperCase()}
+                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
+                          <AvatarRenderer avatar={item.avatar} size={32} />
                         </div>
                         <div>
                           <span

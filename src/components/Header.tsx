@@ -18,6 +18,7 @@ import {
   DoodleLightbulbWithText,
   DoodleUnderline,
 } from './Illustrations';
+import { AvatarRenderer } from './avatar/AvatarRenderer';
 
 interface HeaderProps {
   onOpenSearch?: () => void;
@@ -46,14 +47,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
 
   // Render appropriate avatar illustration
   const renderAvatar = () => {
-    if (user?.avatar === 'avatar-girl-1') {
-      return <LeonorAvatar size={84} className="border-4 border-white shadow-md" />;
-    }
-    if (user?.avatar === 'avatar-boy-2') {
-      return <TiagoAvatar size={84} className="border-4 border-white shadow-md" />;
-    }
-    // Default Alex avatar matching reference mockup
-    return <AlexAvatar size={84} className="border-4 border-white shadow-md rounded-full" />;
+    return (
+      <AvatarRenderer
+        avatar={user?.avatar || 'avatar-boy-1'}
+        size={84}
+        className="border-4 border-white shadow-md rounded-full"
+      />
+    );
   };
 
   return (

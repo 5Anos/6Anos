@@ -1167,4 +1167,37 @@ export async function clientGetClassRanking(classId: string = 'class-6a', curren
   return { ranking: sorted };
 }
 
+// -------------------------------------------------------------
+// UPDATE USER PROFILE (CLIENT FIRESTORE FALLBACK)
+// -------------------------------------------------------------
+export async function clientUpdateProfile(
+  userId: string,
+  updates: Partial<AuthUser>
+): Promise<AuthUser> {
+  const db = getClientDb();
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    throw new Error('Utilizador não encontrado');
+  }
+
+  const firestoreUpdates: Record<string, any> = {
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (updates.nickname) {
+    firestoreUpdates.nickname = updates.nickname.trim();
+  }
+  if (updates.avatar) {
+    firestoreUpdates.avatar = updates.avatar;
+  }
+  if (updates.locale) {
+    firestoreUpdates.locale = updates.locale;
+  }
+
+  await updateDoc(userRef, firestoreUpdates);
+  const updatedSnap = await getDoc(userRef);
+  return toAuthUser(updatedSnap.data());
+}
+
 

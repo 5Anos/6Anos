@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { RankingStudent, WeeklyChallengeData } from '../types';
 import { clientGetClassRanking, clientGetWeeklyChallenge, clientSubmitWeeklyChallenge } from '../services/clientFirestore';
 import { t } from '../i18n';
+import { AvatarRenderer } from './avatar/AvatarRenderer';
 
 interface ChallengesViewProps {
   onOpenSimulators?: () => void;

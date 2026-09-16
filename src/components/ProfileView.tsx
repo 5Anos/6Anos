@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   ShieldCheck,
@@ -7,30 +7,43 @@ import {
   Sparkles,
   School,
   Lock,
+  Shuffle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getNextLevelInfo } from '../../server/catalog';
 import { t } from '../i18n';
+import { CustomAvatarConfig } from '../types/avatar';
+import {
+  parseAvatarConfig,
+  serializeAvatarConfig,
+  generateSafeNickname,
+} from '../utils/avatarUtils';
+import { AvatarBuilder } from './avatar/AvatarBuilder';
+import { AvatarRenderer } from './avatar/AvatarRenderer';
 
 export const ProfileView: React.FC = () => {
   const { user, classroom, updateProfile, locale } = useAuth();
   const [nickname, setNickname] = useState(user?.nickname || '');
-  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || 'avatar-boy-1');
+  const [avatarConfig, setAvatarConfig] = useState<CustomAvatarConfig>(() =>
+    parseAvatarConfig(user?.avatar)
+  );
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setNickname(user.nickname || '');
+      setAvatarConfig(parseAvatarConfig(user.avatar));
+    }
+  }, [user?.id, user?.avatar, user?.nickname]);
 
   if (!user) return null;
 
   const nextLevel = getNextLevelInfo(user.xp);
 
-  const availableAvatars = [
-    { id: 'avatar-boy-1', label: 'Explorador', emoji: '🧑‍💻' },
-    { id: 'avatar-girl-1', label: 'Ciberdefensora', emoji: '👧' },
-    { id: 'avatar-boy-2', label: 'Programador', emoji: '👦' },
-    { id: 'avatar-robot', label: 'IA Bot', emoji: '🤖' },
-    { id: 'avatar-super', label: 'Guardião Digital', emoji: '🦸' },
-    { id: 'teacher-1', label: 'Professora', emoji: '👩‍🏫' },
-  ];
+  const handleShuffleNickname = () => {
+    setNickname(generateSafeNickname());
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,92 +51,104 @@ export const ProfileView: React.FC = () => {
     try {
       await updateProfile({
         nickname: nickname.trim(),
-        avatar: selectedAvatar,
+        avatar: serializeAvatarConfig(avatarConfig),
       });
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err: any) {
-      alert(err.message);
+      alert(err.message || 'Erro ao guardar perfil');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            {t('nav_profile', locale)} do Aluno
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Gere a tua identidade na plataforma e personaliza o teu avatar.
-          </p>
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="relative group">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden border-2 border-blue-500 shadow-md">
+              <AvatarRenderer avatar={avatarConfig} size={96} />
+            </div>
+            <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-1 rounded-xl shadow">
+              <Sparkles className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {user.nickname || user.name}
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase bg-blue-100 text-blue-800">
+                Nível {user.level}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              {user.name} • {classroom ? classroom.name : '6.º Ano TIC'}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200">
+
+        <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 px-4 py-2.5 rounded-2xl border border-blue-200 self-start sm:self-auto">
           <ShieldCheck className="w-4 h-4" />
           <span>Perfil Protegido RGPD</span>
         </div>
       </div>
 
       {savedSuccess && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-900 flex items-center gap-2">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-900 flex items-center gap-2 animate-in fade-in">
           <Check className="w-4 h-4 text-emerald-600" />
-          <span>Perfil atualizado com sucesso!</span>
+          <span>Perfil e Avatar atualizados com sucesso! Todas as alterações foram guardadas.</span>
         </div>
       )}
 
       {/* Main Settings Form */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
         <form onSubmit={handleSave} className="space-y-6">
-          {/* Avatar Selection */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-3">
-              Escolhe o teu Avatar:
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-              {availableAvatars.map((av) => {
-                const isSelected = selectedAvatar === av.id;
-                return (
-                  <button
-                    key={av.id}
-                    type="button"
-                    onClick={() => setSelectedAvatar(av.id)}
-                    className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
-                      isSelected
-                        ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
-                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-xs">
-                      {av.emoji}
-                    </div>
-                    <span className="text-[11px] font-bold text-slate-700 truncate w-full">
-                      {av.label}
-                    </span>
-                  </button>
-                );
-              })}
+          {/* Avatar Builder Studio */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-black text-slate-900 uppercase tracking-wide">
+                🎨 Estúdio de Avatar • Construtor Completo
+              </label>
+              <span className="text-xs text-slate-500 font-medium">
+                Altera o teu estilo sempre que quiseres
+              </span>
             </div>
+
+            <AvatarBuilder
+              value={avatarConfig}
+              onChange={(newConfig) => setAvatarConfig(newConfig)}
+            />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
             {/* Nickname */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Nickname Público:
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700">
+                  Nickname Público (RGPD):
+                </label>
+                <button
+                  type="button"
+                  onClick={handleShuffleNickname}
+                  className="text-[11px] text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Shuffle className="w-3 h-3" />
+                  <span>Baralhar</span>
+                </button>
+              </div>
               <input
                 type="text"
                 required
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="Ex: Alex_Digital"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800"
+                placeholder="Ex: CiberHeroi_6A"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400 mt-1 block">
-                Este é o único nome visível para os teus colegas no ranking.
+                Este é o único nome visível para os teus colegas no ranking de turma e desafios.
               </span>
             </div>
 
@@ -139,7 +164,7 @@ export const ProfileView: React.FC = () => {
                 className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-xs font-medium text-slate-500 cursor-not-allowed"
               />
               <span className="text-[10px] text-slate-400 mt-1 block">
-                Definido pela escola e pela professora.
+                Conta escolar associada à tua turma.
               </span>
             </div>
           </div>
@@ -150,7 +175,7 @@ export const ProfileView: React.FC = () => {
               <School className="w-5 h-5 text-indigo-600" />
               <div>
                 <span className="text-xs font-extrabold text-slate-900 block">
-                  {classroom ? classroom.name : 'Turma 6.º A – TIC'}
+                  {classroom ? classroom.name : 'Turma 6.º Ano – TIC'}
                 </span>
                 <span className="text-[10px] text-slate-500">
                   Código de Entrada:{' '}
@@ -166,9 +191,9 @@ export const ProfileView: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-8 py-3.5 rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-[0.99] cursor-pointer"
             >
-              {saving ? 'A guardar...' : 'Guardar Alterações'}
+              {saving ? 'A guardar alterações...' : 'Guardar Novo Avatar & Perfil'}
             </button>
           </div>
         </form>
@@ -208,3 +233,4 @@ export const ProfileView: React.FC = () => {
     </div>
   );
 };
+

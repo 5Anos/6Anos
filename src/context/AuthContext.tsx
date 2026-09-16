@@ -6,6 +6,7 @@ import {
   clientRegisterStudent,
   clientLogin,
   clientGetMe,
+  clientUpdateProfile,
   seedTeacherIfMissing,
 } from '../services/clientFirestore';
 
@@ -174,7 +175,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.user?.locale) setLocaleState(res.user.locale);
     } catch {
       if (user) {
-        setUser({ ...user, ...data });
+        try {
+          const updatedUser = await clientUpdateProfile(user.id, data);
+          setUser(updatedUser);
+          if (updatedUser.locale) setLocaleState(updatedUser.locale);
+        } catch {
+          setUser({ ...user, ...data });
+        }
       }
     }
   };
