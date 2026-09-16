@@ -202,10 +202,27 @@ export async function getUserById(id: string): Promise<User | null> {
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const db = getFirestore();
-  const q = query(collection(db, 'users'), where('email', '==', email.trim().toLowerCase()));
+  const cleanEmail = email.trim().toLowerCase();
+  const q = query(collection(db, 'users'), where('email', '==', cleanEmail));
   const snap = await getDocs(q);
-  if (snap.empty) return null;
-  return snap.docs[0].data() as User;
+  if (!snap.empty) return snap.docs[0].data() as User;
+
+  // Fallback: check by document ID if teacher-carla
+  if (cleanEmail === 'imaginebycarla2023@gmail.com') {
+    const teacherDoc = await getUserById('teacher-carla');
+    if (teacherDoc) return teacherDoc;
+  }
+
+  // Fallback: search all users case-insensitively
+  try {
+    const allUsers = await getAllUsers();
+    const match = allUsers.find(
+      (u) => u.email && u.email.trim().toLowerCase() === cleanEmail
+    );
+    if (match) return match;
+  } catch {}
+
+  return null;
 }
 
 export async function getUserByNickname(nickname: string): Promise<User | null> {
@@ -812,37 +829,27 @@ export async function seedInitialFirestoreData(): Promise<void> {
 
   // 2. Teacher Carla (imaginebycarla2023@gmail.com / carlamo)
   const teacherEmail = 'imaginebycarla2023@gmail.com';
-  const existingTeacher = await getUserByEmail(teacherEmail);
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.scryptSync('carlamo', salt, 64).toString('hex');
 
-  if (!existingTeacher) {
-    await saveUser({
-      id: 'teacher-carla',
-      name: 'Prof. Carla Silva',
-      email: teacherEmail,
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Prof_Carla',
-      avatar: 'teacher-1',
-      role: 'teacher',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 0,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-  } else {
-    // Update password to carlamo
-    await updateUser(existingTeacher.id, {
-      name: 'Prof. Carla Silva',
-      passwordHash: hash,
-      passwordSalt: salt,
-      role: 'teacher',
-      updatedAt: new Date().toISOString(),
-    });
-  }
+  const teacherData: User = {
+    id: 'teacher-carla',
+    name: 'Prof. Carla Silva',
+    email: teacherEmail,
+    passwordHash: hash,
+    passwordSalt: salt,
+    nickname: 'Prof_Carla',
+    avatar: 'teacher-1',
+    role: 'teacher',
+    classId: 'class-6a',
+    locale: 'pt',
+    xp: 0,
+    blocked: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  await saveUser(teacherData);
 
   // 3. Remove any legacy demo students
   const demoStudentIds = ['student-alex', 'student-leonor', 'student-tiago'];

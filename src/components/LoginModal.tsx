@@ -7,6 +7,9 @@ import {
   School,
   ArrowRight,
   Sparkles,
+  GraduationCap,
+  LogIn,
+  UserPlus,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -38,16 +41,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     setLoading(true);
     setError(null);
     try {
+      const cleanEmail = email.trim();
       if (isRegister) {
+        if (cleanEmail.toLowerCase() === 'imaginebycarla2023@gmail.com') {
+          setError('Este email pertence à Professora Carla. Alterna para a aba "Iniciar Sessão" para aceder à Área da Professora.');
+          setLoading(false);
+          return;
+        }
+
         await register({
-          name,
-          email,
+          name: name.trim(),
+          email: cleanEmail,
           password,
-          nickname,
+          nickname: nickname.trim(),
           classId,
         });
       } else {
-        await login(email, password);
+        await login(cleanEmail, password);
       }
       onClose();
       if (onSuccess) onSuccess();
@@ -67,7 +77,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Header with Title and Close Button */}
         <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-black tracking-tight">
+            <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+              {isRegister ? <UserPlus className="w-5 h-5 text-amber-300" /> : <LogIn className="w-5 h-5 text-blue-200" />}
               {isRegister ? 'Criar Conta de Aluno' : 'Iniciar Sessão'}
             </h2>
             <p className="text-xs text-blue-100 font-medium mt-0.5">
@@ -83,10 +94,58 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </button>
         </div>
 
+        {/* Tab Switcher */}
+        <div className="flex border-b border-slate-100 bg-slate-50/70 p-1.5 gap-1.5">
+          <button
+            type="button"
+            id="tab-auth-login"
+            onClick={() => {
+              setIsRegister(false);
+              setError(null);
+            }}
+            className={`flex-1 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+              !isRegister
+                ? 'bg-white text-blue-600 shadow-xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Iniciar Sessão</span>
+          </button>
+          <button
+            type="button"
+            id="tab-auth-register"
+            onClick={() => {
+              setIsRegister(true);
+              setError(null);
+            }}
+            className={`flex-1 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+              isRegister
+                ? 'bg-white text-blue-600 shadow-xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Criar Conta de Aluno</span>
+          </button>
+        </div>
+
         <div className="p-6 space-y-5">
           {error && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-2xl font-medium">
-              {error}
+            <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3.5 rounded-2xl font-medium space-y-2">
+              <p>{error}</p>
+              {error.includes('Já existe uma conta') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegister(false);
+                    setError(null);
+                  }}
+                  className="inline-block text-blue-700 underline font-bold"
+                >
+                  Clica aqui para Iniciar Sessão com esta conta →
+                </button>
+              )}
             </div>
           )}
 
@@ -97,7 +156,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-blue-600" />
-                    Nome Completo:
+                    Nome Completo do Aluno:
                   </label>
                   <input
                     type="text"
@@ -149,14 +208,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-blue-600" />
-                Email Escolar:
+                {isRegister ? 'Email Escolar do Aluno:' : 'Email (Aluno ou Professora):'}
               </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="aluno@escola.edu.pt"
+                placeholder={isRegister ? 'aluno@escola.edu.pt' : 'exemplo@escola.pt'}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
             </div>
@@ -180,9 +239,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               type="submit"
               id="btn-submit-auth"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-3 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-3.5 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 mt-2 active:scale-[0.99]"
             >
-              <span>{isRegister ? 'Criar Conta de Aluno' : 'Entrar na Plataforma'}</span>
+              <span>{loading ? 'A processar...' : isRegister ? 'Criar Conta de Aluno' : 'Entrar na Plataforma'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -198,8 +257,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline"
             >
               {isRegister
-                ? 'Já tens conta? Entra aqui'
-                : 'Novo aluno do 6.º ano? Cria a tua conta'}
+                ? 'Já tens conta ou és Professora? Entra aqui'
+                : 'És um novo aluno do 6.º ano? Cria a tua conta'}
             </button>
           </div>
         </div>
