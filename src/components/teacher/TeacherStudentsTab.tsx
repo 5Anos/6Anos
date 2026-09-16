@@ -36,8 +36,8 @@ interface TeacherStudentsTabProps {
 }
 
 export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
-  students,
-  classes,
+  students = [],
+  classes = [],
   selectedClass,
   setSelectedClass,
   searchQuery,
@@ -54,13 +54,16 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
   const [targetClassId, setTargetClassId] = useState('');
   const [showMoveModal, setShowMoveModal] = useState(false);
 
-  const filteredStudents = students.filter((s) => {
+  const studentList = Array.isArray(students) ? students : [];
+  const classList = Array.isArray(classes) ? classes : [];
+
+  const filteredStudents = studentList.filter((s) => {
     const matchesClass = selectedClass === 'all' || s.classId === selectedClass;
     const matchesSearch =
       searchQuery === '' ||
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.nickname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchQuery.toLowerCase());
+      (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.nickname || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesClass && matchesSearch;
   });
 

@@ -23,8 +23,8 @@ interface TeacherMissionsTabProps {
 }
 
 export const TeacherMissionsTab: React.FC<TeacherMissionsTabProps> = ({
-  missions,
-  classes,
+  missions = [],
+  classes = [],
   selectedClass,
   setSelectedClass,
   onRefresh,
@@ -37,14 +37,17 @@ export const TeacherMissionsTab: React.FC<TeacherMissionsTabProps> = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const filteredMissions = missions.filter((m) => {
+  const missionList = Array.isArray(missions) ? missions : [];
+  const classList = Array.isArray(classes) ? classes : [];
+
+  const filteredMissions = missionList.filter((m) => {
     const matchesClass = selectedClass === 'all' || m.classId === selectedClass;
     const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
     const matchesWorld = worldFilter === 'all' || m.worldId === worldFilter;
     return matchesClass && matchesStatus && matchesWorld;
   });
 
-  const pendingCount = missions.filter((m) => m.status === 'pending').length;
+  const pendingCount = missionList.filter((m) => m.status === 'pending').length;
 
   const handleOpenGrade = (m: any) => {
     setGradingMission(m);

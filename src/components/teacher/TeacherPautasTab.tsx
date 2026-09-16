@@ -41,14 +41,15 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
     );
   }
 
-  const { pautaGeral, pautasPorMundo } = pautaData;
+  const pautaGeral = Array.isArray(pautaData?.pautaGeral) ? pautaData.pautaGeral : [];
+  const pautasPorMundo = Array.isArray(pautaData?.pautasPorMundo) ? pautaData.pautasPorMundo : [];
 
   const filteredPautaGeral = pautaGeral.filter((item: any) => {
     return selectedClass === 'all' || item.classId === selectedClass;
   });
 
   const currentWorldPauta = pautasPorMundo.find((w: any) => w.worldId === selectedWorldId);
-  const filteredWorldStudents = currentWorldPauta
+  const filteredWorldStudents = currentWorldPauta && Array.isArray(currentWorldPauta.students)
     ? currentWorldPauta.students.filter((st: any) => {
         return selectedClass === 'all' || st.classId === selectedClass;
       })

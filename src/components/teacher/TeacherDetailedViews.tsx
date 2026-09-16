@@ -25,7 +25,7 @@ import { apiRequest } from '../../api';
 // =================================================================
 export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: any[]; selectedClass: string; setSelectedClass: (v: string) => void }> = ({
   assessmentsData,
-  classes,
+  classes = [],
   selectedClass,
   setSelectedClass,
 }) => {
@@ -33,8 +33,8 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
 
   if (!assessmentsData) return <div className="p-8 text-center text-slate-500">A carregar dados de avaliações...</div>;
 
-  const currentWorld = assessmentsData.find((w: any) => w.worldId === selectedWorld);
-  const filteredStudents = currentWorld
+  const currentWorld = Array.isArray(assessmentsData) ? assessmentsData.find((w: any) => w.worldId === selectedWorld) : null;
+  const filteredStudents = currentWorld && Array.isArray(currentWorld.students)
     ? currentWorld.students.filter((s: any) => selectedClass === 'all' || s.classId === selectedClass)
     : [];
 
@@ -66,7 +66,7 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
             className="bg-transparent text-slate-200 text-xs focus:outline-none cursor-pointer pr-2"
           >
             <option value="all" className="bg-slate-900">Todas as Turmas</option>
-            {classes.map((c) => (
+            {(classes || []).map((c) => (
               <option key={c.id} value={c.id} className="bg-slate-900">Turma {c.name}</option>
             ))}
           </select>
@@ -79,19 +79,19 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
               <div className="text-xs text-slate-400 font-semibold">Total Realizadas</div>
-              <div className="text-2xl font-bold text-slate-200 mt-1">{currentWorld.totalAttempted}</div>
+              <div className="text-2xl font-bold text-slate-200 mt-1">{currentWorld.totalAttempted || 0}</div>
             </div>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
               <div className="text-xs text-slate-400 font-semibold">Aprovados (&gt;65%)</div>
-              <div className="text-2xl font-bold text-emerald-400 mt-1">{currentWorld.totalPassed}</div>
+              <div className="text-2xl font-bold text-emerald-400 mt-1">{currentWorld.totalPassed || 0}</div>
             </div>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
               <div className="text-xs text-slate-400 font-semibold">Pendentes</div>
-              <div className="text-2xl font-bold text-amber-400 mt-1">{currentWorld.totalPending}</div>
+              <div className="text-2xl font-bold text-amber-400 mt-1">{currentWorld.totalPending || 0}</div>
             </div>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
               <div className="text-xs text-slate-400 font-semibold">Média Global do Teste</div>
-              <div className="text-2xl font-bold text-amber-400 font-mono mt-1">{currentWorld.averageScore}%</div>
+              <div className="text-2xl font-bold text-amber-400 font-mono mt-1">{currentWorld.averageScore || 0}%</div>
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activi
 
   if (!activitiesData) return <div className="p-8 text-center text-slate-500">A carregar simuladores...</div>;
 
-  const currentWorld = activitiesData.find((w: any) => w.worldId === selectedWorld);
+  const currentWorld = Array.isArray(activitiesData) ? activitiesData.find((w: any) => w.worldId === selectedWorld) : null;
 
   return (
     <div className="space-y-6">
@@ -176,7 +176,7 @@ export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activi
 
       {currentWorld && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {currentWorld.activities.map((act: any) => (
+          {(currentWorld.activities || []).map((act: any) => (
             <div key={act.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -191,15 +191,15 @@ export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activi
               <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-xs">
                 <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center">
                   <div className="text-slate-400 text-[10px]">Concluídos</div>
-                  <div className="font-bold text-emerald-400 text-sm mt-0.5">{act.completedCount}</div>
+                  <div className="font-bold text-emerald-400 text-sm mt-0.5">{act.completedCount || 0}</div>
                 </div>
                 <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center">
                   <div className="text-slate-400 text-[10px]">Pendentes</div>
-                  <div className="font-bold text-amber-400 text-sm mt-0.5">{act.pendingCount}</div>
+                  <div className="font-bold text-amber-400 text-sm mt-0.5">{act.pendingCount || 0}</div>
                 </div>
                 <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center">
                   <div className="text-slate-400 text-[10px]">Média de Acerto</div>
-                  <div className="font-bold text-slate-200 text-sm mt-0.5">{act.averageScore}%</div>
+                  <div className="font-bold text-slate-200 text-sm mt-0.5">{act.averageScore || 0}%</div>
                 </div>
               </div>
             </div>
@@ -216,7 +216,8 @@ export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activi
 export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challengesData }) => {
   if (!challengesData) return <div className="p-8 text-center text-slate-500">A carregar desafios...</div>;
 
-  const { worldChallenges, weeklyChallenge } = challengesData;
+  const worldChallenges = challengesData?.worldChallenges || [];
+  const weeklyChallenge = challengesData?.weeklyChallenge || null;
 
   return (
     <div className="space-y-6">
@@ -237,7 +238,7 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
 
           <div className="pt-2 flex items-center gap-4 text-xs text-slate-400">
             <div>
-              Alunos que já resolveram: <strong className="text-amber-400 font-bold">{weeklyChallenge.totalCompleted}</strong>
+              Alunos que já resolveram: <strong className="text-amber-400 font-bold">{weeklyChallenge.totalCompleted || 0}</strong>
             </div>
           </div>
         </div>
@@ -255,8 +256,8 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
               </div>
               <h5 className="font-bold text-white text-sm">{ch.title}</h5>
               <div className="pt-2 border-t border-slate-800 flex justify-between text-xs text-slate-400">
-                <span>Concluído por: <strong className="text-white">{ch.completedCount} alunos</strong></span>
-                <span>Pendentes: <strong className="text-slate-500">{ch.pendingCount}</strong></span>
+                <span>Concluído por: <strong className="text-white">{ch.completedCount || 0} alunos</strong></span>
+                <span>Pendentes: <strong className="text-slate-500">{ch.pendingCount || 0}</strong></span>
               </div>
             </div>
           ))}
@@ -272,7 +273,7 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
 export const TeacherXPTab: React.FC<{ xpData: any }> = ({ xpData }) => {
   if (!xpData) return <div className="p-8 text-center text-slate-500">A carregar extrato de XP...</div>;
 
-  const { studentsBreakdown, latestTransactions } = xpData;
+  const studentsBreakdown = xpData?.studentsBreakdown || [];
 
   return (
     <div className="space-y-6">
@@ -302,13 +303,13 @@ export const TeacherXPTab: React.FC<{ xpData: any }> = ({ xpData }) => {
                   <td className="py-2.5 px-4 font-semibold text-slate-200">{s.studentName}</td>
                   <td className="py-2.5 px-4 text-slate-400">{s.className}</td>
                   <td className="py-2.5 px-4 text-center font-mono text-slate-500">100</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources.activities}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources.challenges}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources.assessments}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources.missions}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources.dailyTips}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources.grandeMissao}</td>
-                  <td className="py-2.5 px-4 text-center font-mono font-bold text-amber-400">{s.totalXP} XP</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.activities || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.challenges || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.assessments || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.missions || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.dailyTips || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.grandeMissao || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono font-bold text-amber-400">{s.totalXP || 0} XP</td>
                 </tr>
               ))}
             </tbody>
@@ -325,7 +326,11 @@ export const TeacherXPTab: React.FC<{ xpData: any }> = ({ xpData }) => {
 export const TeacherGrandeMissaoTab: React.FC<{ gmData: any }> = ({ gmData }) => {
   if (!gmData) return <div className="p-8 text-center text-slate-500">A carregar Grande Missão...</div>;
 
-  const { config, totalCompleted, totalInProgress, totalNotStarted, students } = gmData;
+  const config = gmData?.config || { title: 'A Escola do Futuro', description: '', totalXp: 500, stages: [] };
+  const totalCompleted = gmData?.totalCompleted || 0;
+  const totalInProgress = gmData?.totalInProgress || 0;
+  const totalNotStarted = gmData?.totalNotStarted || 0;
+  const stages = config?.stages || [];
 
   return (
     <div className="space-y-6">
@@ -362,7 +367,7 @@ export const TeacherGrandeMissaoTab: React.FC<{ gmData: any }> = ({ gmData }) =>
       <div className="space-y-3">
         <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">As 5 Etapas do Projeto</h4>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-          {config.stages.map((st: any) => (
+          {stages.map((st: any) => (
             <div key={st.stage} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
               <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">
                 Etapa {st.stage}
@@ -383,7 +388,7 @@ export const TeacherGrandeMissaoTab: React.FC<{ gmData: any }> = ({ gmData }) =>
 export const TeacherBadgesTab: React.FC<{ badgesData: any }> = ({ badgesData }) => {
   if (!badgesData) return <div className="p-8 text-center text-slate-500">A carregar conquistas...</div>;
 
-  const { badgesCatalog, studentsBadges } = badgesData;
+  const badgesCatalog = badgesData?.badgesCatalog || [];
 
   return (
     <div className="space-y-6">
@@ -398,8 +403,8 @@ export const TeacherBadgesTab: React.FC<{ badgesData: any }> = ({ badgesData }) 
               <p className="text-xs text-slate-400 mt-1">{b.description}</p>
             </div>
             <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
-              <span>{b.unlockedCount} alunos</span>
-              <span className="font-bold text-amber-400 font-mono">{b.percentage}%</span>
+              <span>{b.unlockedCount || 0} alunos</span>
+              <span className="font-bold text-amber-400 font-mono">{b.percentage || 0}%</span>
             </div>
           </div>
         ))}
@@ -411,7 +416,8 @@ export const TeacherBadgesTab: React.FC<{ badgesData: any }> = ({ badgesData }) 
 // =================================================================
 // 7. AUDIT LOGS TAB
 // =================================================================
-export const TeacherAuditTab: React.FC<{ logs: any[] }> = ({ logs }) => {
+export const TeacherAuditTab: React.FC<{ logs: any[] }> = ({ logs = [] }) => {
+  const logList = Array.isArray(logs) ? logs : [];
   return (
     <div className="space-y-4">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
@@ -426,12 +432,12 @@ export const TeacherAuditTab: React.FC<{ logs: any[] }> = ({ logs }) => {
         </div>
 
         <div className="divide-y divide-slate-800/80 max-h-[600px] overflow-y-auto">
-          {logs.length === 0 ? (
+          {logList.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs">
               Nenhum registo de auditoria recente.
             </div>
           ) : (
-            logs.map((log) => (
+            logList.map((log) => (
               <div key={log.id} className="p-4 flex items-center justify-between text-xs hover:bg-slate-800/40 transition-colors">
                 <div>
                   <div className="font-bold text-slate-100 flex items-center gap-2">
@@ -465,7 +471,7 @@ export const TeacherAuditTab: React.FC<{ logs: any[] }> = ({ logs }) => {
 // 8. CLEANUP & ACADEMIC YEAR MANAGEMENT TAB
 // =================================================================
 export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void }> = ({
-  classes,
+  classes = [],
   onRefresh,
 }) => {
   const [selectedClassId, setSelectedClassId] = useState('');
@@ -473,6 +479,8 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
   const [showClassResetModal, setShowClassResetModal] = useState(false);
   const [showGlobalResetModal, setShowGlobalResetModal] = useState(false);
   const [confirmWord, setConfirmWord] = useState('');
+
+  const classList = Array.isArray(classes) ? classes : [];
 
   const handleDeleteClassStudents = async () => {
     if (!selectedClassId) return;
@@ -545,7 +553,7 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
             className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
           >
             <option value="">-- Selecionar Turma --</option>
-            {classes.map((c) => (
+            {classList.map((c) => (
               <option key={c.id} value={c.id}>
                 Turma {c.name} ({c.code})
               </option>

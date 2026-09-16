@@ -179,7 +179,14 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
     );
   }
 
-  const { student, worldDetails, xpBreakdown, badges, xpHistory, grandeMissao } = dossier;
+  const {
+    student = {} as any,
+    worldDetails = [],
+    xpBreakdown = {} as any,
+    badges = [],
+    xpHistory = [],
+    grandeMissao = {} as any,
+  } = dossier || {};
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">

@@ -351,10 +351,10 @@ export const TeacherArea: React.FC = () => {
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-1.5 flex overflow-x-auto gap-1 shadow-lg">
           {[
             { id: 'overview', label: 'Visão Geral', icon: Sparkles },
-            { id: 'students', label: `Alunos (${students.length})`, icon: Users },
+            { id: 'students', label: `Alunos (${students?.length || 0})`, icon: Users },
             { id: 'pautas', label: 'Pautas & Notas', icon: FileSpreadsheet },
-            { id: 'classes', label: `Turmas (${classes.length})`, icon: GraduationCap },
-            { id: 'missions', label: `Missões Reais (${missions.length})`, icon: FileText },
+            { id: 'classes', label: `Turmas (${classes?.length || 0})`, icon: GraduationCap },
+            { id: 'missions', label: `Missões Reais (${missions?.length || 0})`, icon: FileText },
             { id: 'assessments', label: 'Avaliações Finais', icon: CheckCircle2 },
             { id: 'activities', label: 'Simuladores', icon: Layers },
             { id: 'challenges', label: 'Desafios & Semanal', icon: Zap },
@@ -505,7 +505,7 @@ export const TeacherArea: React.FC = () => {
                       onClick={() => setActiveTab('audit')}
                       className="text-xs text-amber-400 font-bold hover:underline"
                     >
-                      Ver todos ({auditLogs.length})
+                      Ver todos ({auditLogs?.length || 0})
                     </button>
                   </div>
 

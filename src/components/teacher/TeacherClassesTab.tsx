@@ -24,8 +24,8 @@ interface TeacherClassesTabProps {
 }
 
 export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
-  classes,
-  students,
+  classes = [],
+  students = [],
   onRefresh,
   onOpenStudent,
 }) => {
@@ -33,6 +33,9 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
   const [newClassName, setNewClassName] = useState('');
   const [newClassCode, setNewClassCode] = useState('');
   const [creating, setCreating] = useState(false);
+
+  const classList = Array.isArray(classes) ? classes : [];
+  const studentList = Array.isArray(students) ? students : [];
 
   const [selectedClassForDetails, setSelectedClassForDetails] = useState<any | null>(null);
   const [editClassName, setEditClassName] = useState('');
@@ -135,7 +138,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
         <div>
           <h3 className="text-base font-bold text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
-            Gestão de Turmas ({classes.length})
+            Gestão de Turmas ({classList.length})
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
             Organiza os teus alunos em turmas para facilitar o acompanhamento pedagógico e geração de pautas.
@@ -153,15 +156,15 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
 
       {/* Classes Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {classes.length === 0 ? (
+        {classList.length === 0 ? (
           <div className="col-span-full bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500">
             <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
             <p className="font-semibold text-slate-400">Nenhuma turma criada ainda.</p>
             <p className="text-xs text-slate-500 mt-1">Cria a tua primeira turma (ex: 6.º A) para agrupar os alunos.</p>
           </div>
         ) : (
-          classes.map((c) => {
-            const classStudents = students.filter((s) => s.classId === c.id);
+          classList.map((c) => {
+            const classStudents = studentList.filter((s) => s.classId === c.id);
             const totalXP = classStudents.reduce((acc, s) => acc + (s.xp || 0), 0);
             const avgXP = classStudents.length > 0 ? Math.round(totalXP / classStudents.length) : 0;
             const avgPass =

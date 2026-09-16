@@ -199,7 +199,7 @@ export const ProfileView: React.FC = () => {
           <div className="bg-purple-50/70 p-4 rounded-2xl border border-purple-100">
             <span className="text-[10px] uppercase font-bold text-purple-800">Mundos Concluídos</span>
             <div className="text-xl font-black text-purple-950 mt-1">
-              {user.unlockedWorlds.length} / 5
+              {user.unlockedWorlds?.length || 1} / 5
             </div>
             <span className="text-xs text-purple-700 font-semibold">Em progressão contínua</span>
           </div>

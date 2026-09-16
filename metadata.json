@@ -2,5 +2,7 @@
   "name": "MISSÃO TIC 6.º ANO",
   "description": "Plataforma educativa gamificada de Tecnologias da Informação e Comunicação para alunos do 6.º ano de escolaridade.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
