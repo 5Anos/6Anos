@@ -1,0 +1,241 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a student or teacher user account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for user" },
+        "name": { "type": "string", "description": "Full display name" },
+        "email": { "type": "string", "description": "User email address" },
+        "passwordHash": { "type": "string", "description": "Scrypt salted password hash" },
+        "passwordSalt": { "type": "string", "description": "Cryptographic salt" },
+        "nickname": { "type": "string", "description": "Privacy-safe school nickname" },
+        "avatar": { "type": "string", "description": "Avatar image identifier" },
+        "role": { "type": "string", "enum": ["student", "teacher"], "description": "User access role" },
+        "classId": { "type": "string", "description": "Assigned class identifier" },
+        "locale": { "type": "string", "enum": ["pt", "en"], "description": "Preferred language" },
+        "xp": { "type": "number", "description": "Total accrued experience points" },
+        "blocked": { "type": "boolean", "description": "Whether account access is suspended" },
+        "mustChangePassword": { "type": "boolean", "description": "Forces password change on next login" },
+        "needsHelp": { "type": "boolean", "description": "Teacher assistance requested flag" },
+        "helpReason": { "type": "string", "description": "Teacher assistance reason" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of account creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" },
+        "lastLoginAt": { "type": "string", "description": "ISO timestamp of last login" }
+      },
+      "required": ["id", "name", "email", "passwordHash", "passwordSalt", "nickname", "role", "classId", "xp", "blocked", "createdAt", "updatedAt"]
+    },
+    "Class": {
+      "title": "Class",
+      "description": "Represents a classroom of students",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Class identifier" },
+        "name": { "type": "string", "description": "Class name, e.g. 6.º A" },
+        "code": { "type": "string", "description": "Registration access code" },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" }
+      },
+      "required": ["id", "name", "code", "createdAt"]
+    },
+    "Session": {
+      "title": "Session",
+      "description": "Server authenticated session record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Session UUID" },
+        "userId": { "type": "string", "description": "ID of authenticated user" },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" },
+        "expiresAt": { "type": "string", "description": "ISO expiration timestamp" }
+      },
+      "required": ["id", "userId", "createdAt", "expiresAt"]
+    },
+    "ActivityProgress": {
+      "title": "ActivityProgress",
+      "description": "Student progress in simulators and challenges",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Progress record ID" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "activityId": { "type": "string", "description": "Simulator or challenge ID" },
+        "worldId": { "type": "number", "description": "Curricular world number (1-5)" },
+        "bestScore": { "type": "number", "description": "Best score achieved" },
+        "attempts": { "type": "number", "description": "Total attempts submitted" },
+        "completed": { "type": "boolean", "description": "Whether activity was passed" },
+        "firstCompletedAt": { "type": "string", "description": "Timestamp of initial completion" },
+        "lastAttemptAt": { "type": "string", "description": "Timestamp of most recent attempt" }
+      },
+      "required": ["id", "userId", "activityId", "worldId", "bestScore", "attempts", "completed", "lastAttemptAt"]
+    },
+    "AssessmentAttempt": {
+      "title": "AssessmentAttempt",
+      "description": "Student attempt in world final assessment quiz",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Attempt UUID" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "assessmentId": { "type": "string", "description": "Assessment identifier" },
+        "worldId": { "type": "number", "description": "World number" },
+        "score": { "type": "number", "description": "Number of correct answers" },
+        "percentage": { "type": "number", "description": "Calculated score percentage" },
+        "createdAt": { "type": "string", "description": "Attempt timestamp" }
+      },
+      "required": ["id", "userId", "assessmentId", "worldId", "score", "percentage", "createdAt"]
+    },
+    "MissionSubmission": {
+      "title": "MissionSubmission",
+      "description": "Student submission for real-world creative mission",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Submission ID" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "studentName": { "type": "string", "description": "Student name" },
+        "studentNickname": { "type": "string", "description": "Student nickname" },
+        "classId": { "type": "string", "description": "Class identifier" },
+        "missionId": { "type": "string", "description": "Mission identifier" },
+        "worldId": { "type": "number", "description": "World number" },
+        "title": { "type": "string", "description": "Mission title" },
+        "submission": { "type": "string", "description": "Student submitted text" },
+        "score": { "type": "number", "description": "Score assigned by teacher" },
+        "feedback": { "type": "string", "description": "Teacher pedagogical feedback" },
+        "status": { "type": "string", "enum": ["pending", "graded"], "description": "Evaluation status" },
+        "gradedBy": { "type": "string", "description": "Teacher user ID" },
+        "gradedAt": { "type": "string", "description": "Timestamp of grading" },
+        "submittedAt": { "type": "string", "description": "Submission timestamp" }
+      },
+      "required": ["id", "userId", "missionId", "worldId", "title", "submission", "score", "status", "submittedAt"]
+    },
+    "XPTransaction": {
+      "title": "XPTransaction",
+      "description": "Immutable record of experience points granted",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Transaction ID" },
+        "userId": { "type": "string", "description": "User ID receiving XP" },
+        "sourceType": { "type": "string", "description": "Origin category of XP" },
+        "sourceId": { "type": "string", "description": "Specific activity, mission, or tip ID" },
+        "previousBest": { "type": "number", "description": "Previous best score" },
+        "newBest": { "type": "number", "description": "New best score" },
+        "xpGain": { "type": "number", "description": "Points credited" },
+        "createdAt": { "type": "string", "description": "Transaction timestamp" }
+      },
+      "required": ["id", "userId", "sourceType", "sourceId", "previousBest", "newBest", "xpGain", "createdAt"]
+    },
+    "Badge": {
+      "title": "Badge",
+      "description": "Student earned achievement badge",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Badge record ID" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "badgeId": { "type": "string", "description": "Catalog badge identifier" },
+        "awardedAt": { "type": "string", "description": "Award timestamp" }
+      },
+      "required": ["id", "userId", "badgeId", "awardedAt"]
+    },
+    "DailyTipClaim": {
+      "title": "DailyTipClaim",
+      "description": "Record of claimed daily tip",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Claim ID" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "tipDate": { "type": "string", "description": "Calendar date (YYYY-MM-DD)" },
+        "claimedAt": { "type": "string", "description": "Claim timestamp" }
+      },
+      "required": ["id", "userId", "tipDate", "claimedAt"]
+    },
+    "WeeklyChallenge": {
+      "title": "WeeklyChallenge",
+      "description": "Weekly challenge completion record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Challenge record ID" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "challengeId": { "type": "string", "description": "Challenge ID" },
+        "status": { "type": "string", "enum": ["completed"], "description": "Status" },
+        "score": { "type": "number", "description": "Score achieved" },
+        "completedAt": { "type": "string", "description": "Completion timestamp" }
+      },
+      "required": ["id", "userId", "challengeId", "status", "score", "completedAt"]
+    },
+    "GrandeMissao": {
+      "title": "GrandeMissao",
+      "description": "Capstone mission progress",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Record ID (userId)" },
+        "userId": { "type": "string", "description": "Student user ID" },
+        "currentStage": { "type": "number", "description": "Current stage (1-5)" },
+        "status": { "type": "string", "enum": ["not_started", "in_progress", "completed"], "description": "Progress state" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      },
+      "required": ["id", "userId", "currentStage", "status", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Teacher and security audit log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Log entry ID" },
+        "actorUserId": { "type": "string", "description": "User ID executing action" },
+        "actorName": { "type": "string", "description": "Name of actor" },
+        "action": { "type": "string", "description": "Action performed" },
+        "targetUserId": { "type": "string", "description": "Target student user ID if applicable" },
+        "targetUserName": { "type": "string", "description": "Target student name if applicable" },
+        "createdAt": { "type": "string", "description": "Timestamp of action" }
+      },
+      "required": ["id", "actorUserId", "actorName", "action", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Student and teacher user accounts and profiles"
+    },
+    "/classes/{classId}": {
+      "schema": "Class",
+      "description": "Classrooms and access codes"
+    },
+    "/sessions/{sessionId}": {
+      "schema": "Session",
+      "description": "Active user sessions validated by server"
+    },
+    "/activityProgress/{progressId}": {
+      "schema": "ActivityProgress",
+      "description": "Per-student simulator and challenge scores and attempts"
+    },
+    "/assessmentAttempts/{attemptId}": {
+      "schema": "AssessmentAttempt",
+      "description": "World final assessment submissions and scores"
+    },
+    "/missionSubmissions/{submissionId}": {
+      "schema": "MissionSubmission",
+      "description": "Student real mission text submissions and teacher evaluations"
+    },
+    "/xpTransactions/{transactionId}": {
+      "schema": "XPTransaction",
+      "description": "Audit log of XP awards and increments"
+    },
+    "/badges/{badgeId}": {
+      "schema": "Badge",
+      "description": "Badges earned by students"
+    },
+    "/dailyTipClaims/{claimId}": {
+      "schema": "DailyTipClaim",
+      "description": "Records of claimed daily pedagogical tips"
+    },
+    "/weeklyChallenges/{challengeId}": {
+      "schema": "WeeklyChallenge",
+      "description": "Student weekly challenge completions"
+    },
+    "/grandeMissaoProgress/{userId}": {
+      "schema": "GrandeMissao",
+      "description": "Progress in the capstone final mission"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Teacher and administrative audit logs"
+    }
+  }
+}

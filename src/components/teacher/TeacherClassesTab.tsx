@@ -1,0 +1,479 @@
+import React, { useState } from 'react';
+import {
+  Users,
+  Plus,
+  Edit2,
+  Trash2,
+  ArrowRightLeft,
+  Award,
+  Sparkles,
+  BookOpen,
+  X,
+  Save,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronRight,
+} from 'lucide-react';
+import { apiRequest } from '../../api';
+
+interface TeacherClassesTabProps {
+  classes: any[];
+  students: any[];
+  onRefresh: () => void;
+  onOpenStudent: (student: any) => void;
+}
+
+export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
+  classes,
+  students,
+  onRefresh,
+  onOpenStudent,
+}) => {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newClassName, setNewClassName] = useState('');
+  const [newClassCode, setNewClassCode] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  const [selectedClassForDetails, setSelectedClassForDetails] = useState<any | null>(null);
+  const [editClassName, setEditClassName] = useState('');
+  const [editClassCode, setEditClassCode] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Student transfer within class modal
+  const [transferringStudent, setTransferringStudent] = useState<any | null>(null);
+  const [targetClassId, setTargetClassId] = useState('');
+
+  const handleCreateClass = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newClassName.trim() || !newClassCode.trim()) {
+      alert('Preenche o nome e o código da turma.');
+      return;
+    }
+    try {
+      setCreating(true);
+      await apiRequest('/api/teacher/classes', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: newClassName.trim(),
+          code: newClassCode.trim().toUpperCase(),
+        }),
+      });
+      setNewClassName('');
+      setNewClassCode('');
+      setShowCreateModal(false);
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Erro ao criar turma.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleOpenClassDetails = (c: any) => {
+    setSelectedClassForDetails(c);
+    setEditClassName(c.name);
+    setEditClassCode(c.code);
+  };
+
+  const handleUpdateClass = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedClassForDetails) return;
+    try {
+      setSavingEdit(true);
+      await apiRequest(`/api/teacher/classes/${selectedClassForDetails.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: editClassName.trim(),
+          code: editClassCode.trim().toUpperCase(),
+        }),
+      });
+      setSelectedClassForDetails(null);
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Erro ao atualizar turma.');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleDeleteClass = async (classId: string, className: string) => {
+    if (!confirm(`Tens a certeza que desejas eliminar a turma ${className}? Os alunos associados ficarão "Sem Turma".`)) {
+      return;
+    }
+    try {
+      await apiRequest(`/api/teacher/classes/${classId}`, {
+        method: 'DELETE',
+      });
+      setSelectedClassForDetails(null);
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Erro ao eliminar turma.');
+    }
+  };
+
+  const handleTransferStudent = async () => {
+    if (!transferringStudent || !targetClassId) return;
+    try {
+      await apiRequest(`/api/teacher/students/${transferringStudent.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          classId: targetClassId === 'none' ? '' : targetClassId,
+        }),
+      });
+      setTransferringStudent(null);
+      setTargetClassId('');
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Erro ao transferir aluno.');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header bar */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <Users className="w-5 h-5 text-amber-400" />
+            Gestão de Turmas ({classes.length})
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Organiza os teus alunos em turmas para facilitar o acompanhamento pedagógico e geração de pautas.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-md"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Criar Nova Turma</span>
+        </button>
+      </div>
+
+      {/* Classes Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {classes.length === 0 ? (
+          <div className="col-span-full bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+            <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
+            <p className="font-semibold text-slate-400">Nenhuma turma criada ainda.</p>
+            <p className="text-xs text-slate-500 mt-1">Cria a tua primeira turma (ex: 6.º A) para agrupar os alunos.</p>
+          </div>
+        ) : (
+          classes.map((c) => {
+            const classStudents = students.filter((s) => s.classId === c.id);
+            const totalXP = classStudents.reduce((acc, s) => acc + (s.xp || 0), 0);
+            const avgXP = classStudents.length > 0 ? Math.round(totalXP / classStudents.length) : 0;
+            const avgPass =
+              classStudents.length > 0
+                ? Math.round(
+                    classStudents.reduce((acc, s) => acc + (s.globalAverage || 0), 0) /
+                      classStudents.length
+                  )
+                : 0;
+
+            return (
+              <div
+                key={c.id}
+                className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl transition-all"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-[10px] font-bold text-amber-400 font-mono uppercase">
+                        Código: {c.code}
+                      </div>
+                      <h4 className="text-lg font-bold text-white mt-0.5">Turma {c.name}</h4>
+                    </div>
+
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300">
+                      {classStudents.length} {classStudents.length === 1 ? 'aluno' : 'alunos'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
+                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                      <div className="text-slate-400 text-[11px]">XP Médio</div>
+                      <div className="font-bold font-mono text-amber-400 text-sm mt-0.5">
+                        {avgXP} XP
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                      <div className="text-slate-400 text-[11px]">Média da Turma</div>
+                      <div
+                        className={`font-bold font-mono text-sm mt-0.5 ${
+                          avgPass > 65 ? 'text-emerald-400' : 'text-slate-300'
+                        }`}
+                      >
+                        {avgPass > 0 ? `${avgPass}%` : '—'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                  <button
+                    onClick={() => handleDeleteClass(c.id, c.name)}
+                    className="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors"
+                    title="Eliminar Turma"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => handleOpenClassDetails(c)}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-amber-400 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>Gerir Turma</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Create Class Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Plus className="w-4 h-4 text-amber-400" />
+                Criar Nova Turma
+              </h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateClass} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-300">
+                  Nome da Turma (ex: 6.º A, 6.º B):
+                </label>
+                <input
+                  type="text"
+                  placeholder="ex: 6.º A"
+                  value={newClassName}
+                  onChange={(e) => setNewClassName(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-300">
+                  Código da Turma (ex: 6A, 6B):
+                </label>
+                <input
+                  type="text"
+                  placeholder="ex: 6A"
+                  value={newClassCode}
+                  onChange={(e) => setNewClassCode(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white uppercase focus:outline-none focus:border-amber-500 font-mono"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl"
+                >
+                  {creating ? 'A criar...' : 'Criar Turma'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Class Details & Student Roster Drawer/Modal */}
+      {selectedClassForDetails && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="bg-slate-950 p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-400" />
+                  Turma {selectedClassForDetails.name}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Código: <span className="font-mono text-amber-400 font-bold">{selectedClassForDetails.code}</span>
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedClassForDetails(null)}
+                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6 flex-1">
+              {/* Edit form */}
+              <form onSubmit={handleUpdateClass} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div className="text-xs font-bold text-slate-300 uppercase">Editar Informação da Turma</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-400">Nome:</label>
+                    <input
+                      type="text"
+                      value={editClassName}
+                      onChange={(e) => setEditClassName(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Código:</label>
+                    <input
+                      type="text"
+                      value={editClassCode}
+                      onChange={(e) => setEditClassCode(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white uppercase font-mono"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="submit"
+                    disabled={savingEdit}
+                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg flex items-center gap-1.5"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    {savingEdit ? 'A guardar...' : 'Guardar Alterações'}
+                  </button>
+                </div>
+              </form>
+
+              {/* Students in Class */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                    Alunos nesta Turma (
+                    {students.filter((s) => s.classId === selectedClassForDetails.id).length}
+                    )
+                  </h4>
+                </div>
+
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+                  <div className="divide-y divide-slate-800/80">
+                    {students
+                      .filter((s) => s.classId === selectedClassForDetails.id)
+                      .map((st) => (
+                        <div
+                          key={st.id}
+                          className="p-3 flex items-center justify-between hover:bg-slate-900/50 transition-colors"
+                        >
+                          <div
+                            onClick={() => {
+                              setSelectedClassForDetails(null);
+                              onOpenStudent(st);
+                            }}
+                            className="cursor-pointer group flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-bold text-xs flex items-center justify-center">
+                              {st.name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold text-slate-100 group-hover:text-amber-400 transition-colors">
+                                {st.name}
+                              </div>
+                              <div className="text-[11px] text-slate-400 font-mono">
+                                @{st.nickname} • {st.xp} XP • Nível {st.level}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setTransferringStudent(st);
+                                setTargetClassId('');
+                              }}
+                              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1 transition-colors"
+                            >
+                              <ArrowRightLeft className="w-3 h-3" />
+                              Transferir
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                    {students.filter((s) => s.classId === selectedClassForDetails.id).length === 0 && (
+                      <div className="p-6 text-center text-slate-500 text-xs">
+                        Não existem alunos associados a esta turma.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer Single Student Modal */}
+      {transferringStudent && (
+        <div className="fixed inset-0 z-60 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <ArrowRightLeft className="w-4 h-4 text-amber-400" />
+              Transferir Aluno
+            </h3>
+            <p className="text-xs text-slate-400">
+              Seleciona a nova turma para <strong>{transferringStudent.name}</strong>:
+            </p>
+
+            <select
+              value={targetClassId}
+              onChange={(e) => setTargetClassId(e.target.value)}
+              aria-label="Selecionar nova turma para o aluno"
+              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+            >
+              <option value="">-- Selecionar Turma --</option>
+              <option value="none">Sem Turma (Remover da turma atual)</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  Turma {c.name} ({c.code})
+                </option>
+              ))}
+            </select>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setTransferringStudent(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleTransferStudent}
+                disabled={!targetClassId}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl disabled:opacity-40"
+              >
+                Confirmar Transferência
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

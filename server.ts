@@ -3,7 +3,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import { createServer as createViteServer } from 'vite';
 import { authMiddleware, initSeedAccounts } from './server/auth';
-import { initSqliteEngine, getDbStats } from './server/db';
+import { getFirestoreStats, testFirestoreConnection } from './server/firestoreDb';
 import authRoutes from './server/routes/auth';
 import pedagogicalRoutes from './server/routes/pedagogical';
 import teacherRoutes from './server/routes/teacher';
@@ -20,17 +20,29 @@ async function startServer() {
   // Attach user to req if valid session exists
   app.use(authMiddleware);
 
-  // Initialize SQLite Database Engine & seed accounts
-  await initSqliteEngine();
-  initSeedAccounts();
+  // Initialize and verify Firebase Firestore Cloud Database
+  console.log('[FIREBASE FIRESTORE] Connecting to Google Cloud Firestore...');
+  const isConnected = await testFirestoreConnection();
+  if (isConnected) {
+    console.log('[FIREBASE FIRESTORE] Connected successfully to Cloud Firestore! Seeding initial data if needed...');
+    await initSeedAccounts();
+    console.log('[FIREBASE FIRESTORE] Seed check completed.');
+  } else {
+    console.warn('[FIREBASE FIRESTORE] Warning: Cloud Firestore test connection returned false or empty.');
+  }
 
   // API Routes
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
-  app.get('/api/system/db-status', (req, res) => {
-    res.json(getDbStats());
+  app.get('/api/system/db-status', async (req, res) => {
+    try {
+      const stats = await getFirestoreStats();
+      res.json(stats);
+    } catch (err: any) {
+      res.status(500).json({ error: err?.message || 'Database error' });
+    }
   });
 
   app.use('/api/auth', authRoutes);
@@ -53,7 +65,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`MISSÃO TIC 6.º ANO Server listening on http://0.0.0.0:${PORT}`);
+    console.log(`MISSÃO TIC 6.º ANO Server listening on http://0.0.0.0:${PORT} [Firestore Active]`);
   });
 }
 

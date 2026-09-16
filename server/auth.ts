@@ -1,7 +1,14 @@
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
-import { getDb, saveDb, User, Session, XPTransaction } from './db';
-import { calculateLevel } from './catalog';
+import {
+  User,
+  Session,
+  getUserById,
+  createSession as createFirestoreSession,
+  getSession as getFirestoreSession,
+  deleteSession as deleteFirestoreSession,
+  seedInitialFirestoreData,
+} from './firestoreDb';
 
 export interface AuthRequest extends Request {
   user?: User;
@@ -23,17 +30,8 @@ export function verifyPassword(password: string, hash: string, salt: string): bo
   }
 }
 
-export function createSession(userId: string): Session {
-  const db = getDb();
-  const session: Session = {
-    id: crypto.randomUUID(),
-    userId,
-    createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-  };
-  db.sessions.push(session);
-  saveDb(db);
-  return session;
+export async function createSession(userId: string): Promise<Session> {
+  return await createFirestoreSession(userId);
 }
 
 export function setSessionCookie(res: Response, sessionId: string) {
@@ -55,9 +53,7 @@ export function clearSessionCookie(res: Response) {
   });
 }
 
-export function getSessionFromRequest(req: Request): Session | null {
-  const db = getDb();
-  // Read from cookie or Authorization header fallback
+export async function getSessionFromRequest(req: Request): Promise<Session | null> {
   let sessionId = req.cookies?.session_id;
   if (!sessionId) {
     const authHeader = req.headers.authorization;
@@ -67,34 +63,28 @@ export function getSessionFromRequest(req: Request): Session | null {
   }
   if (!sessionId) return null;
 
-  const session = db.sessions.find((s) => s.id === sessionId);
-  if (!session) return null;
-
-  if (new Date(session.expiresAt) < new Date()) {
-    // Session expired
-    db.sessions = db.sessions.filter((s) => s.id !== sessionId);
-    saveDb(db);
-    return null;
-  }
-
-  return session;
+  return await getFirestoreSession(sessionId);
 }
 
-export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
-  const session = getSessionFromRequest(req);
-  if (!session) {
-    return next();
-  }
+export async function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const session = await getSessionFromRequest(req);
+    if (!session) {
+      return next();
+    }
 
-  const db = getDb();
-  const user = db.users.find((u) => u.id === session.userId);
-  if (!user || user.blocked) {
-    return next();
-  }
+    const user = await getUserById(session.userId);
+    if (!user || user.blocked) {
+      return next();
+    }
 
-  req.user = user;
-  req.sessionId = session.id;
-  next();
+    req.user = user;
+    req.sessionId = session.id;
+    next();
+  } catch (err) {
+    console.error('Error in authMiddleware with Firestore:', err);
+    next();
+  }
 }
 
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
@@ -114,153 +104,7 @@ export function requireTeacher(req: AuthRequest, res: Response, next: NextFuncti
   next();
 }
 
-// Ensure pre-seeded accounts exist
-export function initSeedAccounts() {
-  const db = getDb();
-  const teacherEmail = 'imaginebycarla2023@gmail.com';
-
-  const teacherExists = db.users.some((u) => u.email.toLowerCase() === teacherEmail.toLowerCase());
-  if (!teacherExists) {
-    const { hash, salt } = hashPassword('ProfTIC2024!');
-    const teacher: User = {
-      id: 'teacher-carla',
-      name: 'Carla Silva',
-      email: teacherEmail,
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Prof_Carla_TIC',
-      avatar: 'teacher-1',
-      role: 'teacher',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 0,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    db.users.push(teacher);
-  }
-
-  // Pre-seed Alex (matching screenshot)
-  const alexExists = db.users.some((u) => u.nickname === 'Panda_Feliz_701');
-  if (!alexExists) {
-    const { hash, salt } = hashPassword('Aluno123!');
-    const alex: User = {
-      id: 'student-alex',
-      name: 'Alex Rodrigues',
-      email: 'alex@escola.pt',
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Panda_Feliz_701',
-      avatar: 'avatar-boy-1',
-      role: 'student',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 320,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    db.users.push(alex);
-
-    // Initial registration XP record for Alex
-    db.xpTransactions.push({
-      id: 'xp-reg-alex',
-      userId: alex.id,
-      sourceType: 'registration',
-      sourceId: 'account-creation',
-      previousBest: 0,
-      newBest: 100,
-      xpGain: 100,
-      createdAt: new Date().toISOString(),
-    });
-
-    // Seed some progress for Alex
-    db.activityProgress.push(
-      {
-        id: 'prog-alex-pwd',
-        userId: alex.id,
-        activityId: 'sim-password',
-        worldId: 1,
-        bestScore: 90,
-        attempts: 2,
-        completed: true,
-        firstCompletedAt: new Date().toISOString(),
-        lastAttemptAt: new Date().toISOString(),
-      },
-      {
-        id: 'prog-alex-phishing',
-        userId: alex.id,
-        activityId: 'sim-phishing',
-        worldId: 1,
-        bestScore: 80,
-        attempts: 1,
-        completed: true,
-        firstCompletedAt: new Date().toISOString(),
-        lastAttemptAt: new Date().toISOString(),
-      },
-      {
-        id: 'prog-alex-w1-ch',
-        userId: alex.id,
-        activityId: 'ch-guarda-digital',
-        worldId: 1,
-        bestScore: 50,
-        attempts: 1,
-        completed: true,
-        firstCompletedAt: new Date().toISOString(),
-        lastAttemptAt: new Date().toISOString(),
-      }
-    );
-
-    // Badges for Alex
-    db.badges.push(
-      { id: 'b-alex-1', userId: alex.id, badgeId: 'primeiros-passos', awardedAt: new Date().toISOString() },
-      { id: 'b-alex-2', userId: alex.id, badgeId: 'guardiao-digital', awardedAt: new Date().toISOString() }
-    );
-  }
-
-  // Pre-seed classmates Leonor and Tiago (as in the screenshot ranking)
-  const leonorExists = db.users.some((u) => u.nickname === 'Raposa_Curiosa_284');
-  if (!leonorExists) {
-    const { hash, salt } = hashPassword('Aluno123!');
-    db.users.push({
-      id: 'student-leonor',
-      name: 'Leonor Fernandes',
-      email: 'leonor@escola.pt',
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Raposa_Curiosa_284',
-      avatar: 'avatar-girl-1',
-      role: 'student',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 920,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  const tiagoExists = db.users.some((u) => u.nickname === 'Robo_Azul_532');
-  if (!tiagoExists) {
-    const { hash, salt } = hashPassword('Aluno123!');
-    db.users.push({
-      id: 'student-tiago',
-      name: 'Tiago Santos',
-      email: 'tiago@escola.pt',
-      passwordHash: hash,
-      passwordSalt: salt,
-      nickname: 'Robo_Azul_532',
-      avatar: 'avatar-boy-2',
-      role: 'student',
-      classId: 'class-6a',
-      locale: 'pt',
-      xp: 850,
-      blocked: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  saveDb(db);
+// Ensure initial accounts and classes exist in Cloud Firestore
+export async function initSeedAccounts() {
+  await seedInitialFirestoreData();
 }
