@@ -512,48 +512,59 @@ export async function clientAwardXP(
   }
 ) {
   if (deltaXP <= 0) return;
-  const db = getClientDb();
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
-  if (!userSnap.exists()) return;
-  const currentXP = userSnap.data().xp || 0;
-  const newTotalXP = currentXP + deltaXP;
-  await updateDoc(userRef, {
-    xp: newTotalXP,
-    updatedAt: new Date().toISOString(),
-  });
-  const txId = `tx-${crypto.randomUUID()}`;
-  await setDoc(doc(db, 'xpTransactions', txId), {
-    id: txId,
-    userId,
-    amount: deltaXP,
-    sourceType: meta.sourceType,
-    sourceId: meta.sourceId,
-    previousBest: meta.previousBest ?? 0,
-    newBest: meta.newBest ?? 0,
-    createdAt: new Date().toISOString(),
-  });
-  await clientEvaluateBadges(userId);
+  try {
+    const db = getClientDb();
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return;
+    const currentXP = userSnap.data().xp || 0;
+    const newTotalXP = currentXP + deltaXP;
+    await updateDoc(userRef, {
+      xp: newTotalXP,
+      updatedAt: new Date().toISOString(),
+    });
+    const txId = `tx-${crypto.randomUUID()}`;
+    await setDoc(doc(db, 'xpTransactions', txId), {
+      id: txId,
+      userId,
+      amount: deltaXP,
+      xpGain: deltaXP,
+      sourceType: meta.sourceType,
+      sourceId: meta.sourceId,
+      previousBest: meta.previousBest ?? 0,
+      newBest: meta.newBest ?? 0,
+      createdAt: new Date().toISOString(),
+    });
+    await clientEvaluateBadges(userId);
+  } catch (err) {
+    console.warn('clientAwardXP warning:', err);
+  }
 }
 
 // Client Award Badge
 export async function clientAwardBadge(userId: string, badgeId: string) {
-  const db = getClientDb();
-  const badgeDef = BADGES_CATALOG.find((b) => b.id === badgeId);
-  if (!badgeDef) return;
-  const userBadgeRef = doc(db, 'userBadges', `${userId}_${badgeId}`);
-  const snap = await getDoc(userBadgeRef);
-  if (snap.exists()) return;
-  await setDoc(userBadgeRef, {
-    id: `${userId}_${badgeId}`,
-    userId,
-    badgeId,
-    name: badgeDef.title,
-    title: badgeDef.title,
-    description: badgeDef.description,
-    icon: badgeDef.icon,
-    earnedAt: new Date().toISOString(),
-  });
+  try {
+    const db = getClientDb();
+    const badgeDef = BADGES_CATALOG.find((b) => b.id === badgeId);
+    if (!badgeDef) return;
+    const badgeDocId = `badge_${userId}_${badgeId}`;
+    const badgeRef = doc(db, 'badges', badgeDocId);
+    const snap = await getDoc(badgeRef);
+    if (snap.exists()) return;
+    await setDoc(badgeRef, {
+      id: badgeDocId,
+      userId,
+      badgeId,
+      name: badgeDef.title,
+      title: badgeDef.title,
+      description: badgeDef.description,
+      icon: badgeDef.icon,
+      earnedAt: new Date().toISOString(),
+      awardedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.warn('clientAwardBadge warning:', err);
+  }
 }
 
 // Client Evaluate Badges
@@ -851,27 +862,42 @@ export async function clientSubmitAssessment(
     userId,
     assessmentId: assess.id,
     worldId,
+    score: correctCount,
     percentage,
     correctCount,
     totalQuestions: assess.questions.length,
     passed,
     answers,
     completedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
   });
 
   if (xpGain > 0) {
-    await clientAwardXP(userId, xpGain, {
-      sourceType: 'assessment',
-      sourceId: assess.id,
-      previousBest,
-      newBest,
-    });
+    try {
+      await clientAwardXP(userId, xpGain, {
+        sourceType: 'assessment',
+        sourceId: assess.id,
+        previousBest,
+        newBest,
+      });
+    } catch (xpErr) {
+      console.warn('XP award error (non-fatal):', xpErr);
+    }
   }
 
-  await clientEvaluateBadges(userId);
+  try {
+    await clientEvaluateBadges(userId);
+  } catch (badgeErr) {
+    console.warn('Badge evaluation error (non-fatal):', badgeErr);
+  }
 
-  const userSnap = await getDoc(doc(db, 'users', userId));
-  const totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;
+  let totalXp = 0;
+  try {
+    const userSnap = await getDoc(doc(db, 'users', userId));
+    totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;
+  } catch (userErr) {
+    console.warn('User XP fetch error (non-fatal):', userErr);
+  }
 
   return {
     worldId,

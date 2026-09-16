@@ -13,106 +13,86 @@ service cloud.firestore {
 
     // 1. Users collection
     match /users/{userId} {
-      allow get, list: if true;
-      allow write: if isValidId(userId) &&
-        request.resource.data.keys().hasAll(['id', 'email', 'name', 'role', 'classId', 'xp']) &&
-        request.resource.data.role in ['student', 'teacher'] &&
-        request.resource.data.xp is number &&
-        request.resource.data.name is string && request.resource.data.name.size() <= 120 &&
-        request.resource.data.email is string && request.resource.data.email.size() <= 150;
+      allow read: if true;
+      allow write: if isValidId(userId);
     }
 
     // 2. Classes collection
     match /classes/{classId} {
-      allow get, list: if true;
-      allow write: if isValidId(classId) &&
-        request.resource.data.keys().hasAll(['id', 'name', 'code']) &&
-        request.resource.data.name is string && request.resource.data.name.size() <= 60 &&
-        request.resource.data.code is string && request.resource.data.code.size() <= 30;
+      allow read: if true;
+      allow write: if isValidId(classId);
     }
 
     // 3. Sessions collection
     match /sessions/{sessionId} {
-      allow get, list: if true;
-      allow write: if isValidId(sessionId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'expiresAt']) &&
-        request.resource.data.userId is string &&
-        request.resource.data.expiresAt is string;
-      allow delete: if isValidId(sessionId);
+      allow read: if true;
+      allow write, delete: if isValidId(sessionId);
     }
 
     // 4. Activity Progress collection
     match /activityProgress/{progressId} {
-      allow get, list: if true;
-      allow write: if isValidId(progressId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'activityId', 'worldId', 'bestScore']) &&
-        request.resource.data.worldId is number && request.resource.data.worldId >= 1 && request.resource.data.worldId <= 5 &&
-        request.resource.data.bestScore is number && request.resource.data.bestScore >= 0 && request.resource.data.bestScore <= 100;
+      allow read: if true;
+      allow write: if isValidId(progressId);
     }
 
     // 5. Assessment Attempts collection
     match /assessmentAttempts/{attemptId} {
-      allow get, list: if true;
-      allow write: if isValidId(attemptId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'assessmentId', 'percentage', 'score']) &&
-        request.resource.data.percentage is number && request.resource.data.percentage >= 0 && request.resource.data.percentage <= 100;
+      allow read: if true;
+      allow write: if isValidId(attemptId);
     }
 
     // 6. Mission Submissions collection
     match /missionSubmissions/{submissionId} {
-      allow get, list: if true;
-      allow write: if isValidId(submissionId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'missionId', 'worldId', 'status']) &&
-        request.resource.data.status in ['pending', 'graded'] &&
-        request.resource.data.worldId is number && request.resource.data.worldId >= 1 && request.resource.data.worldId <= 5;
+      allow read: if true;
+      allow write: if isValidId(submissionId);
+    }
+
+    // 6b. Missions collection
+    match /missions/{missionId} {
+      allow read: if true;
+      allow write: if isValidId(missionId);
     }
 
     // 7. XP Transactions collection
     match /xpTransactions/{transactionId} {
-      allow get, list: if true;
-      allow write: if isValidId(transactionId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'xpGain', 'sourceType']) &&
-        request.resource.data.xpGain is number && request.resource.data.xpGain >= 0 && request.resource.data.xpGain <= 500;
+      allow read: if true;
+      allow write: if isValidId(transactionId);
     }
 
     // 8. Badges collection
     match /badges/{badgeId} {
-      allow get, list: if true;
-      allow write: if isValidId(badgeId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'badgeId']) &&
-        request.resource.data.badgeId is string && request.resource.data.badgeId.size() <= 80;
+      allow read: if true;
+      allow write: if isValidId(badgeId);
+    }
+
+    // 8b. userBadges collection (alias)
+    match /userBadges/{badgeId} {
+      allow read: if true;
+      allow write: if isValidId(badgeId);
     }
 
     // 9. Daily Tip Claims collection
     match /dailyTipClaims/{claimId} {
-      allow get, list: if true;
-      allow write: if isValidId(claimId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'tipDate']) &&
-        request.resource.data.tipDate is string && request.resource.data.tipDate.size() <= 20;
+      allow read: if true;
+      allow write: if isValidId(claimId);
     }
 
     // 10. Weekly Challenges collection
     match /weeklyChallenges/{challengeId} {
-      allow get, list: if true;
-      allow write: if isValidId(challengeId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'challengeId', 'status']) &&
-        request.resource.data.status == 'completed';
+      allow read: if true;
+      allow write: if isValidId(challengeId);
     }
 
     // 11. Grande Missao Progress collection
     match /grandeMissaoProgress/{userId} {
-      allow get, list: if true;
-      allow write: if isValidId(userId) &&
-        request.resource.data.keys().hasAll(['id', 'userId', 'currentStage', 'status']) &&
-        request.resource.data.currentStage is number && request.resource.data.currentStage >= 1 && request.resource.data.currentStage <= 5;
+      allow read: if true;
+      allow write: if isValidId(userId);
     }
 
     // 12. Audit Logs collection
     match /auditLogs/{logId} {
-      allow get, list: if true;
-      allow write: if isValidId(logId) &&
-        request.resource.data.keys().hasAll(['id', 'actorUserId', 'action']) &&
-        request.resource.data.action is string && request.resource.data.action.size() <= 100;
+      allow read: if true;
+      allow write: if isValidId(logId);
     }
   }
 }
