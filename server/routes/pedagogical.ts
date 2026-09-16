@@ -155,8 +155,8 @@ router.get('/worlds', async (req: AuthRequest, res) => {
       const defaultWorlds = WORLDS_DATA.map((w) => ({
         ...w,
         isUnlocked: w.id === 1,
-        average: w.id === 1 ? 60 : 0,
-        completedCount: w.id === 1 ? 1 : 0,
+        average: 0,
+        completedCount: 0,
         totalComponents: w.simulators.length + 3,
         challengeProgress: null,
         missionProgress: null,

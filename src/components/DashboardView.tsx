@@ -41,7 +41,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenWeeklyChallenge,
   onOpenGrandeMissao,
 }) => {
-  const { user, locale, refreshUser } = useAuth();
+  const { user, locale, refreshUser, badges = [] } = useAuth();
   const [worlds, setWorlds] = useState<WorldSummary[]>([]);
   const [ranking, setRanking] = useState<RankingStudent[]>([]);
   const [dailyTip, setDailyTip] = useState<DailyTipData | null>(null);
@@ -294,186 +294,328 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Floating Islands Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5 relative z-10">
             {/* Island 1: Guardião Digital */}
-            <div
-              id="world-island-1"
-              onClick={() => onSelectWorld(1)}
-              className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-            >
-              {/* Island Illustration */}
-              <div className="w-full h-36 flex items-center justify-center relative">
-                <Island1Artwork className="w-full h-full drop-shadow-sm" />
-              </div>
-
-              {/* Floating Island Card Pill */}
-              <div className="w-full bg-white rounded-2xl p-3.5 border border-blue-200/90 shadow-sm mt-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider block">
-                    Mundo 1
-                  </span>
-                  <h4 className="text-sm font-black text-slate-900 leading-snug">
-                    Guardião Digital
-                  </h4>
-                </div>
-
-                {/* Progress bar with 60% as in reference */}
-                <div className="my-2">
-                  <div className="flex justify-end text-[10px] font-extrabold text-blue-600 mb-1">
-                    60%
+            {(() => {
+              const w1 = worlds.find((w) => w.id === 1);
+              const isUnlocked = true;
+              const avg = Math.round(w1?.average || 0);
+              const completedCount = w1?.completedCount || 0;
+              return (
+                <div
+                  id="world-island-1"
+                  onClick={() => onSelectWorld(1)}
+                  className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
+                >
+                  <div className="w-full h-36 flex items-center justify-center relative">
+                    <Island1Artwork className="w-full h-full drop-shadow-sm" />
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className="bg-blue-600 h-full rounded-full w-[60%]" />
+
+                  <div className="w-full bg-white rounded-2xl p-3.5 border border-blue-200/90 shadow-sm mt-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider block">
+                        Mundo 1
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 leading-snug">
+                        Guardião Digital
+                      </h4>
+                    </div>
+
+                    <div className="my-2">
+                      <div className="flex justify-end text-[10px] font-extrabold text-blue-600 mb-1">
+                        {avg}%
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${avg}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
+                        avg >= 65
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : avg > 0
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      <span>
+                        {avg >= 65
+                          ? 'Concluído'
+                          : avg > 0
+                          ? 'Em progresso'
+                          : 'Por iniciar'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="w-full py-1.5 rounded-xl text-xs font-black bg-emerald-100 text-emerald-800 flex items-center justify-center gap-1">
-                  <span>Em progresso</span>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Island 2: Detetive Digital */}
-            <div
-              id="world-island-2"
-              onClick={() => onSelectWorld(2)}
-              className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-            >
-              <div className="w-full h-36 flex items-center justify-center relative">
-                <Island2Artwork className="w-full h-full drop-shadow-sm" />
-              </div>
-
-              <div className="w-full bg-white rounded-2xl p-3.5 border border-sky-200/90 shadow-sm mt-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-black text-sky-600 uppercase tracking-wider block">
-                    Mundo 2
-                  </span>
-                  <h4 className="text-sm font-black text-slate-900 leading-snug">
-                    Detetive Digital
-                  </h4>
-                </div>
-
-                {/* Progress bar with 20% as in reference */}
-                <div className="my-2">
-                  <div className="flex justify-end text-[10px] font-extrabold text-sky-600 mb-1">
-                    20%
+            {(() => {
+              const w2 = worlds.find((w) => w.id === 2);
+              const isUnlocked = Boolean(w2?.isUnlocked);
+              const avg = Math.round(w2?.average || 0);
+              return (
+                <div
+                  id="world-island-2"
+                  onClick={() => onSelectWorld(2)}
+                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
+                    isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
+                  }`}
+                >
+                  <div className="w-full h-36 flex items-center justify-center relative">
+                    <Island2Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-30'}`} />
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className="bg-sky-500 h-full rounded-full w-[20%]" />
+
+                  <div className="w-full bg-white rounded-2xl p-3.5 border border-sky-200/90 shadow-sm mt-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-black text-sky-600 uppercase tracking-wider block">
+                        Mundo 2
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 leading-snug">
+                        Detetive Digital
+                      </h4>
+                    </div>
+
+                    <div className="my-2">
+                      <div className="flex justify-end text-[10px] font-extrabold text-sky-600 mb-1">
+                        {avg}%
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-sky-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${avg}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
+                        !isUnlocked
+                          ? 'bg-slate-100 text-slate-500'
+                          : avg >= 65
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : avg > 0
+                          ? 'bg-sky-100 text-sky-800'
+                          : 'bg-sky-50 text-sky-700'
+                      }`}
+                    >
+                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      <span>
+                        {!isUnlocked
+                          ? 'Bloqueado'
+                          : avg >= 65
+                          ? 'Concluído'
+                          : avg > 0
+                          ? 'Em progresso'
+                          : 'Desbloqueado'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="w-full py-1.5 rounded-xl text-xs font-black bg-sky-100 text-sky-800 flex items-center justify-center gap-1">
-                  <span>Desbloqueado</span>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Island 3: Criador Digital */}
-            <div
-              id="world-island-3"
-              onClick={() => onSelectWorld(3)}
-              className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-            >
-              <div className="w-full h-36 flex items-center justify-center relative">
-                <Island3Artwork className="w-full h-full drop-shadow-sm opacity-90" />
-              </div>
-
-              <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-slate-200 shadow-sm mt-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-                    Mundo 3
-                  </span>
-                  <h4 className="text-sm font-black text-slate-900 leading-snug">
-                    Criador Digital
-                  </h4>
-                </div>
-
-                <div className="my-2 opacity-50">
-                  <div className="flex justify-end text-[10px] font-bold text-slate-400 mb-1">
-                    0%
+            {(() => {
+              const w3 = worlds.find((w) => w.id === 3);
+              const isUnlocked = Boolean(w3?.isUnlocked);
+              const avg = Math.round(w3?.average || 0);
+              return (
+                <div
+                  id="world-island-3"
+                  onClick={() => onSelectWorld(3)}
+                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
+                    isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
+                  }`}
+                >
+                  <div className="w-full h-36 flex items-center justify-center relative">
+                    <Island3Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className="bg-purple-400 h-full rounded-full w-[0%]" />
+
+                  <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-purple-200/80 shadow-sm mt-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-black text-purple-600 uppercase tracking-wider block">
+                        Mundo 3
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 leading-snug">
+                        Criador Digital
+                      </h4>
+                    </div>
+
+                    <div className="my-2">
+                      <div className="flex justify-end text-[10px] font-bold text-purple-600 mb-1">
+                        {avg}%
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-purple-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${avg}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
+                        !isUnlocked
+                          ? 'bg-slate-100 text-slate-500'
+                          : avg >= 65
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : avg > 0
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-purple-50 text-purple-700'
+                      }`}
+                    >
+                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      <span>
+                        {!isUnlocked
+                          ? 'Bloqueado'
+                          : avg >= 65
+                          ? 'Concluído'
+                          : avg > 0
+                          ? 'Em progresso'
+                          : 'Desbloqueado'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="w-full py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center justify-center gap-1">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Bloqueado</span>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Island 4: Engenheiro Digital */}
-            <div
-              id="world-island-4"
-              onClick={() => onSelectWorld(4)}
-              className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-            >
-              <div className="w-full h-36 flex items-center justify-center relative">
-                <Island4Artwork className="w-full h-full drop-shadow-sm opacity-90" />
-              </div>
-
-              <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-slate-200 shadow-sm mt-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-                    Mundo 4
-                  </span>
-                  <h4 className="text-sm font-black text-slate-900 leading-snug">
-                    Engenheiro Digital
-                  </h4>
-                </div>
-
-                <div className="my-2 opacity-50">
-                  <div className="flex justify-end text-[10px] font-bold text-slate-400 mb-1">
-                    0%
+            {(() => {
+              const w4 = worlds.find((w) => w.id === 4);
+              const isUnlocked = Boolean(w4?.isUnlocked);
+              const avg = Math.round(w4?.average || 0);
+              return (
+                <div
+                  id="world-island-4"
+                  onClick={() => onSelectWorld(4)}
+                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
+                    isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
+                  }`}
+                >
+                  <div className="w-full h-36 flex items-center justify-center relative">
+                    <Island4Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className="bg-amber-400 h-full rounded-full w-[0%]" />
+
+                  <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-amber-200/80 shadow-sm mt-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-black text-amber-600 uppercase tracking-wider block">
+                        Mundo 4
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 leading-snug">
+                        Engenheiro Digital
+                      </h4>
+                    </div>
+
+                    <div className="my-2">
+                      <div className="flex justify-end text-[10px] font-bold text-amber-600 mb-1">
+                        {avg}%
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${avg}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
+                        !isUnlocked
+                          ? 'bg-slate-100 text-slate-500'
+                          : avg >= 65
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : avg > 0
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      <span>
+                        {!isUnlocked
+                          ? 'Bloqueado'
+                          : avg >= 65
+                          ? 'Concluído'
+                          : avg > 0
+                          ? 'Em progresso'
+                          : 'Desbloqueado'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="w-full py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center justify-center gap-1">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Bloqueado</span>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Island 5: Explorador da IA */}
-            <div
-              id="world-island-5"
-              onClick={() => onSelectWorld(5)}
-              className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-            >
-              <div className="w-full h-36 flex items-center justify-center relative">
-                <Island5Artwork className="w-full h-full drop-shadow-sm opacity-90" />
-              </div>
-
-              <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-slate-200 shadow-sm mt-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-                    Mundo 5
-                  </span>
-                  <h4 className="text-sm font-black text-slate-900 leading-snug">
-                    Explorador da IA
-                  </h4>
-                </div>
-
-                <div className="my-2 opacity-50">
-                  <div className="flex justify-end text-[10px] font-bold text-slate-400 mb-1">
-                    0%
+            {(() => {
+              const w5 = worlds.find((w) => w.id === 5);
+              const isUnlocked = Boolean(w5?.isUnlocked);
+              const avg = Math.round(w5?.average || 0);
+              return (
+                <div
+                  id="world-island-5"
+                  onClick={() => onSelectWorld(5)}
+                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
+                    isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
+                  }`}
+                >
+                  <div className="w-full h-36 flex items-center justify-center relative">
+                    <Island5Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className="bg-indigo-400 h-full rounded-full w-[0%]" />
+
+                  <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-indigo-200/80 shadow-sm mt-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-black text-indigo-600 uppercase tracking-wider block">
+                        Mundo 5
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 leading-snug">
+                        Explorador da IA
+                      </h4>
+                    </div>
+
+                    <div className="my-2">
+                      <div className="flex justify-end text-[10px] font-bold text-indigo-600 mb-1">
+                        {avg}%
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-indigo-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${avg}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
+                        !isUnlocked
+                          ? 'bg-slate-100 text-slate-500'
+                          : avg >= 65
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : avg > 0
+                          ? 'bg-indigo-100 text-indigo-800'
+                          : 'bg-indigo-50 text-indigo-700'
+                      }`}
+                    >
+                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      <span>
+                        {!isUnlocked
+                          ? 'Bloqueado'
+                          : avg >= 65
+                          ? 'Concluído'
+                          : avg > 0
+                          ? 'Em progresso'
+                          : 'Desbloqueado'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="w-full py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center justify-center gap-1">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Bloqueado</span>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Summit: Grande Missão Final - A ESCOLA DO FUTURO */}
             <div
@@ -528,101 +670,94 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             </div>
 
-            {/* 5 Shields in horizontal sequence matching image */}
+            {/* 5 Shields in horizontal sequence dynamic from user badges */}
             <div className="grid grid-cols-5 gap-2 py-3">
-              {/* Shield 1: Guardião Digital (unlocked, blue) */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-14 flex items-center justify-center">
-                  <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13">
-                    <path
-                      d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
-                      fill="#2563EB"
-                      stroke="#FFFFFF"
-                      strokeWidth="2.5"
-                    />
-                    <path
-                      d="M24 8 L38 12 C38 30, 34 40, 24 46 C14 40, 10 30, 10 12 Z"
-                      fill="#3B82F6"
-                    />
-                    <polygon points="24,18 26,24 32,24 27,28 29,34 24,30 19,34 21,28 16,24 22,24" fill="#FFFFFF" />
-                  </svg>
-                </div>
-                <span className="text-[10px] font-bold text-slate-700 leading-tight mt-1">
-                  Guardião Digital
-                </span>
-              </div>
+              {(() => {
+                const userBadgesList = badges.map((b: any) => b.badgeId || b.id || b);
+                const shieldConfigs = [
+                  {
+                    id: 'guardiao-digital',
+                    name: 'Guardião Digital',
+                    color: '#2563EB',
+                    fill: '#3B82F6',
+                    icon: 'star',
+                  },
+                  {
+                    id: 'detetive-digital',
+                    name: 'Detetive Digital',
+                    color: '#0284C7',
+                    fill: '#38BDF8',
+                    icon: 'search',
+                  },
+                  {
+                    id: 'criador-digital',
+                    name: 'Criador Digital',
+                    color: '#7C3AED',
+                    fill: '#A855F7',
+                    icon: 'palette',
+                  },
+                  {
+                    id: 'engenheiro-digital',
+                    name: 'Engenheiro Digital',
+                    color: '#D97706',
+                    fill: '#F59E0B',
+                    icon: 'terminal',
+                  },
+                  {
+                    id: 'explorador-da-ia',
+                    name: 'Explorador da IA',
+                    color: '#4F46E5',
+                    fill: '#6366F1',
+                    icon: 'sparkles',
+                  },
+                ];
 
-              {/* Shield 2: Detetive Digital (unlocked, blue) */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-14 flex items-center justify-center">
-                  <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13">
-                    <circle cx="24" cy="24" r="20" fill="#0284C7" stroke="#FFFFFF" strokeWidth="2.5" />
-                    {/* Magnifying Glass Icon inside */}
-                    <circle cx="22" cy="22" r="8" fill="none" stroke="#FFFFFF" strokeWidth="2.5" />
-                    <line x1="28" y1="28" x2="35" y2="35" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <span className="text-[10px] font-bold text-slate-700 leading-tight mt-1">
-                  Detetive Digital
-                </span>
-              </div>
-
-              {/* Shield 3: Criador Digital (locked, grey) */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-14 flex items-center justify-center">
-                  <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 opacity-70">
-                    <path
-                      d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
-                      fill="#E2E8F0"
-                      stroke="#CBD5E1"
-                      strokeWidth="2"
-                    />
-                    <circle cx="24" cy="28" r="4" fill="#94A3B8" />
-                    <path d="M22 28 V24 A2 2 0 0 1 26 24 V28" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                  </svg>
-                </div>
-                <span className="text-[10px] font-bold text-slate-400 leading-tight mt-1">
-                  Criador Digital
-                </span>
-              </div>
-
-              {/* Shield 4: Engenheiro Digital (locked, grey) */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-14 flex items-center justify-center">
-                  <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 opacity-70">
-                    <path
-                      d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
-                      fill="#E2E8F0"
-                      stroke="#CBD5E1"
-                      strokeWidth="2"
-                    />
-                    <circle cx="24" cy="28" r="4" fill="#94A3B8" />
-                    <path d="M22 28 V24 A2 2 0 0 1 26 24 V28" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                  </svg>
-                </div>
-                <span className="text-[10px] font-bold text-slate-400 leading-tight mt-1">
-                  Engenheiro Digital
-                </span>
-              </div>
-
-              {/* Shield 5: Explorador da IA (locked, grey) */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-14 flex items-center justify-center">
-                  <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 opacity-70">
-                    <path
-                      d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
-                      fill="#E2E8F0"
-                      stroke="#CBD5E1"
-                      strokeWidth="2"
-                    />
-                    <circle cx="24" cy="28" r="4" fill="#94A3B8" />
-                    <path d="M22 28 V24 A2 2 0 0 1 26 24 V28" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                  </svg>
-                </div>
-                <span className="text-[10px] font-bold text-slate-400 leading-tight mt-1">
-                  Explorador da IA
-                </span>
-              </div>
+                return shieldConfigs.map((shield) => {
+                  const hasIt = userBadgesList.includes(shield.id);
+                  return (
+                    <div key={shield.id} className="flex flex-col items-center text-center">
+                      <div className="w-12 h-14 flex items-center justify-center">
+                        {hasIt ? (
+                          <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 drop-shadow-xs">
+                            <path
+                              d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
+                              fill={shield.color}
+                              stroke="#FFFFFF"
+                              strokeWidth="2.5"
+                            />
+                            <path
+                              d="M24 8 L38 12 C38 30, 34 40, 24 46 C14 40, 10 30, 10 12 Z"
+                              fill={shield.fill}
+                            />
+                            <polygon
+                              points="24,18 26,24 32,24 27,28 29,34 24,30 19,34 21,28 16,24 22,24"
+                              fill="#FFFFFF"
+                            />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 opacity-50">
+                            <path
+                              d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
+                              fill="#E2E8F0"
+                              stroke="#CBD5E1"
+                              strokeWidth="2"
+                            />
+                            <circle cx="24" cy="28" r="4" fill="#94A3B8" />
+                            <path d="M22 28 V24 A2 2 0 0 1 26 24 V28" stroke="#94A3B8" strokeWidth="2" fill="none" />
+                          </svg>
+                        )}
+                      </div>
+                      <span
+                        className={`text-[10px] font-bold leading-tight mt-1 ${
+                          hasIt ? 'text-slate-800' : 'text-slate-400'
+                        }`}
+                      >
+                        {shield.name}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
 
@@ -641,7 +776,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Próxima missão
             </h3>
 
-            {/* Mission Box matching mockup: Cyan-blue squircle with book illustration */}
+            {/* Mission Box */}
             <div className="flex items-center gap-4 bg-[#F0F9FF] border border-[#BAE6FD] p-4 rounded-2xl">
               <div className="w-13 h-13 rounded-2xl bg-[#0284C7] text-white flex items-center justify-center shrink-0 shadow-xs">
                 <BookOpen className="w-7 h-7" />
@@ -690,65 +825,80 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             </div>
 
-            {/* Ranking 3 rows matching reference mockup: Leonor, Tiago, Alex (Tu) */}
+            {/* Dynamic ranking from server/database */}
             <div className="space-y-2.5">
-              {/* Position 1: Leonor */}
-              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
-                <div className="flex items-center gap-3">
-                  <span className="text-base select-none">👑</span>
-                  <LeonorAvatar size={34} />
-                  <div>
-                    <span className="text-xs font-black text-slate-800">
-                      Leonor
-                    </span>
-                    <span className="text-[10px] text-slate-400 block">6.º A</span>
-                  </div>
+              {ranking.length === 0 ? (
+                <div className="text-center py-6 text-xs text-slate-500 font-medium">
+                  {user ? (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-base">⭐</span>
+                        <div className="text-left">
+                          <span className="text-xs font-black text-blue-800 block">
+                            {user.nickname} (Tu)
+                          </span>
+                          <span className="text-[10px] text-blue-600 font-semibold">
+                            {user.classId?.replace('class-', 'Turma ').toUpperCase() || '6.º A'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-xs font-black text-blue-700 bg-white px-2.5 py-1 rounded-lg shadow-2xs">
+                        {user.xp || 0} XP
+                      </span>
+                    </div>
+                  ) : (
+                    'Sem alunos na turma ainda.'
+                  )}
                 </div>
-                <span className="text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg">
-                  920 XP
-                </span>
-              </div>
-
-              {/* Position 2: Tiago */}
-              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
-                <div className="flex items-center gap-3">
-                  <span className="text-base select-none">🥈</span>
-                  <TiagoAvatar size={34} />
-                  <div>
-                    <span className="text-xs font-black text-slate-800">
-                      Tiago
-                    </span>
-                    <span className="text-[10px] text-slate-400 block">6.º A</span>
-                  </div>
-                </div>
-                <span className="text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg">
-                  850 XP
-                </span>
-              </div>
-
-              {/* Position 3: Alex (Tu) - Highlighted in blue as in screenshot */}
-              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-blue-50/90 border border-blue-200">
-                <div className="flex items-center gap-3">
-                  <span className="text-base select-none">🥉</span>
-                  <AlexAvatar size={34} className="rounded-full" />
-                  <div>
-                    <span className="text-xs font-black text-blue-700">
-                      Alex (Tu)
-                    </span>
-                    <span className="text-[10px] text-blue-500 font-bold block">
-                      Nível 3
-                    </span>
-                  </div>
-                </div>
-                <span className="text-xs font-black text-blue-700 bg-white px-2.5 py-1 rounded-lg border border-blue-200 shadow-2xs">
-                  320 XP
-                </span>
-              </div>
+              ) : (
+                ranking.slice(0, 3).map((item, idx) => {
+                  const medal = idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉';
+                  const isCurrent = item.isCurrentUser || item.id === user?.id;
+                  return (
+                    <div
+                      key={item.id || idx}
+                      className={`flex items-center justify-between p-2.5 rounded-2xl border ${
+                        isCurrent
+                          ? 'bg-blue-50/90 border-blue-200'
+                          : 'bg-slate-50 border-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base select-none">{medal}</span>
+                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                          {item.nickname.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <span
+                            className={`text-xs font-black block ${
+                              isCurrent ? 'text-blue-700' : 'text-slate-800'
+                            }`}
+                          >
+                            {item.nickname} {isCurrent && '(Tu)'}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block font-medium">
+                            Nível {item.level} • {item.levelName}
+                          </span>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-xs font-black px-2.5 py-1 rounded-lg ${
+                          isCurrent
+                            ? 'text-blue-700 bg-white border border-blue-200'
+                            : 'text-blue-700 bg-blue-50'
+                        }`}
+                      >
+                        {item.xp} XP
+                      </span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-            Faltam 180 XP para alcançares o 2.º lugar!
+            Pratica missões e desafios para subir no ranking da turma!
           </div>
         </div>
       </div>

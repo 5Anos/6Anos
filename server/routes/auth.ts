@@ -125,7 +125,7 @@ router.post('/register', async (req, res) => {
     const { hash, salt } = hashPassword(password);
     const userId = `student-${crypto.randomUUID()}`;
 
-    // Initial user with 100 XP registration reward (awarded once)
+    // Initial student user starts at Level 1 with 0 XP
     const newUser: User = {
       id: userId,
       name: name.trim(),
@@ -137,7 +137,7 @@ router.post('/register', async (req, res) => {
       role: 'student',
       classId: classroom.id,
       locale: locale === 'en' ? 'en' : 'pt',
-      xp: 100, // +100 XP registration reward
+      xp: 0, // Starts at 0 XP (Level 1: Novato Digital)
       blocked: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -146,15 +146,7 @@ router.post('/register', async (req, res) => {
 
     await saveUser(newUser);
 
-    // Record atomic XP transaction in Cloud Firestore
-    await atomicAwardXP(newUser.id, 0, {
-      sourceType: 'registration',
-      sourceId: 'account-creation',
-      previousBest: 0,
-      newBest: 100,
-    });
-
-    // Automatically award 'primeiros-passos' badge in Cloud Firestore
+    // Award initial welcome badge 'primeiros-passos' in Cloud Firestore
     await awardBadge(newUser.id, 'primeiros-passos');
 
     const session = await createSession(newUser.id);

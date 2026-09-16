@@ -223,7 +223,7 @@ export async function clientRegisterStudent(data: {
     role: 'student',
     classId: classId,
     locale: data.locale === 'en' ? 'en' : 'pt',
-    xp: 100, // +100 XP registration reward
+    xp: 0, // Starts at 0 XP (Level 1: Novato Digital)
     blocked: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -242,20 +242,7 @@ export async function clientRegisterStudent(data: {
     awardedAt: new Date().toISOString(),
   });
 
-  // 3. Save initial XP transaction
-  const xpTxId = `xp_${userId}_${Date.now()}`;
-  await setDoc(doc(db, 'xpTransactions', xpTxId), {
-    id: xpTxId,
-    userId: userId,
-    sourceType: 'registration',
-    sourceId: 'account-creation',
-    previousBest: 0,
-    newBest: 100,
-    xpGain: 100,
-    createdAt: new Date().toISOString(),
-  });
-
-  // 4. Create session
+  // 3. Create session
   const sessionId = `session-${crypto.randomUUID()}`;
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   await setDoc(doc(db, 'sessions', sessionId), {
