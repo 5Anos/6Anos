@@ -1,0 +1,156 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { AuthUser } from '../types';
+import { apiRequest, setStoredToken } from '../api';
+import { Locale } from '../i18n';
+
+interface AuthContextType {
+  user: AuthUser | null;
+  badges: any[];
+  classroom: { id: string; name: string; code: string } | null;
+  loading: boolean;
+  locale: Locale;
+  setLocale: (loc: Locale) => void;
+  login: (email: string, pass: string) => Promise<void>;
+  register: (data: any) => Promise<string>;
+  logout: () => Promise<void>;
+  quickSwitch: (role: 'student' | 'teacher') => Promise<void>;
+  updateProfile: (data: Partial<AuthUser>) => Promise<void>;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [badges, setBadges] = useState<any[]>([]);
+  const [classroom, setClassroom] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [locale, setLocaleState] = useState<Locale>('pt');
+
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await apiRequest('/api/auth/me');
+      setUser(res.user);
+      setBadges(res.badges || []);
+      setClassroom(res.classroom || null);
+      if (res.user?.locale) {
+        setLocaleState(res.user.locale);
+      }
+    } catch {
+      // Not logged in or expired; try quick-switch to default demo student Alex on first load!
+      try {
+        const switchRes = await apiRequest('/api/auth/quick-switch', {
+          method: 'POST',
+          body: JSON.stringify({ role: 'student' }),
+        });
+        if (switchRes.token) setStoredToken(switchRes.token);
+        setUser(switchRes.user);
+        if (switchRes.user?.locale) setLocaleState(switchRes.user.locale);
+      } catch {
+        setUser(null);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
+
+  const login = async (email: string, pass: string) => {
+    const res = await apiRequest('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password: pass }),
+    });
+    if (res.token) setStoredToken(res.token);
+    setUser(res.user);
+    if (res.user?.locale) setLocaleState(res.user.locale);
+    await refreshUser();
+  };
+
+  const register = async (data: any) => {
+    const res = await apiRequest('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res.token) setStoredToken(res.token);
+    setUser(res.user);
+    if (res.user?.locale) setLocaleState(res.user.locale);
+    await refreshUser();
+    return res.message;
+  };
+
+  const logout = async () => {
+    try {
+      await apiRequest('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    setStoredToken(null);
+    setUser(null);
+  };
+
+  const quickSwitch = async (role: 'student' | 'teacher') => {
+    const res = await apiRequest('/api/auth/quick-switch', {
+      method: 'POST',
+      body: JSON.stringify({ role }),
+    });
+    if (res.token) setStoredToken(res.token);
+    setUser(res.user);
+    if (res.user?.locale) setLocaleState(res.user.locale);
+    await refreshUser();
+  };
+
+  const updateProfile = async (data: Partial<AuthUser>) => {
+    const res = await apiRequest('/api/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    setUser(res.user);
+    if (res.user?.locale) setLocaleState(res.user.locale);
+  };
+
+  const refreshUser = async () => {
+    try {
+      const res = await apiRequest('/api/auth/me');
+      setUser(res.user);
+      setBadges(res.badges || []);
+      setClassroom(res.classroom || null);
+    } catch (e) {
+      console.error('Failed to refresh user', e);
+    }
+  };
+
+  const setLocale = (loc: Locale) => {
+    setLocaleState(loc);
+    if (user) {
+      updateProfile({ locale: loc }).catch(() => {});
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        badges,
+        classroom,
+        loading,
+        locale,
+        setLocale,
+        login,
+        register,
+        logout,
+        quickSwitch,
+        updateProfile,
+        refreshUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  return context;
+};
