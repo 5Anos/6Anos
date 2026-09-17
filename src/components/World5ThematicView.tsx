@@ -278,22 +278,22 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <BookOpen className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
                   1. Aprende: Conceito de IA, reconhecimento de padrões e algoritmos
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500 hidden sm:inline-flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Conceito Curricular Explicado
+                <span>Conceito Curricular Explicado</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="text-sm text-slate-700 space-y-3 leading-relaxed font-medium">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="md:col-span-7 space-y-4">
+                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
                   {topic1?.paragraphs.map((p, idx) => (
                     <p key={idx}>{p}</p>
                   ))}
@@ -308,7 +308,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 )}
               </div>
 
-              <div className="lg:col-span-5">
+              <div className="md:col-span-5 w-full">
                 <TopicIllustrationCard topicId="w5-t1" />
               </div>
             </div>
@@ -449,22 +449,22 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <BookOpen className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
                   1. Aprende: Geração de texto, imagem e a necessidade de verificação
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500 hidden sm:inline-flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Conceito Curricular Explicado
+                <span>Conceito Curricular Explicado</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="text-sm text-slate-700 space-y-3 leading-relaxed font-medium">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="md:col-span-7 space-y-4">
+                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
                   {topic2?.paragraphs.map((p, idx) => (
                     <p key={idx}>{p}</p>
                   ))}
@@ -479,7 +479,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 )}
               </div>
 
-              <div className="lg:col-span-5">
+              <div className="md:col-span-5 w-full">
                 <TopicIllustrationCard topicId="w5-t2" />
               </div>
             </div>
@@ -607,27 +607,27 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <BookOpen className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
                   1. Aprende: A arte de formular prompts claros e contextualizados
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500 hidden sm:inline-flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Conceito Curricular Explicado
+                <span>Conceito Curricular Explicado</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="text-sm text-slate-700 space-y-3 leading-relaxed font-medium">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="md:col-span-7 space-y-4">
+                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
                   {topic3?.paragraphs.map((p, idx) => (
                     <p key={idx}>{p}</p>
                   ))}
                   {topic3?.bulletPoints && topic3.bulletPoints.length > 0 && (
-                    <ul className="list-disc pl-5 space-y-1 text-slate-800">
+                    <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
                       {topic3.bulletPoints.map((bp, bidx) => (
                         <li key={bidx}>{bp}</li>
                       ))}
@@ -644,7 +644,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 )}
               </div>
 
-              <div className="lg:col-span-5">
+              <div className="md:col-span-5 w-full">
                 <TopicIllustrationCard topicId="w5-t3" />
               </div>
             </div>
@@ -768,22 +768,22 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <BookOpen className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
                   1. Aprende: O fenómeno das "alucinações" e dados inventados
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500 hidden sm:inline-flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Conceito Curricular Explicado
+                <span>Conceito Curricular Explicado</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="text-sm text-slate-700 space-y-3 leading-relaxed font-medium">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="md:col-span-7 space-y-4">
+                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
                   {topic4?.paragraphs.map((p, idx) => (
                     <p key={idx}>{p}</p>
                   ))}
@@ -798,7 +798,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 )}
               </div>
 
-              <div className="lg:col-span-5">
+              <div className="md:col-span-5 w-full">
                 <TopicIllustrationCard topicId="w5-t4" />
               </div>
             </div>
@@ -904,27 +904,27 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <BookOpen className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
                   1. Aprende: Proteção de dados confidenciais em chats de IA
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500 hidden sm:inline-flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Conceito Curricular Explicado
+                <span>Conceito Curricular Explicado</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="text-sm text-slate-700 space-y-3 leading-relaxed font-medium">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="md:col-span-7 space-y-4">
+                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
                   {topic5?.paragraphs.map((p, idx) => (
                     <p key={idx}>{p}</p>
                   ))}
                   {topic5?.bulletPoints && topic5.bulletPoints.length > 0 && (
-                    <ul className="list-disc pl-5 space-y-1 text-slate-800">
+                    <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
                       {topic5.bulletPoints.map((bp, bidx) => (
                         <li key={bidx}>{bp}</li>
                       ))}
@@ -941,7 +941,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 )}
               </div>
 
-              <div className="lg:col-span-5">
+              <div className="md:col-span-5 w-full">
                 <TopicIllustrationCard topicId="w5-t5" />
               </div>
             </div>
@@ -1044,27 +1044,41 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
           </div>
 
           {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 text-indigo-700 pb-2 border-b border-slate-100">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base font-black uppercase tracking-wide">
-                1. Aprende: A IA como copiloto crítico e a autoria humana
-              </h4>
-            </div>
-
-            <div className="text-sm text-slate-700 space-y-3 leading-relaxed font-medium">
-              {topic6?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic6?.takeaway && (
-              <div className="mt-4 p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic6.takeaway}
-                </p>
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-indigo-700">
+                <BookOpen className="w-5 h-5" />
+                <h4 className="text-base font-black uppercase tracking-wide">
+                  1. Aprende: A IA como copiloto crítico e a autoria humana
+                </h4>
               </div>
-            )}
+              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>Conceito Curricular Explicado</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="md:col-span-7 space-y-4">
+                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+                  {topic6?.paragraphs.map((p, idx) => (
+                    <p key={idx}>{p}</p>
+                  ))}
+                </div>
+
+                {topic6?.takeaway && (
+                  <div className="mt-4 p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
+                    <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
+                      ✨ {topic6.takeaway}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="md:col-span-5 w-full">
+                <TopicIllustrationCard topicId="w5-t6" />
+              </div>
+            </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}

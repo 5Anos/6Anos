@@ -206,10 +206,10 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
 
   return (
     <div
-      className={`rounded-2xl border ${themeStyles.border} ${themeStyles.cardBg} p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-4 ${className}`}
+      className={`rounded-2xl border ${themeStyles.border} ${themeStyles.cardBg} p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-4 w-full ${className}`}
     >
       {/* Visual Image Banner with Badge */}
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         <div className="relative rounded-xl overflow-hidden shadow-xs border border-slate-200/80 aspect-video group">
           <img
             src={data.imageUrl}
@@ -239,14 +239,14 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
         </div>
 
         {/* Conceptual Caption */}
-        <p className="text-xs text-slate-700 leading-relaxed font-medium">
+        <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed font-medium">
           {data.caption}
         </p>
 
         {/* Visual Concept Highlights */}
-        <div className="space-y-2 pt-1 border-t border-slate-200/60">
+        <div className="space-y-2.5 pt-1.5 border-t border-slate-200/60">
           <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
-            Pontos Visuais para Fixar:
+            PONTOS VISUAIS PARA FIXAR:
           </span>
           <div className="grid grid-cols-1 gap-2">
             {data.visualHighlights.map((vh, idx) => {
@@ -254,7 +254,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
               return (
                 <div
                   key={idx}
-                  className="bg-white/80 border border-slate-200/80 rounded-xl p-2.5 flex items-start gap-2.5 shadow-2xs"
+                  className="bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 flex items-start gap-2.5 shadow-2xs"
                 >
                   <div
                     className={`w-7 h-7 rounded-lg ${themeStyles.iconBox} flex items-center justify-center shrink-0 mt-0.5`}
@@ -262,10 +262,10 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
                     <IconComp className="w-3.5 h-3.5" />
                   </div>
                   <div className="text-xs leading-snug">
-                    <span className="font-extrabold text-slate-900 block">
+                    <span className="font-extrabold text-slate-900 block text-xs sm:text-[13px]">
                       {vh.label}
                     </span>
-                    <span className="text-slate-600 text-[11px]">
+                    <span className="text-slate-600 text-[11px] sm:text-xs leading-relaxed block mt-0.5">
                       {vh.description}
                     </span>
                   </div>
@@ -278,7 +278,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
 
       {/* Pro-Tip Box */}
       <div
-        className={`p-3 rounded-xl border ${themeStyles.tipBox} flex items-start gap-2.5 text-xs font-semibold`}
+        className={`p-3 sm:p-3.5 rounded-xl border ${themeStyles.tipBox} flex items-start gap-2.5 text-xs font-semibold mt-1`}
       >
         <Lightbulb className={`w-4 h-4 shrink-0 mt-0.5 ${themeStyles.tipIcon}`} />
         <p className="leading-relaxed text-[11px] sm:text-xs">{data.proTip}</p>
