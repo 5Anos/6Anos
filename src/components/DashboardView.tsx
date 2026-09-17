@@ -40,6 +40,7 @@ interface DashboardViewProps {
   onOpenSimulator: (worldId: number, simId: string) => void;
   onOpenWeeklyChallenge: () => void;
   onOpenGrandeMissao: () => void;
+  onOpenLoginModal?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -48,6 +49,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenSimulator,
   onOpenWeeklyChallenge,
   onOpenGrandeMissao,
+  onOpenLoginModal,
 }) => {
   const { user, locale, refreshUser, badges = [] } = useAuth();
   const [worlds, setWorlds] = useState<WorldSummary[]>([]);
@@ -99,6 +101,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   const handleClaimDailyTip = async () => {
+    if (!user) {
+      if (onOpenLoginModal) onOpenLoginModal();
+      return;
+    }
     if (!dailyTip || dailyTip.alreadyClaimed || claimingTip) return;
     setClaimingTip(true);
     try {
@@ -165,15 +171,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center justify-between pt-2">
             <button
               id="btn-accept-weekly-challenge"
-              onClick={onOpenWeeklyChallenge}
-              className="bg-[#FBBF24] hover:bg-[#F59E0B] text-slate-900 font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+              onClick={() => {
+                if (!user && onOpenLoginModal) {
+                  onOpenLoginModal();
+                  return;
+                }
+                onOpenWeeklyChallenge();
+              }}
+              className="bg-[#FBBF24] hover:bg-[#F59E0B] text-slate-900 font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <span>Aceitar desafio</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onSelectTab('challenges')}
-              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              onClick={() => {
+                if (!user && onOpenLoginModal) {
+                  onOpenLoginModal();
+                  return;
+                }
+                onSelectTab('challenges');
+              }}
+              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
             >
               <span>Ver todos</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -221,7 +239,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               id="btn-claim-daily-tip"
               onClick={handleClaimDailyTip}
               disabled={dailyTip?.alreadyClaimed || claimingTip}
-              className={`font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 ${
+              className={`font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer ${
                 dailyTip?.alreadyClaimed
                   ? 'bg-emerald-200 text-emerald-800 cursor-default'
                   : 'bg-[#22C55E] hover:bg-[#16A34A] text-white'
@@ -263,8 +281,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="flex items-center justify-between pt-2">
             <button
-              onClick={() => onSelectTab('worlds')}
-              className="bg-[#F3E8FF] hover:bg-[#E9D5FF] text-[#6B21A8] font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+              onClick={() => {
+                if (!user && onOpenLoginModal) {
+                  onOpenLoginModal();
+                  return;
+                }
+                onSelectTab('worlds');
+              }}
+              className="bg-[#F3E8FF] hover:bg-[#E9D5FF] text-[#6B21A8] font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <span>Ver mais</span>
               <ArrowRight className="w-4 h-4" />
@@ -280,7 +304,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden"
       >
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">
               Os 5 Mundos da Missão TIC
@@ -290,13 +314,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </p>
           </div>
           <button
-            onClick={() => onSelectTab('worlds')}
-            className="self-start sm:self-center text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl flex items-center gap-1.5 hover:bg-blue-100 transition-colors shadow-xs"
+            onClick={() => {
+              if (!user && onOpenLoginModal) {
+                onOpenLoginModal();
+                return;
+              }
+              onSelectTab('worlds');
+            }}
+            className="self-start sm:self-center text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl flex items-center gap-1.5 hover:bg-blue-100 transition-colors shadow-xs cursor-pointer"
           >
             <span>Ver o meu progresso</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
+
+        {/* Informative Banner for non-registered users */}
+        {!user && (
+          <div className="mb-6 p-4.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 shadow-xs">
+                <Lock className="w-5 h-5 text-amber-700" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-slate-900 leading-snug">
+                  Mundos Bloqueados — Acesso Exclusivo a Utilizadores Registados
+                </h4>
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
+                  Não é permitido aceder nem ver a informação dos 5 Mundos sem registo na plataforma. Inicia sessão ou regista-te para começar!
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => onOpenLoginModal?.()}
+              className="shrink-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Registar / Entrar</span>
+            </button>
+          </div>
+        )}
 
         {/* Panorama Illustrated Archipelago Canvas */}
         <div className="relative bg-gradient-to-b from-sky-100/40 via-blue-50/20 to-white rounded-3xl p-6 border border-blue-100/80">
@@ -328,17 +384,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 1: Guardião Digital */}
             {(() => {
               const w1 = worlds.find((w) => w.id === 1);
-              const isUnlocked = true;
-              const avg = Math.round(w1?.average || 0);
-              const completedCount = w1?.completedCount || 0;
+              const isUnlocked = Boolean(user);
+              const avg = user ? Math.round(w1?.average || 0) : 0;
               return (
                 <div
                   id="world-island-1"
-                  onClick={() => onSelectWorld(1)}
-                  className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
+                  onClick={() => {
+                    if (!user && onOpenLoginModal) {
+                      onOpenLoginModal();
+                      return;
+                    }
+                    onSelectWorld(1);
+                  }}
+                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
+                    user ? 'hover:-translate-y-1.5' : 'opacity-90'
+                  }`}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
-                    <Island1Artwork className="w-full h-full drop-shadow-sm" />
+                    <Island1Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-25' : ''}`} />
+                    {!user && (
+                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="w-full bg-white rounded-2xl p-3.5 border border-blue-200/90 shadow-sm mt-1 flex flex-col justify-between">
@@ -365,15 +434,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
-                        avg > 80
+                        !user
+                          ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
+                          : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-slate-100 text-slate-600'
                       }`}
                     >
+                      {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
-                        {avg > 80
+                        {!user
+                          ? 'Registo Obrigatório'
+                          : avg > 80
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -388,18 +462,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 2: Detetive Digital */}
             {(() => {
               const w2 = worlds.find((w) => w.id === 2);
-              const isUnlocked = Boolean(w2?.isUnlocked);
-              const avg = Math.round(w2?.average || 0);
+              const isUnlocked = user ? Boolean(w2?.isUnlocked) : false;
+              const avg = user ? Math.round(w2?.average || 0) : 0;
               return (
                 <div
                   id="world-island-2"
-                  onClick={() => onSelectWorld(2)}
+                  onClick={() => {
+                    if (!user && onOpenLoginModal) {
+                      onOpenLoginModal();
+                      return;
+                    }
+                    onSelectWorld(2);
+                  }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island2Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-30'}`} />
+                    {!user && (
+                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="w-full bg-white rounded-2xl p-3.5 border border-sky-200/90 shadow-sm mt-1 flex flex-col justify-between">
@@ -426,7 +512,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
-                        !isUnlocked
+                        !user
+                          ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
+                          : !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
                           : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
@@ -435,9 +523,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           : 'bg-sky-50 text-sky-700'
                       }`}
                     >
-                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
-                        {!isUnlocked
+                        {!user
+                          ? 'Registo Obrigatório'
+                          : !isUnlocked
                           ? 'Bloqueado'
                           : avg > 80
                           ? 'Concluído'
@@ -454,18 +544,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 3: Criador Digital */}
             {(() => {
               const w3 = worlds.find((w) => w.id === 3);
-              const isUnlocked = Boolean(w3?.isUnlocked);
-              const avg = Math.round(w3?.average || 0);
+              const isUnlocked = user ? Boolean(w3?.isUnlocked) : false;
+              const avg = user ? Math.round(w3?.average || 0) : 0;
               return (
                 <div
                   id="world-island-3"
-                  onClick={() => onSelectWorld(3)}
+                  onClick={() => {
+                    if (!user && onOpenLoginModal) {
+                      onOpenLoginModal();
+                      return;
+                    }
+                    onSelectWorld(3);
+                  }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island3Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
+                    {!user && (
+                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-purple-200/80 shadow-sm mt-1 flex flex-col justify-between">
@@ -492,7 +594,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
-                        !isUnlocked
+                        !user
+                          ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
+                          : !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
                           : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
@@ -501,9 +605,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           : 'bg-purple-50 text-purple-700'
                       }`}
                     >
-                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
-                        {!isUnlocked
+                        {!user
+                          ? 'Registo Obrigatório'
+                          : !isUnlocked
                           ? 'Bloqueado'
                           : avg > 80
                           ? 'Concluído'
@@ -520,18 +626,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 4: Engenheiro Digital */}
             {(() => {
               const w4 = worlds.find((w) => w.id === 4);
-              const isUnlocked = Boolean(w4?.isUnlocked);
-              const avg = Math.round(w4?.average || 0);
+              const isUnlocked = user ? Boolean(w4?.isUnlocked) : false;
+              const avg = user ? Math.round(w4?.average || 0) : 0;
               return (
                 <div
                   id="world-island-4"
-                  onClick={() => onSelectWorld(4)}
+                  onClick={() => {
+                    if (!user && onOpenLoginModal) {
+                      onOpenLoginModal();
+                      return;
+                    }
+                    onSelectWorld(4);
+                  }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island4Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
+                    {!user && (
+                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-amber-200/80 shadow-sm mt-1 flex flex-col justify-between">
@@ -558,7 +676,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
-                        !isUnlocked
+                        !user
+                          ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
+                          : !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
                           : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
@@ -567,9 +687,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           : 'bg-amber-50 text-amber-700'
                       }`}
                     >
-                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
-                        {!isUnlocked
+                        {!user
+                          ? 'Registo Obrigatório'
+                          : !isUnlocked
                           ? 'Bloqueado'
                           : avg > 80
                           ? 'Concluído'
@@ -586,18 +708,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 5: Explorador da IA */}
             {(() => {
               const w5 = worlds.find((w) => w.id === 5);
-              const isUnlocked = Boolean(w5?.isUnlocked);
-              const avg = Math.round(w5?.average || 0);
+              const isUnlocked = user ? Boolean(w5?.isUnlocked) : false;
+              const avg = user ? Math.round(w5?.average || 0) : 0;
               return (
                 <div
                   id="world-island-5"
-                  onClick={() => onSelectWorld(5)}
+                  onClick={() => {
+                    if (!user && onOpenLoginModal) {
+                      onOpenLoginModal();
+                      return;
+                    }
+                    onSelectWorld(5);
+                  }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island5Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
+                    {!user && (
+                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-indigo-200/80 shadow-sm mt-1 flex flex-col justify-between">
@@ -624,7 +758,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
-                        !isUnlocked
+                        !user
+                          ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
+                          : !isUnlocked
                           ? 'bg-slate-100 text-slate-500'
                           : avg > 80
                           ? 'bg-emerald-100 text-emerald-800'
@@ -633,9 +769,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           : 'bg-indigo-50 text-indigo-700'
                       }`}
                     >
-                      {!isUnlocked && <Lock className="w-3.5 h-3.5" />}
+                      {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
-                        {!isUnlocked
+                        {!user
+                          ? 'Registo Obrigatório'
+                          : !isUnlocked
                           ? 'Bloqueado'
                           : avg > 80
                           ? 'Concluído'
@@ -652,11 +790,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Summit: Grande Missão Final - A ESCOLA DO FUTURO */}
             <div
               id="summit-mountain"
-              onClick={onOpenGrandeMissao}
+              onClick={() => {
+                if (!user && onOpenLoginModal) {
+                  onOpenLoginModal();
+                  return;
+                }
+                onOpenGrandeMissao();
+              }}
               className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
+              title={!user ? 'Registo obrigatório para ver a Grande Missão' : undefined}
             >
               <div className="w-full h-36 flex items-center justify-center relative">
-                <SummitMountainArtwork className="w-full h-full drop-shadow-md" />
+                <SummitMountainArtwork className={`w-full h-full drop-shadow-md ${!user ? 'grayscale-25' : ''}`} />
+                {!user && (
+                  <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                )}
               </div>
 
               {/* Floating dark badge matching mockup */}
@@ -671,8 +821,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 <div className="mt-3">
-                  <div className="w-full py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-amber-950 flex items-center justify-center gap-1 shadow-xs">
-                    <span>Participar</span>
+                  <div
+                    className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-xs cursor-pointer ${
+                      !user
+                        ? 'bg-slate-800 text-slate-300 border border-slate-700'
+                        : 'bg-amber-400 hover:bg-amber-300 text-amber-950'
+                    }`}
+                  >
+                    {!user && <Lock className="w-3.5 h-3.5 text-amber-400" />}
+                    <span>{!user ? 'Registo Obrigatório' : 'Participar'}</span>
                   </div>
                 </div>
               </div>
@@ -694,8 +851,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 As minhas conquistas
               </h3>
               <button
-                onClick={() => onSelectTab('badges')}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                onClick={() => {
+                  if (!user && onOpenLoginModal) {
+                    onOpenLoginModal();
+                    return;
+                  }
+                  onSelectTab('badges');
+                }}
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
               >
                 <span>Ver todas</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -829,8 +992,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
             <button
-              onClick={() => onOpenSimulator(1, 'sim-password')}
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-black text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-2"
+              onClick={() => {
+                if (!user && onOpenLoginModal) {
+                  onOpenLoginModal();
+                  return;
+                }
+                onOpenSimulator(1, 'sim-password');
+              }}
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-black text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
             >
               <span>Continuar</span>
               <ArrowRight className="w-4 h-4" />
@@ -849,8 +1018,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 Ranking da Turma
               </h3>
               <button
-                onClick={() => onSelectTab('challenges')}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                onClick={() => {
+                  if (!user && onOpenLoginModal) {
+                    onOpenLoginModal();
+                    return;
+                  }
+                  onSelectTab('challenges');
+                }}
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
               >
                 <span>Ver todos</span>
                 <ArrowRight className="w-3.5 h-3.5" />
