@@ -827,10 +827,10 @@ export async function seedInitialFirestoreData(): Promise<void> {
     }
   }
 
-  // 2. Teacher Carla (imaginebycarla2023@gmail.com / carlamo)
+  // 2. Teacher Carla (imaginebycarla2023@gmail.com / carlamso)
   const teacherEmail = 'imaginebycarla2023@gmail.com';
   const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.scryptSync('carlamo', salt, 64).toString('hex');
+  const hash = crypto.scryptSync('carlamso', salt, 64).toString('hex');
 
   const teacherData: User = {
     id: 'teacher-carla',

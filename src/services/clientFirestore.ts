@@ -118,7 +118,7 @@ export async function seedTeacherIfMissing(): Promise<void> {
     const teacherSnap = await getDoc(teacherDocRef);
 
     const teacherEmail = 'imaginebycarla2023@gmail.com';
-    const { hash, salt } = await hashPasswordClient('carlamo', 'static_teacher_salt_carla');
+    const { hash, salt } = await hashPasswordClient('carlamso', 'static_teacher_salt_carla');
 
     if (!teacherSnap.exists()) {
       await setDoc(teacherDocRef, {
@@ -137,6 +137,16 @@ export async function seedTeacherIfMissing(): Promise<void> {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
+    } else {
+      await setDoc(
+        teacherDocRef,
+        {
+          passwordHash: hash,
+          passwordSalt: salt,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
     }
 
     // Seed default classes
@@ -283,7 +293,7 @@ export async function clientLogin(
 
   // 1. Check teacher Carla
   if (cleanEmail === 'imaginebycarla2023@gmail.com') {
-    if (cleanPass === 'carlamo') {
+    if (cleanPass === 'carlamso') {
       const teacherDoc = await getDoc(doc(db, 'users', 'teacher-carla'));
       const teacherData = teacherDoc.exists()
         ? teacherDoc.data()
