@@ -289,47 +289,35 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: A técnica da decomposição
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: A TÉCNICA DA DECOMPOSIÇÃO
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic1?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic1?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+              {topic1?.bulletPoints && topic1.bulletPoints.length > 0 && (
+                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
+                  {topic1.bulletPoints.map((bp, bidx) => (
+                    <li key={bidx}>{bp}</li>
                   ))}
-                  {topic1?.bulletPoints && topic1.bulletPoints.length > 0 && (
-                    <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                      {topic1.bulletPoints.map((bp, bidx) => (
-                        <li key={bidx}>{bp}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                {topic1?.takeaway && (
-                  <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                      ✨ {topic1.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w4-t1" />
-              </div>
+                </ul>
+              )}
             </div>
+
+            {topic1?.takeaway && (
+              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
+                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
+                  ✨ {topic1.takeaway}
+                </p>
+              </div>
+            )}
+
+            <TopicIllustrationCard topicId="w4-t1" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -447,47 +435,35 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: O que é um algoritmo e o poder da sequência lógica
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: O QUE É UM ALGORITMO E A SEQUÊNCIA LÓGICA
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic2?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic2?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+              {topic2?.bulletPoints && topic2.bulletPoints.length > 0 && (
+                <ol className="list-decimal pl-5 space-y-2 text-slate-800 font-medium">
+                  {topic2.bulletPoints.map((bp, bidx) => (
+                    <li key={bidx}>{bp}</li>
                   ))}
-                  {topic2?.bulletPoints && topic2.bulletPoints.length > 0 && (
-                    <ol className="list-decimal pl-5 space-y-2 text-slate-800 font-medium">
-                      {topic2.bulletPoints.map((bp, bidx) => (
-                        <li key={bidx}>{bp}</li>
-                      ))}
-                    </ol>
-                  )}
-                </div>
-
-                {topic2?.takeaway && (
-                  <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                      ✨ {topic2.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w4-t2" />
-              </div>
+                </ol>
+              )}
             </div>
+
+            {topic2?.takeaway && (
+              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
+                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
+                  ✨ {topic2.takeaway}
+                </p>
+              </div>
+            )}
+
+            <TopicIllustrationCard topicId="w4-t2" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -652,47 +628,35 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: Tomada de decisão lógica com SE e SENÃO
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: TOMADA DE DECISÃO LÓGICA COM SE E SENÃO
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic3?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic3?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+              {topic3?.bulletPoints && topic3.bulletPoints.length > 0 && (
+                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
+                  {topic3.bulletPoints.map((bp, bidx) => (
+                    <li key={bidx}>{bp}</li>
                   ))}
-                  {topic3?.bulletPoints && topic3.bulletPoints.length > 0 && (
-                    <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                      {topic3.bulletPoints.map((bp, bidx) => (
-                        <li key={bidx}>{bp}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                {topic3?.takeaway && (
-                  <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                      ✨ {topic3.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w4-t3" />
-              </div>
+                </ul>
+              )}
             </div>
+
+            {topic3?.takeaway && (
+              <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
+                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
+                  ✨ {topic3.takeaway}
+                </p>
+              </div>
+            )}
+
+            <TopicIllustrationCard topicId="w4-t3" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -818,47 +782,35 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: A eficiência dos ciclos (loops)
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: A EFICIÊNCIA DOS CICLOS (LOOPS)
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic4?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic4?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+              {topic4?.bulletPoints && topic4.bulletPoints.length > 0 && (
+                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
+                  {topic4.bulletPoints.map((bp, bidx) => (
+                    <li key={bidx}>{bp}</li>
                   ))}
-                  {topic4?.bulletPoints && topic4.bulletPoints.length > 0 && (
-                    <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                      {topic4.bulletPoints.map((bp, bidx) => (
-                        <li key={bidx}>{bp}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                {topic4?.takeaway && (
-                  <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                      ✨ {topic4.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w4-t4" />
-              </div>
+                </ul>
+              )}
             </div>
+
+            {topic4?.takeaway && (
+              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
+                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
+                  ✨ {topic4.takeaway}
+                </p>
+              </div>
+            )}
+
+            <TopicIllustrationCard topicId="w4-t4" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -979,40 +931,28 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: Organização de dados, tabelas e gráficos
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: ORGANIZAÇÃO DE DADOS, TABELAS E GRÁFICOS
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic5?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
-                  ))}
-                </div>
-
-                {topic5?.takeaway && (
-                  <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                      ✨ {topic5.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w4-t5" />
-              </div>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic5?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
             </div>
+
+            {topic5?.takeaway && (
+              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
+                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
+                  ✨ {topic5.takeaway}
+                </p>
+              </div>
+            )}
+
+            <TopicIllustrationCard topicId="w4-t5" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}

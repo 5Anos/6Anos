@@ -364,40 +364,28 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: Como criar e proteger a tua palavra-passe
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-blue-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: COMO CRIAR E PROTEGER A TUA PALAVRA-PASSE
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic1?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
-                  ))}
-                </div>
-
-                {topic1?.takeaway && (
-                  <div className="mt-4 p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                      ✨ {topic1.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w1-t1" />
-              </div>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic1?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
             </div>
+
+            {topic1?.takeaway && (
+              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
+                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
+                  ✨ {topic1.takeaway}
+                </p>
+              </div>
+            )}
+
+            <TopicIllustrationCard topicId="w1-t1" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA (Simulador de Palavras-passe) */}
@@ -552,48 +540,36 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: O que é phishing e como identificar sinais de alerta
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: O QUE É PHISHING E SINAIS DE ALERTA
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic2?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic2?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+            </div>
+
+            {topic2?.bulletPoints && (
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
+                <h5 className="text-xs font-black text-amber-900 uppercase tracking-wider mb-2">
+                  Desconfia imediatamente de mensagens que:
+                </h5>
+                <ul className="space-y-1.5 text-xs text-amber-950 font-bold">
+                  {topic2.bulletPoints.map((bp, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-amber-600 font-black">•</span>
+                      <span>{bp}</span>
+                    </li>
                   ))}
-                </div>
-
-                {topic2?.bulletPoints && (
-                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
-                    <h5 className="text-xs font-black text-amber-900 uppercase tracking-wider mb-2">
-                      Desconfia imediatamente de mensagens que:
-                    </h5>
-                    <ul className="space-y-1.5 text-xs text-amber-950 font-bold">
-                      {topic2.bulletPoints.map((bp, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-amber-600 font-black">•</span>
-                          <span>{bp}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                </ul>
               </div>
+            )}
 
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w1-t2" />
-              </div>
-            </div>
+            <TopicIllustrationCard topicId="w1-t2" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA (Simulador de Phishing) */}
@@ -730,48 +706,36 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-emerald-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: O que são dados pessoais e como proteger a tua privacidade
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-emerald-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: DADOS PESSOAIS E PROTEÇÃO DA PRIVACIDADE
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic3?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic3?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+            </div>
+
+            {topic3?.bulletPoints && (
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
+                <h5 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-2">
+                  Exemplos de dados pessoais a proteger:
+                </h5>
+                <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-emerald-950 font-bold">
+                  {topic3.bulletPoints.map((bp, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span>{bp}</span>
+                    </li>
                   ))}
-                </div>
-
-                {topic3?.bulletPoints && (
-                  <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
-                    <h5 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-2">
-                      Exemplos de dados pessoais a proteger:
-                    </h5>
-                    <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-emerald-950 font-bold">
-                      {topic3.bulletPoints.map((bp, idx) => (
-                        <li key={idx} className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                          <span>{bp}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                </ul>
               </div>
+            )}
 
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w1-t3" />
-              </div>
-            </div>
+            <TopicIllustrationCard topicId="w1-t3" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA (Privacy Simulator) */}
@@ -906,32 +870,20 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-indigo-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: O que é a pegada digital e a sua permanência
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-indigo-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: O QUE É A PEGADA DIGITAL E A SUA PERMANÊNCIA
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic4?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
-                  ))}
-                </div>
-              </div>
-
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w1-t4" />
-              </div>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic4?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
             </div>
+
+            <TopicIllustrationCard topicId="w1-t4" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA (Simulador de Pegada Digital) */}
@@ -1070,48 +1022,36 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5 text-rose-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  1. Aprende: Uso equilibrado, saudável e seguro da tecnologia
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
+            <div className="flex items-center gap-2.5 text-rose-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: USO EQUILIBRADO E SEGURO DA TECNOLOGIA
+              </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
-              <div className="md:col-span-7 space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic5?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic5?.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+            </div>
+
+            {topic5?.bulletPoints && (
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4">
+                <h5 className="text-xs font-black text-rose-900 uppercase tracking-wider mb-2">
+                  Dicas para um equilíbrio saudável:
+                </h5>
+                <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-rose-950 font-bold">
+                  {topic5.bulletPoints.map((bp, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                      <span>{bp}</span>
+                    </li>
                   ))}
-                </div>
-
-                {topic5?.bulletPoints && (
-                  <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4">
-                    <h5 className="text-xs font-black text-rose-900 uppercase tracking-wider mb-2">
-                      Dicas para um equilíbrio saudável:
-                    </h5>
-                    <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-rose-950 font-bold">
-                      {topic5.bulletPoints.map((bp, idx) => (
-                        <li key={idx} className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                          <span>{bp}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                </ul>
               </div>
+            )}
 
-              <div className="md:col-span-5 w-full">
-                <TopicIllustrationCard topicId="w1-t5" />
-              </div>
-            </div>
+            <TopicIllustrationCard topicId="w1-t5" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA (Simulador de Bem-estar Digital) */}
