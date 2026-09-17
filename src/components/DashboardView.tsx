@@ -5,6 +5,8 @@ import {
   Lock,
   Signal,
   CheckCircle2,
+  Crown,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { WorldSummary, RankingStudent, DailyTipData, WeeklyChallengeData } from '../types';
@@ -59,6 +61,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [loading, setLoading] = useState(true);
   const [claimingTip, setClaimingTip] = useState(false);
   const [tipSuccessMsg, setTipSuccessMsg] = useState<string | null>(null);
+  const [lockedModalInfo, setLockedModalInfo] = useState<{
+    worldId: number;
+    worldName: string;
+    requiredWorldName: string;
+    requiredWorldId: number;
+    prevAvg: number;
+  } | null>(null);
+  const [grandeMissaoLockedModal, setGrandeMissaoLockedModal] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -84,7 +94,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
     try {
       const [clientWorlds, clientRanking, clientTip, clientChal] = await Promise.all([
-        clientGetWorlds(user?.id),
+        clientGetWorlds(user?.id, user?.role),
         clientGetClassRanking(user?.classId || 'class-6a', user?.id),
         clientGetDailyTip(user?.id),
         clientGetWeeklyChallenge(user?.id),
@@ -462,8 +472,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 2: Detetive Digital */}
             {(() => {
               const w2 = worlds.find((w) => w.id === 2);
-              const isUnlocked = user ? Boolean(w2?.isUnlocked) : false;
+              const isUnlocked = user ? (user.role === 'teacher' || Boolean(w2?.isUnlocked)) : false;
               const avg = user ? Math.round(w2?.average || 0) : 0;
+              const w1 = worlds.find((w) => w.id === 1);
+              const prevAvg = Math.round(w1?.average || 0);
               return (
                 <div
                   id="world-island-2"
@@ -472,20 +484,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       onOpenLoginModal?.();
                       return;
                     }
+                    if (!isUnlocked) {
+                      setLockedModalInfo({
+                        worldId: 2,
+                        worldName: 'Mundo 2 — Detetive Digital',
+                        requiredWorldName: 'Mundo 1 — Guardião Digital',
+                        requiredWorldId: 1,
+                        prevAvg,
+                      });
+                      return;
+                    }
                     onSelectWorld(2);
                   }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 1' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
-                    <Island2Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-30'}`} />
-                    {!user && (
+                    <Island2Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
+                    {!user ? (
                       <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
                         <Lock className="w-3.5 h-3.5" />
                       </div>
-                    )}
+                    ) : !isUnlocked ? (
+                      <div className="absolute top-2 right-2 bg-slate-900/85 text-amber-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-white/20 flex items-center gap-1 text-[11px] font-black">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Bloqueado</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="w-full bg-white rounded-2xl p-3.5 border border-sky-200/90 shadow-sm mt-1 flex flex-col justify-between">
@@ -500,12 +527,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-extrabold text-sky-600 mb-1">
-                        {avg}%
+                        {isUnlocked ? `${avg}%` : 'Bloqueado'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-sky-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${avg}%` }}
+                          style={{ width: `${isUnlocked ? avg : 0}%` }}
                         />
                       </div>
                     </div>
@@ -515,8 +542,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
-                          ? 'bg-slate-100 text-slate-500'
-                          : avg > 80
+                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                          : avg > 75
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-sky-100 text-sky-800'
@@ -528,8 +555,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado'
-                          : avg > 80
+                          ? 'Bloqueado (> 75% no M1)'
+                          : avg > 75
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -544,8 +571,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 3: Criador Digital */}
             {(() => {
               const w3 = worlds.find((w) => w.id === 3);
-              const isUnlocked = user ? Boolean(w3?.isUnlocked) : false;
+              const isUnlocked = user ? (user.role === 'teacher' || Boolean(w3?.isUnlocked)) : false;
               const avg = user ? Math.round(w3?.average || 0) : 0;
+              const w2 = worlds.find((w) => w.id === 2);
+              const prevAvg = Math.round(w2?.average || 0);
               return (
                 <div
                   id="world-island-3"
@@ -554,20 +583,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       onOpenLoginModal?.();
                       return;
                     }
+                    if (!isUnlocked) {
+                      setLockedModalInfo({
+                        worldId: 3,
+                        worldName: 'Mundo 3 — Criador Digital',
+                        requiredWorldName: 'Mundo 2 — Detetive Digital',
+                        requiredWorldId: 2,
+                        prevAvg,
+                      });
+                      return;
+                    }
                     onSelectWorld(3);
                   }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 2' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
-                    <Island3Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
-                    {!user && (
+                    <Island3Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
+                    {!user ? (
                       <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
                         <Lock className="w-3.5 h-3.5" />
                       </div>
-                    )}
+                    ) : !isUnlocked ? (
+                      <div className="absolute top-2 right-2 bg-slate-900/85 text-amber-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-white/20 flex items-center gap-1 text-[11px] font-black">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Bloqueado</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-purple-200/80 shadow-sm mt-1 flex flex-col justify-between">
@@ -582,12 +626,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-bold text-purple-600 mb-1">
-                        {avg}%
+                        {isUnlocked ? `${avg}%` : 'Bloqueado'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-purple-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${avg}%` }}
+                          style={{ width: `${isUnlocked ? avg : 0}%` }}
                         />
                       </div>
                     </div>
@@ -597,8 +641,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
-                          ? 'bg-slate-100 text-slate-500'
-                          : avg > 80
+                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                          : avg > 75
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-purple-100 text-purple-800'
@@ -610,8 +654,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado'
-                          : avg > 80
+                          ? 'Bloqueado (> 75% no M2)'
+                          : avg > 75
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -626,8 +670,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 4: Engenheiro Digital */}
             {(() => {
               const w4 = worlds.find((w) => w.id === 4);
-              const isUnlocked = user ? Boolean(w4?.isUnlocked) : false;
+              const isUnlocked = user ? (user.role === 'teacher' || Boolean(w4?.isUnlocked)) : false;
               const avg = user ? Math.round(w4?.average || 0) : 0;
+              const w3 = worlds.find((w) => w.id === 3);
+              const prevAvg = Math.round(w3?.average || 0);
               return (
                 <div
                   id="world-island-4"
@@ -636,20 +682,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       onOpenLoginModal?.();
                       return;
                     }
+                    if (!isUnlocked) {
+                      setLockedModalInfo({
+                        worldId: 4,
+                        worldName: 'Mundo 4 — Engenheiro Digital',
+                        requiredWorldName: 'Mundo 3 — Criador Digital',
+                        requiredWorldId: 3,
+                        prevAvg,
+                      });
+                      return;
+                    }
                     onSelectWorld(4);
                   }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 3' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
-                    <Island4Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
-                    {!user && (
+                    <Island4Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
+                    {!user ? (
                       <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
                         <Lock className="w-3.5 h-3.5" />
                       </div>
-                    )}
+                    ) : !isUnlocked ? (
+                      <div className="absolute top-2 right-2 bg-slate-900/85 text-amber-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-white/20 flex items-center gap-1 text-[11px] font-black">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Bloqueado</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-amber-200/80 shadow-sm mt-1 flex flex-col justify-between">
@@ -664,12 +725,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-bold text-amber-600 mb-1">
-                        {avg}%
+                        {isUnlocked ? `${avg}%` : 'Bloqueado'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-amber-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${avg}%` }}
+                          style={{ width: `${isUnlocked ? avg : 0}%` }}
                         />
                       </div>
                     </div>
@@ -679,8 +740,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
-                          ? 'bg-slate-100 text-slate-500'
-                          : avg > 80
+                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                          : avg > 75
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-amber-100 text-amber-800'
@@ -692,8 +753,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado'
-                          : avg > 80
+                          ? 'Bloqueado (> 75% no M3)'
+                          : avg > 75
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -708,8 +769,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 5: Explorador da IA */}
             {(() => {
               const w5 = worlds.find((w) => w.id === 5);
-              const isUnlocked = user ? Boolean(w5?.isUnlocked) : false;
+              const isUnlocked = user ? (user.role === 'teacher' || Boolean(w5?.isUnlocked)) : false;
               const avg = user ? Math.round(w5?.average || 0) : 0;
+              const w4 = worlds.find((w) => w.id === 4);
+              const prevAvg = Math.round(w4?.average || 0);
               return (
                 <div
                   id="world-island-5"
@@ -718,20 +781,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       onOpenLoginModal?.();
                       return;
                     }
+                    if (!isUnlocked) {
+                      setLockedModalInfo({
+                        worldId: 5,
+                        worldName: 'Mundo 5 — Explorador da IA',
+                        requiredWorldName: 'Mundo 4 — Engenheiro Digital',
+                        requiredWorldId: 4,
+                        prevAvg,
+                      });
+                      return;
+                    }
                     onSelectWorld(5);
                   }}
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 4' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
-                    <Island5Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'opacity-80 grayscale-30'}`} />
-                    {!user && (
+                    <Island5Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
+                    {!user ? (
                       <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
                         <Lock className="w-3.5 h-3.5" />
                       </div>
-                    )}
+                    ) : !isUnlocked ? (
+                      <div className="absolute top-2 right-2 bg-slate-900/85 text-amber-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-white/20 flex items-center gap-1 text-[11px] font-black">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Bloqueado</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="w-full bg-white/95 rounded-2xl p-3.5 border border-indigo-200/80 shadow-sm mt-1 flex flex-col justify-between">
@@ -746,12 +824,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-bold text-indigo-600 mb-1">
-                        {avg}%
+                        {isUnlocked ? `${avg}%` : 'Bloqueado'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-indigo-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${avg}%` }}
+                          style={{ width: `${isUnlocked ? avg : 0}%` }}
                         />
                       </div>
                     </div>
@@ -761,8 +839,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
-                          ? 'bg-slate-100 text-slate-500'
-                          : avg > 80
+                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                          : avg > 75
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-indigo-100 text-indigo-800'
@@ -774,8 +852,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado'
-                          : avg > 80
+                          ? 'Bloqueado (> 75% no M4)'
+                          : avg > 75
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -788,52 +866,75 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             })()}
 
             {/* Summit: Grande Missão Final - A ESCOLA DO FUTURO */}
-            <div
-              id="summit-mountain"
-              onClick={() => {
-                if (!user) {
-                  onOpenLoginModal?.();
-                  return;
-                }
-                onOpenGrandeMissao();
-              }}
-              className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-              title={!user ? 'Registo obrigatório para ver a Grande Missão' : undefined}
-            >
-              <div className="w-full h-36 flex items-center justify-center relative">
-                <SummitMountainArtwork className={`w-full h-full drop-shadow-md ${!user ? 'grayscale-25' : ''}`} />
-                {!user && (
-                  <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
-                    <Lock className="w-3.5 h-3.5" />
+            {(() => {
+              const all5Passed = user ? (user.role === 'teacher' || (worlds.length >= 5 && worlds.every((w) => w.average > 75))) : false;
+              return (
+                <div
+                  id="summit-mountain"
+                  onClick={() => {
+                    if (!user) {
+                      onOpenLoginModal?.();
+                      return;
+                    }
+                    if (!all5Passed) {
+                      setGrandeMissaoLockedModal(true);
+                      return;
+                    }
+                    onOpenGrandeMissao();
+                  }}
+                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
+                    all5Passed ? 'hover:-translate-y-1.5' : 'opacity-85'
+                  }`}
+                  title={!user ? 'Registo obrigatório para ver a Grande Missão' : !all5Passed ? 'Bloqueado — Requer os 5 Mundos com > 75%' : undefined}
+                >
+                  <div className="w-full h-36 flex items-center justify-center relative">
+                    <SummitMountainArtwork className={`w-full h-full drop-shadow-md ${!all5Passed ? 'grayscale-75 opacity-75' : ''}`} />
+                    {!user ? (
+                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    ) : !all5Passed ? (
+                      <div className="absolute top-2 right-2 bg-slate-900/85 text-amber-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-white/20 flex items-center gap-1 text-[11px] font-black">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Bloqueado</span>
+                      </div>
+                    ) : null}
                   </div>
-                )}
-              </div>
 
-              {/* Floating dark badge matching mockup */}
-              <div className="w-full bg-gradient-to-b from-[#1E293B] to-[#0F172A] text-white rounded-2xl p-3.5 border border-slate-700 shadow-md mt-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block">
-                    Grande Missão Final
-                  </span>
-                  <h4 className="text-xs font-black text-white leading-tight mt-0.5">
-                    🔒 A ESCOLA DO FUTURO
-                  </h4>
-                </div>
+                  <div className="w-full bg-gradient-to-b from-[#1E293B] to-[#0F172A] text-white rounded-2xl p-3.5 border border-slate-700 shadow-md mt-1 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block">
+                        Grande Missão Final
+                      </span>
+                      <h4 className="text-xs font-black text-white leading-tight mt-0.5">
+                        {all5Passed ? '🏆' : '🔒'} A ESCOLA DO FUTURO
+                      </h4>
+                    </div>
 
-                <div className="mt-3">
-                  <div
-                    className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-xs cursor-pointer ${
-                      !user
-                        ? 'bg-slate-800 text-slate-300 border border-slate-700'
-                        : 'bg-amber-400 hover:bg-amber-300 text-amber-950'
-                    }`}
-                  >
-                    {!user && <Lock className="w-3.5 h-3.5 text-amber-400" />}
-                    <span>{!user ? 'Registo Obrigatório' : 'Participar'}</span>
+                    <div className="mt-3">
+                      <div
+                        className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-xs cursor-pointer ${
+                          !user
+                            ? 'bg-slate-800 text-slate-300 border border-slate-700'
+                            : !all5Passed
+                            ? 'bg-slate-800 text-slate-400 border border-slate-700'
+                            : 'bg-amber-400 hover:bg-amber-300 text-amber-950'
+                        }`}
+                      >
+                        {(!user || !all5Passed) && <Lock className="w-3.5 h-3.5 text-amber-400" />}
+                        <span>
+                          {!user
+                            ? 'Registo Obrigatório'
+                            : !all5Passed
+                            ? 'Bloqueado (5 Mundos > 75%)'
+                            : 'Desbloqueado — Iniciar!'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -1109,6 +1210,112 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Locked World Pedagogical Modal */}
+      {lockedModalInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 text-center relative animate-in zoom-in-95">
+            <button
+              onClick={() => setLockedModalInfo(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Fechar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+              <Lock className="w-8 h-8" />
+            </div>
+
+            <span className="text-[11px] font-black uppercase tracking-wider text-amber-700 block mb-1">
+              Desbloqueio Progressivo
+            </span>
+            <h3 className="text-xl font-black text-slate-900 mb-2">
+              {lockedModalInfo.worldName} Bloqueado
+            </h3>
+
+            <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
+              Para acederes a este mundo, precisas de atingir uma pontuação média superior a <strong>75%</strong> no <strong>{lockedModalInfo.requiredWorldName}</strong>.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 text-left">
+              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
+                <span>O teu progresso no {lockedModalInfo.requiredWorldName.split('—')[0]}</span>
+                <span className={`font-black ${lockedModalInfo.prevAvg > 75 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {lockedModalInfo.prevAvg}% / 75%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    lockedModalInfo.prevAvg > 75 ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`}
+                  style={{ width: `${Math.min(100, (lockedModalInfo.prevAvg / 75) * 100)}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-slate-500 mt-2">
+                💡 Dica: Conclui os simuladores práticos e a avaliação final desse mundo para subires a tua média!
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button
+                onClick={() => {
+                  const targetId = lockedModalInfo.requiredWorldId;
+                  setLockedModalInfo(null);
+                  onSelectWorld(targetId);
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm py-3 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                Praticar no Mundo {lockedModalInfo.requiredWorldId}
+              </button>
+              <button
+                onClick={() => setLockedModalInfo(null)}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm py-3 px-4 rounded-xl transition-colors cursor-pointer"
+              >
+                Compreendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Grande Missão Locked Modal */}
+      {grandeMissaoLockedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 text-center relative animate-in zoom-in-95">
+            <button
+              onClick={() => setGrandeMissaoLockedModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Fechar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 bg-indigo-100 text-indigo-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+              <Crown className="w-8 h-8" />
+            </div>
+
+            <span className="text-[11px] font-black uppercase tracking-wider text-indigo-700 block mb-1">
+              Desafio Supremo
+            </span>
+            <h3 className="text-xl font-black text-slate-900 mb-2">
+              Grande Missão Final Bloqueada
+            </h3>
+
+            <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
+              A <strong>Grande Missão Final (A ESCOLA DO FUTURO)</strong> é o cume da aprendizagem. Para a desbloqueares, tens de obter uma média superior a <strong>75%</strong> em todos os 5 Mundos curriculares!
+            </p>
+
+            <button
+              onClick={() => setGrandeMissaoLockedModal(false)}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm py-3 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              Vou continuar a treinar!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

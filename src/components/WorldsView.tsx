@@ -84,7 +84,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     }
 
     try {
-      const clientRes = await clientGetWorlds(user?.id);
+      const clientRes = await clientGetWorlds(user?.id, user?.role);
       setWorlds(clientRes.worlds || []);
     } catch (err) {
       console.error('Failed to load worlds from client fallback', err);
@@ -150,7 +150,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     if (simId === 'assessment') {
       return (
         currentWorld.bestAssessmentPercentage !== null &&
-        currentWorld.bestAssessmentPercentage >= 80
+        currentWorld.bestAssessmentPercentage >= 75
       );
     }
     return currentWorld.simulatorsProgress?.some((s) => s.id === simId && s.completed);
@@ -269,24 +269,23 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
         <div className="flex items-center gap-3 min-w-max">
           {worlds.map((world) => {
             const isSelected = world.id === selectedWorldId;
-            const isUnlocked = world.isUnlocked;
+            const isUnlocked = user?.role === 'teacher' || Boolean(world.isUnlocked);
 
             return (
               <button
                 key={world.id}
                 onClick={() => {
+                  setSelectedWorldId(world.id);
                   if (isUnlocked) {
-                    setSelectedWorldId(world.id);
                     setActiveTab(`w${world.id}-t1`);
                   }
                 }}
-                disabled={!isUnlocked}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-blue-600 text-white shadow-md'
                     : isUnlocked
                     ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
-                    : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 opacity-60'
+                    : 'bg-slate-100 text-slate-500 border border-slate-200 opacity-75'
                 }`}
               >
                 <div
@@ -294,11 +293,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     isSelected ? 'bg-white/20 text-white' : 'bg-white'
                   }`}
                 >
-                  {isUnlocked ? getWorldIcon(world.id) : <Lock className="w-4 h-4" />}
+                  {isUnlocked ? getWorldIcon(world.id) : <Lock className="w-4 h-4 text-amber-600" />}
                 </div>
                 <div className="text-left">
-                  <div className="text-[10px] uppercase tracking-wider opacity-80">
-                    Mundo {world.id}
+                  <div className="text-[10px] uppercase tracking-wider opacity-80 flex items-center gap-1">
+                    <span>Mundo {world.id}</span>
+                    {!isUnlocked && <span className="text-amber-600 font-black">🔒</span>}
                   </div>
                   <div className="text-xs font-black truncate max-w-[130px]">
                     {world.title.replace(`MUNDO ${world.id} — `, '')}
@@ -313,72 +313,10 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     {world.average}%
                   </span>
                 )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* World Hero & Intro */}
-      <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/50 border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div>
-            <span className="text-xs font-black text-blue-600 uppercase tracking-wider">
-              {currentWorld.title}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5">
-              {currentWorld.subtitle}
-            </h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="bg-white border border-blue-200 rounded-2xl px-4 py-2 text-center shadow-xs">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                Média do Mundo
-              </span>
-              <span className="text-base font-black text-blue-700">
-                {currentWorld.average > 0 ? `${currentWorld.average}%` : '0%'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Intro text from prompt */}
-        <div className="bg-white/80 border border-blue-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-700 space-y-1.5 leading-relaxed">
-          <p className="font-bold text-blue-900">{currentWorld.intro.greeting}</p>
-          {currentWorld.intro.description.map((p, idx) => (
-            <p key={idx}>{p}</p>
-          ))}
-          <p className="font-extrabold text-blue-600 pt-1">
-            {currentWorld.intro.mission}
-          </p>
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-blue-100">
-          {currentTabs.map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            const completed = isSimCompleted(tab.simId);
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-3.5 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 transition-all ${
-                  active
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-white text-slate-700 hover:bg-blue-50/80 border border-slate-200'
-                }`}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">{tab.label}</span>
-                {completed && (
-                  <span
-                    className={`w-2 h-2 rounded-full shrink-0 ${
-                      active ? 'bg-emerald-300' : 'bg-emerald-500'
-                    }`}
-                    title="Atividade Concluída"
-                  />
+                {!isUnlocked && (
+                  <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">
+                    &gt; 75% M{world.id - 1}
+                  </span>
                 )}
               </button>
             );
@@ -386,57 +324,153 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC) */}
-      {/* ========================================================= */}
-      {currentWorld.id === 1 && (
-        <World1ThematicView
-          world={currentWorld}
-          activeTopicId={activeTab}
-          onNavigateTopic={(topicId) => setActiveTab(topicId)}
-          onOpenAssessment={() => setShowAssessmentModal(true)}
-          onRefreshWorld={loadWorlds}
-        />
-      )}
+      {/* If current world is locked for student */}
+      {!currentWorld.isUnlocked && user?.role !== 'teacher' ? (
+        <div className="bg-white rounded-3xl border border-amber-200/90 p-8 sm:p-12 text-center shadow-xs">
+          <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+            <Lock className="w-8 h-8" />
+          </div>
+          <span className="text-xs font-black text-amber-700 uppercase tracking-wider block mb-1">
+            Desbloqueio Progressivo Obrigatório
+          </span>
+          <h3 className="text-2xl font-black text-slate-900 mb-2">
+            {currentWorld.title} Bloqueado
+          </h3>
+          <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+            Para acederes e realizares as atividades do <strong>Mundo {currentWorld.id}</strong>, precisas de alcançar uma pontuação média superior a <strong>75%</strong> no <strong>Mundo {currentWorld.id - 1}</strong>.
+          </p>
+          <button
+            onClick={() => {
+              setSelectedWorldId(currentWorld.id - 1);
+              setActiveTab(`w${currentWorld.id - 1}-t1`);
+            }}
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <span>Voltar ao Mundo {currentWorld.id - 1} e Praticar</span>
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* World Hero & Intro */}
+          <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/50 border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div>
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider">
+                  {currentWorld.title}
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5">
+                  {currentWorld.subtitle}
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-white border border-blue-200 rounded-2xl px-4 py-2 text-center shadow-xs">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Média do Mundo
+                  </span>
+                  <span className="text-base font-black text-blue-700">
+                    {currentWorld.average > 0 ? `${currentWorld.average}%` : '0%'}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-      {currentWorld.id === 2 && (
-        <World2ThematicView
-          world={currentWorld}
-          activeTopicId={activeTab}
-          onNavigateTopic={(topicId) => setActiveTab(topicId)}
-          onOpenAssessment={() => setShowAssessmentModal(true)}
-          onRefreshWorld={loadWorlds}
-        />
-      )}
+            {/* Intro text from prompt */}
+            <div className="bg-white/80 border border-blue-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-700 space-y-1.5 leading-relaxed">
+              <p className="font-bold text-blue-900">{currentWorld.intro.greeting}</p>
+              {currentWorld.intro.description.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+              <p className="font-extrabold text-blue-600 pt-1">
+                {currentWorld.intro.mission}
+              </p>
+            </div>
 
-      {currentWorld.id === 3 && (
-        <World3ThematicView
-          world={currentWorld}
-          activeTopicId={activeTab}
-          onNavigateTopic={(topicId) => setActiveTab(topicId)}
-          onOpenAssessment={() => setShowAssessmentModal(true)}
-          onRefreshWorld={loadWorlds}
-        />
-      )}
+            {/* Navigation Tabs */}
+            <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-blue-100">
+              {currentTabs.map((tab) => {
+                const Icon = tab.icon;
+                const active = activeTab === tab.id;
+                const completed = isSimCompleted(tab.simId);
 
-      {currentWorld.id === 4 && (
-        <World4ThematicView
-          world={currentWorld}
-          activeTopicId={activeTab}
-          onNavigateTopic={(topicId) => setActiveTab(topicId)}
-          onOpenAssessment={() => setShowAssessmentModal(true)}
-          onRefreshWorld={loadWorlds}
-        />
-      )}
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-3.5 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 transition-all ${
+                      active
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'bg-white text-slate-700 hover:bg-blue-50/80 border border-slate-200'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="whitespace-nowrap">{tab.label}</span>
+                    {completed && (
+                      <span
+                        className={`w-2 h-2 rounded-full shrink-0 ${
+                          active ? 'bg-emerald-300' : 'bg-emerald-500'
+                        }`}
+                        title="Atividade Concluída"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-      {currentWorld.id === 5 && (
-        <World5ThematicView
-          world={currentWorld}
-          activeTopicId={activeTab}
-          onNavigateTopic={(topicId) => setActiveTab(topicId)}
-          onOpenAssessment={() => setShowAssessmentModal(true)}
-          onRefreshWorld={loadWorlds}
-        />
+          {/* ========================================================= */}
+          {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC) */}
+          {/* ========================================================= */}
+          {currentWorld.id === 1 && (
+            <World1ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
+
+          {currentWorld.id === 2 && (
+            <World2ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
+
+          {currentWorld.id === 3 && (
+            <World3ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
+
+          {currentWorld.id === 4 && (
+            <World4ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
+
+          {currentWorld.id === 5 && (
+            <World5ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
+        </>
       )}
 
       {/* Assessment Modal */}

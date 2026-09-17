@@ -707,7 +707,7 @@ export async function clientGetStudentDossier(studentId: string) {
       scores.push(bestAssess);
     }
     const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
-    previousWorldPassed = average > 80;
+    previousWorldPassed = average > 75;
 
     return {
       worldId: w.id,
@@ -718,7 +718,7 @@ export async function clientGetStudentDossier(studentId: string) {
       isUnlocked,
       completedCount: scores.length,
       totalComponents: w.simulators.length + 1,
-      hasAssessmentPassed: worldAssessments.some((a: any) => a.percentage >= 80),
+      hasAssessmentPassed: worldAssessments.some((a: any) => a.percentage >= 75),
       simulators: simulatorsDetail,
       challenge: {
         id: w.challenge.id,
@@ -916,7 +916,8 @@ export function computeWorldStatsSync(
   worldId: number,
   userProgress: any[],
   missions: any[],
-  assessmentAttempts: any[]
+  assessmentAttempts: any[],
+  userRole?: string
 ) {
   const world = WORLDS_DATA.find((w) => w.id === worldId);
   if (!world) {
@@ -945,9 +946,11 @@ export function computeWorldStatsSync(
   const completedCount = scores.length;
 
   let isUnlocked = worldId === 1;
-  if (worldId > 1) {
-    const prevStats = computeWorldStatsSync(worldId - 1, userProgress, missions, assessmentAttempts);
-    isUnlocked = prevStats.average > 80;
+  if (userRole === 'teacher') {
+    isUnlocked = true;
+  } else if (worldId > 1) {
+    const prevStats = computeWorldStatsSync(worldId - 1, userProgress, missions, assessmentAttempts, userRole);
+    isUnlocked = prevStats.average > 75;
   }
 
   return {
@@ -956,12 +959,12 @@ export function computeWorldStatsSync(
     completedCount,
     totalComponents,
     isUnlocked,
-    hasAssessmentPassed: worldAssessments.some((a: any) => a.percentage >= 80),
+    hasAssessmentPassed: worldAssessments.some((a: any) => a.percentage >= 75),
   };
 }
 
 // Client Get Worlds
-export async function clientGetWorlds(userId?: string) {
+export async function clientGetWorlds(userId?: string, userRole?: string) {
   if (!userId) {
     const defaultWorlds = WORLDS_DATA.map((w) => ({
       ...w,
@@ -1000,7 +1003,7 @@ export async function clientGetWorlds(userId?: string) {
   }
 
   const worlds = WORLDS_DATA.map((w) => {
-    const stats = computeWorldStatsSync(w.id, actDocs, missDocs, assessDocs);
+    const stats = computeWorldStatsSync(w.id, actDocs, missDocs, assessDocs, userRole);
     const mission = missDocs.find((m) => m.worldId === w.id);
     const chalProg = actDocs.find((p) => p.activityId === w.challenge.id);
     const worldAssessments = assessDocs.filter((a) => a.worldId === w.id);

@@ -73,7 +73,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
   const handleSubmit = async () => {
     if (Object.keys(selectedAnswers).length < questions.length) {
-      setError('Por favor responde a todas as 8 perguntas antes de submeter.');
+      setError(`Por favor responde a todas as ${questions.length} perguntas antes de submeter.`);
       return;
     }
 

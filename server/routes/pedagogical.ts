@@ -41,7 +41,7 @@ import {
 const router = Router();
 
 // Helper to compute world average strictly for a student user
-export async function computeWorldStats(userId: string, worldId: number): Promise<{
+export async function computeWorldStats(userId: string, worldId: number, userRole?: string): Promise<{
   worldId: number;
   average: number;
   completedCount: number;
@@ -81,12 +81,15 @@ export async function computeWorldStats(userId: string, worldId: number): Promis
   const completedCount = scores.length;
 
   // Progression rule:
-  // Mundo 1 is unlocked initially
-  // Mundo N (N > 1) is unlocked ONLY IF previous world average > 80
+  // Teacher has unrestricted preview access to all worlds
+  // Mundo 1 is unlocked initially for all students
+  // Mundo N (N > 1) is unlocked ONLY IF previous world average > 75%
   let isUnlocked = worldId === 1;
-  if (worldId > 1) {
-    const prevStats = await computeWorldStats(userId, worldId - 1);
-    isUnlocked = prevStats.average > 80; // Strict inequality: 80.1 unlocks
+  if (userRole === 'teacher') {
+    isUnlocked = true;
+  } else if (worldId > 1) {
+    const prevStats = await computeWorldStats(userId, worldId - 1, userRole);
+    isUnlocked = prevStats.average > 75; // Strict rule: > 75% unlocks next world
   }
 
   return {
@@ -95,7 +98,7 @@ export async function computeWorldStats(userId: string, worldId: number): Promis
     completedCount,
     totalComponents,
     isUnlocked,
-    hasAssessmentPassed: assessmentAttempts.some((a) => a.percentage >= 80),
+    hasAssessmentPassed: assessmentAttempts.some((a) => a.percentage >= 75),
   };
 }
 
@@ -113,8 +116,8 @@ export async function evaluateBadges(userId: string) {
   };
 
   for (let w = 1; w <= 5; w++) {
-    const stats = await computeWorldStats(userId, w);
-    if (stats.average > 80 && stats.completedCount >= 3) {
+    const stats = await computeWorldStats(userId, w, user.role);
+    if (stats.average > 75 && stats.completedCount >= 3) {
       await awardBadge(userId, worldBadgeMap[w]);
     }
   }
@@ -126,11 +129,11 @@ export async function evaluateBadges(userId: string) {
     await awardBadge(userId, 'centuriao-digital');
   }
 
-  // Master: Grande Missão completed + all 5 worlds average > 80
+  // Master: Grande Missão completed + all 5 worlds average > 75
   const userTx = await getUserXPTransactions(userId);
   const hasGM = userTx.some((t) => t.sourceType === 'grande_missao');
-  const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w)));
-  const allUnlocked = allStats.every((st) => st.average > 80);
+  const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w, user.role)));
+  const allUnlocked = allStats.every((st) => st.average > 75);
   if (hasGM && allUnlocked) {
     await awardBadge(userId, 'mestre-da-missao-tic');
   }
@@ -165,9 +168,10 @@ router.get('/worlds', async (req: AuthRequest, res) => {
       getAssessmentAttempts(userId),
     ]);
 
+    const userRole = req.user?.role;
     const worlds = await Promise.all(
       WORLDS_DATA.map(async (w) => {
-        const stats = await computeWorldStats(userId, w.id);
+        const stats = await computeWorldStats(userId, w.id, userRole);
         const mission = allMissions.find((m) => m.worldId === w.id);
         const chalProg = userProgress.find((p) => p.activityId === w.challenge.id);
         const worldAssessments = allAssessments.filter((a) => a.worldId === w.id);
@@ -211,12 +215,19 @@ router.get('/worlds/:worldId', requireAuth, async (req: AuthRequest, res) => {
     if (!world) return res.status(404).json({ error: 'Mundo não encontrado' });
 
     const userId = req.user!.id;
+    const userRole = req.user?.role;
     const [stats, missions, userProgress, assessmentAttempts] = await Promise.all([
-      computeWorldStats(userId, worldId),
+      computeWorldStats(userId, worldId, userRole),
       getMissionSubmissions({ userId, worldId }),
       getUserActivityProgress(userId),
       getAssessmentAttempts(userId, worldId),
     ]);
+
+    if (userRole !== 'teacher' && !stats.isUnlocked) {
+      return res.status(403).json({
+        error: `Mundo ${worldId} bloqueado. Precisas de obter mais de 75% no Mundo anterior para o desbloquear.`,
+      });
+    }
 
     const chalProg = userProgress.find((p) => p.activityId === world.challenge.id);
     const mission = missions.length > 0 ? missions[0] : null;
@@ -246,9 +257,9 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
     const assess = FINAL_ASSESSMENTS[worldId];
     if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
 
-    const stats = await computeWorldStats(req.user!.id, worldId);
+    const stats = await computeWorldStats(req.user!.id, worldId, req.user?.role);
     if (!stats.isUnlocked) {
-      return res.status(403).json({ error: 'Este Mundo ainda está bloqueado. Completa o Mundo anterior com média > 80%.' });
+      return res.status(403).json({ error: 'Este Mundo ainda está bloqueado. Completa o Mundo anterior com média > 75%.' });
     }
 
     // Strip correctIndex and explanation from payload!
@@ -280,7 +291,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
     if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
 
     const userId = req.user!.id;
-    const stats = await computeWorldStats(userId, worldId);
+    const stats = await computeWorldStats(userId, worldId, req.user?.role);
     if (!stats.isUnlocked) {
       return res.status(403).json({ error: 'Mundo bloqueado. Não é permitido submeter avaliações de Mundos bloqueados.' });
     }

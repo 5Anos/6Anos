@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { clientCompleteGrandeMissao } from '../services/clientFirestore';
+import { clientCompleteGrandeMissao, clientGetWorlds } from '../services/clientFirestore';
 
 interface GrandeMissaoViewProps {
   onBack: () => void;
@@ -25,6 +25,33 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
   const [stageAnswers, setStageAnswers] = useState<Record<number, string>>({});
   const [completed, setCompleted] = useState(false);
   const [xpWon, setXpWon] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [checkingProgress, setCheckingProgress] = useState(true);
+
+  React.useEffect(() => {
+    if (user) {
+      if (user.role === 'teacher') {
+        setIsLocked(false);
+        setCheckingProgress(false);
+        return;
+      }
+      clientGetWorlds(user.id, user.role)
+        .then((res) => {
+          const worlds = res.worlds || [];
+          const allCompletedWith75 =
+            worlds.length >= 5 && worlds.every((w) => (w.average || 0) > 75);
+          if (!allCompletedWith75) {
+            setIsLocked(true);
+          }
+          setCheckingProgress(false);
+        })
+        .catch(() => {
+          setCheckingProgress(false);
+        });
+    } else {
+      setCheckingProgress(false);
+    }
+  }, [user?.id, user?.role]);
 
   const stages = [
     {
@@ -144,6 +171,31 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
         >
           <span>Voltar ao Início</span>
+        </button>
+      </div>
+    );
+  }
+
+  if (isLocked) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-amber-200/90 p-8 sm:p-10 text-center shadow-sm">
+        <div className="w-16 h-16 bg-indigo-100 text-indigo-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <Crown className="w-8 h-8" />
+        </div>
+        <span className="text-xs font-black text-indigo-700 uppercase tracking-wider block mb-1">
+          Desafio Supremo Bloqueado
+        </span>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+          Grande Missão Final Bloqueada
+        </h2>
+        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+          A Grande Missão Final (A ESCOLA DO FUTURO) só fica disponível quando alcançares uma pontuação média superior a <strong>75%</strong> em todos os 5 Mundos curriculares. Continua a praticar!
+        </p>
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+        >
+          <span>Voltar ao Dashboard</span>
         </button>
       </div>
     );

@@ -14,10 +14,11 @@ import {
   Award,
   Footprints,
   Heart,
+  Lock,
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { clientSaveActivityProgress } from '../services/clientFirestore';
+import { clientSaveActivityProgress, clientGetWorlds } from '../services/clientFirestore';
 
 interface SimulatorsViewProps {
   worldId?: number;
@@ -32,19 +33,39 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
 }) => {
   const { user, refreshUser } = useAuth();
   const [currentSim, setCurrentSim] = useState(simulatorId);
+  const [worldLocked, setWorldLocked] = useState<boolean>(false);
   const [completedFeedback, setCompletedFeedback] = useState<{
     score: number;
     xpGain: number;
     newBest: number;
   } | null>(null);
 
+  React.useEffect(() => {
+    if (user && worldId > 1 && user.role !== 'teacher') {
+      clientGetWorlds(user.id, user.role)
+        .then((res) => {
+          const w = res.worlds?.find((world) => world.id === worldId);
+          if (w && !w.isUnlocked) {
+            setWorldLocked(true);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user?.id, worldId]);
+
   // --- PASSWORD SIMULATOR STATE ---
   const [pwdInput, setPwdInput] = useState('');
   const [hasTestedPwd, setHasTestedPwd] = useState(false);
+  const [pwdFeedback, setPwdFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
 
   // --- PHISHING SIMULATOR STATE ---
   const [phishingStep, setPhishingStep] = useState(0);
-  const [phishingScore, setPhishingScore] = useState<number | null>(null);
+  const [phishingUserChoices, setPhishingUserChoices] = useState<Record<number, boolean>>({});
+  const [phishingCompleted, setPhishingCompleted] = useState(false);
 
   // --- PRIVACY SIMULATOR STATE ---
   const [privacyChoices, setPrivacyChoices] = useState<Record<string, 'public' | 'private'>>({});
@@ -94,60 +115,141 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   // 1. Password Simulator Evaluation
   const evaluatePassword = () => {
     let score = 0;
-    if (pwdInput.length >= 8) score += 25;
-    if (pwdInput.length >= 12) score += 15;
-    if (/[A-Z]/.test(pwdInput)) score += 15;
-    if (/[a-z]/.test(pwdInput)) score += 15;
-    if (/[0-9]/.test(pwdInput)) score += 15;
-    if (/[^A-Za-z0-9]/.test(pwdInput)) score += 15;
-    const common = ['123', 'password', 'escola', 'alex', 'teste', 'qwerty'];
+    if (pwdInput.length >= 8) score += 20;
+    if (pwdInput.length >= 12) score += 20;
+    if (/[a-z]/.test(pwdInput) && /[A-Z]/.test(pwdInput)) score += 20;
+    if (/[0-9]/.test(pwdInput)) score += 20;
+    if (/[^A-Za-z0-9]/.test(pwdInput)) score += 20;
+
+    const common = ['123', 'password', 'palavrapasse', 'escola', 'teste', 'qwerty', '123456', 'portugal', 'futebol'];
     if (common.some((c) => pwdInput.toLowerCase().includes(c))) {
+      score = Math.max(10, score - 35);
+    }
+
+    const obviousNames = ['alex', 'tiago', 'leonor', 'marta', 'diogo', 'joao', 'maria', 'ana', 'pedro', 'lucas', 'matilde', 'tomas', 'beatriz', 'francisco', 'afonso', 'goncalo', 'rodrigo', 'martim', 'santiago'];
+    if (obviousNames.some((n) => pwdInput.toLowerCase().includes(n))) {
       score = Math.max(10, score - 30);
     }
+
+    if (/(19\d\d|20\d\d)/.test(pwdInput)) {
+      score = Math.max(10, score - 25);
+    }
+
+    let title = '';
+    let description = '';
+
+    if (score < 50) {
+      title = 'Ainda pode ser melhorada.';
+      description =
+        'Esta palavra-passe é fácil de adivinhar porque é curta ou utiliza informação previsível. Experimenta torná-la mais longa e evita nomes, datas ou palavras muito comuns.';
+    } else if (score <= 75) {
+      title = 'Está a ficar melhor!';
+      description =
+        'Já tens algumas características de uma palavra-passe mais segura. Experimenta aumentar o comprimento e evitar qualquer informação pessoal ou previsível.';
+    } else {
+      title = 'Boa escolha!';
+      description =
+        'A tua palavra-passe de teste é longa e combina diferentes tipos de caracteres, sem utilizar informação pessoal óbvia. Lembra-te: na vida real, não partilhes as tuas palavras-passe e evita reutilizar a mesma em várias contas.';
+    }
+
     setHasTestedPwd(true);
+    setPwdFeedback({ score, title, description });
     reportCompletion('sim-password', 1, score);
   };
 
   // 2. Phishing Simulator Scenarios
   const phishingScenarios = [
     {
-      sender: 'servicos-urgentes@banc0-alerta.net',
-      subject: 'A tua conta foi suspensa! Clica já para reativar em 10 minutos',
-      body: 'Caro cliente, detetámos acessos suspeitos. Se não entrares em http://bit.ly/login-recupera agora, todos os teus acessos serão eliminados.',
+      sender: 'seguranca@conta-escola-verificacao.com',
+      subject: 'A tua conta será bloqueada hoje',
+      body: 'Olá. Detetámos um problema na tua conta. Para evitar que seja bloqueada, confirma os teus dados através do seguinte link nas próximas 30 minutos.',
       isPhishing: true,
-      explanation: 'O endereço do remetente é falso (@banc0 com zero), usa uma ameaça de 10 minutos e um link encurtado.',
+      explanation:
+        'Existem vários sinais de alerta: a mensagem cria urgência, pede uma ação através de um link e solicita a confirmação de dados. Antes de agir, devemos verificar a informação através de um canal oficial.',
+      signals: [
+        'Urgência com prazo curto ("nas próximas 30 minutos")',
+        'Pedido de dados através de link',
+        'Ameaça de bloqueio imediato da conta',
+        'Remetente não oficial (@conta-escola-verificacao.com)',
+      ],
     },
     {
       sender: 'professor.tic@escola.edu.pt',
-      subject: 'Trabalho de Grupo de TIC - Prazo de Entrega',
-      body: 'Olá a todos. Lembramos que a entrega da atividade é na próxima sexta-feira através da plataforma oficial da escola. Bom trabalho!',
+      subject: 'Trabalho de TIC — prazo de entrega',
+      body: 'Olá. Relembramos que o trabalho de TIC deve ser entregue até sexta-feira através da plataforma oficial indicada na aula. Se tiveres dúvidas, fala com o professor.',
       isPhishing: false,
-      explanation: 'Remetente do domínio oficial da escola (.edu.pt), tom cordial e sem pedidos urgentes de palavras-passe ou links suspeitos.',
+      explanation:
+        'Neste exemplo não existe um pedido de palavra-passe nem um link suspeito. A mensagem indica um procedimento já conhecido e permite confirmar a informação através do professor ou da plataforma oficial.',
+      signals: [
+        'Contexto conhecido de aula',
+        'Canal e domínio oficial da escola (.edu.pt)',
+        'Ausência de pedido de palavra-passe ou link estranho',
+        'Possibilidade de confirmação com o professor',
+      ],
     },
     {
-      sender: 'premios@jogos-online-gratis-100.com',
-      subject: 'GANHASTE 5000 MOEDAS NO TEU JOGO FAVORITO!',
-      body: 'Parabéns! Foste o vencedor sortudo. Introduz o teu email e a tua palavra-passe para receberes as moedas na tua conta de jogador.',
+      sender: 'premios@jogos-oficiais.net',
+      subject: 'Foste selecionado para receber moedas!',
+      body: 'Parabéns! A tua conta foi selecionada para receber 5 000 moedas. Para confirmar a oferta, precisamos do teu nome de utilizador e da tua palavra-passe.',
       isPhishing: true,
-      explanation: 'Promessas milagrosas de prémios inexistentes com pedido da tua palavra-passe são sempre tentativas de roubo de conta.',
+      explanation:
+        'O pedido da palavra-passe é um sinal muito importante de alerta. Uma entidade legítima não deve pedir a tua palavra-passe desta forma.',
+      signals: [
+        'Promessa de prémios e vantagens gratuitas',
+        'Pedido explícito da tua palavra-passe',
+        'Remetente não oficial',
+        'Tentativa de engano',
+      ],
     },
   ];
 
   const handlePhishingDecision = (chosenPhishing: boolean) => {
-    const current = phishingScenarios[phishingStep];
-    const isCorrect = chosenPhishing === current.isPhishing;
-    const finalScore = isCorrect ? 100 : 40;
-    setPhishingScore(finalScore);
-    reportCompletion('sim-phishing', 1, finalScore);
+    const updatedChoices = { ...phishingUserChoices, [phishingStep]: chosenPhishing };
+    setPhishingUserChoices(updatedChoices);
+
+    if (Object.keys(updatedChoices).length === phishingScenarios.length) {
+      let correctCount = 0;
+      phishingScenarios.forEach((scen, idx) => {
+        if (updatedChoices[idx] === scen.isPhishing) correctCount++;
+      });
+      const finalScore = Math.round((correctCount / phishingScenarios.length) * 100);
+      setPhishingCompleted(true);
+      reportCompletion('sim-phishing', 1, finalScore);
+    }
   };
 
   // 3. Privacy Simulator Items
   const privacyItems = [
-    { id: 'item-phone', label: 'O teu número de telemóvel pessoal', correct: 'private', hint: 'Pode ser usado para burlas e spam.' },
-    { id: 'item-hobby', label: 'O teu desporto ou passatempo preferido', correct: 'public', hint: 'Gostos gerais são seguros de partilhar.' },
-    { id: 'item-address', label: 'A morada completa da tua casa', correct: 'private', hint: 'Protege a tua segurança e localização física.' },
-    { id: 'item-school', label: 'Horário em que sais sozinho da escola', correct: 'private', hint: 'Informações de rotina física devem ser guardadas.' },
-    { id: 'item-book', label: 'Um livro ou jogo que recomendas aos amigos', correct: 'public', hint: 'Partilha cultural segura e positiva.' },
+    {
+      id: 'item-phone',
+      label: 'Número de telemóvel',
+      correct: 'private',
+      feedback: 'O número de telemóvel é um dado pessoal. Não o publiques sem uma razão adequada e sem autorização.',
+    },
+    {
+      id: 'item-hobby',
+      label: 'Passatempo',
+      correct: 'public',
+      feedback: 'Um passatempo, por si só, pode não ser um dado especialmente privado, mas deves pensar no contexto e em quem terá acesso à informação.',
+    },
+    {
+      id: 'item-address',
+      label: 'Morada',
+      correct: 'private',
+      feedback: 'A morada permite identificar onde uma pessoa vive e deve ser protegida.',
+    },
+    {
+      id: 'item-school',
+      label: 'Horário em que sais sozinho da escola',
+      correct: 'private',
+      feedback: 'Esta informação pode revelar rotinas e localização. Deve ser protegida.',
+    },
+    {
+      id: 'item-book',
+      label: 'Livro ou jogo recomendado',
+      correct: 'public',
+      feedback: 'Partilhar uma recomendação cultural pode ser uma forma positiva de comunicar, desde que não revele informação pessoal desnecessária.',
+    },
   ];
 
   const handlePrivacySubmit = () => {
@@ -171,7 +273,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
         'Publicar nas redes sociais uma fotografia de grupo em frente à escola com a farda visível e localização GPS ativada.',
       correct: 'risco',
       explanation:
-        'Risco para a Pegada: Revela a localização física e as rotinas escolares dos alunos para qualquer pessoa.',
+        'Publicar fardas escolares e localização em tempo real revela rotinas físicas a qualquer pessoa na rede. Pensa no impacto futuro da exposição da tua privacidade.',
     },
     {
       id: 'fp-2',
@@ -180,7 +282,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
         'Escrever um comentário rude e insultuoso num fórum público de videojogos depois de perder uma partida.',
       correct: 'risco',
       explanation:
-        'Risco para a Pegada: As palavras ficam registadas nos servidores e podem ser consultadas no futuro por amigos ou professores.',
+        'Palavras impulsivas escritas na internet ficam gravadas em servidores e podem prejudicar a tua reputação perante colegas, professores e futuros projetos.',
     },
     {
       id: 'fp-3',
@@ -189,7 +291,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
         'Partilhar no blogue da turma um projeto escolar sobre reciclagem e ambiente, assinado apenas com o primeiro nome.',
       correct: 'positivo',
       explanation:
-        'Pegada Positiva: Demonstra competências digitais, cooperação e criação de valor com respeito pela privacidade.',
+        'Demonstra competências de criação, cooperação escolar e responsabilidade ambiental, protegendo simultaneamente a tua identidade completa.',
     },
   ];
 
@@ -209,27 +311,27 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   const wellbeingHabits = [
     {
       id: 'wb-1',
-      label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos para 6 metros de distância',
+      label: 'Fazer uma pausa regularmente durante uma sessão prolongada de ecrã.',
       correct: 'saudavel',
-      explanation: 'Descansa a musculatura ocular e previne a fadiga visual digital.',
+      explanation: 'Fazer pausas ajuda a descansar e contribui para uma utilização mais equilibrada da tecnologia.',
     },
     {
       id: 'wb-2',
-      label: 'Ficar na cama com o telemóvel no escuro a ver vídeos até de madrugada',
+      label: 'Ficar na cama até de madrugada a ver vídeos no telemóvel.',
       correct: 'risco',
-      explanation: 'A luz azul inibe a produção de melatonina, prejudicando o sono e a concentração escolar.',
+      explanation: 'Utilizar ecrãs até muito tarde pode prejudicar o descanso. Ter tempo sem ecrãs antes de dormir pode ajudar a manter uma rotina mais equilibrada.',
     },
     {
       id: 'wb-3',
-      label: 'Fazer pausas ativas para levantar, alongar e beber água',
+      label: 'Levantar, mexer o corpo e fazer uma pausa depois de algum tempo ao computador.',
       correct: 'saudavel',
-      explanation: 'Melhora a circulação, alivia as costas e renova a energia mental.',
+      explanation: 'Fazer pausas e mexer o corpo são bons hábitos durante períodos prolongados de utilização de tecnologia.',
     },
     {
       id: 'wb-4',
-      label: 'Silenciar notificações de redes sociais e jogos durante o horário de estudo',
+      label: 'Desligar as notificações durante o estudo para reduzir distrações.',
       correct: 'saudavel',
-      explanation: 'Evita a interrupção contínua da atenção e melhora os resultados escolares.',
+      explanation: 'Reduzir notificações pode ajudar a manter a atenção durante o estudo e evitar interrupções constantes.',
     },
   ];
 
@@ -281,6 +383,31 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     );
   }
 
+  if (worldLocked) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-amber-200/90 p-8 sm:p-10 text-center shadow-sm">
+        <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <Lock className="w-8 h-8" />
+        </div>
+        <span className="text-xs font-black text-amber-700 uppercase tracking-wider block mb-1">
+          Mundo Bloqueado
+        </span>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+          Simulador Bloqueado
+        </h2>
+        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+          Este simulador pertence ao <strong>Mundo {worldId}</strong>, que está bloqueado. Para o desbloquear, precisas de alcançar uma pontuação média superior a <strong>75%</strong> no <strong>Mundo {worldId - 1}</strong>.
+        </p>
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+        >
+          <span>Voltar aos Mundos</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header with Navigation */}
@@ -300,11 +427,11 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
         {/* Quick Simulator Switcher */}
         <div className="flex items-center gap-2 overflow-x-auto">
           {[
-            { id: 'sim-password', name: 'Password Simulator', icon: Key },
-            { id: 'sim-phishing', name: 'Phishing Simulator', icon: Mail },
-            { id: 'sim-privacy', name: 'Privacy Simulator', icon: ShieldCheck },
-            { id: 'sim-digital-footprint', name: 'Pegada Digital', icon: Footprints },
-            { id: 'sim-digital-wellbeing', name: 'Bem-estar Digital', icon: Heart },
+            { id: 'sim-password', name: 'Laboratório de Palavras-Passe', icon: Key },
+            { id: 'sim-phishing', name: 'Laboratório de Phishing', icon: Mail },
+            { id: 'sim-privacy', name: 'Laboratório de Privacidade', icon: ShieldCheck },
+            { id: 'sim-digital-footprint', name: 'Simulador de Pegada Digital', icon: Footprints },
+            { id: 'sim-digital-wellbeing', name: 'Simulador de Bem-estar Digital', icon: Heart },
             { id: 'sim-block-coding', name: 'Block Coding', icon: Code },
             { id: 'sim-prompt', name: 'Prompt Simulator', icon: Sparkles },
           ].map((s) => {
@@ -334,18 +461,22 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
       {completedFeedback && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-emerald-950">
           <div className="flex items-center gap-3">
-            <Award className="w-6 h-6 text-emerald-600 shrink-0" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <Award className="w-6 h-6 shrink-0" />
+            </div>
             <div>
-              <span className="text-xs font-extrabold uppercase tracking-wide">
-                Simulação Avaliada com Sucesso!
+              <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-800">
+                Atividade concluída!
               </span>
-              <p className="text-sm font-bold">
+              <p className="text-sm font-bold text-emerald-950">
                 Pontuação: {completedFeedback.score}/100{' '}
-                {completedFeedback.xpGain > 0 && `(+${completedFeedback.xpGain} XP Ganho!)`}
+                {completedFeedback.xpGain > 0 && (
+                  <span className="text-emerald-700 font-extrabold">(+{completedFeedback.xpGain} XP)</span>
+                )}
               </p>
             </div>
           </div>
-          <span className="text-xs font-bold bg-emerald-200 text-emerald-800 px-3 py-1 rounded-lg">
+          <span className="text-xs font-bold bg-emerald-200/80 text-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-300">
             Recorde: {completedFeedback.newBest}/100
           </span>
         </div>
@@ -359,18 +490,21 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               <Key className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-slate-900">Password Simulator</h3>
+              <h3 className="text-lg font-black text-slate-900">Laboratório de Palavras-Passe</h3>
               <p className="text-xs text-slate-500">
-                Experimenta criar uma palavra-passe e observa a robustez contra ataques informáticos.
+                Experimenta criar uma palavra-passe de teste e descobre quais características ajudam a torná-la mais difícil de adivinhar.
               </p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Escreve uma palavra-passe de teste:
+              <label className="block text-xs font-bold text-slate-800 mb-1">
+                Cria uma palavra-passe de TESTE:
               </label>
+              <p className="text-[11px] text-slate-500 mb-2">
+                Não uses uma palavra-passe verdadeira. Cria apenas um exemplo para experimentar.
+              </p>
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -378,13 +512,14 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                   onChange={(e) => {
                     setPwdInput(e.target.value);
                     setHasTestedPwd(false);
+                    setPwdFeedback(null);
                   }}
-                  placeholder="Ex: G@to_Azul#782!"
+                  placeholder="Ex.: Gato_Azul_782!"
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/30"
                 />
                 <button
                   onClick={evaluatePassword}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
                 >
                   Testar Força
                 </button>
@@ -395,12 +530,14 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
-                  pwdInput.length >= 10
+                  pwdInput.length >= 12
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : pwdInput.length >= 8
+                    ? 'bg-amber-50 border-amber-200 text-amber-800'
                     : 'bg-slate-50 border-slate-200 text-slate-500'
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4" /> 10+ Caracteres
+                <CheckCircle2 className="w-4 h-4" /> 12+ Caracteres
               </div>
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
@@ -431,10 +568,25 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               </div>
             </div>
 
-            {hasTestedPwd && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Dica do Guardião: Nunca uses datas de nascimento, o teu nome ou sequências como 12345.
-                Uma boa senha combina várias palavras inesperadas e símbolos!
+            {pwdFeedback && (
+              <div
+                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                  pwdFeedback.score > 75
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                    : pwdFeedback.score >= 50
+                    ? 'bg-amber-50 border-amber-200 text-amber-950'
+                    : 'bg-rose-50 border-rose-200 text-rose-950'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-sm">{pwdFeedback.title}</h4>
+                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
+                    Pontuação: {pwdFeedback.score}/100
+                  </span>
+                </div>
+                <p className="leading-relaxed font-medium whitespace-pre-line">
+                  {pwdFeedback.description}
+                </p>
               </div>
             )}
           </div>
@@ -450,7 +602,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                 <Mail className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900">Phishing Simulator</h3>
+                <h3 className="text-lg font-black text-slate-900">Laboratório de Phishing</h3>
                 <p className="text-xs text-slate-500">
                   Cenário {phishingStep + 1} de {phishingScenarios.length}: Analisa a mensagem e toma uma decisão.
                 </p>
@@ -482,41 +634,62 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
           <div className="flex items-center gap-4">
             <button
               onClick={() => handlePhishingDecision(true)}
-              className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className={`flex-1 py-3 rounded-2xl font-extrabold text-xs shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+                phishingUserChoices[phishingStep] === true
+                  ? 'bg-rose-700 text-white ring-2 ring-rose-400'
+                  : 'bg-rose-600 hover:bg-rose-700 text-white'
+              }`}
             >
               <AlertTriangle className="w-4 h-4" />
               <span>É Phishing / Fraude!</span>
             </button>
             <button
               onClick={() => handlePhishingDecision(false)}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className={`flex-1 py-3 rounded-2xl font-extrabold text-xs shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+                phishingUserChoices[phishingStep] === false
+                  ? 'bg-emerald-700 text-white ring-2 ring-emerald-400'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>É Legítimo / Seguro</span>
             </button>
           </div>
 
-          {phishingScore !== null && (
+          {phishingUserChoices[phishingStep] !== undefined && (
             <div
-              className={`p-4 rounded-2xl border text-xs font-semibold ${
-                phishingScore === 100
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                  : 'bg-rose-50 border-rose-200 text-rose-900'
+              className={`p-5 rounded-2xl border text-xs space-y-3 ${
+                phishingUserChoices[phishingStep] === phishingScenarios[phishingStep].isPhishing
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                  : 'bg-rose-50 border-rose-200 text-rose-950'
               }`}
             >
-              <p className="mb-2">
-                <strong>Análise do Perito: </strong>
-                {phishingScenarios[phishingStep].explanation}
-              </p>
+              <div>
+                <strong className="text-sm block mb-1">
+                  {phishingUserChoices[phishingStep] === phishingScenarios[phishingStep].isPhishing
+                    ? 'Resposta Correta!'
+                    : 'Atenção aos Sinais!'}
+                </strong>
+                <p className="leading-relaxed font-medium">
+                  {phishingScenarios[phishingStep].explanation}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-current/20">
+                <span className="font-bold block mb-1.5">O que deves ter observado?</span>
+                <ul className="list-disc list-inside space-y-1">
+                  {phishingScenarios[phishingStep].signals.map((sig, sIdx) => (
+                    <li key={sIdx}>{sig}</li>
+                  ))}
+                </ul>
+              </div>
+
               {phishingStep < phishingScenarios.length - 1 && (
                 <button
-                  onClick={() => {
-                    setPhishingStep((p) => p + 1);
-                    setPhishingScore(null);
-                  }}
-                  className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 mt-2"
+                  onClick={() => setPhishingStep((p) => p + 1)}
+                  className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 mt-2 cursor-pointer"
                 >
-                  <span>Próximo Cenário</span>
+                  <span>Próximo Cenário ({phishingStep + 2}/{phishingScenarios.length})</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -533,62 +706,77 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-slate-900">Privacy Simulator</h3>
+              <h3 className="text-lg font-black text-slate-900">Laboratório de Privacidade</h3>
               <p className="text-xs text-slate-500">
-                Decide o que deves manter PRIVADO ou o que podes PARTILHAR publicamente na rede.
+                Analisa diferentes informações e decide se faz sentido partilhá-las publicamente ou se deves protegê-las.
               </p>
             </div>
+          </div>
+
+          <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-2xl text-xs text-blue-900 font-medium leading-relaxed">
+            💡 <strong>Orientação Pedagógica:</strong> Não existe uma regra igual para todas as informações. Pensa sempre no que estás a partilhar, com quem estás a partilhar e se é realmente necessário.
           </div>
 
           <div className="space-y-3">
             {privacyItems.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
+                className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2.5"
               >
-                <div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900">
                     {item.label}
                   </span>
-                  <p className="text-[11px] text-slate-500">{item.hint}</p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'public' }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        privacyChoices[item.id] === 'public'
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Partilhar
+                    </button>
+                    <button
+                      onClick={() =>
+                        setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'private' }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        privacyChoices[item.id] === 'private'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Manter Privado
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'public' }))
-                    }
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      privacyChoices[item.id] === 'public'
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    Partilhar
-                  </button>
-                  <button
-                    onClick={() =>
-                      setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'private' }))
-                    }
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      privacyChoices[item.id] === 'private'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    Manter Privado
-                  </button>
-                </div>
+                {privacyScore !== null && (
+                  <p className="text-[11px] text-slate-600 pt-1.5 border-t border-slate-200">
+                    {privacyChoices[item.id] === item.correct ? '✅ ' : '⚠️ '}
+                    {item.feedback}
+                  </p>
+                )}
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            {privacyScore !== null && (
+              <span className="text-xs font-bold text-slate-700">
+                Resultado: {privacyScore}/100
+              </span>
+            )}
             <button
               onClick={handlePrivacySubmit}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+              className="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
-              Avaliar Privacidade do Meu Perfil
+              Avaliar Decisões de Privacidade
             </button>
           </div>
         </div>
@@ -604,9 +792,13 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             <div>
               <h3 className="text-lg font-black text-slate-900">Simulador de Pegada Digital</h3>
               <p className="text-xs text-slate-500">
-                Analisa 3 publicações e classifica o seu impacto na tua pegada digital online.
+                Analisa situações do dia a dia e pensa no que cada ação pode deixar registado na tua pegada digital.
               </p>
             </div>
+          </div>
+
+          <div className="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium leading-relaxed">
+            💡 <strong>Reflexão:</strong> Antes de escolher, pergunta a ti próprio: “Gostaria que esta publicação continuasse associada a mim no futuro?”
           </div>
 
           <div className="space-y-4">
@@ -622,7 +814,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                       onClick={() =>
                         setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'positivo' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         footprintChoices[scen.id] === 'positivo'
                           ? 'bg-emerald-600 text-white shadow-xs'
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -634,7 +826,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                       onClick={() =>
                         setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'risco' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         footprintChoices[scen.id] === 'risco'
                           ? 'bg-rose-600 text-white shadow-xs'
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -647,19 +839,25 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                 <p className="text-xs text-slate-700 leading-relaxed font-medium">
                   {scen.description}
                 </p>
-                {footprintChoices[scen.id] && (
-                  <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200/60">
-                    💡 {scen.explanation}
+                {footprintScore !== null && (
+                  <p className="text-[11px] text-slate-600 italic pt-1 border-t border-slate-200/60">
+                    {footprintChoices[scen.id] === scen.correct ? '✅ ' : '⚠️ '}
+                    {scen.explanation}
                   </p>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            {footprintScore !== null && (
+              <span className="text-xs font-bold text-indigo-900">
+                Pontuação da Pegada: {footprintScore}/100
+              </span>
+            )}
             <button
               onClick={handleFootprintSubmit}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+              className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
               Avaliar o Impacto na Minha Pegada
             </button>
@@ -668,11 +866,10 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
           {footprintScore !== null && (
             <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
               <p className="font-bold text-sm text-indigo-900 mb-1">
-                Pontuação da Pegada: {footprintScore}/100
+                Reflexão Concluída!
               </p>
               <p>
-                Excelente reflexão! Lembra-te: tudo o que publicas constrói a tua reputação digital
-                para o futuro. Pensa sempre duas vezes antes de partilhar!
+                Lembra-te: tudo o que publicas constrói a tua reputação digital para o futuro. Pensa sempre duas vezes antes de partilhar!
               </p>
             </div>
           )}
@@ -702,7 +899,12 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               >
                 <div className="space-y-1">
                   <span className="text-xs sm:text-sm font-bold text-slate-800">{h.label}</span>
-                  <p className="text-[11px] text-slate-500 italic">💡 {h.explanation}</p>
+                  {wellbeingScore !== null && (
+                    <p className="text-[11px] text-slate-600 italic">
+                      {wellbeingChoices[h.id] === h.correct ? '✅ ' : '⚠️ '}
+                      {h.explanation}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
@@ -710,7 +912,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                     onClick={() =>
                       setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'saudavel' }))
                     }
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       wellbeingChoices[h.id] === 'saudavel'
                         ? 'bg-emerald-600 text-white shadow-xs'
                         : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -722,7 +924,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                     onClick={() =>
                       setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'risco' }))
                     }
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       wellbeingChoices[h.id] === 'risco'
                         ? 'bg-rose-600 text-white shadow-xs'
                         : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -735,10 +937,15 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             ))}
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            {wellbeingScore !== null && (
+              <span className="text-xs font-bold text-rose-900">
+                Índice de Bem-estar Digital: {wellbeingScore}/100
+              </span>
+            )}
             <button
               onClick={handleWellbeingSubmit}
-              className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+              className="ml-auto bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
               Avaliar Meu Bem-estar Digital
             </button>
@@ -747,12 +954,10 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
           {wellbeingScore !== null && (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-950 font-medium">
               <p className="font-bold text-sm text-rose-900 mb-1">
-                Índice de Bem-estar Digital: {wellbeingScore}/100
+                Reflexão Concluída!
               </p>
               <p>
-                Fantástico! O equilíbrio é a chave do sucesso: aproveita as tecnologias para aprender
-                e comunicar, mas lembra-te sempre de cuidar do teu sono, da tua postura e do teu tempo
-                com amigos e família!
+                O equilíbrio é a chave do sucesso: aproveita as tecnologias para aprender e comunicar, mas lembra-te sempre de cuidar do teu sono, da tua postura e do teu tempo com amigos e família!
               </p>
             </div>
           )}

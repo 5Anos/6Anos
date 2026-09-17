@@ -52,36 +52,62 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   const [pwdInput, setPwdInput] = useState('');
   const [hasTestedPwd, setHasTestedPwd] = useState(false);
   const [pwdScore, setPwdScore] = useState<number | null>(null);
+  const [pwdFeedback, setPwdFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
 
   // -------------------------------------------------------------
   // 2. PHISHING SIMULATOR STATE
   // -------------------------------------------------------------
   const [phishingStep, setPhishingStep] = useState(0);
   const [phishingScore, setPhishingScore] = useState<number | null>(null);
+  const [phishingFeedback, setPhishingFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
+  const [phishingUserChoices, setPhishingUserChoices] = useState<Record<number, boolean>>({});
   const phishingScenarios = [
     {
       sender: 'servicos-urgentes@banc0-alerta.net',
       subject: 'A tua conta foi suspensa! Clica já para reativar em 10 minutos',
       body: 'Caro cliente, detetámos acessos suspeitos. Se não entrares em http://bit.ly/login-recupera agora, todos os teus acessos serão eliminados.',
       isPhishing: true,
+      signals: [
+        'Domínio falso com zero em vez de "o" (@banc0-alerta.net)',
+        'Falsa urgência e ameaça de encerramento imediato',
+        'Link encurtado (bit.ly) a esconder o destino real',
+      ],
       explanation:
-        'O endereço do remetente é falso (@banc0 com o número zero), cria um falso sentido de urgência com 10 minutos e utiliza um link encurtado para esconder o destino real.',
+        'Esta mensagem é phishing. Os burlões usam urgência e ameaças de perda de conta para te levar a clicar sem pensar. Bancos e serviços legítimos nunca enviam links encurtados a pedir palavras-passe.',
     },
     {
       sender: 'professor.tic@escola.edu.pt',
       subject: 'Trabalho de Grupo de TIC - Prazo de Entrega',
       body: 'Olá a todos. Lembramos que a entrega da atividade é na próxima sexta-feira através da plataforma oficial da escola. Bom trabalho!',
       isPhishing: false,
+      signals: [
+        'Endereço institucional autêntico (.edu.pt)',
+        'Tom profissional e formativo adequado',
+        'Encaminha para canais oficiais escolares já conhecidos',
+      ],
       explanation:
-        'Remetente com domínio institucional oficial da escola (.edu.pt), tom pedagógico, sem pedidos suspeitos de credenciais ou links encurtados.',
+        'Mensagem legítima. Provém do endereço institucional do professor e remete para a plataforma oficial habitual da escola, sem solicitar dados confidenciais nem criar alarmismo.',
     },
     {
       sender: 'premios@jogos-online-gratis-100.com',
       subject: 'GANHASTE 5000 MOEDAS NO TEU JOGO FAVORITO!',
       body: 'Parabéns! Foste o vencedor sortudo do sorteio diário. Introduz o teu email e a tua palavra-passe para receberes as moedas de imediato.',
       isPhishing: true,
+      signals: [
+        'Promessa de prémios fáceis e ofertas gratuitas irrealistas',
+        'Pedido explícito da tua palavra-passe',
+        'Domínio genérico e desconhecido (.com duvidoso)',
+      ],
       explanation:
-        'Promessas milagrosas de prémios inexistentes com pedido da tua palavra-passe são sempre tentativas de roubo de conta.',
+        'Esta mensagem é phishing. Nenhuma plataforma ou jogo oficial alguma vez pede a tua palavra-passe para entregar moedas ou itens no jogo.',
     },
   ];
 
@@ -90,36 +116,51 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   // -------------------------------------------------------------
   const [privacyChoices, setPrivacyChoices] = useState<Record<string, 'public' | 'private'>>({});
   const [privacyScore, setPrivacyScore] = useState<number | null>(null);
+  const [privacyFeedback, setPrivacyFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
   const privacyItems = [
     {
       id: 'item-phone',
       label: 'O teu número de telemóvel pessoal',
+      hint: 'Contacto direto via chamadas ou SMS',
       correct: 'private',
-      hint: 'Pode ser utilizado para spam, mensagens falsas e tentativas de burla.',
+      explanation:
+        'Correto ao proteger: o número de telemóvel permite contactos não solicitados, spam e tentativas de burla via SMS/WhatsApp.',
     },
     {
       id: 'item-hobby',
       label: 'O teu desporto ou passatempo preferido',
+      hint: 'Interesses culturais e desportivos',
       correct: 'public',
-      hint: 'Gostos e temas gerais são seguros e estimulam a partilha positiva.',
+      explanation:
+        'Partilha segura: interesses e passatempos gerais promovem a convivência saudável e não colocam em causa a tua segurança física.',
     },
     {
       id: 'item-address',
       label: 'A morada completa da tua casa',
+      hint: 'Rua, número de porta e código postal',
       correct: 'private',
-      hint: 'Protege a tua segurança física e a privacidade da tua família.',
+      explanation:
+        'Correto ao proteger: a morada da tua residência é um dado confidencial crítico e nunca deve ser partilhada publicamente.',
     },
     {
       id: 'item-school',
       label: 'Horário em que sais sozinho da escola',
+      hint: 'Rotinas e deslocações diárias a pé',
       correct: 'private',
-      hint: 'Informações de rotina e horários físicos não devem ser públicas.',
+      explanation:
+        'Correto ao proteger: rotinas, locais e horários físicos onde estás sozinho põem em risco a tua segurança física no mundo real.',
     },
     {
       id: 'item-book',
       label: 'Um livro ou jogo que recomendas aos amigos',
+      hint: 'Recomendações e sugestões construtivas',
       correct: 'public',
-      hint: 'Partilha cultural segura e saudável.',
+      explanation:
+        'Partilha segura: sugestões culturais e de jogos são exemplos de partilha positiva e enriquecedora.',
     },
   ];
 
@@ -128,6 +169,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   // -------------------------------------------------------------
   const [footprintChoices, setFootprintChoices] = useState<Record<string, 'risco' | 'positivo'>>({});
   const [footprintScore, setFootprintScore] = useState<number | null>(null);
+  const [footprintFeedback, setFootprintFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
   const footprintScenarios = [
     {
       id: 'fp-1',
@@ -163,6 +209,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   // -------------------------------------------------------------
   const [wellbeingChoices, setWellbeingChoices] = useState<Record<string, 'saudavel' | 'risco'>>({});
   const [wellbeingScore, setWellbeingScore] = useState<number | null>(null);
+  const [wellbeingFeedback, setWellbeingFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
   const wellbeingHabits = [
     {
       id: 'wb-1',
@@ -231,28 +282,62 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   // Evaluate Password
   const evaluatePassword = () => {
     let score = 0;
-    if (pwdInput.length >= 8) score += 25;
-    if (pwdInput.length >= 10) score += 15;
+    const len = pwdInput.length;
+    if (len >= 8) score += 20;
+    if (len >= 12) score += 20;
     if (/[A-Z]/.test(pwdInput) && /[a-z]/.test(pwdInput)) score += 20;
     if (/[0-9]/.test(pwdInput)) score += 20;
     if (/[^A-Za-z0-9]/.test(pwdInput)) score += 20;
 
-    const common = ['123', 'password', 'escola', 'alex', 'teste', 'qwerty', '12345'];
+    const common = ['123', 'password', 'escola', 'alex', 'teste', 'qwerty', '12345', 'admin', 'pass'];
     if (common.some((c) => pwdInput.toLowerCase().includes(c))) {
-      score = Math.max(10, score - 30);
+      score = Math.max(10, score - 35);
     }
+
+    let title = 'Palavra-passe Fraca';
+    let description =
+      'Esta palavra-passe é curta ou fácil de prever por programas automáticos. Aumenta o comprimento (mínimo 12 caracteres) e combina letras maiúsculas, minúsculas, números e símbolos.';
+
+    if (score > 75) {
+      title = 'Palavra-passe Muito Forte!';
+      description =
+        'Excelente combinação! O bom comprimento associado a diferentes tipos de caracteres torna a tua palavra-passe muito resistente a tentativas de adivinhação.';
+    } else if (score >= 50) {
+      title = 'Palavra-passe Média';
+      description =
+        'Um bom começo, mas ainda pode ser melhorada. Adiciona mais caracteres ou inclui símbolos especiais (#, $, !, _) para reforçar a segurança.';
+    }
+
     setHasTestedPwd(true);
     setPwdScore(score);
-    reportCompletion('sim-password', 'Password Simulator', score);
+    setPwdFeedback({ score, title, description });
+    reportCompletion('sim-password', 'Laboratório de Palavras-Passe', score);
   };
 
   // Evaluate Phishing Decision
   const handlePhishingDecision = (chosenPhishing: boolean) => {
-    const current = phishingScenarios[phishingStep];
-    const isCorrect = chosenPhishing === current.isPhishing;
-    const finalScore = isCorrect ? 100 : 40;
-    setPhishingScore(finalScore);
-    reportCompletion('sim-phishing', 'Phishing Simulator', finalScore);
+    const nextChoices = { ...phishingUserChoices, [phishingStep]: chosenPhishing };
+    setPhishingUserChoices(nextChoices);
+
+    const isCurrentCorrect = chosenPhishing === phishingScenarios[phishingStep].isPhishing;
+    const currentScore = isCurrentCorrect ? 100 : 0;
+    setPhishingScore(currentScore);
+    setPhishingFeedback({
+      score: currentScore,
+      title: isCurrentCorrect ? '✓ Decisão Correta!' : '⚠️ Atenção aos Detalhes de Segurança!',
+      description: phishingScenarios[phishingStep].explanation,
+    });
+
+    let correctCount = 0;
+    Object.entries(nextChoices).forEach(([stepStr, choice]) => {
+      const stepIdx = parseInt(stepStr, 10);
+      if (choice === phishingScenarios[stepIdx].isPhishing) {
+        correctCount++;
+      }
+    });
+
+    const totalScore = Math.round((correctCount / phishingScenarios.length) * 100);
+    reportCompletion('sim-phishing', 'Laboratório de Phishing', totalScore);
   };
 
   // Evaluate Privacy Choices
@@ -263,7 +348,22 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     });
     const score = Math.round((correctCount / privacyItems.length) * 100);
     setPrivacyScore(score);
-    reportCompletion('sim-privacy', 'Privacy Simulator', score);
+
+    let title = 'Classificação em Análise';
+    let description =
+      'Alguns dados confidenciais foram marcados como públicos. Protege sempre a tua morada, contactos e rotinas para garantir a tua segurança digital e física.';
+    if (score === 100) {
+      title = 'Classificação de Privacidade Perfeita!';
+      description =
+        'Excelente discernimento! Manténs os teus dados confidenciais protegidos e sabes que tipo de informação pode ser partilhada em segurança com amigos e comunidade.';
+    } else if (score >= 60) {
+      title = 'Boa Noção de Privacidade';
+      description =
+        'Conseguiste identificar a maioria dos riscos! Revê os dados sensíveis como número de telefone e horários da escola para alcançar nota máxima.';
+    }
+
+    setPrivacyFeedback({ score, title, description });
+    reportCompletion('sim-privacy', 'Laboratório de Privacidade', score);
   };
 
   // Evaluate Footprint Choices
@@ -274,6 +374,21 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     });
     const score = Math.round((correctCount / footprintScenarios.length) * 100);
     setFootprintScore(score);
+
+    let title = 'Análise de Impacto Concluída';
+    let description =
+      'Lembra-te que publicações com uniformes escolares, comentários agressivos ou fotos identificáveis deixam marcas permanentes na tua pegada digital.';
+    if (score === 100) {
+      title = 'Consciência Digital Exemplar!';
+      description =
+        'Compreendeste perfeitamente como cada publicação constrói ou compromete a tua reputação online para o futuro. Continua com essa atitude consciente!';
+    } else if (score >= 66) {
+      title = 'Bom Sentido Crítico';
+      description =
+        'Identificaste a maior parte dos impactos. Tem atenção redobrada à partilha de dados escolares e comentários impulsivos em fóruns públicos.';
+    }
+
+    setFootprintFeedback({ score, title, description });
     reportCompletion('sim-digital-footprint', 'Simulador de Pegada Digital', score);
   };
 
@@ -285,6 +400,21 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     });
     const score = Math.round((correctCount / wellbeingHabits.length) * 100);
     setWellbeingScore(score);
+
+    let title = 'Perfil de Bem-estar Digital';
+    let description =
+      'O uso de ecrãs antes de dormir e o excesso de notificações podem causar insónias e falta de concentração. Experimenta aplicar limites no telemóvel e fazer pausas regulares!';
+    if (score === 100) {
+      title = 'Equilíbrio Digital Notável!';
+      description =
+        'Demonstras hábitos muito saudáveis: pausas ativas (regra 20-20-20), estudo focado sem distrações e descanso adequado longe dos ecrãs à noite!';
+    } else if (score >= 50) {
+      title = 'Bom Caminho para o Equilíbrio';
+      description =
+        'Estás consciente dos principais fatores de bem-estar. Lembra-te de descansar a visão regularmente e evitar ecrãs na cama antes de dormir.';
+    }
+
+    setWellbeingFeedback({ score, title, description });
     reportCompletion('sim-digital-wellbeing', 'Simulador de Bem-estar Digital', score);
   };
 
@@ -394,7 +524,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-blue-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Password Simulator
+                  2. Experimenta: Laboratório de Palavras-Passe
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -404,9 +534,12 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Escreve uma palavra-passe de teste:
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Cria uma palavra-passe de TESTE:
                 </label>
+                <p className="text-[11px] text-slate-500 mb-2">
+                  Não uses uma palavra-passe verdadeira. Cria apenas um exemplo para experimentar.
+                </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
@@ -414,13 +547,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     onChange={(e) => {
                       setPwdInput(e.target.value);
                       setHasTestedPwd(false);
+                      setPwdFeedback(null);
                     }}
-                    placeholder="Ex: G@to_Azul#782!"
+                    placeholder="Ex.: Gato_Azul_782!"
                     className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500/30"
                   />
                   <button
                     onClick={evaluatePassword}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 shrink-0"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                   >
                     <Key className="w-4 h-4" />
                     <span>Testar Força</span>
@@ -432,13 +566,15 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
-                    pwdInput.length >= 10
+                    pwdInput.length >= 12
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      : pwdInput.length >= 8
+                      ? 'bg-amber-50 border-amber-200 text-amber-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>10+ Caracteres</span>
+                  <span>12+ Caracteres</span>
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
@@ -472,15 +608,24 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
               </div>
 
-              {hasTestedPwd && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium space-y-1">
-                  <p className="font-bold text-blue-900">
-                    Pontuação obtida:{' '}
-                    <span className="text-sm font-black text-blue-700">{pwdScore}/100</span>
-                  </p>
-                  <p>
-                    Dica do Guardião: Nunca uses datas de aniversário, o teu nome ou sequências como
-                    12345. Uma boa senha combina várias palavras inesperadas e símbolos!
+              {pwdFeedback && (
+                <div
+                  className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                    pwdFeedback.score > 75
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                      : pwdFeedback.score >= 50
+                      ? 'bg-amber-50 border-amber-200 text-amber-950'
+                      : 'bg-rose-50 border-rose-200 text-rose-950'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-extrabold text-sm">{pwdFeedback.title}</h5>
+                    <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
+                      Pontuação: {pwdFeedback.score}/100
+                    </span>
+                  </div>
+                  <p className="leading-relaxed font-medium whitespace-pre-line">
+                    {pwdFeedback.description}
                   </p>
                 </div>
               )}
@@ -578,7 +723,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Phishing Simulator
+                  2. Experimenta: Laboratório de Phishing
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -607,34 +752,37 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={() => handlePhishingDecision(true)}
-                className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <AlertTriangle className="w-4 h-4" />
                 <span>É Phishing / Tentativa de Fraude</span>
               </button>
               <button
                 onClick={() => handlePhishingDecision(false)}
-                className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>É Mensagem Legítima / Segura</span>
               </button>
             </div>
 
-            {phishingScore !== null && (
+            {phishingFeedback && (
               <div
-                className={`p-4 rounded-2xl border text-xs leading-relaxed font-medium ${
-                  phishingScore === 100
+                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                  phishingFeedback.score === 100
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                     : 'bg-rose-50 border-rose-200 text-rose-950'
                 }`}
               >
-                <p className="font-bold mb-1.5">
-                  {phishingScore === 100 ? '✓ Decisão Correta!' : '⚠️ Atenção aos Detalhes:'}
-                </p>
-                <p>
+                <div className="flex items-center justify-between">
+                  <h5 className="font-extrabold text-sm">{phishingFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
+                    {phishingFeedback.score === 100 ? '100 XP' : '0 XP'}
+                  </span>
+                </div>
+                <p className="leading-relaxed font-medium">
                   <strong>Análise do Perito: </strong>
-                  {phishingScenarios[phishingStep].explanation}
+                  {phishingFeedback.description}
                 </p>
 
                 {phishingStep < phishingScenarios.length - 1 && (
@@ -642,10 +790,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     onClick={() => {
                       setPhishingStep((p) => p + 1);
                       setPhishingScore(null);
+                      setPhishingFeedback(null);
                     }}
-                    className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 mt-3 shadow-xs"
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 mt-3 shadow-xs cursor-pointer"
                   >
-                    <span>Próximo Cenário</span>
+                    <span>Próximo Cenário ({phishingStep + 2}/{phishingScenarios.length})</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -744,11 +893,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-emerald-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Privacy Simulator
+                  2. Experimenta: Laboratório de Privacidade
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Decide o que manter privado e o que podes partilhar
+                Classifica os dados entre Públicos e Confidenciais
               </span>
             </div>
 
@@ -758,11 +907,16 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   key={item.id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
                 >
-                  <div>
+                  <div className="space-y-0.5">
                     <span className="text-xs sm:text-sm font-bold text-slate-800">
                       {item.label}
                     </span>
-                    <p className="text-[11px] text-slate-500 mt-0.5">{item.hint}</p>
+                    <p className="text-[11px] text-slate-500">{item.hint}</p>
+                    {privacyChoices[item.id] && (
+                      <p className="text-[11px] text-slate-600 italic">
+                        💡 {item.explanation}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
@@ -770,25 +924,25 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                       onClick={() =>
                         setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'public' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         privacyChoices[item.id] === 'public'
                           ? 'bg-blue-600 text-white shadow-xs'
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      Partilhar
+                      Público / Partilhar
                     </button>
                     <button
                       onClick={() =>
                         setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'private' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         privacyChoices[item.id] === 'private'
                           ? 'bg-emerald-600 text-white shadow-xs'
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      Manter Privado
+                      Privado / Proteger
                     </button>
                   </div>
                 </div>
@@ -798,20 +952,28 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handlePrivacySubmit}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
               >
-                Avaliar Privacidade do Meu Perfil
+                Avaliar Classificação de Privacidade
               </button>
             </div>
 
-            {privacyScore !== null && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-950 font-medium">
-                <p className="font-bold text-sm text-emerald-900 mb-1">
-                  Pontuação de Privacidade: {privacyScore}/100
-                </p>
-                <p>
-                  Lembra-te: na dúvida, mantém sempre os teus dados em privado. A tua segurança física e
-                  digital deve estar sempre em primeiro lugar!
+            {privacyFeedback && (
+              <div
+                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                  privacyFeedback.score > 75
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <h5 className="font-extrabold text-sm">{privacyFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
+                    Pontuação: {privacyFeedback.score}/100
+                  </span>
+                </div>
+                <p className="leading-relaxed font-medium whitespace-pre-line">
+                  {privacyFeedback.description}
                 </p>
               </div>
             )}
@@ -824,7 +986,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t4')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Avançar para: 4. Pegada digital</span>
               <ArrowRight className="w-4 h-4" />
@@ -913,7 +1075,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                         onClick={() =>
                           setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'positivo' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           footprintChoices[scen.id] === 'positivo'
                             ? 'bg-emerald-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -925,7 +1087,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                         onClick={() =>
                           setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'risco' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           footprintChoices[scen.id] === 'risco'
                             ? 'bg-rose-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -950,20 +1112,28 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleFootprintSubmit}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
               >
                 Avaliar o Impacto na Minha Pegada
               </button>
             </div>
 
-            {footprintScore !== null && (
-              <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                <p className="font-bold text-sm text-indigo-900 mb-1">
-                  Pontuação da Pegada: {footprintScore}/100
-                </p>
-                <p>
-                  Excelente reflexão! Lembra-te: tudo o que publicas constrói a tua reputação digital
-                  para o futuro. Pensa sempre duas vezes antes de partilhar!
+            {footprintFeedback && (
+              <div
+                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                  footprintFeedback.score > 75
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-950'
+                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <h5 className="font-extrabold text-sm">{footprintFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
+                    Pontuação: {footprintFeedback.score}/100
+                  </span>
+                </div>
+                <p className="leading-relaxed font-medium whitespace-pre-line">
+                  {footprintFeedback.description}
                 </p>
               </div>
             )}
@@ -976,7 +1146,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t5')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Avançar para: 5. Bem-estar digital</span>
               <ArrowRight className="w-4 h-4" />
@@ -1076,7 +1246,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 >
                   <div className="space-y-1">
                     <span className="text-xs sm:text-sm font-bold text-slate-800">{h.label}</span>
-                    <p className="text-[11px] text-slate-500 italic">💡 {h.explanation}</p>
+                    {wellbeingChoices[h.id] && (
+                      <p className="text-[11px] text-slate-500 italic">💡 {h.explanation}</p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
@@ -1084,7 +1256,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                       onClick={() =>
                         setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'saudavel' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         wellbeingChoices[h.id] === 'saudavel'
                           ? 'bg-emerald-600 text-white shadow-xs'
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -1096,7 +1268,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                       onClick={() =>
                         setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'risco' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         wellbeingChoices[h.id] === 'risco'
                           ? 'bg-rose-600 text-white shadow-xs'
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -1112,21 +1284,28 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleWellbeingSubmit}
-                className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors"
+                className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
               >
                 Avaliar Meu Bem-estar Digital
               </button>
             </div>
 
-            {wellbeingScore !== null && (
-              <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-950 font-medium">
-                <p className="font-bold text-sm text-rose-900 mb-1">
-                  Índice de Bem-estar Digital: {wellbeingScore}/100
-                </p>
-                <p>
-                  Fantástico! O equilíbrio é a chave do sucesso: aproveita as tecnologias para aprender
-                  e comunicar, mas lembra-te sempre de cuidar do teu sono, da tua postura e do teu tempo
-                  com amigos e família!
+            {wellbeingFeedback && (
+              <div
+                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                  wellbeingFeedback.score > 75
+                    ? 'bg-rose-50 border-rose-200 text-rose-950'
+                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <h5 className="font-extrabold text-sm">{wellbeingFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
+                    Índice: {wellbeingFeedback.score}/100
+                  </span>
+                </div>
+                <p className="leading-relaxed font-medium whitespace-pre-line">
+                  {wellbeingFeedback.description}
                 </p>
               </div>
             )}
@@ -1139,12 +1318,12 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 Completaste todos os temas teóricos e práticos do Mundo 1!
               </span>
               <h4 className="text-base font-black text-emerald-950 mt-0.5">
-                Pronto para a Avaliação Final (8 Perguntas)?
+                Pronto para a Avaliação Final (10 Perguntas)?
               </h4>
             </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Ir para a Avaliação Final</span>
               <ArrowRight className="w-4 h-4" />
@@ -1154,7 +1333,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* SEPARADOR 6: AVALIAÇÃO FINAL (8 PERGUNTAS) */}
+      {/* SEPARADOR 6: AVALIAÇÃO FINAL (10 PERGUNTAS) */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
         <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6 text-center">
@@ -1167,11 +1346,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               Prova Curricular de Conclusão do Mundo 1
             </span>
             <h3 className="text-2xl font-black text-slate-900">
-              Avaliação Final (8 Perguntas)
+              Avaliação Final (10 Perguntas)
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-              Responde às 8 questões de escolha múltipla sobre Palavras-passe, Phishing, Privacidade,
-              Pegada Digital e Bem-estar. Para aprovação de excelência, precisas de pelo menos 80%.
+              Responde às 10 questões de escolha múltipla sobre Palavras-passe, Phishing, Privacidade,
+              Pegada Digital e Bem-estar. Para aprovação de excelência e desbloquear os mundos seguintes, precisas de pelo menos 75%.
             </p>
           </div>
 
@@ -1180,13 +1359,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <span className="text-xs font-bold text-slate-600">A tua Melhor Pontuação:</span>
               <span
                 className={`text-sm font-black px-3 py-1 rounded-lg ${
-                  world.bestAssessmentPercentage >= 80
+                  world.bestAssessmentPercentage >= 75
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-amber-100 text-amber-800'
                 }`}
               >
                 {world.bestAssessmentPercentage}%
-                {world.bestAssessmentPercentage >= 80 ? ' (Aprovado)' : ' (Pendente > 80%)'}
+                {world.bestAssessmentPercentage >= 75 ? ' (Aprovado)' : ' (Pendente > 75%)'}
               </span>
             </div>
           )}
@@ -1194,12 +1373,12 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           <div className="pt-4">
             <button
               onClick={onOpenAssessment}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-8 py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 mx-auto"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-8 py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 mx-auto cursor-pointer"
             >
               <span>
                 {world.bestAssessmentPercentage !== null
-                  ? 'Repetir Avaliação Final (8 Perguntas)'
-                  : 'Iniciar Avaliação Final (8 Perguntas)'}
+                  ? 'Repetir Avaliação Final (10 Perguntas)'
+                  : 'Iniciar Avaliação Final (10 Perguntas)'}
               </span>
               <ArrowRight className="w-5 h-5" />
             </button>

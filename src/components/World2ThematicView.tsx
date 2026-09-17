@@ -11,9 +11,10 @@ import {
   Award,
   BookOpen,
   Sparkles,
-  RefreshCw,
-  ExternalLink,
   ShieldAlert,
+  HelpCircle,
+  Clock,
+  Layers,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -50,100 +51,157 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   // 1. KEYWORDS SIMULATOR STATE
   // -------------------------------------------------------------
   const [selectedSearchQuery, setSelectedSearchQuery] = useState<string | null>(null);
-  const [keywordScore, setKeywordScore] = useState<number | null>(null);
+  const [keywordFeedback, setKeywordFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
+
   const searchQueries = [
     {
-      id: 'vague',
+      id: 'query-a',
       query: 'animais',
-      type: 'Vaga e Genérica',
-      results: '380.000.000 resultados: fotos de gatos, lojas de ração, vídeos de comédia...',
-      isEffective: false,
-      feedback: 'Demasiado abrangente! É difícil encontrar informação escolar útil sem filtrar por tema e localização.',
+      label: 'Pesquisa A',
+      score: 40,
+      title: 'Demasiado vaga.',
+      description: 'A pesquisa pode devolver muitos resultados que não estão relacionados com o que procuras.',
     },
     {
-      id: 'better',
+      id: 'query-b',
       query: 'animais em perigo',
-      type: 'Média',
-      results: '14.000.000 resultados: relatórios globais de pandas, tigres e florestas tropicais...',
-      isEffective: false,
-      feedback: 'Melhor, mas ainda muito dispersa pelo mundo inteiro.',
+      label: 'Pesquisa B',
+      score: 65,
+      title: 'Já é mais específica.',
+      description: 'Ainda assim, pode apresentar resultados de vários países e muitos tipos de animais.',
     },
     {
-      id: 'best',
+      id: 'query-c',
       query: 'animais em perigo de extinção em Portugal',
-      type: 'Específica e Eficaz (Recomendada)',
-      results: '45.000 resultados: Lince-ibérico, Lobo-ibérico, relatórios do ICNF e projetos de conservação.',
-      isEffective: true,
-      feedback: 'Excelente! Palavras-chave precisas trazem exatamente o conteúdo educativo que procuras.',
+      label: 'Pesquisa C',
+      score: 100,
+      title: 'Mais adequada.',
+      description: 'As palavras-chave indicam o tema e o contexto geográfico, ajudando a encontrar resultados mais relevantes.',
     },
   ];
 
   // -------------------------------------------------------------
   // 2. AUTHOR CHECK SIMULATOR STATE
   // -------------------------------------------------------------
-  const [authorChoices, setAuthorChoices] = useState<Record<string, 'confiavel' | 'suspeito'>>({});
+  const [authorChoices, setAuthorChoices] = useState<Record<string, 'credibilidade' | 'verificacao'>>({});
+  const [authorSubmitted, setAuthorSubmitted] = useState(false);
   const [authorScore, setAuthorScore] = useState<number | null>(null);
+
   const authorScenarios = [
     {
       id: 'auth-1',
-      source: 'Portal ICNF / Ciência Viva',
-      author: 'Dra. Maria Antunes (Bióloga Marinha e Investigadora)',
-      snippet: 'Estudo anual sobre as espécies marinhas na costa atlântica com dados oficiais e metodologia.',
-      correct: 'confiavel',
-      explanation: 'Autor identificado com especialização na área e entidade institucional reconhecida.',
+      origin: 'Instituto público / página institucional',
+      author: 'Equipa técnica identificada',
+      snippet: 'Este documento apresenta dados sobre espécies protegidas e indica as fontes utilizadas para recolher a informação.',
+      correct: 'credibilidade' as const,
+      feedback: 'O autor ou entidade estão identificados e são apresentadas fontes que permitem verificar a informação.',
     },
     {
       id: 'auth-2',
-      source: 'Blogue "Verdades Ocultas 2026"',
-      author: 'Utilizador anónimo "SuperDetective99"',
-      snippet: 'Afirmação sensacionalista de que os golfinhos desapareceram devido a experiências secretas.',
-      correct: 'suspeito',
-      explanation: 'Autor sem identidade real, página sem contactos institucionais e sem referências científicas.',
+      origin: 'Blogue pessoal',
+      author: 'João Silva',
+      snippet: 'Na minha opinião, esta espécie está a desaparecer porque as pessoas já não gostam dela.',
+      correct: 'verificacao' as const,
+      feedback: 'O autor está identificado, mas a afirmação apresenta uma explicação pessoal sem indicar evidências. Identificar o autor não é suficiente para provar que a informação é verdadeira.',
     },
     {
       id: 'auth-3',
-      source: 'Site de Vendas de Suplementos',
-      author: 'Equipa Comercial (Sem menção de peritos)',
-      snippet: 'Artigo sobre saúde que termina a incentivar a compra imediata de um produto milagroso.',
-      correct: 'suspeito',
-      explanation: 'O objetivo da página é comercial (venda de produtos), havendo conflito de interesses na informação.',
+      origin: 'Site de uma organização comercial',
+      author: 'Equipa da empresa',
+      snippet: 'O nosso produto é cientificamente comprovado como o melhor para resolver este problema.',
+      correct: 'verificacao' as const,
+      feedback: 'A página tem um objetivo comercial. Isso não significa automaticamente que a informação seja falsa, mas é importante procurar evidências independentes antes de aceitar a afirmação.',
     },
   ];
 
   // -------------------------------------------------------------
   // 3. DATE VERIFIER SIMULATOR STATE
   // -------------------------------------------------------------
-  const [dateChoices, setDateChoices] = useState<Record<string, 'atual' | 'desatualizado'>>({});
+  const [dateChoices, setDateChoices] = useState<Record<string, 'sim' | 'nao'>>({});
+  const [dateSubmitted, setDateSubmitted] = useState(false);
   const [dateScore, setDateScore] = useState<number | null>(null);
+
   const dateScenarios = [
     {
       id: 'date-1',
-      title: 'Alerta Vermelho: Encerramento de Escolas por Temporal Violento',
-      dateShown: 'Publicado em 14 de Novembro de 2018 (repartilhado hoje nas redes)',
-      correct: 'desatualizado',
-      explanation: 'Uma notícia de há vários anos está a ser partilhada hoje fora do seu contexto temporal para criar alarme falso.',
+      title: 'Calendário escolar',
+      info: 'Publicado em 2021/2022',
+      question: 'Queres saber as datas do calendário escolar deste ano. Esta informação é suficiente?',
+      optSim: 'Sim, é suficiente',
+      optNao: 'Não, é necessário procurar informação atual',
+      correct: 'nao' as const,
+      feedback: 'O calendário escolar pode mudar de ano para ano. Para uma pergunta atual, precisas de informação correspondente ao ano letivo atual.',
     },
     {
       id: 'date-2',
-      title: 'Lançamento do Novo Telescópio Espacial Europeu',
-      dateShown: 'Publicado ontem pela Agência Espacial Europeia (ESA)',
-      correct: 'atual',
-      explanation: 'Acontecimentos recentes com data clara e contemporânea ao ano letivo em curso.',
+      title: 'História da Internet',
+      info: 'Artigo publicado em 2018 sobre acontecimentos da década de 1990.',
+      question: 'O facto de o artigo ser antigo significa que não pode ser útil?',
+      optSim: 'Sim, é inútil',
+      optNao: 'Não, continua útil para acontecimentos históricos',
+      correct: 'nao' as const,
+      feedback: 'Uma fonte antiga pode ser útil quando estudamos acontecimentos históricos. A importância da data depende da pergunta que estamos a tentar responder.',
     },
     {
       id: 'date-3',
-      title: 'Calendário de Provas Finais do 2.º Ciclo',
-      dateShown: 'Ano Letivo 2021/2022',
-      correct: 'desatualizado',
-      explanation: 'O calendário escolar muda todos os anos; utilizar datas passadas pode levar a faltas ou erros graves.',
+      title: 'Notícia sobre um acontecimento recente',
+      info: 'Artigo publicado há vários anos, mas partilhado hoje como se fosse uma notícia atual.',
+      question: 'Deves tratá-lo como uma notícia atual?',
+      optSim: 'Sim, é atual',
+      optNao: 'Não, é antiga fora de contexto',
+      correct: 'nao' as const,
+      feedback: 'A data ajuda a perceber o contexto. Uma notícia antiga não deve ser apresentada como se tivesse acontecido agora.',
     },
   ];
 
   // -------------------------------------------------------------
   // 4. SOURCE COMPARE SIMULATOR STATE
   // -------------------------------------------------------------
-  const [comparedConfirmed, setComparedConfirmed] = useState<boolean | null>(null);
-  const [compareScore, setCompareScore] = useState<number | null>(null);
+  const [selectedCompareOption, setSelectedCompareOption] = useState<string | null>(null);
+  const [compareFeedback, setCompareFeedback] = useState<{
+    score: number;
+    title: string;
+    description: string;
+  } | null>(null);
+
+  const compareOptions = [
+    {
+      id: 'opt-a',
+      label: 'A',
+      text: 'Fonte A + Fonte C, porque duas páginas dizem a mesma coisa.',
+      score: 40,
+      isCorrect: false,
+      feedback: 'Atenção: A Fonte C apenas copia a Fonte A. Duas páginas que dizem o mesmo porque uma copiou a outra não constituem uma confirmação independente.',
+    },
+    {
+      id: 'opt-b',
+      label: 'B',
+      text: 'Fonte A + Fonte B, porque têm origens diferentes e podem ser comparadas.',
+      score: 100,
+      isCorrect: true,
+      feedback: 'Correto! Comparar fontes é mais útil quando conseguimos analisar informação proveniente de origens diferentes. Duas páginas que simplesmente copiam a mesma fonte não constituem uma confirmação independente.',
+    },
+    {
+      id: 'opt-c',
+      label: 'C',
+      text: 'Fonte B + Fonte C, porque são páginas diferentes.',
+      score: 50,
+      isCorrect: false,
+      feedback: 'Embora sejam páginas diferentes, a Fonte A é a fonte original e a mais documentada. A melhor comparação cruza fontes primárias e independentes.',
+    },
+    {
+      id: 'opt-d',
+      label: 'D',
+      text: 'Apenas Fonte C, porque é a página mais recente.',
+      score: 30,
+      isCorrect: false,
+      feedback: 'Apenas uma fonte não permite comparar nada, e ser mais recente não significa que seja a mais fidedigna.',
+    },
+  ];
 
   // -------------------------------------------------------------
   // 5. NEWS DETECTIVE STATE
@@ -154,7 +212,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     checkedEvidence: false,
     checkedOtherSources: false,
   });
-  const [newsDecision, setNewsDecision] = useState<'partilhar' | 'desconfiar' | null>(null);
+  const [newsDecision, setNewsDecision] = useState<'verificar' | 'partilhar' | null>(null);
   const [newsScore, setNewsScore] = useState<number | null>(null);
 
   // -------------------------------------------------------------
@@ -199,9 +257,13 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const handleKeywordSelect = (qId: string) => {
     setSelectedSearchQuery(qId);
     const item = searchQueries.find((q) => q.id === qId);
-    const score = item?.isEffective ? 100 : item?.id === 'better' ? 65 : 40;
-    setKeywordScore(score);
-    reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', score);
+    if (!item) return;
+    setKeywordFeedback({
+      score: item.score,
+      title: item.title,
+      description: item.description,
+    });
+    reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', item.score);
   };
 
   // 2. Submit Authors
@@ -211,6 +273,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       if (authorChoices[scen.id] === scen.correct) correctCount++;
     });
     const score = Math.round((correctCount / authorScenarios.length) * 100);
+    setAuthorSubmitted(true);
     setAuthorScore(score);
     reportCompletion('sim-author-check', 'Simulador de Autoria & Origem', score);
   };
@@ -222,26 +285,36 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       if (dateChoices[scen.id] === scen.correct) correctCount++;
     });
     const score = Math.round((correctCount / dateScenarios.length) * 100);
+    setDateSubmitted(true);
     setDateScore(score);
     reportCompletion('sim-date-verifier', 'Simulador de Linha Temporal & Data', score);
   };
 
   // 4. Submit Compare
-  const handleCompareDecision = (agreed: boolean) => {
-    setComparedConfirmed(agreed);
-    const score = agreed ? 100 : 40;
-    setCompareScore(score);
-    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', score);
+  const handleCompareSelect = (optId: string) => {
+    setSelectedCompareOption(optId);
+    const item = compareOptions.find((o) => o.id === optId);
+    if (!item) return;
+    setCompareFeedback({
+      score: item.score,
+      title: item.isCorrect ? 'Excelente Escolha de Fontes!' : 'Análise Incompleta de Fontes',
+      description: item.feedback,
+    });
+    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', item.score);
   };
 
   // 5. Submit News Detective
-  const handleNewsDecision = (decision: 'partilhar' | 'desconfiar') => {
+  const handleNewsDecision = (decision: 'verificar' | 'partilhar') => {
     setNewsDecision(decision);
-    const checksDone = Object.values(newsDetectiveAudit).filter(Boolean).length;
-    const isGoodDecision = decision === 'desconfiar';
-    const finalScore = isGoodDecision ? Math.min(100, 50 + checksDone * 12.5) : 30;
-    setNewsScore(Math.round(finalScore));
-    reportCompletion('sim-news-detective', 'NEWS DETECTIVE', Math.round(finalScore));
+    const checksCount = Object.values(newsDetectiveAudit).filter(Boolean).length;
+    let finalScore = 0;
+    if (decision === 'verificar') {
+      finalScore = Math.min(100, checksCount * 15 + 40);
+    } else {
+      finalScore = 30;
+    }
+    setNewsScore(finalScore);
+    reportCompletion('sim-news-detective', 'DETETIVE DE NOTÍCIAS', finalScore);
   };
 
   // Helpers
@@ -316,12 +389,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-blue-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: COMO FORMULAR PALAVRAS-CHAVE E PERGUNTAS CLARAS
+                1. APRENDE: PESQUISAR MELHOR
               </h4>
             </div>
 
@@ -352,56 +425,66 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Compara termos vagos vs específicos
+                Escolhe a melhor pesquisa
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Imagina que o teu professor de Ciências pediu um trabalho sobre a fauna protegida em Portugal.
-              Clica nas opções abaixo para testar diferentes pesquisas num motor de busca:
-            </p>
-
-            <div className="space-y-3">
-              {searchQueries.map((sq) => (
-                <div
-                  key={sq.id}
-                  onClick={() => handleKeywordSelect(sq.id)}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                    selectedSearchQuery === sq.id
-                      ? sq.isEffective
-                        ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30'
-                        : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30'
-                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2">
-                      <Search className="w-4 h-4 text-blue-600" />
-                      <span className="font-mono text-xs sm:text-sm font-black text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-                        {sq.query}
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                      Nível: {sq.type}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-slate-600 font-medium italic mb-1">
-                    🔍 Resultado obtido: {sq.results}
-                  </p>
-
-                  {selectedSearchQuery === sq.id && (
-                    <div className="mt-2 pt-2 border-t border-slate-200/60 text-xs font-bold text-slate-800">
-                      💡 {sq.feedback}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs sm:text-sm text-blue-950 font-medium">
+              O teu professor pediu-te para descobrir quais são alguns dos animais em perigo de extinção em Portugal. Qual destas pesquisas te ajuda melhor a encontrar informação sobre esse assunto?
             </div>
 
-            {keywordScore !== null && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Regra de Ouro do Detetive: Quanto mais precisa for a pergunta, menos tempo perdes a filtrar páginas inúteis!
+            <div className="space-y-3">
+              {searchQueries.map((sq) => {
+                const isSelected = selectedSearchQuery === sq.id;
+                return (
+                  <div
+                    key={sq.id}
+                    onClick={() => handleKeywordSelect(sq.id)}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                      isSelected
+                        ? sq.score === 100
+                          ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30'
+                          : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30'
+                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xs font-black text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
+                          {sq.label}
+                        </span>
+                        <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
+                          "{sq.query}"
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-500">
+                        {isSelected ? 'Opção selecionada' : 'Clica para testar esta pesquisa'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {keywordFeedback && (
+              <div
+                className={`p-4 rounded-2xl border text-xs font-medium space-y-1 ${
+                  keywordFeedback.score === 100
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center gap-2 font-black">
+                  {keywordFeedback.score === 100 ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  )}
+                  <span>
+                    {keywordFeedback.title} (Pontuação: {keywordFeedback.score}/100)
+                  </span>
+                </div>
+                <p>{keywordFeedback.description}</p>
               </div>
             )}
           </div>
@@ -453,12 +536,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-blue-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: A IMPORTÂNCIA DA AUTORIA E DA REPUTAÇÃO
+                1. APRENDE: QUEM CRIOU A INFORMAÇÃO?
               </h4>
             </div>
 
@@ -489,7 +572,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Avalia quem escreveu o conteúdo
+                Analisa as 3 situações
               </span>
             </div>
 
@@ -497,51 +580,62 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {authorScenarios.map((scen) => (
                 <div
                   key={scen.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2.5"
+                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider block">
-                        Origem: {scen.source}
+                        Origem: {scen.origin}
                       </span>
                       <h5 className="text-xs sm:text-sm font-black text-slate-900">
-                        {scen.author}
+                        Autor: {scen.author}
                       </h5>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() =>
-                          setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'confiavel' }))
+                          setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'credibilidade' }))
                         }
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          authorChoices[scen.id] === 'confiavel'
+                          authorChoices[scen.id] === 'credibilidade'
                             ? 'bg-emerald-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
-                        Fonte Confiável
+                        Há bons sinais de credibilidade
                       </button>
                       <button
                         onClick={() =>
-                          setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'suspeito' }))
+                          setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'verificacao' }))
                         }
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          authorChoices[scen.id] === 'suspeito'
-                            ? 'bg-rose-600 text-white shadow-xs'
+                          authorChoices[scen.id] === 'verificacao'
+                            ? 'bg-amber-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
-                        Autor Suspeito / Comercial
+                        Precisa de mais verificação
                       </button>
                     </div>
                   </div>
 
                   <p className="text-xs text-slate-700 font-medium">"{scen.snippet}"</p>
 
-                  {authorChoices[scen.id] && (
-                    <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200/60">
-                      💡 {scen.explanation}
-                    </p>
+                  {authorSubmitted && (
+                    <div
+                      className={`p-3 rounded-xl border text-xs font-medium ${
+                        authorChoices[scen.id] === scen.correct
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                          : 'bg-amber-50 border-amber-200 text-amber-950'
+                      }`}
+                    >
+                      <p className="font-bold">
+                        {authorChoices[scen.id] === scen.correct
+                          ? '✓ Avaliação correta!'
+                          : 'ℹ️ Observação do Detetive:'}
+                      </p>
+                      <p>{scen.feedback}</p>
+                    </div>
                   )}
                 </div>
               ))}
@@ -550,7 +644,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleAuthorSubmit}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+                disabled={Object.keys(authorChoices).length < authorScenarios.length}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
                 Validar Avaliação de Autores
               </button>
@@ -558,7 +653,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             {authorScore !== null && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Pontuação da Auditoria: {authorScore}/100. Lembra-te: na Internet, qualquer pessoa pode criar uma página bonita, mas a reputação e o rigor do autor é que contam!
+                Pontuação da Auditoria: {authorScore}/100. Saber quem criou a informação é uma pista importante, mas não é a única coisa que devemos verificar. Procura sempre saber quem criou e verifica se existem outras evidências que a apoiem.
               </div>
             )}
           </div>
@@ -610,12 +705,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-blue-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O CONTEXTO TEMPORAL DA INFORMAÇÃO
+                1. APRENDE: VERIFICAR A DATA
               </h4>
             </div>
 
@@ -646,7 +741,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Evita notícias antigas fora de contexto
+                Avalia a adequação da data
               </span>
             </div>
 
@@ -654,47 +749,63 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {dateScenarios.map((scen) => (
                 <div
                   key={scen.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2.5"
+                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                     <div>
-                      <h5 className="text-xs sm:text-sm font-black text-slate-900">{scen.title}</h5>
-                      <span className="text-[11px] font-bold text-slate-500 block mt-0.5">
-                        🕒 {scen.dateShown}
+                      <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider block">
+                        Título: {scen.title}
                       </span>
+                      <p className="text-xs font-bold text-slate-600">
+                        Informação: {scen.info}
+                      </p>
+                      <p className="text-xs sm:text-sm font-black text-slate-900 mt-1">
+                        {scen.question}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
                       <button
                         onClick={() =>
-                          setDateChoices((prev) => ({ ...prev, [scen.id]: 'atual' }))
+                          setDateChoices((prev) => ({ ...prev, [scen.id]: 'sim' }))
                         }
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          dateChoices[scen.id] === 'atual'
+                          dateChoices[scen.id] === 'sim'
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {scen.optSim}
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDateChoices((prev) => ({ ...prev, [scen.id]: 'nao' }))
+                        }
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                          dateChoices[scen.id] === 'nao'
                             ? 'bg-emerald-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
-                        Informação Atual
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDateChoices((prev) => ({ ...prev, [scen.id]: 'desatualizado' }))
-                        }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          dateChoices[scen.id] === 'desatualizado'
-                            ? 'bg-amber-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        Desatualizada / Antiga
+                        {scen.optNao}
                       </button>
                     </div>
                   </div>
 
-                  {dateChoices[scen.id] && (
-                    <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200/60">
-                      💡 {scen.explanation}
-                    </p>
+                  {dateSubmitted && (
+                    <div
+                      className={`p-3 rounded-xl border text-xs font-medium ${
+                        dateChoices[scen.id] === scen.correct
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                          : 'bg-amber-50 border-amber-200 text-amber-950'
+                      }`}
+                    >
+                      <p className="font-bold">
+                        {dateChoices[scen.id] === scen.correct
+                          ? '✓ Resposta correta!'
+                          : 'ℹ️ Explicação:'}
+                      </p>
+                      <p>{scen.feedback}</p>
+                    </div>
                   )}
                 </div>
               ))}
@@ -703,7 +814,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleDateSubmit}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+                disabled={Object.keys(dateChoices).length < dateScenarios.length}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
                 Verificar Linha Temporal
               </button>
@@ -711,7 +823,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             {dateScore !== null && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Avaliação Concluída: {dateScore}/100. Notícias antigas recicladas são uma das principais causas de pânico falso nas redes sociais. Verificar o ano e o mês evita mal-entendidos!
+                Avaliação Concluída: {dateScore}/100. Lembra-te: uma informação pode ser verdadeira e, mesmo assim, estar desatualizada para a pergunta que estás a fazer.
               </div>
             )}
           </div>
@@ -763,12 +875,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-blue-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O MÉTODO DA CONFIRMAÇÃO CRUZADA
+                1. APRENDE: COMPARAR FONTES
               </h4>
             </div>
 
@@ -799,66 +911,82 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Cruza 3 fontes sobre o mesmo boato
+                Páginas independentes vs páginas que copiam
               </span>
             </div>
 
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs sm:text-sm text-amber-950 font-bold">
-              Rumor em Investigação: "O Governo vai proibir os trabalhos de casa e fechar as escolas aos sábados em definitivo."
-            </div>
-
+            {/* Investigação das Fontes */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
-                <span className="text-[10px] font-black uppercase text-blue-600 block">Fonte A (Portal DGE / Educação)</span>
-                <p className="text-xs text-slate-700 font-medium">
-                  "O Ministério da Educação mantém o regime normal de funcionamento e não emitiu qualquer despacho a extinguir tarefas escolares."
+              <div className="p-4 rounded-2xl border border-blue-200 bg-blue-50/60 space-y-1.5">
+                <span className="text-[10px] font-black uppercase text-blue-700 block">Fonte A</span>
+                <h5 className="text-xs font-black text-slate-900">Página institucional</h5>
+                <p className="text-xs text-slate-600">
+                  Autor identificado, data indicada, apresenta referências e dados verificáveis.
                 </p>
               </div>
-              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
-                <span className="text-[10px] font-black uppercase text-blue-600 block">Fonte B (Jornal Diário de Notícias)</span>
-                <p className="text-xs text-slate-700 font-medium">
-                  "Especialistas em educação debatem a carga de trabalhos escolares, mas confirmam que não há qualquer alteração legal prevista."
+              <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50/60 space-y-1.5">
+                <span className="text-[10px] font-black uppercase text-amber-700 block">Fonte B</span>
+                <h5 className="text-xs font-black text-slate-900">Blogue pessoal</h5>
+                <p className="text-xs text-slate-600">
+                  Autor identificado, sem referências bibliográficas, texto apresenta opiniões pessoais.
                 </p>
               </div>
-              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
-                <span className="text-[10px] font-black uppercase text-rose-600 block">Fonte C (Post viral no TikTok)</span>
-                <p className="text-xs text-slate-700 font-medium">
-                  "Urgente! Acabaram os TPC para sempre a partir de amanhã! Partilha antes que apaguem este vídeo!"
+              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-1.5">
+                <span className="text-[10px] font-black uppercase text-slate-600 block">Fonte C</span>
+                <h5 className="text-xs font-black text-slate-900">Outra página na Web</h5>
+                <p className="text-xs text-slate-600">
+                  Copia grande parte do texto da Fonte A sem acrescentar nenhuma informação nova.
                 </p>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <span className="text-xs sm:text-sm font-bold text-slate-800">
-                Conclusão da Comparação: O rumor é falso e contrariado pelas fontes oficiais e independentes?
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleCompareDecision(true)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    comparedConfirmed === true
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  Sim, Boato Desmentido
-                </button>
-                <button
-                  onClick={() => handleCompareDecision(false)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    comparedConfirmed === false
-                      ? 'bg-rose-600 text-white shadow-xs'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  Não, Acreditar no Vídeo
-                </button>
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+              <p className="text-xs sm:text-sm font-bold text-slate-900">
+                Se queres verificar uma afirmação, qual combinação de fontes é mais útil para começares a investigar?
+              </p>
+
+              <div className="space-y-2">
+                {compareOptions.map((opt) => {
+                  const isSelected = selectedCompareOption === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleCompareSelect(opt.id)}
+                      className={`w-full text-left p-3.5 rounded-xl border text-xs font-medium transition-all ${
+                        isSelected
+                          ? opt.isCorrect
+                            ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30 font-bold text-emerald-950'
+                            : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30 font-bold text-amber-950'
+                          : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-800'
+                      }`}
+                    >
+                      <span className="font-black mr-2 text-blue-700">{opt.label})</span>
+                      <span>{opt.text}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {compareScore !== null && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Excelente raciocínio! Duas fontes independentes e credíveis concordam entre si, desmontando a publicação sensacionalista do TikTok.
+            {compareFeedback && (
+              <div
+                className={`p-4 rounded-2xl border text-xs font-medium space-y-1 ${
+                  compareFeedback.score === 100
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center gap-2 font-black">
+                  {compareFeedback.score === 100 ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  )}
+                  <span>
+                    {compareFeedback.title} (Pontuação: {compareFeedback.score}/100)
+                  </span>
+                </div>
+                <p>{compareFeedback.description}</p>
               </div>
             )}
           </div>
@@ -910,12 +1038,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-blue-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: COMO QUEBRAR A CADEIA DE DESINFORMAÇÃO
+                1. APRENDE: PENSAR ANTES DE PARTILHAR
               </h4>
             </div>
 
@@ -942,32 +1070,36 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-blue-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: NEWS DETECTIVE (Auditoria de Notícia Viral)
+                  2. Experimenta: DETETIVE DE NOTÍCIAS
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Investiga a publicação antes de partilhar
+                Auditoria de Publicação Viral
               </span>
             </div>
 
+            <div className="text-xs sm:text-sm text-slate-600 font-medium">
+              Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura evidências e compara outras fontes.
+            </div>
+
             {/* Publicação Viral */}
-            <div className="p-5 rounded-2xl border border-rose-200 bg-rose-50/50 space-y-3">
+            <div className="p-5 rounded-2xl border border-rose-200 bg-rose-50/50 space-y-2.5">
               <div className="flex items-center gap-2 text-rose-700 text-xs font-bold">
                 <ShieldAlert className="w-4 h-4" />
-                <span>Publicação muito partilhada nas redes sociais</span>
+                <span>Publicação viral muito partilhada nas redes sociais</span>
               </div>
-              <h4 className="text-base font-black text-slate-900">
-                "Cientistas descobrem criatura extraterrestre na Serra da Estrela! As autoridades querem calar a verdade!"
+              <h4 className="text-sm sm:text-base font-black text-slate-900">
+                "Descoberta extraordinária na serra revoluciona a ciência mundial! As autoridades tentaram esconder este segredo!"
               </h4>
-              <p className="text-xs text-slate-600 font-medium">
-                Acompanhado de uma foto desfocada com cores artificiais, sem links para instituições e sem nome de investigador.
+              <p className="text-xs text-slate-600">
+                Publicação com milhares de partilhas nas redes sociais, imagem desfocada com cores artificiais, sem indicação de autor cientista, sem data original e sem links para relatórios ou instituições.
               </p>
             </div>
 
             {/* Checklist de Auditoria */}
             <div className="space-y-2">
               <span className="text-xs font-bold text-slate-700 block">
-                Passos de Investigação do Detetive: (Marca os que verificaste)
+                Passos de Investigação do Detetive: (Marca o que verificaste)
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
@@ -982,7 +1114,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     }
                     className="w-4 h-4 text-blue-600 rounded-md"
                   />
-                  <span>1. Procurar autor ou cientista responsável</span>
+                  <span>1. Verifiquei quem publicou</span>
                 </label>
                 <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
                   <input
@@ -996,7 +1128,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     }
                     className="w-4 h-4 text-blue-600 rounded-md"
                   />
-                  <span>2. Verificar a data e origem original da imagem</span>
+                  <span>2. Verifiquei a data</span>
                 </label>
                 <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
                   <input
@@ -1010,7 +1142,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     }
                     className="w-4 h-4 text-blue-600 rounded-md"
                   />
-                  <span>3. Analisar se existem provas reais ou fotos manipuladas</span>
+                  <span>3. Procurei evidências</span>
                 </label>
                 <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
                   <input
@@ -1024,44 +1156,49 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     }
                     className="w-4 h-4 text-blue-600 rounded-md"
                   />
-                  <span>4. Procurar confirmação noutros jornais de referência</span>
+                  <span>4. Comparei com outras fontes</span>
                 </label>
               </div>
             </div>
 
             {/* Decisão Final */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-              <button
-                onClick={() => handleNewsDecision('desconfiar')}
-                className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Desconfiar e Não Partilhar (É Boato)</span>
-              </button>
-              <button
-                onClick={() => handleNewsDecision('partilhar')}
-                className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
-              >
-                <AlertTriangle className="w-4 h-4" />
-                <span>Partilhar Imediatamente com os Amigos</span>
-              </button>
+            <div className="space-y-2 pt-2">
+              <span className="text-xs font-bold text-slate-700 block">
+                Agora decide: partilhar ou continuar a verificar?
+              </span>
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <button
+                  onClick={() => handleNewsDecision('verificar')}
+                  className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Continuar a verificar</span>
+                </button>
+                <button
+                  onClick={() => handleNewsDecision('partilhar')}
+                  className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Partilhar</span>
+                </button>
+              </div>
             </div>
 
             {newsScore !== null && (
               <div
                 className={`p-4 rounded-2xl border text-xs font-medium ${
-                  newsDecision === 'desconfiar'
+                  newsDecision === 'verificar'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                     : 'bg-rose-50 border-rose-200 text-rose-950'
                 }`}
               >
                 <p className="font-bold mb-1">
-                  Resultado do News Detective: {newsScore}/100
+                  Resultado do Detetive de Notícias: {newsScore}/100
                 </p>
                 <p>
-                  {newsDecision === 'desconfiar'
-                    ? 'Parabéns, Detetive Digital! Agiste de forma responsável. Ao não partilhar boatos sensacionalistas sem fontes fidedignas, ajudas a manter a Internet um lugar mais seguro e confiável para todos.'
-                    : 'Cuidado! Partilhar conteúdo sem verificar apenas espalha boatos e desinformação. O lema do Detetive é: Para, Verifica, Compara. Só depois partilha!'}
+                  {newsDecision === 'verificar'
+                    ? 'Excelente atitude de Detetive Digital! Não partilhaste um boato sem antes confirmar as provas e comparar fontes. O teu lema é: Para, Verifica, Compara. Só depois decide!'
+                    : 'Atenção! Ainda não tens informação suficiente nem fontes confirmadas para partilhar com segurança. Partilhar sem verificar apenas espalha boatos e desinformação.'}
                 </p>
               </div>
             )}
@@ -1094,15 +1231,15 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {world.title}
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 8 Perguntas
+              Avaliação Final de 10 Perguntas
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Demonstra que sabes pesquisar com rigor, identificar autores credíveis e detetar notícias falsas para desbloquear o Mundo 3!
+              Demonstra que sabes pesquisar com rigor, identificar autores credíveis, verificar a data e comparar fontes para desbloquear o Mundo 3!
             </p>
           </div>
 
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl max-w-md mx-auto text-xs text-blue-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloquear o Mundo 3: Média &gt; 80%</p>
+            <p>🏆 Requisito para desbloquear o Mundo 3: Média &gt; 75%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null
@@ -1116,7 +1253,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               onClick={onOpenAssessment}
               className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2"
             >
-              <span>Começar Avaliação Final (8 Perguntas)</span>
+              <span>Começar Avaliação Final (10 Perguntas)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
