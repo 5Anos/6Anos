@@ -259,6 +259,28 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     }
   };
 
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 text-center shadow-sm">
+        <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <Key className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+          Simuladores Bloqueados — Registo Obrigatório
+        </h2>
+        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+          Os simuladores práticos da Missão TIC requerem registo e início de sessão na plataforma para gravar o progresso e conquistas.
+        </p>
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+        >
+          <span>Voltar ao Início</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header with Navigation */}

@@ -37,7 +37,21 @@ export const ProfileView: React.FC = () => {
     }
   }, [user?.id, user?.avatar, user?.nickname]);
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 text-center shadow-sm">
+        <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <User className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+          Perfil Bloqueado — Registo Obrigatório
+        </h2>
+        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+          Para personalizares o teu avatar e o teu nome de explorador digital, inicia sessão na tua conta.
+        </p>
+      </div>
+    );
+  }
 
   const nextLevel = getNextLevelInfo(user.xp);
 

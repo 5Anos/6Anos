@@ -6,6 +6,7 @@ import {
   Award,
   User,
   GraduationCap,
+  Lock,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
@@ -82,23 +83,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = currentTab === item.id;
+            const isProtected = !user && item.id !== 'dashboard';
             return (
               <button
                 key={item.id}
                 id={`nav-${item.id}`}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
                   active
                     ? 'bg-blue-100/70 text-blue-700 shadow-xs'
                     : 'text-slate-700 hover:bg-slate-100/70 hover:text-slate-900'
                 }`}
               >
-                <Icon
-                  className={`w-5 h-5 transition-colors ${
-                    active ? 'text-blue-600' : 'text-slate-500'
-                  }`}
-                />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3.5">
+                  <Icon
+                    className={`w-5 h-5 transition-colors ${
+                      active ? 'text-blue-600' : 'text-slate-500'
+                    }`}
+                  />
+                  <span>{item.label}</span>
+                </div>
+                {isProtected && (
+                  <span className="text-[10px] bg-amber-100 text-amber-800 font-extrabold px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5" />
+                  </span>
+                )}
               </button>
             );
           })}

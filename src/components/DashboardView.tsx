@@ -390,8 +390,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div
                   id="world-island-1"
                   onClick={() => {
-                    if (!user && onOpenLoginModal) {
-                      onOpenLoginModal();
+                    if (!user) {
+                      onOpenLoginModal?.();
                       return;
                     }
                     onSelectWorld(1);
@@ -468,8 +468,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div
                   id="world-island-2"
                   onClick={() => {
-                    if (!user && onOpenLoginModal) {
-                      onOpenLoginModal();
+                    if (!user) {
+                      onOpenLoginModal?.();
                       return;
                     }
                     onSelectWorld(2);
@@ -550,8 +550,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div
                   id="world-island-3"
                   onClick={() => {
-                    if (!user && onOpenLoginModal) {
-                      onOpenLoginModal();
+                    if (!user) {
+                      onOpenLoginModal?.();
                       return;
                     }
                     onSelectWorld(3);
@@ -632,8 +632,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div
                   id="world-island-4"
                   onClick={() => {
-                    if (!user && onOpenLoginModal) {
-                      onOpenLoginModal();
+                    if (!user) {
+                      onOpenLoginModal?.();
                       return;
                     }
                     onSelectWorld(4);
@@ -714,8 +714,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div
                   id="world-island-5"
                   onClick={() => {
-                    if (!user && onOpenLoginModal) {
-                      onOpenLoginModal();
+                    if (!user) {
+                      onOpenLoginModal?.();
                       return;
                     }
                     onSelectWorld(5);
@@ -791,8 +791,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div
               id="summit-mountain"
               onClick={() => {
-                if (!user && onOpenLoginModal) {
-                  onOpenLoginModal();
+                if (!user) {
+                  onOpenLoginModal?.();
                   return;
                 }
                 onOpenGrandeMissao();

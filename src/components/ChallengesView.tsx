@@ -35,6 +35,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
   }, [user?.id]);
 
   const loadData = async () => {
+    if (!user) return;
     try {
       const [rankRes, chalRes] = await Promise.all([
         apiRequest('/api/pedagogical/class-ranking'),
@@ -86,6 +87,22 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
       setSubmitting(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 text-center shadow-sm">
+        <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <Trophy className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+          Desafios Bloqueados — Registo Obrigatório
+        </h2>
+        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+          Para participar nos desafios semanais e figurar no ranking da turma, é necessário ter conta e iniciar sessão na plataforma.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

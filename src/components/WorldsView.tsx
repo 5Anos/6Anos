@@ -46,11 +46,13 @@ import { clientGetWorlds } from '../services/clientFirestore';
 interface WorldsViewProps {
   initialWorldId?: number;
   onOpenSimulator: (worldId: number, simId: string) => void;
+  onOpenLoginModal?: () => void;
 }
 
 export const WorldsView: React.FC<WorldsViewProps> = ({
   initialWorldId = 1,
   onOpenSimulator,
+  onOpenLoginModal,
 }) => {
   const { user, locale, refreshUser } = useAuth();
   const [worlds, setWorlds] = useState<WorldSummary[]>([]);
@@ -62,7 +64,11 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
 
   useEffect(() => {
-    loadWorlds();
+    if (user?.id) {
+      loadWorlds();
+    } else {
+      setLoading(false);
+    }
   }, [user?.id]);
 
   const loadWorlds = async () => {
@@ -86,6 +92,32 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       setLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 text-center shadow-sm">
+        <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <Lock className="w-8 h-8" />
+        </div>
+        <span className="text-xs font-black text-amber-700 uppercase tracking-wider block mb-1">
+          Acesso Restrito
+        </span>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+          Mundos Bloqueados — Registo Obrigatório
+        </h2>
+        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+          Não é permitido aceder nem ver a informação dos 5 Mundos para pessoas que não estejam registadas na plataforma. Inicia sessão ou cria a tua conta para desbloquear o acesso!
+        </p>
+        <button
+          onClick={() => onOpenLoginModal?.()}
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+        >
+          <Lock className="w-4 h-4" />
+          <span>Iniciar Sessão / Criar Conta</span>
+        </button>
+      </div>
+    );
+  }
 
   const currentWorld = worlds.find((w) => w.id === selectedWorldId) || worlds[0];
 
