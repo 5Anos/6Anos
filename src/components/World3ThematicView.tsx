@@ -170,6 +170,36 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   ];
 
   // -------------------------------------------------------------
+  // 7. AVATAR CHALLENGE STATE
+  // -------------------------------------------------------------
+  const [avatarHandle, setAvatarHandle] = useState('');
+  const [avatarStyle, setAvatarStyle] = useState<'robo' | 'pixel' | 'ilustrado'>('robo');
+  const [avatarColor, setAvatarColor] = useState('bg-purple-500');
+  const [avatarPrivacyChecked, setAvatarPrivacyChecked] = useState(false);
+  const [avatarScore, setAvatarScore] = useState<number | null>(null);
+  const [avatarFeedback, setAvatarFeedback] = useState<string | null>(null);
+
+  const handleAvatarSubmit = () => {
+    if (!avatarHandle.trim()) {
+      setAvatarFeedback('Por favor insere um nome de utilizador criativo (handle) para o teu avatar!');
+      return;
+    }
+    const containsPhoneOrEmail = /\d{9}/.test(avatarHandle) || /@/.test(avatarHandle);
+    if (containsPhoneOrEmail) {
+      setAvatarFeedback('⚠️ Cuidado! Não coloques o teu número de telemóvel ou e-mail no nome do teu avatar. Protege a tua privacidade!');
+      return;
+    }
+    if (!avatarPrivacyChecked) {
+      setAvatarFeedback('⚠️ Por favor marca a opção de privacidade para confirmar que a tua identidade real está protegida.');
+      return;
+    }
+    const score = 100;
+    setAvatarScore(score);
+    setAvatarFeedback('🎉 Excelente! Criaste o teu Avatar Digital com sucesso sem expor a tua imagem real ou dados pessoais!');
+    reportCompletion('sim-avatar-challenge', 'Avatar Challenge', score);
+  };
+
+  // -------------------------------------------------------------
   // REPORT COMPLETION HELPER
   // -------------------------------------------------------------
   const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
@@ -569,6 +599,128 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             {netiquetteScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
                 Pontuação da Netiqueta: {netiquetteScore}/100. Um bom Criador Digital cultiva espaços digitais saudáveis e respeitosos!
+              </div>
+            )}
+          </div>
+
+          {/* 🎨 3. DESAFIO ESPECIAL: SIMULADOR DE AVATAR (IDENTIDADE DIGITAL) */}
+          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5 text-purple-700">
+                <Sparkles className="w-5 h-5" />
+                <h4 className="text-base font-black uppercase tracking-wide">
+                  Desafio de Identidade: Avatar Challenge
+                </h4>
+              </div>
+              {getSimProg('sim-avatar-challenge')?.completed ? (
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Concluído ({getSimProg('sim-avatar-challenge')?.score}%)</span>
+                </span>
+              ) : (
+                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
+                  Recompensa: +100 XP
+                </span>
+              )}
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+              Para proteger a tua privacidade em plataformas da escola ou da Internet, deves utilizar um <strong>Avatar Digital</strong> em vez de publicar fotografias reais do teu rosto ou divulgar dados pessoais. Personaliza o teu avatar e escolhe um identificador seguro!
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-3xl ${avatarColor} flex items-center justify-center text-white shadow-md transition-all shrink-0`}>
+                {avatarStyle === 'robo' && <span className="text-4xl sm:text-5xl">🤖</span>}
+                {avatarStyle === 'pixel' && <span className="text-4xl sm:text-5xl">👾</span>}
+                {avatarStyle === 'ilustrado' && <span className="text-4xl sm:text-5xl">🎨</span>}
+              </div>
+
+              <div className="flex-1 space-y-3 w-full">
+                <div>
+                  <label className="block text-xs font-black text-slate-700 uppercase mb-1">
+                    Estilo de Avatar
+                  </label>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setAvatarStyle('robo')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${avatarStyle === 'robo' ? 'bg-purple-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}`}
+                    >
+                      🤖 Robô Ciber
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAvatarStyle('pixel')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${avatarStyle === 'pixel' ? 'bg-purple-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}`}
+                    >
+                      👾 Pixel Art
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAvatarStyle('ilustrado')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${avatarStyle === 'ilustrado' ? 'bg-purple-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}`}
+                    >
+                      🎨 Criativo
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 uppercase mb-1">
+                    Cor de Fundo
+                  </label>
+                  <div className="flex gap-2">
+                    {['bg-purple-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-pink-500'].map((col) => (
+                      <button
+                        key={col}
+                        type="button"
+                        onClick={() => setAvatarColor(col)}
+                        className={`w-7 h-7 rounded-full ${col} ring-2 ${avatarColor === col ? 'ring-purple-700 scale-110' : 'ring-transparent'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 uppercase mb-1">
+                    Nome / Handle do Avatar (Sem nome real nem contactos)
+                  </label>
+                  <input
+                    type="text"
+                    value={avatarHandle}
+                    onChange={(e) => setAvatarHandle(e.target.value)}
+                    placeholder="Ex: PixelNinja_TIC"
+                    className="w-full text-xs font-bold p-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="avatarPrivacy"
+                    checked={avatarPrivacyChecked}
+                    onChange={(e) => setAvatarPrivacyChecked(e.target.checked)}
+                    className="w-4 h-4 text-purple-600 rounded-md focus:ring-purple-500 cursor-pointer"
+                  />
+                  <label htmlFor="avatarPrivacy" className="text-xs text-slate-700 font-semibold cursor-pointer">
+                    Confirmo que não utilizei imagens reais do meu rosto nem dados pessoais.
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleAvatarSubmit}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+              >
+                Concluir Desafio do Avatar
+              </button>
+            </div>
+
+            {avatarFeedback && (
+              <div className={`p-4 rounded-2xl text-xs font-medium ${avatarScore === 100 ? 'bg-emerald-50 border border-emerald-200 text-emerald-950' : 'bg-amber-50 border border-amber-200 text-amber-950'}`}>
+                {avatarFeedback}
               </div>
             )}
           </div>
@@ -1180,7 +1332,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               {world.title}
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 8 Perguntas
+              Avaliação Final de 10 Perguntas
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
               Mostra que dominas a netiqueta, colaboração e respeito pelos direitos de autor para desbloquear o Mundo 4!
@@ -1202,7 +1354,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               onClick={onOpenAssessment}
               className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2"
             >
-              <span>Começar Avaliação Final (8 Perguntas)</span>
+              <span>Começar Avaliação Final (10 Perguntas)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

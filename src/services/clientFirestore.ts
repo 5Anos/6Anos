@@ -14,6 +14,7 @@ import {
   getDocs,
   orderBy,
   limit,
+  memoryLocalCache,
 } from 'firebase/firestore';
 import { AuthUser } from '../types';
 import {
@@ -52,7 +53,17 @@ export function getClientDb(): Firestore {
     clientApp = getApp();
   }
 
-  clientDb = initializeFirestore(clientApp, {}, firebaseConfig.firestoreDatabaseId);
+  try {
+    clientDb = initializeFirestore(clientApp, {
+      localCache: memoryLocalCache(),
+    }, firebaseConfig.firestoreDatabaseId);
+  } catch (e) {
+    try {
+      clientDb = initializeFirestore(clientApp, {}, firebaseConfig.firestoreDatabaseId);
+    } catch (err) {
+      clientDb = getClientFirestoreInstance(clientApp, firebaseConfig.firestoreDatabaseId);
+    }
+  }
   return clientDb;
 }
 
