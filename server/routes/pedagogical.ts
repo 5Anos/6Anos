@@ -70,17 +70,6 @@ export async function computeWorldStats(userId: string, worldId: number): Promis
     }
   }
 
-  // Challenge
-  const chalProg = userProgress.find((p) => p.activityId === world.challenge.id);
-  if (chalProg && chalProg.completed) {
-    scores.push(chalProg.bestScore);
-  }
-
-  // Real Mission
-  if (missions.length > 0) {
-    scores.push(missions[0].score);
-  }
-
   // Final Assessment (best percentage)
   if (assessmentAttempts.length > 0) {
     const bestAssess = Math.max(...assessmentAttempts.map((a) => a.percentage));
@@ -88,7 +77,7 @@ export async function computeWorldStats(userId: string, worldId: number): Promis
   }
 
   const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
-  const totalComponents = world.simulators.length + 3; // sims + challenge + mission + assessment
+  const totalComponents = world.simulators.length + 1; // sims + assessment
   const completedCount = scores.length;
 
   // Progression rule:

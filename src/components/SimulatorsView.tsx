@@ -12,6 +12,8 @@ import {
   ArrowRight,
   RefreshCw,
   Award,
+  Footprints,
+  Heart,
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -158,6 +160,89 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     reportCompletion('sim-privacy', 1, score);
   };
 
+  // 3b. Digital Footprint Simulator
+  const [footprintChoices, setFootprintChoices] = useState<Record<string, 'risco' | 'positivo'>>({});
+  const [footprintScore, setFootprintScore] = useState<number | null>(null);
+  const footprintScenarios = [
+    {
+      id: 'fp-1',
+      title: 'Fotografia com farda e localização',
+      description:
+        'Publicar nas redes sociais uma fotografia de grupo em frente à escola com a farda visível e localização GPS ativada.',
+      correct: 'risco',
+      explanation:
+        'Risco para a Pegada: Revela a localização física e as rotinas escolares dos alunos para qualquer pessoa.',
+    },
+    {
+      id: 'fp-2',
+      title: 'Comentário impulsivo num jogo',
+      description:
+        'Escrever um comentário rude e insultuoso num fórum público de videojogos depois de perder uma partida.',
+      correct: 'risco',
+      explanation:
+        'Risco para a Pegada: As palavras ficam registadas nos servidores e podem ser consultadas no futuro por amigos ou professores.',
+    },
+    {
+      id: 'fp-3',
+      title: 'Artigo educativo sobre reciclagem',
+      description:
+        'Partilhar no blogue da turma um projeto escolar sobre reciclagem e ambiente, assinado apenas com o primeiro nome.',
+      correct: 'positivo',
+      explanation:
+        'Pegada Positiva: Demonstra competências digitais, cooperação e criação de valor com respeito pela privacidade.',
+    },
+  ];
+
+  const handleFootprintSubmit = () => {
+    let correctCount = 0;
+    footprintScenarios.forEach((item) => {
+      if (footprintChoices[item.id] === item.correct) correctCount++;
+    });
+    const score = Math.round((correctCount / footprintScenarios.length) * 100);
+    setFootprintScore(score);
+    reportCompletion('sim-digital-footprint', 1, score);
+  };
+
+  // 3c. Digital Wellbeing Simulator
+  const [wellbeingChoices, setWellbeingChoices] = useState<Record<string, 'saudavel' | 'risco'>>({});
+  const [wellbeingScore, setWellbeingScore] = useState<number | null>(null);
+  const wellbeingHabits = [
+    {
+      id: 'wb-1',
+      label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos para 6 metros de distância',
+      correct: 'saudavel',
+      explanation: 'Descansa a musculatura ocular e previne a fadiga visual digital.',
+    },
+    {
+      id: 'wb-2',
+      label: 'Ficar na cama com o telemóvel no escuro a ver vídeos até de madrugada',
+      correct: 'risco',
+      explanation: 'A luz azul inibe a produção de melatonina, prejudicando o sono e a concentração escolar.',
+    },
+    {
+      id: 'wb-3',
+      label: 'Fazer pausas ativas para levantar, alongar e beber água',
+      correct: 'saudavel',
+      explanation: 'Melhora a circulação, alivia as costas e renova a energia mental.',
+    },
+    {
+      id: 'wb-4',
+      label: 'Silenciar notificações de redes sociais e jogos durante o horário de estudo',
+      correct: 'saudavel',
+      explanation: 'Evita a interrupção contínua da atenção e melhora os resultados escolares.',
+    },
+  ];
+
+  const handleWellbeingSubmit = () => {
+    let correctCount = 0;
+    wellbeingHabits.forEach((item) => {
+      if (wellbeingChoices[item.id] === item.correct) correctCount++;
+    });
+    const score = Math.round((correctCount / wellbeingHabits.length) * 100);
+    setWellbeingScore(score);
+    reportCompletion('sim-digital-wellbeing', 1, score);
+  };
+
   // 4. Block Coding / Algorithm Execution
   const runCode = () => {
     // Goal: reach (2, 0)
@@ -196,6 +281,8 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             { id: 'sim-password', name: 'Password Simulator', icon: Key },
             { id: 'sim-phishing', name: 'Phishing Simulator', icon: Mail },
             { id: 'sim-privacy', name: 'Privacy Simulator', icon: ShieldCheck },
+            { id: 'sim-digital-footprint', name: 'Pegada Digital', icon: Footprints },
+            { id: 'sim-digital-wellbeing', name: 'Bem-estar Digital', icon: Heart },
             { id: 'sim-block-coding', name: 'Block Coding', icon: Code },
             { id: 'sim-prompt', name: 'Prompt Simulator', icon: Sparkles },
           ].map((s) => {
@@ -482,6 +569,171 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               Avaliar Privacidade do Meu Perfil
             </button>
           </div>
+        </div>
+      )}
+
+      {/* SIMULATOR 3b: DIGITAL FOOTPRINT */}
+      {currentSim === 'sim-digital-footprint' && (
+        <div className="bg-white border border-indigo-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+              <Footprints className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-900">Simulador de Pegada Digital</h3>
+              <p className="text-xs text-slate-500">
+                Analisa 3 publicações e classifica o seu impacto na tua pegada digital online.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {footprintScenarios.map((scen) => (
+              <div
+                key={scen.id}
+                className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2.5"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h5 className="text-xs font-black text-slate-900">{scen.title}</h5>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'positivo' }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        footprintChoices[scen.id] === 'positivo'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Pegada Positiva
+                    </button>
+                    <button
+                      onClick={() =>
+                        setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'risco' }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        footprintChoices[scen.id] === 'risco'
+                          ? 'bg-rose-600 text-white shadow-xs'
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Risco para a Pegada
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                  {scen.description}
+                </p>
+                {footprintChoices[scen.id] && (
+                  <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200/60">
+                    💡 {scen.explanation}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleFootprintSubmit}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+            >
+              Avaliar o Impacto na Minha Pegada
+            </button>
+          </div>
+
+          {footprintScore !== null && (
+            <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
+              <p className="font-bold text-sm text-indigo-900 mb-1">
+                Pontuação da Pegada: {footprintScore}/100
+              </p>
+              <p>
+                Excelente reflexão! Lembra-te: tudo o que publicas constrói a tua reputação digital
+                para o futuro. Pensa sempre duas vezes antes de partilhar!
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SIMULATOR 3c: DIGITAL WELLBEING */}
+      {currentSim === 'sim-digital-wellbeing' && (
+        <div className="bg-white border border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center">
+              <Heart className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-900">Simulador de Bem-estar Digital</h3>
+              <p className="text-xs text-slate-500">
+                Avalia os teus hábitos diários de tempo de ecrã e constrói um equilíbrio digital saudável.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {wellbeingHabits.map((h) => (
+              <div
+                key={h.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
+              >
+                <div className="space-y-1">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800">{h.label}</span>
+                  <p className="text-[11px] text-slate-500 italic">💡 {h.explanation}</p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() =>
+                      setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'saudavel' }))
+                    }
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      wellbeingChoices[h.id] === 'saudavel'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    Hábito Saudável
+                  </button>
+                  <button
+                    onClick={() =>
+                      setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'risco' }))
+                    }
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      wellbeingChoices[h.id] === 'risco'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    Hábito Prejudicial
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleWellbeingSubmit}
+              className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+            >
+              Avaliar Meu Bem-estar Digital
+            </button>
+          </div>
+
+          {wellbeingScore !== null && (
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-950 font-medium">
+              <p className="font-bold text-sm text-rose-900 mb-1">
+                Índice de Bem-estar Digital: {wellbeingScore}/100
+              </p>
+              <p>
+                Fantástico! O equilíbrio é a chave do sucesso: aproveita as tecnologias para aprender
+                e comunicar, mas lembra-te sempre de cuidar do teu sono, da tua postura e do teu tempo
+                com amigos e família!
+              </p>
+            </div>
+          )}
         </div>
       )}
 

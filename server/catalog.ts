@@ -285,6 +285,18 @@ export const WORLDS_DATA: WorldContent[] = [
         description: 'Classifica dados pessoais entre públicos e privados e configura um perfil digital seguro.',
         xpReward: 100,
       },
+      {
+        id: 'sim-digital-footprint',
+        name: 'Simulador de Pegada Digital',
+        description: 'Analisa situações reais e publicações, classificando o impacto na tua pegada digital online.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-digital-wellbeing',
+        name: 'Simulador de Bem-estar Digital',
+        description: 'Avalia hábitos diários de tempo de ecrã e constrói um equilíbrio digital saudável.',
+        xpReward: 100,
+      },
     ],
     challenge: {
       id: 'ch-guarda-digital',
@@ -381,6 +393,30 @@ export const WORLDS_DATA: WorldContent[] = [
       },
     ],
     simulators: [
+      {
+        id: 'sim-keywords',
+        name: 'Simulador de Pesquisa Inteligente',
+        description: 'Experimenta termos vagos vs pesquisas estruturadas com operadores e termos precisos para obter resultados relevantes.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-author-check',
+        name: 'Simulador de Autoria & Origem',
+        description: 'Inspeciona o autor, instituição e credibilidade de páginas web antes de confiar na informação.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-date-verifier',
+        name: 'Simulador de Linha Temporal & Data',
+        description: 'Identifica notícias desatualizadas e acontecimentos antigos partilhados fora de contexto temporal.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-source-compare',
+        name: 'Simulador de Comparação de Fontes',
+        description: 'Cruza notícias em 3 fontes independentes para distinguir factos confirmados de boatos isolados.',
+        xpReward: 100,
+      },
       {
         id: 'sim-news-detective',
         name: 'NEWS DETECTIVE',
@@ -505,21 +541,45 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     simulators: [
       {
-        id: 'sim-avatar-challenge',
-        name: 'Avatar Challenge',
-        description: 'Cria uma representação digital única sem partilhar fotografias do teu rosto real ou dados pessoais.',
-        xpReward: 100,
-      },
-      {
         id: 'sim-comunicacao-digital',
         name: 'Comunicação Digital',
         description: 'Interpreta o tom de várias mensagens e descobre como pequenos ajustes de pontuação evitam conflitos.',
         xpReward: 100,
       },
       {
+        id: 'sim-netiqueta',
+        name: 'Simulador de Netiqueta',
+        description: 'Avalia comportamentos em grupos de conversação escolar e aprende as boas maneiras digitais.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-colaboracao',
+        name: 'Simulador de Colaboração & Equipa',
+        description: 'Resolve desafios de organização, divisão justa de tarefas e prazos num trabalho de grupo online.',
+        xpReward: 100,
+      },
+      {
         id: 'sim-direitos-autor',
-        name: 'Direitos de Autor',
-        description: 'Associa imagens às respetivas licenças de utilização e regras de atribuição de autoria.',
+        name: 'Direitos de Autor & Permissões',
+        description: 'Verifica condições legais de utilização de imagens, músicas e textos encontrados na Internet.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-plagio-citacao',
+        name: 'Simulador de Citação & Reconhecimento',
+        description: 'Aprende a referenciar autores, citar fontes originais e evitar o plágio em trabalhos escolares.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-creative-commons',
+        name: 'Simulador de Licenças Creative Commons',
+        description: 'Associa os símbolos oficiais (BY, NC, ND, SA) às respetivas regras e permissões de partilha.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-avatar-challenge',
+        name: 'Avatar Challenge',
+        description: 'Cria uma representação digital única sem partilhar fotografias do teu rosto real ou dados pessoais.',
         xpReward: 100,
       },
     ],
@@ -615,6 +675,12 @@ export const WORLDS_DATA: WorldContent[] = [
       },
     ],
     simulators: [
+      {
+        id: 'sim-decomposicao',
+        name: 'Simulador de Decomposição',
+        description: 'Divide desafios e problemas complexos em sub-tarefas simples e sequenciais de resolução.',
+        xpReward: 100,
+      },
       {
         id: 'sim-block-coding',
         name: 'Block Coding',
@@ -744,15 +810,15 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     simulators: [
       {
-        id: 'sim-hallucination',
-        name: 'Hallucination Simulator',
-        description: 'Deteta dados falsos e referências inventadas numa resposta que parece escrita por um perito.',
+        id: 'sim-ia-concepts',
+        name: 'Simulador de Conceitos de IA',
+        description: 'Distingue entre programação com regras fixas, algoritmos de IA baseados em dados e capacidades humanas.',
         xpReward: 100,
       },
       {
-        id: 'sim-recommendation',
-        name: 'Recommendation Simulator',
-        description: 'Observa como os algoritmos usam o teu histórico para sugerir vídeos e aprende a escapar à "bolha".',
+        id: 'sim-ai-generation',
+        name: 'Simulador de IA Generativa & Verificação',
+        description: 'Experimenta a criação e análise crítica de conteúdos gerados por modelos de inteligência artificial.',
         xpReward: 100,
       },
       {
@@ -762,9 +828,21 @@ export const WORLDS_DATA: WorldContent[] = [
         xpReward: 100,
       },
       {
+        id: 'sim-hallucination',
+        name: 'Hallucination Simulator',
+        description: 'Deteta dados falsos e referências inventadas numa resposta que parece escrita por um perito.',
+        xpReward: 100,
+      },
+      {
         id: 'sim-ai-responsibility',
         name: 'AI Responsibility',
         description: 'Testa a partilha segura de ficheiros e perguntas, filtrando dados confidenciais e privados.',
+        xpReward: 100,
+      },
+      {
+        id: 'sim-recommendation',
+        name: 'Recommendation Simulator',
+        description: 'Observa como os algoritmos usam o teu histórico para sugerir vídeos e aprende a escapar à "bolha".',
         xpReward: 100,
       },
     ],

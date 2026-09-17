@@ -495,60 +495,10 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Assessments & Missions */}
+                    {/* Assessments */}
                     <div className="space-y-2">
                       <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                        Avaliação & Missão Real
-                      </div>
-
-                      {/* Challenge */}
-                      <div className="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between text-xs">
-                        <div>
-                          <div className="font-semibold text-slate-200">
-                            Desafio: {w.challenge.title}
-                          </div>
-                          <div className="text-[11px] text-slate-400">
-                            {w.challenge.attempts} tentativas
-                          </div>
-                        </div>
-                        <span
-                          className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
-                            w.challenge.completed
-                              ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                              : 'bg-slate-800 text-slate-500'
-                          }`}
-                        >
-                          {w.challenge.completed ? `${w.challenge.bestScore} XP` : 'Pendente'}
-                        </span>
-                      </div>
-
-                      {/* Real Mission */}
-                      <div className="bg-slate-900 border border-slate-800/80 rounded-xl p-3 text-xs space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="font-semibold text-slate-200">
-                            Missão Real: {w.mission ? w.mission.title : 'Missão Prática'}
-                          </div>
-                          <span
-                            className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
-                              w.mission && w.mission.status === 'graded'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                                : w.mission
-                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                                : 'bg-slate-800 text-slate-500'
-                            }`}
-                          >
-                            {w.mission
-                              ? w.mission.status === 'graded'
-                                ? `${w.mission.score}/100`
-                                : 'Por Corrigir'
-                              : 'Não Submetida'}
-                          </span>
-                        </div>
-                        {w.mission?.feedback && (
-                          <div className="p-2 bg-slate-950 rounded-lg border border-slate-800 text-[11px] text-slate-300 italic">
-                            Feedback: "{w.mission.feedback}"
-                          </div>
-                        )}
+                        Avaliação Final do Mundo
                       </div>
 
                       {/* Final Assessment */}

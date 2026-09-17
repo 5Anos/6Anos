@@ -647,18 +647,6 @@ export function computeWorldStatsSync(
     }
   }
 
-  // Challenge
-  const chalProg = userProgress.find((p) => p.activityId === world.challenge.id);
-  if (chalProg && chalProg.completed) {
-    scores.push(chalProg.bestScore);
-  }
-
-  // Real Mission
-  const worldMissions = missions.filter((m) => m.worldId === worldId && (m.status === 'graded' || m.score > 0));
-  if (worldMissions.length > 0) {
-    scores.push(worldMissions[0].score);
-  }
-
   // Final Assessment (best percentage)
   const worldAssessments = assessmentAttempts.filter((a) => a.worldId === worldId);
   if (worldAssessments.length > 0) {
@@ -667,7 +655,7 @@ export function computeWorldStatsSync(
   }
 
   const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
-  const totalComponents = world.simulators.length + 3;
+  const totalComponents = world.simulators.length + 1;
   const completedCount = scores.length;
 
   let isUnlocked = worldId === 1;
@@ -694,7 +682,7 @@ export async function clientGetWorlds(userId?: string) {
       isUnlocked: w.id === 1,
       average: 0,
       completedCount: 0,
-      totalComponents: w.simulators.length + 3,
+      totalComponents: w.simulators.length + 1,
       challengeProgress: null,
       missionProgress: null,
       bestAssessmentPercentage: null,
