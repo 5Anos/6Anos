@@ -7,6 +7,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  deleteDoc,
   collection,
   query,
   where,
@@ -508,6 +509,291 @@ export async function clientTeacherResetPassword(studentId: string, newPass: str
     mustChangePassword: true,
     updatedAt: new Date().toISOString(),
   });
+}
+
+// Client delete single student
+export async function clientDeleteUser(userId: string): Promise<void> {
+  const db = getClientDb();
+  await deleteDoc(doc(db, 'users', userId));
+
+  const collectionsToClean = [
+    'activityProgress',
+    'assessmentAttempts',
+    'missionSubmissions',
+    'xpTransactions',
+    'badges',
+    'dailyTipClaims',
+    'weeklyChallenges',
+    'sessions',
+  ];
+
+  for (const colName of collectionsToClean) {
+    try {
+      const snap = await getDocs(query(collection(db, colName), where('userId', '==', userId)));
+      await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+    } catch (e) {
+      console.warn(`Error cleaning up ${colName} for user ${userId}:`, e);
+    }
+  }
+
+  try {
+    await deleteDoc(doc(db, 'grandeMissaoProgress', userId));
+  } catch {}
+}
+
+// Client bulk delete students
+export async function clientBulkDeleteUsers(userIds: string[]): Promise<void> {
+  for (const uid of userIds) {
+    await clientDeleteUser(uid);
+  }
+}
+
+// Client delete all students in a class
+export async function clientDeleteClassStudents(classId: string): Promise<number> {
+  const db = getClientDb();
+  const snap = await getDocs(query(collection(db, 'users'), where('classId', '==', classId)));
+  const students = snap.docs.filter((d) => d.data().role === 'student');
+  for (const s of students) {
+    await clientDeleteUser(s.id);
+  }
+  return students.length;
+}
+
+// Client reset individual student progress
+export async function clientResetStudentProgress(studentId: string): Promise<void> {
+  const db = getClientDb();
+  await updateDoc(doc(db, 'users', studentId), {
+    xp: 100,
+    updatedAt: new Date().toISOString(),
+  });
+
+  const collectionsToClean = [
+    'activityProgress',
+    'assessmentAttempts',
+    'missionSubmissions',
+    'xpTransactions',
+    'dailyTipClaims',
+    'weeklyChallenges',
+  ];
+
+  for (const colName of collectionsToClean) {
+    try {
+      const snap = await getDocs(query(collection(db, colName), where('userId', '==', studentId)));
+      await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+    } catch {}
+  }
+
+  try {
+    const badgeSnap = await getDocs(query(collection(db, 'badges'), where('userId', '==', studentId)));
+    for (const bDoc of badgeSnap.docs) {
+      if (bDoc.data().badgeId !== 'primeiros-passos') {
+        await deleteDoc(bDoc.ref);
+      }
+    }
+    await deleteDoc(doc(db, 'grandeMissaoProgress', studentId));
+  } catch {}
+}
+
+// Client reset class progress
+export async function clientResetClassStudentsProgress(classId: string): Promise<number> {
+  const db = getClientDb();
+  const snap = await getDocs(query(collection(db, 'users'), where('classId', '==', classId)));
+  const students = snap.docs.filter((d) => d.data().role === 'student');
+  for (const s of students) {
+    await clientResetStudentProgress(s.id);
+  }
+  return students.length;
+}
+
+// Client reset all students progress (Novo Ano Letivo)
+export async function clientResetAllStudentsProgress(): Promise<number> {
+  const db = getClientDb();
+  const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
+  for (const s of snap.docs) {
+    await clientResetStudentProgress(s.id);
+  }
+  return snap.docs.length;
+}
+
+// Client bulk move class
+export async function clientBulkMoveClass(studentIds: string[], targetClassId: string): Promise<void> {
+  const db = getClientDb();
+  for (const sId of studentIds) {
+    await updateDoc(doc(db, 'users', sId), {
+      classId: targetClassId,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+}
+
+// Client bulk block / unblock
+export async function clientBulkBlockUsers(studentIds: string[], blocked: boolean): Promise<void> {
+  const db = getClientDb();
+  for (const sId of studentIds) {
+    await updateDoc(doc(db, 'users', sId), {
+      blocked,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+}
+
+// Client Get Student Dossier
+export async function clientGetStudentDossier(studentId: string) {
+  const db = getClientDb();
+  const userDoc = await getDoc(doc(db, 'users', studentId));
+  if (!userDoc.exists()) {
+    throw new Error('Aluno não encontrado no banco de dados.');
+  }
+  const studentData = userDoc.data();
+
+  let classroom = null;
+  if (studentData.classId) {
+    try {
+      const classDoc = await getDoc(doc(db, 'classes', studentData.classId));
+      if (classDoc.exists()) {
+        classroom = classDoc.data();
+      }
+    } catch {}
+  }
+
+  const [progSnap, assessSnap, misSnap, xpSnap, badgeSnap, dtSnap, wcSnap, gmDoc] = await Promise.all([
+    getDocs(query(collection(db, 'activityProgress'), where('userId', '==', studentId))),
+    getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', studentId))),
+    getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', studentId))),
+    getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', studentId))),
+    getDocs(query(collection(db, 'badges'), where('userId', '==', studentId))),
+    getDocs(query(collection(db, 'dailyTipClaims'), where('userId', '==', studentId))),
+    getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', studentId))),
+    getDoc(doc(db, 'grandeMissaoProgress', studentId)),
+  ]);
+
+  const activityProgress = progSnap.docs.map((d) => d.data());
+  const assessments = assessSnap.docs.map((d) => d.data());
+  const missions = misSnap.docs.map((d) => d.data());
+  const xpHistory = xpSnap.docs.map((d) => d.data());
+  const badges = badgeSnap.docs.map((d) => d.data());
+  const dailyTips = dtSnap.docs.map((d) => d.data());
+  const weeklyChallenges = wcSnap.docs.map((d) => d.data());
+  const grandeMissao = gmDoc.exists() ? gmDoc.data() : { currentStage: 1, completedStages: [], status: 'not_started' };
+
+  const levelInfo = calculateLevel(studentData.xp || 0);
+
+  let previousWorldPassed = true;
+  const worldDetails = WORLDS_DATA.map((w, idx) => {
+    const isUnlocked = idx === 0 ? true : previousWorldPassed;
+    const worldAssessments = assessments.filter((a: any) => a.worldId === w.id);
+    const mission = missions.find((m: any) => m.worldId === w.id);
+    const chalProg = activityProgress.find((p: any) => p.activityId === w.challenge.id);
+
+    const simulatorsDetail = w.simulators.map((sim) => {
+      const prog = activityProgress.find((p: any) => p.activityId === sim.id);
+      return {
+        id: sim.id,
+        title: sim.name,
+        description: sim.description,
+        completed: prog ? prog.completed : false,
+        bestScore: prog ? prog.bestScore : 0,
+        attempts: prog ? prog.attempts : 0,
+        lastAttemptAt: prog ? prog.lastAttemptAt : null,
+      };
+    });
+
+    const scores: number[] = [];
+    simulatorsDetail.forEach((s) => {
+      if (s.completed) scores.push(s.bestScore);
+    });
+    if (worldAssessments.length > 0) {
+      const bestAssess = Math.max(...worldAssessments.map((a: any) => a.percentage));
+      scores.push(bestAssess);
+    }
+    const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
+    previousWorldPassed = average > 80;
+
+    return {
+      worldId: w.id,
+      title: w.title,
+      subtitle: w.subtitle,
+      color: w.color,
+      average,
+      isUnlocked,
+      completedCount: scores.length,
+      totalComponents: w.simulators.length + 1,
+      hasAssessmentPassed: worldAssessments.some((a: any) => a.percentage >= 80),
+      simulators: simulatorsDetail,
+      challenge: {
+        id: w.challenge.id,
+        title: w.challenge.title,
+        completed: chalProg ? chalProg.completed : false,
+        bestScore: chalProg ? chalProg.bestScore : 0,
+        attempts: chalProg ? chalProg.attempts : 0,
+      },
+      mission: mission ? {
+        id: mission.id,
+        title: mission.title,
+        status: mission.status,
+        score: mission.score,
+        submission: mission.submission,
+        feedback: mission.feedback,
+        gradedBy: mission.gradedBy,
+        gradedAt: mission.gradedAt,
+        submittedAt: mission.submittedAt,
+      } : null,
+      assessments: worldAssessments.map((a: any) => ({
+        id: a.id,
+        score: a.score,
+        percentage: a.percentage,
+        createdAt: a.createdAt,
+        answersCount: Object.keys(a.answers || {}).length,
+      })),
+    };
+  });
+
+  const xpBreakdown = {
+    initial: 100,
+    activities: xpHistory.filter((t: any) => t.sourceType === 'activity').reduce((sum: number, t: any) => sum + (t.xpGain || t.amount || 0), 0),
+    challenges: xpHistory.filter((t: any) => t.sourceType === 'challenge').reduce((sum: number, t: any) => sum + (t.xpGain || t.amount || 0), 0),
+    assessments: xpHistory.filter((t: any) => t.sourceType === 'assessment').reduce((sum: number, t: any) => sum + (t.xpGain || t.amount || 0), 0),
+    missions: xpHistory.filter((t: any) => t.sourceType === 'mission').reduce((sum: number, t: any) => sum + (t.xpGain || t.amount || 0), 0),
+    dailyTips: xpHistory.filter((t: any) => t.sourceType === 'daily_tip').reduce((sum: number, t: any) => sum + (t.xpGain || t.amount || 0), 0),
+    grandeMissao: xpHistory.filter((t: any) => t.sourceType === 'grande_missao').reduce((sum: number, t: any) => sum + (t.xpGain || t.amount || 0), 0),
+  };
+
+  return {
+    student: {
+      id: studentData.id,
+      name: studentData.name,
+      email: studentData.email,
+      nickname: studentData.nickname,
+      avatar: studentData.avatar,
+      classId: studentData.classId,
+      className: classroom ? classroom.name : 'Sem Turma',
+      locale: studentData.locale || 'pt',
+      xp: studentData.xp || 100,
+      level: levelInfo.level,
+      levelName: levelInfo.name,
+      blocked: !!studentData.blocked,
+      mustChangePassword: !!studentData.mustChangePassword,
+      createdAt: studentData.createdAt,
+      lastLoginAt: studentData.lastLoginAt,
+    },
+    worldDetails,
+    xpBreakdown,
+    badges: badges.map((b: any) => {
+      const catalogInfo = BADGES_CATALOG.find((cat) => cat.id === b.badgeId);
+      return {
+        id: b.id,
+        badgeId: b.badgeId,
+        name: catalogInfo ? catalogInfo.title : b.badgeId,
+        description: catalogInfo ? catalogInfo.description : '',
+        icon: catalogInfo ? catalogInfo.icon : 'Award',
+        awardedAt: b.awardedAt,
+      };
+    }),
+    xpHistory,
+    dailyTipsCount: dailyTips.length,
+    weeklyChallengesCompleted: weeklyChallenges.length,
+    grandeMissao,
+  };
 }
 
 // Client Award XP

@@ -24,9 +24,13 @@ import {
   getAllXPTransactions,
   getUserBadges,
   getAllBadges,
+  getUserActivityProgress,
   getAllActivityProgress,
+  getUserDailyTipClaims,
   getAllDailyTipClaims,
+  getUserWeeklyChallenges,
   getAllWeeklyChallenges,
+  getGrandeMissaoProgress,
   getAllGrandeMissaoProgress,
   saveUser,
   deleteSession,
@@ -276,76 +280,86 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
       getUserXPTransactions(student.id),
       getAssessmentAttempts(student.id),
       getMissionSubmissions({ userId: student.id }),
-      getAllActivityProgress().then((list) => list.filter((p) => p.userId === student.id)),
-      getAllDailyTipClaims().then((list) => list.filter((c) => c.userId === student.id)),
-      getAllWeeklyChallenges().then((list) => list.filter((w) => w.userId === student.id)),
-      getAllGrandeMissaoProgress().then((list) => list.find((g) => g.userId === student.id) || null),
+      getUserActivityProgress(student.id),
+      getUserDailyTipClaims(student.id),
+      getUserWeeklyChallenges(student.id),
+      getGrandeMissaoProgress(student.id),
     ]);
 
     const levelInfo = calculateLevel(student.xp);
 
-    // Build exhaustive pedagogical breakdown for each of the 5 Worlds
-    const worldDetails = await Promise.all(
-      WORLDS_DATA.map(async (w) => {
-        const stats = await computeWorldStats(student.id, w.id);
-        const mission = missions.find((m) => m.worldId === w.id);
-        const chalProg = activityProgress.find((p) => p.activityId === w.challenge.id);
-        const worldAssessments = assessments.filter((a) => a.worldId === w.id);
+    // Build pedagogical breakdown for each of the 5 Worlds in-memory
+    let previousWorldPassed = true;
+    const worldDetails = WORLDS_DATA.map((w, idx) => {
+      const isUnlocked = idx === 0 ? true : previousWorldPassed;
+      const mission = missions.find((m) => m.worldId === w.id);
+      const chalProg = activityProgress.find((p) => p.activityId === w.challenge.id);
+      const worldAssessments = assessments.filter((a) => a.worldId === w.id);
 
-        const simulatorsDetail = w.simulators.map((sim) => {
-          const prog = activityProgress.find((p) => p.activityId === sim.id);
-          return {
-            id: sim.id,
-            title: sim.name,
-            description: sim.description,
-            completed: prog ? prog.completed : false,
-            bestScore: prog ? prog.bestScore : 0,
-            attempts: prog ? prog.attempts : 0,
-            lastAttemptAt: prog ? prog.lastAttemptAt : null,
-          };
-        });
-
+      const simulatorsDetail = w.simulators.map((sim) => {
+        const prog = activityProgress.find((p) => p.activityId === sim.id);
         return {
-          worldId: w.id,
-          title: w.title,
-          subtitle: w.subtitle,
-          color: w.color,
-          average: stats.average,
-          isUnlocked: stats.isUnlocked,
-          completedCount: stats.completedCount,
-          totalComponents: stats.totalComponents,
-          hasAssessmentPassed: stats.hasAssessmentPassed,
-          simulators: simulatorsDetail,
-          challenge: {
-            id: w.challenge.id,
-            title: w.challenge.title,
-            completed: chalProg ? chalProg.completed : false,
-            bestScore: chalProg ? chalProg.bestScore : 0,
-            attempts: chalProg ? chalProg.attempts : 0,
-          },
-          mission: mission
-            ? {
-                id: mission.id,
-                title: mission.title,
-                status: mission.status,
-                score: mission.score,
-                submission: mission.submission,
-                feedback: mission.feedback,
-                gradedBy: mission.gradedBy,
-                gradedAt: mission.gradedAt,
-                submittedAt: mission.submittedAt,
-              }
-            : null,
-          assessments: worldAssessments.map((a) => ({
-            id: a.id,
-            score: a.score,
-            percentage: a.percentage,
-            createdAt: a.createdAt,
-            answersCount: Object.keys(a.answers || {}).length,
-          })),
+          id: sim.id,
+          title: sim.name,
+          description: sim.description,
+          completed: prog ? prog.completed : false,
+          bestScore: prog ? prog.bestScore : 0,
+          attempts: prog ? prog.attempts : 0,
+          lastAttemptAt: prog ? prog.lastAttemptAt : null,
         };
-      })
-    );
+      });
+
+      const scores: number[] = [];
+      simulatorsDetail.forEach((s) => {
+        if (s.completed) scores.push(s.bestScore);
+      });
+      if (worldAssessments.length > 0) {
+        const bestAssess = Math.max(...worldAssessments.map((a) => a.percentage));
+        scores.push(bestAssess);
+      }
+      const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
+      previousWorldPassed = average > 80;
+
+      return {
+        worldId: w.id,
+        title: w.title,
+        subtitle: w.subtitle,
+        color: w.color,
+        average,
+        isUnlocked,
+        completedCount: scores.length,
+        totalComponents: w.simulators.length + 1,
+        hasAssessmentPassed: worldAssessments.some((a) => a.percentage >= 80),
+        simulators: simulatorsDetail,
+        challenge: {
+          id: w.challenge.id,
+          title: w.challenge.title,
+          completed: chalProg ? chalProg.completed : false,
+          bestScore: chalProg ? chalProg.bestScore : 0,
+          attempts: chalProg ? chalProg.attempts : 0,
+        },
+        mission: mission
+          ? {
+              id: mission.id,
+              title: mission.title,
+              status: mission.status,
+              score: mission.score,
+              submission: mission.submission,
+              feedback: mission.feedback,
+              gradedBy: mission.gradedBy,
+              gradedAt: mission.gradedAt,
+              submittedAt: mission.submittedAt,
+            }
+          : null,
+        assessments: worldAssessments.map((a) => ({
+          id: a.id,
+          score: a.score,
+          percentage: a.percentage,
+          createdAt: a.createdAt,
+          answersCount: Object.keys(a.answers || {}).length,
+        })),
+      };
+    });
 
     // XP Breakdown by source
     const xpBreakdown = {
@@ -812,9 +826,9 @@ router.post('/bulk/delete', async (req: AuthRequest, res) => {
 // -------------------------------------------------------------
 // 7. CLEANUP & ACADEMIC YEAR RESET
 // -------------------------------------------------------------
-router.post('/cleanup/reset-class-progress', async (req: AuthRequest, res) => {
+const handleResetClassProgress = async (req: AuthRequest, res: Response) => {
   try {
-    const { classId } = req.body;
+    const classId = req.params.classId || req.body.classId;
     if (!classId) return res.status(400).json({ error: 'Turma não especificada.' });
 
     const classroom = await getClassById(classId);
@@ -835,11 +849,14 @@ router.post('/cleanup/reset-class-progress', async (req: AuthRequest, res) => {
     console.error('Error in reset-class-progress:', err);
     return res.status(500).json({ error: 'Erro ao reiniciar progresso da turma.' });
   }
-});
+};
 
-router.post('/cleanup/delete-class-students', async (req: AuthRequest, res) => {
+router.post('/cleanup/reset-class-progress', handleResetClassProgress);
+router.post('/classes/:classId/reset-progress', handleResetClassProgress);
+
+const handleDeleteClassStudents = async (req: AuthRequest, res: Response) => {
   try {
-    const { classId } = req.body;
+    const classId = req.params.classId || req.body.classId;
     if (!classId) return res.status(400).json({ error: 'Turma não especificada.' });
 
     const classroom = await getClassById(classId);
@@ -860,9 +877,13 @@ router.post('/cleanup/delete-class-students', async (req: AuthRequest, res) => {
     console.error('Error in delete-class-students:', err);
     return res.status(500).json({ error: 'Erro ao eliminar alunos da turma.' });
   }
-});
+};
 
-router.post('/cleanup/reset-all-students-progress', async (req: AuthRequest, res) => {
+router.post('/cleanup/delete-class-students', handleDeleteClassStudents);
+router.delete('/classes/:classId/students', handleDeleteClassStudents);
+router.post('/classes/:classId/students/delete', handleDeleteClassStudents);
+
+const handleResetAllStudentsProgress = async (req: AuthRequest, res: Response) => {
   try {
     const allUsers = await getAllUsers();
     const students = allUsers.filter((u) => u.role === 'student');
@@ -887,7 +908,10 @@ router.post('/cleanup/reset-all-students-progress', async (req: AuthRequest, res
     console.error('Error in reset-all-students-progress:', err);
     return res.status(500).json({ error: 'Erro ao reiniciar progresso global.' });
   }
-});
+};
+
+router.post('/cleanup/reset-all-students-progress', handleResetAllStudentsProgress);
+router.post('/platform/reset-all-students-progress', handleResetAllStudentsProgress);
 
 // -------------------------------------------------------------
 // 8. REAL MISSIONS GRADING & MANAGEMENT

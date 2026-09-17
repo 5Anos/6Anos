@@ -34,6 +34,7 @@ interface TeacherStudentsTabProps {
   onBulkBlock: (studentIds: string[]) => void;
   onBulkUnblock: (studentIds: string[]) => void;
   onBulkDelete: (studentIds: string[]) => void;
+  onDeleteStudent?: (studentId: string) => void;
 }
 
 export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
@@ -50,6 +51,7 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
   onBulkBlock,
   onBulkUnblock,
   onBulkDelete,
+  onDeleteStudent,
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [targetClassId, setTargetClassId] = useState('');
@@ -378,10 +380,21 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                           <button
                             onClick={() => onOpenStudent(s)}
                             className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1 transition-all shadow-sm"
+                            title="Ver ficha pedagógica completa"
                           >
                             <span>Ficha</span>
                             <ChevronRight className="w-3 h-3" />
                           </button>
+
+                          {onDeleteStudent && (
+                            <button
+                              onClick={() => onDeleteStudent(s.id)}
+                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 transition-colors"
+                              title="Eliminar aluno"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -32,6 +32,10 @@ import {
   clientGetTeacherDashboardData,
   clientTeacherToggleBlock,
   clientTeacherResetPassword,
+  clientDeleteUser,
+  clientBulkDeleteUsers,
+  clientBulkMoveClass,
+  clientBulkBlockUsers,
 } from '../services/clientFirestore';
 import { TeacherStudentsTab } from './teacher/TeacherStudentsTab';
 import { StudentDossierModal } from './teacher/StudentDossierModal';
@@ -200,10 +204,14 @@ export const TeacherArea: React.FC = () => {
 
   const handleBulkMoveClass = async (studentIds: string[], targetClassId: string) => {
     try {
-      await apiRequest('/api/teacher/bulk/move-class', {
-        method: 'POST',
-        body: JSON.stringify({ studentIds, targetClassId }),
-      });
+      try {
+        await apiRequest('/api/teacher/bulk/move-class', {
+          method: 'POST',
+          body: JSON.stringify({ studentIds, targetClassId }),
+        });
+      } catch (apiErr) {
+        await clientBulkMoveClass(studentIds, targetClassId);
+      }
       showToast('Alunos transferidos com sucesso.');
       await loadAllData();
     } catch (err: any) {
@@ -213,10 +221,14 @@ export const TeacherArea: React.FC = () => {
 
   const handleBulkBlock = async (studentIds: string[]) => {
     try {
-      await apiRequest('/api/teacher/bulk/block', {
-        method: 'POST',
-        body: JSON.stringify({ studentIds }),
-      });
+      try {
+        await apiRequest('/api/teacher/bulk/block', {
+          method: 'POST',
+          body: JSON.stringify({ studentIds }),
+        });
+      } catch (apiErr) {
+        await clientBulkBlockUsers(studentIds, true);
+      }
       showToast(`${studentIds.length} alunos bloqueados.`);
       await loadAllData();
     } catch (err: any) {
@@ -226,10 +238,14 @@ export const TeacherArea: React.FC = () => {
 
   const handleBulkUnblock = async (studentIds: string[]) => {
     try {
-      await apiRequest('/api/teacher/bulk/unblock', {
-        method: 'POST',
-        body: JSON.stringify({ studentIds }),
-      });
+      try {
+        await apiRequest('/api/teacher/bulk/unblock', {
+          method: 'POST',
+          body: JSON.stringify({ studentIds }),
+        });
+      } catch (apiErr) {
+        await clientBulkBlockUsers(studentIds, false);
+      }
       showToast(`${studentIds.length} alunos desbloqueados.`);
       await loadAllData();
     } catch (err: any) {
@@ -237,20 +253,49 @@ export const TeacherArea: React.FC = () => {
     }
   };
 
-  const handleBulkDelete = async (studentIds: string[]) => {
+  const handleDeleteStudent = async (studentId: string) => {
+    const student = students.find((s) => s.id === studentId);
+    const name = student?.name || 'o aluno';
     if (
       !confirm(
-        `Tens a certeza que desejas eliminar permanentemente ${studentIds.length} alunos? Esta ação é irreversível.`
+        `Tens a certeza que desejas eliminar permanentemente a conta de "${name}"? Todos os seus dados de progresso e avaliações serão removidos da nuvem.`
       )
     ) {
       return;
     }
     try {
-      await apiRequest('/api/teacher/bulk/delete', {
-        method: 'POST',
-        body: JSON.stringify({ studentIds }),
-      });
-      showToast(`${studentIds.length} alunos eliminados.`);
+      try {
+        await apiRequest(`/api/teacher/students/${studentId}`, {
+          method: 'DELETE',
+        });
+      } catch (apiErr) {
+        await clientDeleteUser(studentId);
+      }
+      showToast(`Conta de "${name}" eliminada com sucesso.`);
+      await loadAllData();
+    } catch (err: any) {
+      alert(err.message || 'Erro ao eliminar aluno');
+    }
+  };
+
+  const handleBulkDelete = async (studentIds: string[]) => {
+    if (
+      !confirm(
+        `Tens a certeza que desejas eliminar permanentemente ${studentIds.length} aluno(s)? Esta ação é irreversível e remove todos os seus dados da base de dados.`
+      )
+    ) {
+      return;
+    }
+    try {
+      try {
+        await apiRequest('/api/teacher/bulk/delete', {
+          method: 'POST',
+          body: JSON.stringify({ studentIds }),
+        });
+      } catch (apiErr) {
+        await clientBulkDeleteUsers(studentIds);
+      }
+      showToast(`${studentIds.length} aluno(s) eliminado(s) com sucesso.`);
       await loadAllData();
     } catch (err: any) {
       alert(err.message || 'Erro ao eliminar alunos');
@@ -576,6 +621,7 @@ export const TeacherArea: React.FC = () => {
               onBulkBlock={handleBulkBlock}
               onBulkUnblock={handleBulkUnblock}
               onBulkDelete={handleBulkDelete}
+              onDeleteStudent={handleDeleteStudent}
             />
           )}
 

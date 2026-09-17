@@ -22,6 +22,15 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../../api';
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
+import {
+  clientGetStudentDossier,
+  clientDeleteUser,
+  clientResetStudentProgress,
+  clientTeacherToggleBlock,
+  clientTeacherResetPassword,
+  getClientDb,
+} from '../../services/clientFirestore';
+import { doc, updateDoc } from 'firebase/firestore';
 
 interface StudentDossierModalProps {
   studentId: string;
@@ -38,6 +47,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 }) => {
   const [dossier, setDossier] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'worlds' | 'xp' | 'badges' | 'actions'>('overview');
 
   // Edit fields
@@ -63,12 +73,22 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
   const loadDossier = async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const res = await apiRequest(`/api/teacher/students/${studentId}`);
       setDossier(res);
-      setEditNickname(res.student.nickname);
-      setEditClassId(res.student.classId || '');
+      setEditNickname(res.student?.nickname || '');
+      setEditClassId(res.student?.classId || '');
     } catch (err: any) {
-      setActionMessage({ type: 'error', text: err.message || 'Erro ao carregar dossiê.' });
+      console.warn('API error loading dossier, falling back to direct Firestore:', err?.message);
+      try {
+        const directRes = await clientGetStudentDossier(studentId);
+        setDossier(directRes);
+        setEditNickname(directRes.student?.nickname || '');
+        setEditClassId(directRes.student?.classId || '');
+      } catch (clientErr: any) {
+        console.error('Failed to load dossier from direct Firestore:', clientErr);
+        setLoadError(clientErr?.message || err?.message || 'Erro ao carregar a ficha pedagógica.');
+      }
     } finally {
       setLoading(false);
     }
@@ -78,13 +98,22 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
     e.preventDefault();
     try {
       setSavingEdit(true);
-      await apiRequest(`/api/teacher/students/${studentId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
+      try {
+        await apiRequest(`/api/teacher/students/${studentId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            nickname: editNickname,
+            classId: editClassId,
+          }),
+        });
+      } catch (apiErr) {
+        const db = getClientDb();
+        await updateDoc(doc(db, 'users', studentId), {
           nickname: editNickname,
           classId: editClassId,
-        }),
-      });
+          updatedAt: new Date().toISOString(),
+        });
+      }
       setActionMessage({ type: 'success', text: 'Dados do aluno atualizados com sucesso.' });
       await loadDossier();
       onRefresh();
@@ -103,13 +132,17 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
     }
     try {
       setResettingPwd(true);
-      await apiRequest(`/api/teacher/students/${studentId}/reset-password`, {
-        method: 'POST',
-        body: JSON.stringify({
-          newPassword,
-          requireChangeOnNextLogin: requireChange,
-        }),
-      });
+      try {
+        await apiRequest(`/api/teacher/students/${studentId}/reset-password`, {
+          method: 'POST',
+          body: JSON.stringify({
+            newPassword,
+            requireChangeOnNextLogin: requireChange,
+          }),
+        });
+      } catch (apiErr) {
+        await clientTeacherResetPassword(studentId, newPassword);
+      }
       setActionMessage({ type: 'success', text: 'Palavra-passe redefinida com sucesso!' });
       setNewPassword('');
       await loadDossier();
@@ -122,12 +155,20 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
   const handleToggleBlock = async () => {
     try {
-      const res = await apiRequest(`/api/teacher/students/${studentId}/toggle-block`, {
-        method: 'POST',
-      });
+      let isBlocked = false;
+      try {
+        const res = await apiRequest(`/api/teacher/students/${studentId}/toggle-block`, {
+          method: 'POST',
+        });
+        isBlocked = res.blocked;
+      } catch (apiErr) {
+        const currentBlocked = dossier?.student?.blocked || false;
+        await clientTeacherToggleBlock(studentId, currentBlocked);
+        isBlocked = !currentBlocked;
+      }
       setActionMessage({
         type: 'success',
-        text: res.blocked ? 'Aluno bloqueado.' : 'Aluno desbloqueado.',
+        text: isBlocked ? 'Aluno bloqueado.' : 'Aluno desbloqueado.',
       });
       await loadDossier();
       onRefresh();
@@ -138,9 +179,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
   const handleResetProgress = async () => {
     try {
-      await apiRequest(`/api/teacher/students/${studentId}/reset-progress`, {
-        method: 'POST',
-      });
+      try {
+        await apiRequest(`/api/teacher/students/${studentId}/reset-progress`, {
+          method: 'POST',
+        });
+      } catch (apiErr) {
+        await clientResetStudentProgress(studentId);
+      }
       setActionMessage({
         type: 'success',
         text: 'Progresso pedagógico do aluno reiniciado para o estado base (100 XP).',
@@ -159,9 +204,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
       return;
     }
     try {
-      await apiRequest(`/api/teacher/students/${studentId}`, {
-        method: 'DELETE',
-      });
+      try {
+        await apiRequest(`/api/teacher/students/${studentId}`, {
+          method: 'DELETE',
+        });
+      } catch (apiErr) {
+        await clientDeleteUser(studentId);
+      }
       onRefresh();
       onClose();
     } catch (err: any) {
@@ -169,12 +218,52 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
     }
   };
 
-  if (loading || !dossier) {
+  if (loading) {
     return (
       <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm font-semibold text-slate-300">A carregar dossiê pedagógico do aluno...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError || !dossier) {
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="w-12 h-12 bg-rose-500/20 text-rose-400 rounded-2xl flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <h4 className="text-base font-bold text-white">Não foi possível aceder à ficha</h4>
+          <p className="text-xs text-slate-400">{loadError || 'Ocorreu um erro ao carregar os dados deste aluno.'}</p>
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-all"
+            >
+              Fechar
+            </button>
+            <button
+              onClick={loadDossier}
+              className="flex-1 py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition-all"
+            >
+              Tentar Novamente
+            </button>
+          </div>
         </div>
       </div>
     );

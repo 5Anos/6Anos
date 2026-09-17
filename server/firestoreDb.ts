@@ -666,6 +666,13 @@ export async function getAllDailyTipClaims(): Promise<DailyTipClaim[]> {
   return snap.docs.map((d) => d.data() as DailyTipClaim);
 }
 
+export async function getUserDailyTipClaims(userId: string): Promise<DailyTipClaim[]> {
+  const db = getFirestore();
+  const q = query(collection(db, 'dailyTipClaims'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as DailyTipClaim);
+}
+
 // -------------------------------------------------------------
 // 10. WEEKLY CHALLENGE
 // -------------------------------------------------------------
@@ -674,6 +681,13 @@ export async function getWeeklyChallengeProgress(userId: string, challengeId: st
   const snap = await getDoc(doc(db, 'weeklyChallenges', `${userId}_${challengeId}`));
   if (!snap.exists()) return null;
   return snap.data() as WeeklyChallengeProgress;
+}
+
+export async function getUserWeeklyChallenges(userId: string): Promise<WeeklyChallengeProgress[]> {
+  const db = getFirestore();
+  const q = query(collection(db, 'weeklyChallenges'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as WeeklyChallengeProgress);
 }
 
 export async function getAllWeeklyChallenges(): Promise<WeeklyChallengeProgress[]> {
