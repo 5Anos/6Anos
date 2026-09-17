@@ -18,6 +18,7 @@ import {
   Sparkles,
   Award,
 } from 'lucide-react';
+import { AvatarRenderer } from '../avatar/AvatarRenderer';
 
 interface TeacherStudentsTabProps {
   students: any[];
@@ -260,11 +261,7 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                           onClick={() => onOpenStudent(s)}
                         >
                           <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-amber-400 text-sm shrink-0 overflow-hidden shadow-inner group-hover:border-amber-500/50 transition-colors">
-                            {s.avatar ? (
-                              <span className="text-lg">🤖</span>
-                            ) : (
-                              s.name.slice(0, 2).toUpperCase()
-                            )}
+                            <AvatarRenderer avatar={s.avatar} size={40} />
                           </div>
                           <div>
                             <div className="font-semibold text-slate-100 group-hover:text-amber-400 transition-colors flex items-center gap-2">

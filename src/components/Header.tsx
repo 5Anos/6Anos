@@ -32,17 +32,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Compute level or use reference default for guest state
-  const nextLevel = user
-    ? getNextLevelInfo(user.xp)
-    : {
-        current: { level: 3, name: 'Guardião Digital', minXp: 300 },
-        next: { level: 4, name: 'Criador Digital', minXp: 500 },
-        percentage: 64,
-        nextMin: 500,
-      };
-
-  const userXp = user ? user.xp : 320;
+  // Compute level from user XP, defaulting to Level 1 (0 XP) when not authenticated
+  const userXp = user ? user.xp : 0;
+  const nextLevel = getNextLevelInfo(userXp);
   const firstName = user ? user.name.split(' ')[0] : 'Aluno';
 
   // Render appropriate avatar illustration
@@ -95,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
               <div className="flex-1 bg-slate-200/90 rounded-full h-2.5 overflow-hidden relative">
                 <div
                   className="bg-blue-500 h-full rounded-full transition-all duration-700"
-                  style={{ width: `${Math.max(6, nextLevel.percentage)}%` }}
+                  style={{ width: `${nextLevel.percentage}%` }}
                 />
               </div>
 

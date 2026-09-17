@@ -21,6 +21,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
+import { AvatarRenderer } from '../avatar/AvatarRenderer';
 
 interface StudentDossierModalProps {
   studentId: string;
@@ -194,8 +195,8 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
         {/* Header */}
         <div className="bg-slate-950/90 border-b border-slate-800 p-6 flex flex-wrap items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-lg shrink-0">
-              {student.name.slice(0, 2).toUpperCase()}
+            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shrink-0 border border-slate-700 bg-slate-800 flex items-center justify-center">
+              <AvatarRenderer avatar={student.avatar} size={56} />
             </div>
             <div>
               <div className="flex items-center gap-3">

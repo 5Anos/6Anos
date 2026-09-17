@@ -225,8 +225,8 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
                       {badge}#{s.position}
                     </td>
                     <td className="px-5 py-3.5 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm shadow-xs">
-                        {s.avatar === 'avatar-girl-1' ? '👧' : '👦'}
+                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
+                        <AvatarRenderer avatar={s.avatar} size={32} />
                       </div>
                       <div>
                         <span className="font-extrabold text-slate-900">{s.nickname}</span>
