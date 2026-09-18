@@ -237,7 +237,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     { id: 'w5-t6', label: '6. Pensar com a IA', icon: Brain, simId: 'sim-recommendation' },
     {
       id: 'avaliacao',
-      label: '7. Avaliação Final (8 Perguntas)',
+      label: '7. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
     },

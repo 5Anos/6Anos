@@ -868,6 +868,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Summit: Grande Missão Final - A ESCOLA DO FUTURO */}
             {(() => {
               const all5Passed = user ? (user.role === 'teacher' || (worlds.length >= 5 && worlds.every((w) => w.average > 75))) : false;
+              const isGmCompleted = user ? (badges?.some((b: any) => (b.id === 'mestre-da-missao-tic' || b.badgeId === 'mestre-da-missao-tic') && b.unlocked) || false) : false;
               return (
                 <div
                   id="summit-mountain"
@@ -893,6 +894,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
                         <Lock className="w-3.5 h-3.5" />
                       </div>
+                    ) : isGmCompleted ? (
+                      <div className="absolute top-2 right-2 bg-emerald-950/90 text-emerald-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-emerald-500/40 flex items-center gap-1 text-[11px] font-black">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Concluída</span>
+                      </div>
                     ) : !all5Passed ? (
                       <div className="absolute top-2 right-2 bg-slate-900/85 text-amber-300 px-2 py-1 rounded-xl backdrop-blur-xs shadow-xs border border-white/20 flex items-center gap-1 text-[11px] font-black">
                         <Lock className="w-3.5 h-3.5 text-amber-400" />
@@ -903,32 +909,53 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                   <div className="w-full bg-gradient-to-b from-[#1E293B] to-[#0F172A] text-white rounded-2xl p-3.5 border border-slate-700 shadow-md mt-1 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block">
-                        Grande Missão Final
-                      </span>
-                      <h4 className="text-xs font-black text-white leading-tight mt-0.5">
-                        {all5Passed ? '🏆' : '🔒'} A ESCOLA DO FUTURO
+                      <div className="flex items-center justify-center gap-1 text-amber-400 mb-0.5">
+                        <Crown className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black uppercase tracking-wider">
+                          Grande Missão Final
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-black text-white leading-tight">
+                        A ESCOLA DO FUTURO
                       </h4>
+                      <p className="text-[10px] text-slate-300 font-semibold mt-1">
+                        5 Mundos • 1 Missão
+                      </p>
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-2.5">
                       <div
-                        className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-xs cursor-pointer ${
+                        className={`w-full py-1.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-xs cursor-pointer ${
                           !user
                             ? 'bg-slate-800 text-slate-300 border border-slate-700'
+                            : isGmCompleted
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                             : !all5Passed
                             ? 'bg-slate-800 text-slate-400 border border-slate-700'
                             : 'bg-amber-400 hover:bg-amber-300 text-amber-950'
                         }`}
                       >
-                        {(!user || !all5Passed) && <Lock className="w-3.5 h-3.5 text-amber-400" />}
-                        <span>
-                          {!user
-                            ? 'Registo Obrigatório'
-                            : !all5Passed
-                            ? 'Bloqueado (5 Mundos > 75%)'
-                            : 'Desbloqueado — Iniciar!'}
-                        </span>
+                        {isGmCompleted ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                            <span>✓ MISSÃO CONCLUÍDA</span>
+                          </>
+                        ) : !user ? (
+                          <>
+                            <Lock className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Registo Obrigatório</span>
+                          </>
+                        ) : !all5Passed ? (
+                          <>
+                            <Lock className="w-3.5 h-3.5 text-amber-400" />
+                            <span>🔒 Desafio Final</span>
+                          </>
+                        ) : (
+                          <>
+                            <Crown className="w-3.5 h-3.5 text-amber-950" />
+                            <span>Desbloqueado — Entrar!</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
