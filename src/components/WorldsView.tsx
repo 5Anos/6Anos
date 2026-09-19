@@ -179,7 +179,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     },
     {
       id: 'avaliacao',
-      label: '6. Avaliação Final (8 Perguntas)',
+      label: '6. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
     },
@@ -193,7 +193,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     { id: 'w2-t5', label: '5. Notícias falsas', icon: AlertOctagon, simId: 'sim-news-detective' },
     {
       id: 'avaliacao',
-      label: '6. Avaliação Final (8 Perguntas)',
+      label: '6. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
     },
@@ -220,9 +220,10 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     { id: 'w4-t3', label: '3. Condições', icon: GitBranch, simId: 'sim-algoritmos' },
     { id: 'w4-t4', label: '4. Repetições', icon: Repeat, simId: 'sim-ciclos' },
     { id: 'w4-t5', label: '5. Dados', icon: BarChart2, simId: 'sim-dados' },
+    { id: 'w4-t6', label: '6. Debugging', icon: AlertOctagon, simId: 'sim-debugging' },
     {
       id: 'avaliacao',
-      label: '6. Avaliação Final (8 Perguntas)',
+      label: '7. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
     },

@@ -25,8 +25,8 @@ export interface GrandeMissaoProgressState {
 export const ESCAPE_ZONES: ZoneInfo[] = [
   {
     id: 1,
-    slug: 'servidor-central',
-    name: 'O Servidor Central',
+    slug: 'centro-seguranca',
+    name: 'Centro de Segurança',
     worldName: 'Guardião Digital',
     worldNumber: 1,
     codeFragment: '#SEC-SAFE-2040',
@@ -39,8 +39,8 @@ export const ESCAPE_ZONES: ZoneInfo[] = [
   },
   {
     id: 2,
-    slug: 'arquivo-noticias',
-    name: 'O Arquivo de Notícias',
+    slug: 'arquivo-secreto',
+    name: 'Arquivo Secreto',
     worldName: 'Detetive Digital',
     worldNumber: 2,
     codeFragment: '#FACT-CHECK-OK',
@@ -54,7 +54,7 @@ export const ESCAPE_ZONES: ZoneInfo[] = [
   {
     id: 3,
     slug: 'estudio-criativo',
-    name: 'O Estúdio Criativo',
+    name: 'Estúdio Criativo',
     worldName: 'Criador Digital',
     worldNumber: 3,
     codeFragment: '#CREATIVE-CC-VAL',
@@ -67,8 +67,8 @@ export const ESCAPE_ZONES: ZoneInfo[] = [
   },
   {
     id: 4,
-    slug: 'oficina-automacao',
-    name: 'A Oficina de Automação',
+    slug: 'laboratorio-engenharia',
+    name: 'Laboratório de Engenharia',
     worldName: 'Engenheiro Digital',
     worldNumber: 4,
     codeFragment: '#ALGO-ROBOT-RUN',
@@ -82,7 +82,7 @@ export const ESCAPE_ZONES: ZoneInfo[] = [
   {
     id: 5,
     slug: 'laboratorio-ia',
-    name: 'O Laboratório de IA',
+    name: 'Laboratório de IA',
     worldName: 'Explorador da IA',
     worldNumber: 5,
     codeFragment: '#AI-ETHICS-PASS',
@@ -96,11 +96,11 @@ export const ESCAPE_ZONES: ZoneInfo[] = [
   {
     id: 6,
     slug: 'nucleo-central',
-    name: 'O Núcleo da Escola do Futuro',
-    worldName: 'Desafio Integrador Final',
+    name: 'Núcleo Central',
+    worldName: 'A Escola do Futuro',
     worldNumber: 6,
     codeFragment: '#MASTER-CORE-2040',
-    description: 'Insere os 5 fragmentos de código, desbloqueia o Núcleo Principal e toma a decisão ética definitiva sobre a Escola do Futuro.',
+    description: 'Insere manualmente os 5 códigos recolhidos, desbloqueia o Núcleo Principal e toma a decisão ética definitiva sobre a Escola do Futuro.',
     tag: 'Desafio Supremo Integrado',
     iconName: 'Crown',
     color: 'yellow',

@@ -35,8 +35,8 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
   if (!pautaData) {
     return (
       <div className="p-12 text-center text-slate-500">
-        <FileSpreadsheet className="w-10 h-10 mx-auto mb-2 opacity-40" />
-        <p className="font-semibold text-slate-400">A carregar dados da pauta...</p>
+        <FileSpreadsheet className="w-10 h-10 mx-auto mb-2 opacity-40 text-slate-400" />
+        <p className="font-semibold text-slate-600">A carregar dados da pauta...</p>
       </div>
     );
   }
@@ -58,15 +58,15 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Navigation & Controls */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
         {/* View mode switcher */}
-        <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
           <button
             onClick={() => setViewMode('general')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               viewMode === 'general'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Pauta Geral (Todos os Mundos)
@@ -75,8 +75,8 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
             onClick={() => setViewMode('world')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               viewMode === 'world'
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Pauta Detalhada por Mundo
@@ -85,17 +85,17 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
 
         {/* Filter and Export buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5">
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
             <Filter className="w-4 h-4 text-slate-400" />
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
               aria-label="Filtrar por turma na pauta"
-              className="bg-transparent text-slate-200 text-sm focus:outline-none cursor-pointer pr-2"
+              className="bg-transparent text-slate-800 text-sm focus:outline-none cursor-pointer pr-2"
             >
-              <option value="all" className="bg-slate-900">Todas as Turmas</option>
+              <option value="all" className="bg-white text-slate-800">Todas as Turmas</option>
               {classes.map((c) => (
-                <option key={c.id} value={c.id} className="bg-slate-900">
+                <option key={c.id} value={c.id} className="bg-white text-slate-800">
                   Turma {c.name}
                 </option>
               ))}
@@ -105,14 +105,14 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onExportCSV}
-              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors shadow-2xs"
             >
-              <Download className="w-3.5 h-3.5 text-amber-400" />
+              <Download className="w-3.5 h-3.5 text-amber-600" />
               CSV
             </button>
             <button
               onClick={onExportXLSX}
-              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-md"
+              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-xs"
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
               Excel (.xlsx)
@@ -133,11 +133,11 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                 onClick={() => setSelectedWorldId(wId)}
                 className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 ${
                   isSelected
-                    ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-md'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                    ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
                 }`}
               >
-                <Layers className="w-3.5 h-3.5" />
+                <Layers className="w-3.5 h-3.5 text-amber-600" />
                 <span>Mundo {wId}: {wData ? wData.worldTitle : `Mundo ${wId}`}</span>
               </button>
             );
@@ -146,21 +146,21 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
       )}
 
       {/* Rule Notification Banner */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex items-center gap-3 text-xs text-slate-400">
-        <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+      <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-xs text-slate-700 shadow-2xs">
+        <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
         <div>
           <strong>Critério de Desbloqueio e Conclusão:</strong> Média estritamente superior a{' '}
-          <span className="text-emerald-400 font-bold font-mono">65%</span> (ex: 66% ou mais desbloqueia o mundo seguinte; 65% ou inferior mantém bloqueado).
+          <span className="text-emerald-700 font-bold font-mono">80%</span> (ex: 81% ou mais desbloqueia o mundo seguinte; 80% ou inferior mantém bloqueado).
         </div>
       </div>
 
       {/* VIEW 1: PAUTA GERAL */}
       {viewMode === 'general' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider font-semibold">
                   <th className="py-3.5 px-4">Aluno</th>
                   <th className="py-3.5 px-4">Turma</th>
                   <th className="py-3.5 px-4 text-center">Mundo 1</th>
@@ -173,7 +173,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   <th className="py-3.5 px-4 text-center">Nível</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-slate-100">
                 {filteredPautaGeral.length === 0 ? (
                   <tr>
                     <td colSpan={10} className="py-12 text-center text-slate-500">
@@ -187,20 +187,20 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                     return (
                       <tr
                         key={item.studentId}
-                        className="hover:bg-slate-800/50 transition-colors"
+                        className="hover:bg-slate-50/80 transition-colors"
                       >
                         <td className="py-3 px-4">
                           <button
                             onClick={() => onOpenStudent({ id: item.studentId, name: item.studentName })}
-                            className="font-semibold text-slate-100 hover:text-amber-400 transition-colors text-left flex items-center gap-2"
+                            className="font-semibold text-slate-900 hover:text-amber-600 transition-colors text-left flex items-center gap-2"
                           >
                             <span>{item.studentName}</span>
-                            <span className="text-xs text-slate-500 font-mono">@{item.studentNickname}</span>
+                            <span className="text-xs text-slate-400 font-mono">@{item.studentNickname}</span>
                           </button>
                         </td>
 
                         <td className="py-3 px-4">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-xs text-slate-300 font-medium">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-xs text-slate-700 font-medium border border-slate-200">
                             {item.className}
                           </span>
                         </td>
@@ -213,9 +213,9 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                                 className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
                                   score > 0
                                     ? isWorldPassed
-                                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                                      : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                                    : 'text-slate-600'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                    : 'text-slate-400'
                                 }`}
                               >
                                 {score > 0 ? `${score}%` : '—'}
@@ -229,21 +229,21 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                             className={`inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${
                               item.globalAverage > 0
                                 ? isPassedGlobal
-                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                                  : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                                : 'bg-slate-800 text-slate-500 border-slate-700'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                                : 'bg-slate-100 text-slate-500 border-slate-200'
                             }`}
                           >
                             {item.globalAverage > 0 ? `${item.globalAverage}%` : '—'}
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 text-center font-mono font-bold text-amber-400 text-xs">
+                        <td className="py-3 px-4 text-center font-mono font-bold text-amber-700 text-xs">
                           {item.totalXP} XP
                         </td>
 
                         <td className="py-3 px-4 text-center">
-                          <span className="text-xs font-bold text-slate-300">
+                          <span className="text-xs font-bold text-slate-700">
                             Nível {item.level}
                           </span>
                         </td>
@@ -259,17 +259,17 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
 
       {/* VIEW 2: PAUTA POR MUNDO */}
       {viewMode === 'world' && currentWorldPauta && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="p-4 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-white">
+              <h3 className="text-sm font-bold text-slate-900">
                 Mundo {selectedWorldId}: {currentWorldPauta.worldTitle}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Pauta detalhada com simuladores, desafios, missões e avaliação final.
               </p>
             </div>
-            <div className="text-xs text-amber-400 font-bold">
+            <div className="text-xs text-amber-700 font-bold">
               {filteredWorldStudents.length} alunos
             </div>
           </div>
@@ -277,7 +277,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider font-semibold">
                   <th className="py-3.5 px-4">Aluno</th>
                   <th className="py-3.5 px-4">Turma</th>
                   <th className="py-3.5 px-4 text-center">Simuladores</th>
@@ -288,7 +288,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   <th className="py-3.5 px-4 text-center">Mundo Seguinte</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-slate-100">
                 {filteredWorldStudents.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-12 text-center text-slate-500">
@@ -302,41 +302,41 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                     return (
                       <tr
                         key={st.studentId}
-                        className="hover:bg-slate-800/50 transition-colors"
+                        className="hover:bg-slate-50/80 transition-colors"
                       >
                         <td className="py-3 px-4">
                           <button
                             onClick={() => onOpenStudent({ id: st.studentId, name: st.studentName })}
-                            className="font-semibold text-slate-100 hover:text-amber-400 transition-colors text-left"
+                            className="font-semibold text-slate-900 hover:text-amber-600 transition-colors text-left"
                           >
                             {st.studentName}
                           </button>
-                          <div className="text-xs text-slate-500 font-mono">@{st.studentNickname}</div>
+                          <div className="text-xs text-slate-400 font-mono">@{st.studentNickname}</div>
                         </td>
 
                         <td className="py-3 px-4">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-xs text-slate-300 font-medium">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-xs text-slate-700 font-medium border border-slate-200">
                             {st.className}
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 text-center font-mono text-xs">
+                        <td className="py-3 px-4 text-center font-mono text-xs text-slate-700">
                           {st.simulatorsCompleted} concluído(s)
                         </td>
 
                         <td className="py-3 px-4 text-center font-mono text-xs">
                           {st.challengeCompleted ? (
-                            <span className="text-emerald-400 font-bold">{st.challengeScore} XP</span>
+                            <span className="text-emerald-700 font-bold">{st.challengeScore} XP</span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-slate-400">—</span>
                           )}
                         </td>
 
                         <td className="py-3 px-4 text-center font-mono text-xs">
                           {st.missionScore > 0 ? (
-                            <span className="text-amber-400 font-bold">{st.missionScore}/100</span>
+                            <span className="text-amber-700 font-bold">{st.missionScore}/100</span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-slate-400">—</span>
                           )}
                         </td>
 
@@ -344,13 +344,13 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                           {st.assessmentScore > 0 ? (
                             <span
                               className={`font-bold ${
-                                st.assessmentScore > 80 ? 'text-emerald-400' : 'text-rose-400'
+                                st.assessmentScore > 80 ? 'text-emerald-700' : 'text-rose-700'
                               }`}
                             >
                               {st.assessmentScore}%
                             </span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-slate-400">—</span>
                           )}
                         </td>
 
@@ -359,9 +359,9 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                             className={`inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${
                               st.worldAverage > 0
                                 ? isWorldPassed
-                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                                  : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                                : 'bg-slate-800 text-slate-500 border-slate-700'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                                : 'bg-slate-100 text-slate-500 border-slate-200'
                             }`}
                           >
                             {st.worldAverage > 0 ? `${st.worldAverage}%` : '—'}
@@ -370,12 +370,12 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
 
                         <td className="py-3 px-4 text-center">
                           {st.unlockedNext ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                               <CheckCircle2 className="w-3 h-3" />
                               Desbloqueado
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-500 border border-slate-700">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
                               <XCircle className="w-3 h-3" />
                               Bloqueado
                             </span>

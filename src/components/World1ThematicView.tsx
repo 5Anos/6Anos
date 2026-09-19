@@ -528,7 +528,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Testa a força da senha em tempo real
+                Testa a robustez da palavra-passe em tempo real
               </span>
             </div>
 

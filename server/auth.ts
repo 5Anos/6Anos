@@ -61,6 +61,9 @@ export async function getSessionFromRequest(req: Request): Promise<Session | nul
       sessionId = authHeader.substring(7);
     }
   }
+  if (!sessionId && typeof req.query?.token === 'string') {
+    sessionId = req.query.token;
+  }
   if (!sessionId) return null;
 
   return await getFirestoreSession(sessionId);

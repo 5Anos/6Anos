@@ -22,6 +22,7 @@ interface GrandeMissaoMapProps {
   onSelectZone: (zoneId: number) => void;
   onBackToApp: () => void;
   isFullyCompleted: boolean;
+  onShowCelebration?: () => void;
 }
 
 export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
@@ -30,6 +31,7 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
   onSelectZone,
   onBackToApp,
   isFullyCompleted,
+  onShowCelebration,
 }) => {
   const getZoneIcon = (iconName: string, className: string = 'w-6 h-6') => {
     switch (iconName) {
@@ -57,6 +59,34 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* If fully completed, show victory banner */}
+      {isFullyCompleted && (
+        <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 border border-amber-300">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-950 text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+              <Crown className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase tracking-wider text-amber-900">
+                Missão Cumprida com Distinção!
+              </div>
+              <div className="text-sm font-black text-amber-950">
+                A Escola do Futuro está salva e o Núcleo foi restaurado!
+              </div>
+            </div>
+          </div>
+          {onShowCelebration && (
+            <button
+              onClick={onShowCelebration}
+              className="px-4 py-2 bg-amber-950 hover:bg-slate-900 text-amber-300 font-black text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <span>Ver Certificado de Mestre</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Narrative & Mission Control Banner */}
       <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-indigo-500/30 relative overflow-hidden">
         {/* Background decorative cyber-grid lines */}
@@ -269,7 +299,11 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
 
               <button
                 onClick={() => {
-                  if (isCoreUnlocked) onSelectZone(6);
+                  if (isFullyCompleted && onShowCelebration) {
+                    onShowCelebration();
+                  } else if (isCoreUnlocked) {
+                    onSelectZone(6);
+                  }
                 }}
                 disabled={!isCoreUnlocked}
                 className={`px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${

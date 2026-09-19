@@ -868,7 +868,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Summit: Grande Missão Final - A ESCOLA DO FUTURO */}
             {(() => {
               const all5Passed = user ? (user.role === 'teacher' || (worlds.length >= 5 && worlds.every((w) => w.average > 75))) : false;
-              const isGmCompleted = user ? (badges?.some((b: any) => (b.id === 'mestre-da-missao-tic' || b.badgeId === 'mestre-da-missao-tic') && b.unlocked) || false) : false;
+              const isGmCompleted = user
+                ? (badges?.some(
+                    (b: any) =>
+                      (b.id === 'mestre-da-missao-tic' || b.badgeId === 'mestre-da-missao-tic') &&
+                      b.unlocked !== false
+                  ) ||
+                  (() => {
+                    try {
+                      const saved = localStorage.getItem(`missao_tic_gm_${user.id}`);
+                      if (saved && JSON.parse(saved).isCompleted) return true;
+                    } catch {}
+                    return false;
+                  })())
+                : false;
               return (
                 <div
                   id="summit-mountain"

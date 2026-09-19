@@ -1426,7 +1426,7 @@ router.get('/audit-logs', async (req: AuthRequest, res) => {
 // -------------------------------------------------------------
 // 17. EXPORT DATA (CSV & XLSX)
 // -------------------------------------------------------------
-router.get('/export/csv', async (req: AuthRequest, res: Response) => {
+router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: Response) => {
   try {
     const { type, classId } = req.query;
     const [allUsers, classes, allAssessments, allMissions] = await Promise.all([

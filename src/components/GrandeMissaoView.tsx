@@ -34,6 +34,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
   const [completedZones, setCompletedZones] = useState<number[]>([]);
   const [unlockedCodes, setUnlockedCodes] = useState<Record<number, string>>({});
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [xpWon, setXpWon] = useState(150);
   const [isLocked, setIsLocked] = useState(false);
   const [checkingProgress, setCheckingProgress] = useState(true);
@@ -151,6 +152,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
       const nextCompleted = [1, 2, 3, 4, 5, 6];
       setCompletedZones(nextCompleted);
       setIsCompleted(true);
+      setShowCelebration(true);
       saveLocalProgress(nextCompleted, unlockedCodes, true);
       setActiveZoneId(null);
       await refreshUser();
@@ -216,12 +218,13 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
     );
   }
 
-  // Celebration screen if completed and no active zone
-  if (isCompleted && activeZoneId === null) {
+  // Celebration screen if showCelebration is true and no active zone
+  if (showCelebration && activeZoneId === null) {
     return (
       <GrandeMissaoCelebration
         xpWon={xpWon}
         onBackToDashboard={onBack}
+        onViewMap={() => setShowCelebration(false)}
         studentName={user.name || user.nickname}
       />
     );
@@ -253,6 +256,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           onSelectZone={(zoneId) => setActiveZoneId(zoneId)}
           onBackToApp={onBack}
           isFullyCompleted={isCompleted}
+          onShowCelebration={() => setShowCelebration(true)}
         />
       )}
 

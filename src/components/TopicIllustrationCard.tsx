@@ -67,6 +67,7 @@ import {
   Brain,
   Info,
   Lightbulb,
+  Bug,
 } from 'lucide-react';
 import { TOPIC_VISUALS_DATA } from '../data/topicIllustrationsData';
 
@@ -143,6 +144,7 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Settings,
   Brain,
   Info,
+  Bug,
 };
 
 export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({

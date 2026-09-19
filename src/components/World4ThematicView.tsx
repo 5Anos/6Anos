@@ -15,6 +15,7 @@ import {
   Play,
   RotateCcw,
   Bot,
+  Bug,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -88,6 +89,26 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
   const [mostReadDay, setMostReadDay] = useState<string>('');
   const [avgScoreChoice, setAvgScoreChoice] = useState<string>('');
   const [dataScore, setDataScore] = useState<number | null>(null);
+
+  // -------------------------------------------------------------
+  // 6. DEBUGGING & DEPURAÇÃO STATE
+  // -------------------------------------------------------------
+  const [debugIdentifiedBug, setDebugIdentifiedBug] = useState<string | null>(null);
+  const [debugSelectedFix, setDebugSelectedFix] = useState<string | null>(null);
+  const [debugScore, setDebugScore] = useState<number | null>(null);
+
+  const debugAlgorithmSteps = [
+    { id: 'st-1', text: 'Passo 1: Ligar o sensor de obstáculos e verificar o percurso.' },
+    { id: 'st-2', text: 'Passo 2: Avançar 3 metros em linha reta até à estante de livros.' },
+    { id: 'st-3', text: 'Passo 3 [ERRO]: Virar 180 graus e desligar o motor sem recolher o livro.' },
+    { id: 'st-4', text: 'Passo 4: Transportar o livro e colocá-lo na secretária do professor.' },
+  ];
+
+  const debugFixOptions = [
+    { id: 'fx-1', text: 'Substituir o Passo 3 por: "Acionar o braço robótico para segurar o livro com cuidado".', isCorrect: true },
+    { id: 'fx-2', text: 'Apagar todo o algoritmo e reiniciar sem testar onde falhou.', isCorrect: false },
+    { id: 'fx-3', text: 'Aumentar a velocidade do robô para ele ignorar o Passo 3.', isCorrect: false },
+  ];
 
   // -------------------------------------------------------------
   // REPORT COMPLETION HELPER
@@ -215,6 +236,18 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     reportCompletion('sim-dados', 'Simulador de Dados & Gráficos', score);
   };
 
+  // 6. Debugging Handlers
+  const handleValidateDebug = () => {
+    const identifiedCorrect = debugIdentifiedBug === 'st-3';
+    const fixCorrect = debugSelectedFix === 'fx-1';
+    let correct = 0;
+    if (identifiedCorrect) correct++;
+    if (fixCorrect) correct++;
+    const score = Math.round((correct / 2) * 100);
+    setDebugScore(score);
+    reportCompletion('sim-debugging', 'Simulador de Debugging & Depuração', score);
+  };
+
   // Helper
   const getSimProg = (simId: string) => {
     return world.simulatorsProgress?.find((p) => p.id === simId);
@@ -225,6 +258,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
   const topic3 = world.topics.find((t) => t.id === 'w4-t3');
   const topic4 = world.topics.find((t) => t.id === 'w4-t4');
   const topic5 = world.topics.find((t) => t.id === 'w4-t5');
+  const topic6 = world.topics.find((t) => t.id === 'w4-t6');
 
   return (
     <div className="space-y-6">
@@ -1045,6 +1079,186 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
+          {/* 🎯 Conclusão / Avançar para Tema 6 */}
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => onNavigateTopic('w4-t6')}
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+            >
+              <span>Avançar para o Tema 6: Debugging</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TEMA 6: DEBUGGING (DEPURAÇÃO) */}
+      {/* ========================================================= */}
+      {activeTopicId === 'w4-t6' && (
+        <div className="space-y-6">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                <Bug className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
+                  Tema 6 do Mundo 4
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                  {topic6?.title || 'Debugging (Depuração)'}
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {getSimProg('sim-debugging')?.completed ? (
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Concluído ({getSimProg('sim-debugging')?.score}%)</span>
+                </span>
+              ) : (
+                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
+                  Recompensa: +100 XP
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* 📖 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <BookOpen className="w-5 h-5" />
+              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                1. APRENDE: ENCONTRAR E CORRIGIR ERROS (DEBUGGING)
+              </h4>
+            </div>
+
+            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
+              {topic6?.paragraphs?.map((p, idx) => (
+                <p key={idx} className="border-l-2 border-amber-300 pl-3">
+                  {p}
+                </p>
+              )) || (
+                <>
+                  <p className="border-l-2 border-amber-300 pl-3">
+                    Quando um algoritmo ou programa não funciona como esperado, existe um erro ou anomalia lógica (designado habitualmente por "bug").
+                  </p>
+                  <p className="border-l-2 border-amber-300 pl-3">
+                    Debugging é o processo metódico de testar passo a passo, identificar onde ocorreu a falha e corrigir as instruções.
+                  </p>
+                  <p className="border-l-2 border-amber-300 pl-3">
+                    Errar faz parte natural da programação; analisar e corrigir erros torna-nos melhores engenheiros digitais.
+                  </p>
+                </>
+              )}
+            </div>
+
+            <TopicIllustrationCard
+              topicId="w4-t6"
+              title="A Arte do Debugging: Detetar, Analisar e Corrigir"
+              caption="Em engenharia de software, ler o código com espírito crítico e testar cada hipótese é o segredo para construir programas fiáveis."
+              theme="amber"
+            />
+          </div>
+
+          {/* 🎮 2. PRATICA (Simulador de Debugging) */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-amber-700">
+                <Sparkles className="w-5 h-5" />
+                <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
+                  2. PRATICA: SIMULADOR DE DEBUGGING E CORREÇÃO
+                </h4>
+              </div>
+              <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                Missão de Laboratório (+100 XP)
+              </span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              O robô de entrega da biblioteca escolar falha a meio da sua rota. Analisa os passos do algoritmo abaixo, deteta o passo com o erro lógico e seleciona a instrução de correção adequada!
+            </p>
+
+            {/* Step 1: Detect the Buggy Step */}
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-wider text-slate-800 block">
+                Passo 1: Qual dos passos programados contém o erro lógico?
+              </label>
+              <div className="space-y-2">
+                {debugAlgorithmSteps.map((step) => {
+                  const isSelected = debugIdentifiedBug === step.id;
+                  return (
+                    <button
+                      key={step.id}
+                      onClick={() => setDebugIdentifiedBug(step.id)}
+                      className={`w-full text-left p-3 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-amber-50 border-amber-500 text-amber-950 ring-1 ring-amber-400'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <span>{step.text}</span>
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Step 2: Choose the Fix */}
+            <div className="space-y-3 pt-2">
+              <label className="text-xs font-black uppercase tracking-wider text-slate-800 block">
+                Passo 2: Qual é a melhor correção para reparar o algoritmo?
+              </label>
+              <div className="space-y-2">
+                {debugFixOptions.map((fix) => {
+                  const isSelected = debugSelectedFix === fix.id;
+                  return (
+                    <button
+                      key={fix.id}
+                      onClick={() => setDebugSelectedFix(fix.id)}
+                      className={`w-full text-left p-3 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-amber-50 border-amber-500 text-amber-950 ring-1 ring-amber-400'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <span>{fix.text}</span>
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleValidateDebug}
+                disabled={!debugIdentifiedBug || !debugSelectedFix}
+                className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                Validar Depuração e Corrigir Robô
+              </button>
+            </div>
+
+            {debugScore !== null && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 font-medium">
+                {debugScore === 100 ? (
+                  <span className="text-emerald-800 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    Excelente! Identificaste o passo erróneo e aplicaste a instrução correta. O robô completou a entrega do livro com sucesso! Pontuação: 100/100 (+100 XP)
+                  </span>
+                ) : (
+                  <span className="text-amber-900 font-medium">
+                    Pontuação: {debugScore}/100. Analisa com atenção: o Passo 3 mandava o robô virar e desligar o motor antes de recolher o livro. Substitui esse passo pela ação de segurar o livro!
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* 🎯 Conclusão / Avaliação */}
           <div className="flex justify-end pt-2">
             <button
@@ -1059,7 +1273,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* SEPARADOR 6: AVALIAÇÃO FINAL */}
+      {/* SEPARADOR 7: AVALIAÇÃO FINAL */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
         <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6 text-center">
@@ -1072,10 +1286,10 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               {world.title}
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 8 Perguntas
+              Avaliação Final de 10 Perguntas
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Comprova a tua destreza em algoritmos, condições, ciclos e dados para desbloquear o Mundo 5!
+              Comprova a tua destreza em algoritmos, condições, ciclos, dados e depuração para desbloquear o Mundo 5!
             </p>
           </div>
 
@@ -1094,7 +1308,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               onClick={onOpenAssessment}
               className="bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2"
             >
-              <span>Começar Avaliação Final (8 Perguntas)</span>
+              <span>Começar Avaliação Final (10 Perguntas)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

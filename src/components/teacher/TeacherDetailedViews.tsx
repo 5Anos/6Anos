@@ -46,7 +46,7 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
   return (
     <div className="space-y-6">
       {/* Top selector */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
         <div className="flex flex-wrap gap-2">
           {[1, 2, 3, 4, 5].map((wId) => (
             <button
@@ -54,8 +54,8 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
               onClick={() => setSelectedWorld(wId)}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedWorld === wId
-                  ? 'bg-amber-500 text-slate-950 shadow-md'
-                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200'
               }`}
             >
               Avaliação Mundo {wId}
@@ -63,16 +63,16 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
           ))}
         </div>
 
-        <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5">
+        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
             aria-label="Filtrar por turma nas avaliações"
-            className="bg-transparent text-slate-200 text-xs focus:outline-none cursor-pointer pr-2"
+            className="bg-transparent text-slate-800 text-xs focus:outline-none cursor-pointer pr-2"
           >
-            <option value="all" className="bg-slate-900">Todas as Turmas</option>
+            <option value="all" className="bg-white text-slate-800">Todas as Turmas</option>
             {(classes || []).map((c) => (
-              <option key={c.id} value={c.id} className="bg-slate-900">Turma {c.name}</option>
+              <option key={c.id} value={c.id} className="bg-white text-slate-800">Turma {c.name}</option>
             ))}
           </select>
         </div>
@@ -82,29 +82,29 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
         <div className="space-y-4">
           {/* Stats metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">Total Realizadas</div>
-              <div className="text-2xl font-bold text-slate-200 mt-1">{currentWorld.totalAttempted || 0}</div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="text-xs text-slate-500 font-semibold">Total Realizadas</div>
+              <div className="text-2xl font-bold text-slate-900 mt-1">{currentWorld.totalAttempted || 0}</div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">Aprovados (&gt;80%)</div>
-              <div className="text-2xl font-bold text-emerald-400 mt-1">{currentWorld.totalPassed || 0}</div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="text-xs text-slate-500 font-semibold">Aprovados (&gt;80%)</div>
+              <div className="text-2xl font-bold text-emerald-700 mt-1">{currentWorld.totalPassed || 0}</div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">Pendentes</div>
-              <div className="text-2xl font-bold text-amber-400 mt-1">{currentWorld.totalPending || 0}</div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="text-xs text-slate-500 font-semibold">Pendentes</div>
+              <div className="text-2xl font-bold text-amber-700 mt-1">{currentWorld.totalPending || 0}</div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">Média Global do Teste</div>
-              <div className="text-2xl font-bold text-amber-400 font-mono mt-1">{currentWorld.averageScore || 0}%</div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="text-xs text-slate-500 font-semibold">Média Global do Teste</div>
+              <div className="text-2xl font-bold text-amber-800 font-mono mt-1">{currentWorld.averageScore || 0}%</div>
             </div>
           </div>
 
           {/* Student list */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs uppercase font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-semibold">
                   <th className="py-3 px-4">Aluno</th>
                   <th className="py-3 px-4">Turma</th>
                   <th className="py-3 px-4 text-center">Tentativas</th>
@@ -113,31 +113,31 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
                   <th className="py-3 px-4 text-right">Última Realização</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-slate-100">
                 {filteredStudents.map((s: any) => (
-                  <tr key={s.studentId} className="hover:bg-slate-800/40">
-                    <td className="py-3 px-4 font-semibold text-slate-200">
-                      {s.studentName} <span className="text-xs text-slate-500 font-mono">@{s.studentNickname}</span>
+                  <tr key={s.studentId} className="hover:bg-slate-50/80">
+                    <td className="py-3 px-4 font-semibold text-slate-900">
+                      {s.studentName} <span className="text-xs text-slate-400 font-mono">@{s.studentNickname}</span>
                     </td>
-                    <td className="py-3 px-4 text-xs text-slate-400">{s.className}</td>
-                    <td className="py-3 px-4 text-center font-mono text-xs">{s.attempts}</td>
-                    <td className="py-3 px-4 text-center font-mono font-bold text-xs">
+                    <td className="py-3 px-4 text-xs text-slate-500">{s.className}</td>
+                    <td className="py-3 px-4 text-center font-mono text-xs text-slate-700">{s.attempts}</td>
+                    <td className="py-3 px-4 text-center font-mono font-bold text-xs text-slate-900">
                       {s.bestPercentage > 0 ? `${s.bestPercentage}%` : '—'}
                     </td>
                     <td className="py-3 px-4 text-center">
                       {s.passed ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3" /> Aprovado (&gt;80%)
                         </span>
                       ) : s.attempts > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                           <XCircle className="w-3 h-3" /> Insuficiente (≤80%)
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-500">Não Realizou</span>
+                        <span className="text-xs text-slate-400">Não Realizou</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-right text-xs text-slate-500">
+                    <td className="py-3 px-4 text-right text-xs text-slate-400">
                       {s.lastAttemptAt ? new Date(s.lastAttemptAt).toLocaleDateString('pt-PT') : '—'}
                     </td>
                   </tr>
@@ -163,15 +163,15 @@ export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activi
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <div className="flex flex-wrap gap-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
         {[1, 2, 3, 4, 5].map((wId) => (
           <button
             key={wId}
             onClick={() => setSelectedWorld(wId)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               selectedWorld === wId
-                ? 'bg-amber-500 text-slate-950 shadow-md'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                ? 'bg-amber-500 text-white shadow-xs'
+                : 'bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200'
             }`}
           >
             Simuladores Mundo {wId}
@@ -182,29 +182,29 @@ export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activi
       {currentWorld && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(currentWorld.activities || []).map((act: any) => (
-            <div key={act.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div key={act.id} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-xs">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h4 className="font-bold text-white text-base">{act.title}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">{act.description}</p>
+                  <h4 className="font-bold text-slate-900 text-base">{act.title}</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">{act.description}</p>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-xs font-bold">
+                <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-mono text-xs font-bold">
                   +{act.xpReward} XP
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-xs">
-                <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center">
-                  <div className="text-slate-400 text-[10px]">Concluídos</div>
-                  <div className="font-bold text-emerald-400 text-sm mt-0.5">{act.completedCount || 0}</div>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-xs">
+                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
+                  <div className="text-slate-500 text-[10px]">Concluídos</div>
+                  <div className="font-bold text-emerald-700 text-sm mt-0.5">{act.completedCount || 0}</div>
                 </div>
-                <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center">
-                  <div className="text-slate-400 text-[10px]">Pendentes</div>
-                  <div className="font-bold text-amber-400 text-sm mt-0.5">{act.pendingCount || 0}</div>
+                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
+                  <div className="text-slate-500 text-[10px]">Pendentes</div>
+                  <div className="font-bold text-amber-700 text-sm mt-0.5">{act.pendingCount || 0}</div>
                 </div>
-                <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center">
-                  <div className="text-slate-400 text-[10px]">Média de Acerto</div>
-                  <div className="font-bold text-slate-200 text-sm mt-0.5">{act.averageScore || 0}%</div>
+                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
+                  <div className="text-slate-500 text-[10px]">Média de Acerto</div>
+                  <div className="font-bold text-slate-900 text-sm mt-0.5">{act.averageScore || 0}%</div>
                 </div>
               </div>
             </div>
@@ -228,22 +228,22 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
     <div className="space-y-6">
       {/* Weekly challenge banner */}
       {weeklyChallenge && (
-        <div className="bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-900 border border-amber-500/30 rounded-2xl p-6 space-y-3">
+        <div className="bg-amber-50/60 border border-amber-200 rounded-2xl p-6 space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
-              <Zap className="w-4 h-4" /> Desafio da Semana Atual
+            <span className="text-xs font-black uppercase text-amber-800 tracking-wider flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-amber-600" /> Desafio da Semana Atual
             </span>
-            <span className="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-xs">
+            <span className="px-3 py-1 rounded-lg bg-amber-500 text-white font-black text-xs">
               +{weeklyChallenge.xpReward} XP
             </span>
           </div>
 
-          <h3 className="text-lg font-bold text-white">{weeklyChallenge.title}</h3>
-          <p className="text-xs text-slate-300">{weeklyChallenge.task}</p>
+          <h3 className="text-lg font-bold text-slate-900">{weeklyChallenge.title}</h3>
+          <p className="text-xs text-slate-700">{weeklyChallenge.task}</p>
 
-          <div className="pt-2 flex items-center gap-4 text-xs text-slate-400">
+          <div className="pt-2 flex items-center gap-4 text-xs text-slate-500">
             <div>
-              Alunos que já resolveram: <strong className="text-amber-400 font-bold">{weeklyChallenge.totalCompleted || 0}</strong>
+              Alunos que já resolveram: <strong className="text-amber-800 font-bold">{weeklyChallenge.totalCompleted || 0}</strong>
             </div>
           </div>
         </div>
@@ -251,18 +251,18 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
 
       {/* World challenges */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Desafios dos 5 Mundos</h4>
+        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Desafios dos 5 Mundos</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {worldChallenges.map((ch: any) => (
-            <div key={ch.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div key={ch.id} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-400">Mundo {ch.worldId}</span>
-                <span className="text-xs font-mono font-bold text-emerald-400">+{ch.xpReward} XP</span>
+                <span className="text-xs font-bold text-amber-800">Mundo {ch.worldId}</span>
+                <span className="text-xs font-mono font-bold text-emerald-700">+{ch.xpReward} XP</span>
               </div>
-              <h5 className="font-bold text-white text-sm">{ch.title}</h5>
-              <div className="pt-2 border-t border-slate-800 flex justify-between text-xs text-slate-400">
-                <span>Concluído por: <strong className="text-white">{ch.completedCount || 0} alunos</strong></span>
-                <span>Pendentes: <strong className="text-slate-500">{ch.pendingCount || 0}</strong></span>
+              <h5 className="font-bold text-slate-900 text-sm">{ch.title}</h5>
+              <div className="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+                <span>Concluído por: <strong className="text-slate-900">{ch.completedCount || 0} alunos</strong></span>
+                <span>Pendentes: <strong className="text-slate-400">{ch.pendingCount || 0}</strong></span>
               </div>
             </div>
           ))}
@@ -282,14 +282,14 @@ export const TeacherXPTab: React.FC<{ xpData: any }> = ({ xpData }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-4 bg-slate-950 border-b border-slate-800">
-          <h4 className="text-sm font-bold text-white">Discriminação de XP por Aluno</h4>
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+        <div className="p-4 bg-slate-50 border-b border-slate-200">
+          <h4 className="text-sm font-bold text-slate-900">Discriminação de XP por Aluno</h4>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+              <tr className="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
                 <th className="py-3 px-4">Aluno</th>
                 <th className="py-3 px-4">Turma</th>
                 <th className="py-3 px-4 text-center">Base</th>
@@ -299,22 +299,22 @@ export const TeacherXPTab: React.FC<{ xpData: any }> = ({ xpData }) => {
                 <th className="py-3 px-4 text-center">Missões</th>
                 <th className="py-3 px-4 text-center">Dicas</th>
                 <th className="py-3 px-4 text-center">G. Missão</th>
-                <th className="py-3 px-4 text-center font-bold text-amber-400">Total</th>
+                <th className="py-3 px-4 text-center font-bold text-amber-800">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-slate-100">
               {studentsBreakdown.map((s: any) => (
-                <tr key={s.studentId} className="hover:bg-slate-800/40">
-                  <td className="py-2.5 px-4 font-semibold text-slate-200">{s.studentName}</td>
-                  <td className="py-2.5 px-4 text-slate-400">{s.className}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-500">100</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.activities || 0}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.challenges || 0}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.assessments || 0}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.missions || 0}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.dailyTips || 0}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">{s.sources?.grandeMissao || 0}</td>
-                  <td className="py-2.5 px-4 text-center font-mono font-bold text-amber-400">{s.totalXP || 0} XP</td>
+                <tr key={s.studentId} className="hover:bg-slate-50">
+                  <td className="py-2.5 px-4 font-semibold text-slate-900">{s.studentName}</td>
+                  <td className="py-2.5 px-4 text-slate-500">{s.className}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-400">100</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.activities || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.challenges || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.assessments || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.missions || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.dailyTips || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.grandeMissao || 0}</td>
+                  <td className="py-2.5 px-4 text-center font-mono font-bold text-amber-800">{s.totalXP || 0} XP</td>
                 </tr>
               ))}
             </tbody>
@@ -340,45 +340,45 @@ export const TeacherGrandeMissaoTab: React.FC<{ gmData: any }> = ({ gmData }) =>
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-amber-400 uppercase">Projeto Integrador Final</span>
-            <h3 className="text-xl font-bold text-white mt-1">{config.title}</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-2xl">{config.description}</p>
+            <span className="text-xs font-bold text-amber-800 uppercase">Projeto Integrador Final</span>
+            <h3 className="text-xl font-bold text-slate-900 mt-1">{config.title}</h3>
+            <p className="text-xs text-slate-600 mt-1 max-w-2xl">{config.description}</p>
           </div>
-          <span className="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs">
+          <span className="px-3 py-1.5 rounded-xl bg-amber-500 text-white font-black text-xs shadow-xs">
             +{config.totalXp} XP Total
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 pt-3 border-t border-slate-800 text-center">
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <div className="text-xs text-slate-400">Total Concluídos</div>
-            <div className="text-xl font-bold text-emerald-400 mt-1">{totalCompleted}</div>
+        <div className="grid grid-cols-3 gap-4 pt-3 border-t border-slate-100 text-center">
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="text-xs text-slate-500">Total Concluídos</div>
+            <div className="text-xl font-bold text-emerald-700 mt-1">{totalCompleted}</div>
           </div>
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <div className="text-xs text-slate-400">Em Progresso</div>
-            <div className="text-xl font-bold text-amber-400 mt-1">{totalInProgress}</div>
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="text-xs text-slate-500">Em Progresso</div>
+            <div className="text-xl font-bold text-amber-700 mt-1">{totalInProgress}</div>
           </div>
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <div className="text-xs text-slate-400">Não Iniciados</div>
-            <div className="text-xl font-bold text-slate-500 mt-1">{totalNotStarted}</div>
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="text-xs text-slate-500">Não Iniciados</div>
+            <div className="text-xl font-bold text-slate-400 mt-1">{totalNotStarted}</div>
           </div>
         </div>
       </div>
 
       {/* Stages list */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">As 5 Etapas do Projeto</h4>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">As 6 Zonas da Grande Missão</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {stages.map((st: any) => (
-            <div key={st.stage} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
-              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">
-                Etapa {st.stage}
+            <div key={st.stage} className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+                Zona {st.stage}
               </span>
-              <h5 className="font-bold text-white text-xs">{st.title}</h5>
-              <p className="text-[11px] text-slate-400 line-clamp-3">{st.description}</p>
+              <h5 className="font-bold text-slate-900 text-xs">{st.title}</h5>
+              <p className="text-[11px] text-slate-500 line-clamp-3">{st.description}</p>
             </div>
           ))}
         </div>
@@ -399,17 +399,17 @@ export const TeacherBadgesTab: React.FC<{ badgesData: any }> = ({ badgesData }) 
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {badgesCatalog.map((b: any) => (
-          <div key={b.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center">
+          <div key={b.id} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 flex items-center justify-center">
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-sm">{b.title}</h4>
-              <p className="text-xs text-slate-400 mt-1">{b.description}</p>
+              <h4 className="font-bold text-slate-900 text-sm">{b.title}</h4>
+              <p className="text-xs text-slate-500 mt-1">{b.description}</p>
             </div>
-            <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+            <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 flex justify-between items-center">
               <span>{b.unlockedCount || 0} alunos</span>
-              <span className="font-bold text-amber-400 font-mono">{b.percentage || 0}%</span>
+              <span className="font-bold text-amber-800 font-mono">{b.percentage || 0}%</span>
             </div>
           </div>
         ))}
@@ -425,41 +425,41 @@ export const TeacherAuditTab: React.FC<{ logs: any[] }> = ({ logs = [] }) => {
   const logList = Array.isArray(logs) ? logs : [];
   return (
     <div className="space-y-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-4 bg-slate-950 border-b border-slate-800">
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            <Shield className="w-4 h-4 text-amber-400" />
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+        <div className="p-4 bg-slate-50 border-b border-slate-200">
+          <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-amber-600" />
             Registo de Auditoria em Tempo Real (Cloud Firestore)
           </h4>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Histórico imutável de todas as ações administrativas, redefinições e avaliações.
           </p>
         </div>
 
-        <div className="divide-y divide-slate-800/80 max-h-[600px] overflow-y-auto">
+        <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
           {logList.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 text-xs">
+            <div className="p-8 text-center text-slate-400 text-xs">
               Nenhum registo de auditoria recente.
             </div>
           ) : (
             logList.map((log) => (
-              <div key={log.id} className="p-4 flex items-center justify-between text-xs hover:bg-slate-800/40 transition-colors">
+              <div key={log.id} className="p-4 flex items-center justify-between text-xs hover:bg-slate-50 transition-colors">
                 <div>
-                  <div className="font-bold text-slate-100 flex items-center gap-2">
+                  <div className="font-bold text-slate-900 flex items-center gap-2">
                     <span>{log.action}</span>
                     {log.targetUserName && (
-                      <span className="text-slate-400 font-normal">
+                      <span className="text-slate-500 font-normal">
                         em <strong>{log.targetUserName}</strong>
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                     Realizado por: {log.teacherName || 'Professora'} • {new Date(log.timestamp).toLocaleString('pt-PT')}
                   </div>
                 </div>
 
                 {log.details && (
-                  <div className="text-[11px] text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 max-w-xs truncate">
+                  <div className="text-[11px] text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 max-w-xs truncate">
                     {JSON.stringify(log.details)}
                   </div>
                 )}
@@ -486,6 +486,7 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
   const [confirmWord, setConfirmWord] = useState('');
 
   const classList = Array.isArray(classes) ? classes : [];
+  const selectedClassObj = classList.find((c) => c.id === selectedClassId);
 
   const handleDeleteClassStudents = async () => {
     if (!selectedClassId) return;
@@ -547,27 +548,27 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Alert banner */}
-      <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-5 flex items-start gap-4">
-        <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
+      <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 flex items-start gap-4">
+        <AlertTriangle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <h4 className="text-sm font-bold text-rose-300">Área de Manutenção e Transição de Ano Letivo</h4>
-          <p className="text-xs text-rose-200/80 leading-relaxed">
+          <h4 className="text-sm font-bold text-rose-800">Área de Manutenção e Transição de Ano Letivo</h4>
+          <p className="text-xs text-rose-700/90 leading-relaxed">
             As ações disponíveis nesta secção afetam turmas inteiras ou todos os alunos da plataforma. Utiliza estas ferramentas para fechar um ano letivo ou reiniciar turmas mantendo as contas de utilizador ativas.
           </p>
         </div>
       </div>
 
       {/* Class Level Actions */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-        <h4 className="text-sm font-bold text-white uppercase tracking-wider">Ações por Turma</h4>
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
+        <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Ações por Turma</h4>
 
         <div className="space-y-2">
-          <label className="text-xs text-slate-300 font-semibold">Selecionar Turma:</label>
+          <label className="text-xs text-slate-700 font-semibold">Selecionar Turma:</label>
           <select
             value={selectedClassId}
             onChange={(e) => setSelectedClassId(e.target.value)}
             aria-label="Selecionar turma para manutenção"
-            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-amber-500"
           >
             <option value="">-- Selecionar Turma --</option>
             {classList.map((c) => (
@@ -584,9 +585,9 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
               if (!selectedClassId) return alert('Seleciona uma turma.');
               setShowClassResetModal(true);
             }}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-2"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-2 transition-all shadow-xs"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 text-amber-600" />
             Reiniciar Progresso da Turma (Manter Contas)
           </button>
 
@@ -595,21 +596,21 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
               if (!selectedClassId) return alert('Seleciona uma turma.');
               setShowClassDeleteModal(true);
             }}
-            className="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-bold rounded-xl border border-rose-500/40 flex items-center gap-2"
+            className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2 transition-all shadow-xs"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4 text-rose-600" />
             Eliminar Todos os Alunos Desta Turma
           </button>
         </div>
       </div>
 
       {/* Global Academic Year Reset */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-        <h4 className="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-          <Sparkles className="w-4 h-4" />
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
+        <h4 className="text-sm font-bold text-amber-800 uppercase tracking-wider flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-600" />
           Preparar Plataforma para Novo Ano Letivo (Reset Global)
         </h4>
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-xs text-slate-600 leading-relaxed">
           Esta operação restaura o progresso pedagógico de <strong>todos os alunos</strong> de todas as turmas para 100 XP base e limpa tentativas, permitindo que os mesmos alunos comecem um novo ciclo escolar do 6.º ano.
         </p>
 
@@ -618,29 +619,91 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
             setConfirmWord('');
             setShowGlobalResetModal(true);
           }}
-          className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center gap-2"
+          className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-2"
         >
           <RotateCcw className="w-4 h-4" />
           Iniciar Reset Global de Ano Letivo
         </button>
       </div>
 
-      {/* Global Reset Modal */}
-      {showGlobalResetModal && (
-        <div className="fixed inset-0 z-60 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-rose-600/20 text-rose-400 flex items-center justify-center mx-auto">
+      {/* Modal: Confirm Class Reset */}
+      {showClassResetModal && (
+        <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
               <RotateCcw className="w-6 h-6" />
             </div>
             <div className="text-center space-y-1">
-              <h3 className="text-lg font-bold text-white">Confirmar Reset de Ano Letivo?</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="text-lg font-bold text-slate-900">Reiniciar Progresso da Turma?</h3>
+              <p className="text-xs text-slate-600">
+                Todas as tentativas e notas dos alunos da <strong>Turma {selectedClassObj?.name}</strong> serão repostas a 100 XP inicial. As contas de login serão mantidas.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setShowClassResetModal(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleResetClassProgress}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs"
+              >
+                Confirmar Reinicialização
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Confirm Class Delete */}
+      {showClassDeleteModal && (
+        <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-rose-200 rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-bold text-slate-900">Eliminar Alunos da Turma?</h3>
+              <p className="text-xs text-slate-600">
+                Todos os alunos inscritos na <strong>Turma {selectedClassObj?.name}</strong> serão eliminados permanentemente do sistema. Esta ação é irreversível.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setShowClassDeleteModal(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteClassStudents}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs"
+              >
+                Eliminar Definitivamente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Reset Modal */}
+      {showGlobalResetModal && (
+        <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-rose-200 rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <RotateCcw className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-bold text-slate-900">Confirmar Reset de Ano Letivo?</h3>
+              <p className="text-xs text-slate-600">
                 Todas as notas, avaliações, simuladores e missões de todos os alunos serão repostos a zero.
               </p>
             </div>
 
             <div className="space-y-1 pt-2">
-              <label className="text-[11px] font-bold text-rose-300 uppercase">
+              <label className="text-[11px] font-bold text-rose-700 uppercase">
                 Digita <span className="underline">NOVO ANO</span> para confirmar:
               </label>
               <input
@@ -648,21 +711,21 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
                 value={confirmWord}
                 onChange={(e) => setConfirmWord(e.target.value)}
                 placeholder="NOVO ANO"
-                className="w-full bg-slate-950 border border-rose-500/50 rounded-xl px-3 py-2 text-sm text-rose-200 text-center font-mono focus:outline-none"
+                className="w-full bg-slate-50 border border-rose-300 rounded-xl px-3 py-2 text-sm text-rose-900 text-center font-mono focus:outline-none focus:border-rose-500"
               />
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 onClick={() => setShowGlobalResetModal(false)}
-                className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleGlobalReset}
                 disabled={confirmWord !== 'NOVO ANO'}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white text-xs font-bold rounded-xl"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-bold rounded-xl shadow-xs"
               >
                 Executar Reset Global
               </button>

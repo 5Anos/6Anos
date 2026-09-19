@@ -18,6 +18,7 @@ interface CelebrationProps {
   xpWon: number;
   onBackToDashboard: () => void;
   onViewBadges?: () => void;
+  onViewMap?: () => void;
   studentName?: string;
 }
 
@@ -25,6 +26,7 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
   xpWon,
   onBackToDashboard,
   onViewBadges,
+  onViewMap,
   studentName = 'Aluno(a)',
 }) => {
   const pillars = [
@@ -142,6 +144,15 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
             <span>Voltar ao Painel Principal</span>
             <ArrowRight className="w-4 h-4" />
           </button>
+
+          {onViewMap && (
+            <button
+              onClick={onViewMap}
+              className="px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-950 font-black text-xs rounded-xl border border-amber-300 shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+            >
+              <span>Explorar Mapa de Setores e Códigos</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -54,3 +54,35 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 
   return response.json();
 }
+
+export async function downloadFile(url: string, defaultFilename: string) {
+  const token = getStoredToken();
+  const headers = new Headers();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  const response = await fetch(url, { headers, credentials: 'include' });
+  if (!response.ok) {
+    let msg = `Erro ${response.status}: ${response.statusText}`;
+    try {
+      const err = await response.json();
+      if (err.error) msg = err.error;
+    } catch {}
+    throw new Error(msg);
+  }
+  const blob = await response.blob();
+  const disposition = response.headers.get('content-disposition');
+  let filename = defaultFilename;
+  if (disposition && disposition.includes('filename=')) {
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    if (match?.[1]) filename = match[1];
+  }
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}

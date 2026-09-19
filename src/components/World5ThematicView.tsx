@@ -78,7 +78,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       id: 'c3',
       situation: 'Um aluno decide qual é a melhor maneira de explicar um assunto a um colega.',
       correct: 'humano',
-      explanation: 'Atividade puramente humana baseada em empatia, discernimento social e consciência.',
+      explanation: 'É uma atividade humana. Uma IA pode gerar uma resposta que pareça empática, mas isso não significa que tenha sentimentos ou experiências humanas.',
     },
     {
       id: 'c4',

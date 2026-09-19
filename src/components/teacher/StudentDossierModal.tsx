@@ -220,16 +220,16 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl relative">
+      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-xl relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-semibold text-slate-300">A carregar dossiê pedagógico do aluno...</p>
+          <p className="text-sm font-semibold text-slate-700">A carregar dossiê pedagógico do aluno...</p>
         </div>
       </div>
     );
@@ -237,29 +237,29 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
   if (loadError || !dossier) {
     return (
-      <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl relative">
+      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-xl relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="w-12 h-12 bg-rose-500/20 text-rose-400 rounded-2xl flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto border border-rose-200">
             <AlertTriangle className="w-6 h-6" />
           </div>
-          <h4 className="text-base font-bold text-white">Não foi possível aceder à ficha</h4>
-          <p className="text-xs text-slate-400">{loadError || 'Ocorreu um erro ao carregar os dados deste aluno.'}</p>
+          <h4 className="text-base font-bold text-slate-900">Não foi possível aceder à ficha</h4>
+          <p className="text-xs text-slate-500">{loadError || 'Ocorreu um erro ao carregar os dados deste aluno.'}</p>
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-all"
+              className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-all"
             >
               Fechar
             </button>
             <button
               onClick={loadDossier}
-              className="flex-1 py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition-all"
+              className="flex-1 py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition-all shadow-xs"
             >
               Tentar Novamente
             </button>
@@ -279,30 +279,30 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
   } = dossier || {};
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-xl overflow-hidden my-auto animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="bg-slate-950/90 border-b border-slate-800 p-6 flex flex-wrap items-center justify-between gap-4 shrink-0">
+        <div className="bg-slate-50 border-b border-slate-200 p-6 flex flex-wrap items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shrink-0 border border-slate-700 bg-slate-800 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-xs shrink-0 border border-slate-200 bg-white flex items-center justify-center">
               <AvatarRenderer avatar={student.avatar} size={56} />
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-xl font-bold text-white">{student.name}</h2>
+                <h2 className="text-xl font-bold text-slate-900">{student.name}</h2>
                 {student.blocked ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                     <Lock className="w-3.5 h-3.5" />
                     Conta Bloqueada
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <Unlock className="w-3.5 h-3.5" />
                     Conta Ativa
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
                 @{student.nickname} • {student.email} • Turma {student.className}
               </p>
             </div>
@@ -311,7 +311,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 transition-colors"
+              className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 border border-slate-200 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -323,14 +323,14 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
           <div
             className={`px-6 py-3 border-b text-xs font-semibold flex items-center justify-between ${
               actionMessage.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : 'bg-rose-50 border-rose-200 text-rose-800'
             }`}
           >
             <span>{actionMessage.text}</span>
             <button
               onClick={() => setActionMessage(null)}
-              className="text-slate-400 hover:text-white ml-4 text-xs font-bold"
+              className="text-slate-400 hover:text-slate-700 ml-4 text-xs font-bold"
             >
               Fechar
             </button>
@@ -338,7 +338,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
         )}
 
         {/* Tab Navigation */}
-        <div className="bg-slate-900/50 border-b border-slate-800 px-6 flex overflow-x-auto gap-2 shrink-0">
+        <div className="bg-white border-b border-slate-200 px-6 flex overflow-x-auto gap-2 shrink-0">
           {[
             { id: 'overview', label: 'Boletim Pedagógico', icon: BookOpen },
             { id: 'worlds', label: 'Detalhe dos 5 Mundos', icon: Compass },
@@ -354,8 +354,8 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`py-3 px-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'border-amber-500 text-amber-400 bg-amber-500/5'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-amber-500 text-amber-800 bg-amber-50/50'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -366,58 +366,58 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-slate-50/40">
           {/* TAB 1: OVERVIEW / BOLETIM PEDAGÓGICO */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {/* Top Stats Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-                  <div className="text-xs text-slate-400 font-semibold">XP Acumulado</div>
-                  <div className="text-2xl font-black text-amber-400 font-mono mt-1">
-                    {student.xp} <span className="text-xs text-slate-500 font-normal">XP</span>
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                  <div className="text-xs text-slate-500 font-semibold">XP Acumulado</div>
+                  <div className="text-2xl font-black text-amber-800 font-mono mt-1">
+                    {student.xp} <span className="text-xs text-slate-400 font-normal">XP</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-                  <div className="text-xs text-slate-400 font-semibold">Nível Atual</div>
-                  <div className="text-xl font-black text-slate-100 mt-1">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                  <div className="text-xs text-slate-500 font-semibold">Nível Atual</div>
+                  <div className="text-xl font-black text-slate-900 mt-1">
                     Nível {student.level}
                   </div>
-                  <div className="text-[11px] text-amber-400/80 font-medium">
+                  <div className="text-[11px] text-amber-700 font-medium">
                     {student.levelName}
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-                  <div className="text-xs text-slate-400 font-semibold">Registo na Plataforma</div>
-                  <div className="text-sm font-bold text-slate-200 mt-1">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                  <div className="text-xs text-slate-500 font-semibold">Registo na Plataforma</div>
+                  <div className="text-sm font-bold text-slate-900 mt-1">
                     {new Date(student.createdAt).toLocaleDateString('pt-PT')}
                   </div>
-                  <div className="text-[11px] text-slate-500">
+                  <div className="text-[11px] text-slate-400">
                     {student.lastLoginAt ? `Último login: ${new Date(student.lastLoginAt).toLocaleDateString('pt-PT')}` : 'Sem login recente'}
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-                  <div className="text-xs text-slate-400 font-semibold">Grande Missão</div>
-                  <div className="text-sm font-bold text-slate-200 mt-1">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                  <div className="text-xs text-slate-500 font-semibold">Grande Missão</div>
+                  <div className="text-sm font-bold text-slate-900 mt-1">
                     {grandeMissao.status === 'completed'
                       ? 'Concluída'
                       : grandeMissao.status === 'in_progress'
-                      ? `Etapa ${grandeMissao.currentStage} / 5`
+                      ? `Zona ${grandeMissao.currentStage} / 6`
                       : 'Não Iniciada'}
                   </div>
-                  <div className="text-[11px] text-amber-400 font-semibold">
-                    {grandeMissao.completedStages?.length || 0} de 5 etapas
+                  <div className="text-[11px] text-amber-800 font-semibold">
+                    {grandeMissao.completedStages?.length || 0} de 6 zonas
                   </div>
                 </div>
               </div>
 
               {/* Worlds Summary Cards */}
               <div className="space-y-3">
-                <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-amber-600" />
                   Progresso e Médias por Mundo
                 </h3>
 
@@ -429,41 +429,41 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                     return (
                       <div
                         key={w.worldId}
-                        className={`rounded-2xl border p-4 transition-all ${
+                        className={`rounded-2xl border p-4 transition-all shadow-xs ${
                           isUnlocked
-                            ? 'bg-slate-950 border-slate-800 hover:border-slate-700'
-                            : 'bg-slate-950/40 border-slate-900 opacity-60'
+                            ? 'bg-white border-slate-200 hover:border-slate-300'
+                            : 'bg-slate-50 border-slate-200 opacity-60'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="text-xs font-black text-amber-400">
+                          <span className="text-xs font-black text-amber-800">
                             MUNDO {w.worldId}
                           </span>
                           {isUnlocked ? (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                               Aberto
                             </span>
                           ) : (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-500 border border-slate-700">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
                               Bloqueado
                             </span>
                           )}
                         </div>
 
-                        <div className="text-xs font-bold text-slate-200 line-clamp-1 mb-2">
+                        <div className="text-xs font-bold text-slate-900 line-clamp-1 mb-2">
                           {w.title}
                         </div>
 
-                        <div className="space-y-2 pt-2 border-t border-slate-900 text-[11px]">
+                        <div className="space-y-2 pt-2 border-t border-slate-100 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-400">Média:</span>
+                            <span className="text-slate-500">Média:</span>
                             <span
                               className={`font-mono font-bold ${
                                 isPassed
-                                  ? 'text-emerald-400'
+                                  ? 'text-emerald-700'
                                   : w.average > 0
-                                  ? 'text-rose-400'
-                                  : 'text-slate-500'
+                                  ? 'text-rose-700'
+                                  : 'text-slate-400'
                               }`}
                             >
                               {w.average > 0 ? `${w.average}%` : '—'}
@@ -471,21 +471,21 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                           </div>
 
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-400">Atividades:</span>
-                            <span className="font-semibold text-slate-300">
+                            <span className="text-slate-500">Atividades:</span>
+                            <span className="font-semibold text-slate-700">
                               {w.completedCount} / {w.totalComponents}
                             </span>
                           </div>
 
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-400">Missão Real:</span>
+                            <span className="text-slate-500">Missão Real:</span>
                             <span
                               className={`font-semibold ${
                                 w.mission
                                   ? w.mission.status === 'graded'
-                                    ? 'text-emerald-400'
-                                    : 'text-amber-400'
-                                  : 'text-slate-500'
+                                    ? 'text-emerald-700'
+                                    : 'text-amber-800'
+                                  : 'text-slate-400'
                               }`}
                             >
                               {w.mission
@@ -500,8 +500,8 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                             <span
                               className={`block text-center text-[10px] font-bold px-2 py-1 rounded-lg border ${
                                 isPassed
-                                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                                  : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
                               }`}
                             >
                               {w.average > 80
@@ -524,17 +524,17 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
               {worldDetails.map((w: any) => (
                 <div
                   key={w.worldId}
-                  className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4"
+                  className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-xs"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-900 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-400 font-black text-xs">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 font-black text-xs">
                           Mundo {w.worldId}
                         </span>
-                        <h4 className="text-base font-bold text-white">{w.title}</h4>
+                        <h4 className="text-base font-bold text-slate-900">{w.title}</h4>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5">{w.subtitle}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{w.subtitle}</p>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -542,7 +542,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                         <div className="text-[10px] text-slate-400 uppercase font-semibold">Média do Mundo</div>
                         <div
                           className={`text-lg font-black font-mono ${
-                            w.average > 80 ? 'text-emerald-400' : 'text-rose-400'
+                            w.average > 80 ? 'text-emerald-700' : 'text-rose-700'
                           }`}
                         >
                           {w.average > 0 ? `${w.average}%` : '0%'}
@@ -555,26 +555,26 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Simulators */}
                     <div className="space-y-2">
-                      <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                         Simuladores & Atividades
                       </div>
                       <div className="space-y-1.5">
                         {w.simulators.map((sim: any) => (
                           <div
                             key={sim.id}
-                            className="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between text-xs"
+                            className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs"
                           >
                             <div>
-                              <div className="font-semibold text-slate-200">{sim.title}</div>
-                              <div className="text-[11px] text-slate-400">
+                              <div className="font-semibold text-slate-900">{sim.title}</div>
+                              <div className="text-[11px] text-slate-500">
                                 {sim.attempts} {sim.attempts === 1 ? 'tentativa' : 'tentativas'}
                               </div>
                             </div>
                             <span
                               className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
                                 sim.completed
-                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-slate-800 text-slate-500'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-slate-100 text-slate-400 border border-slate-200'
                               }`}
                             >
                               {sim.completed ? `${sim.bestScore}%` : 'Não concluído'}
@@ -586,23 +586,23 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
                     {/* Assessments */}
                     <div className="space-y-2">
-                      <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                         Avaliação Final do Mundo
                       </div>
 
                       {/* Final Assessment */}
-                      <div className="bg-slate-900 border border-slate-800/80 rounded-xl p-3 text-xs space-y-2">
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-2">
                         <div className="flex items-center justify-between">
-                          <div className="font-semibold text-slate-200">
+                          <div className="font-semibold text-slate-900">
                             Avaliação Final do Mundo {w.worldId} (8 Questões)
                           </div>
                           <span
                             className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
                               w.assessments.length > 0 && w.assessments[0].percentage > 80
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 : w.assessments.length > 0
-                                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                                : 'bg-slate-800 text-slate-500'
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : 'bg-slate-100 text-slate-400 border border-slate-200'
                             }`}
                           >
                             {w.assessments.length > 0
@@ -611,7 +611,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                           </span>
                         </div>
                         {w.assessments.length > 0 && (
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-[11px] text-slate-500">
                             {w.assessments.length} tentativas efetuadas • Última em{' '}
                             {new Date(w.assessments[0].createdAt).toLocaleString('pt-PT')}
                           </div>
@@ -629,67 +629,67 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
             <div className="space-y-6">
               {/* Breakdown Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">XP Inicial</div>
-                  <div className="text-lg font-bold text-slate-200 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">XP Inicial</div>
+                  <div className="text-lg font-bold text-slate-900 font-mono">
                     {xpBreakdown.initial} XP
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">Atividades & Simuladores</div>
-                  <div className="text-lg font-bold text-amber-400 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Atividades & Simuladores</div>
+                  <div className="text-lg font-bold text-amber-800 font-mono">
                     {xpBreakdown.activities} XP
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">Desafios</div>
-                  <div className="text-lg font-bold text-amber-400 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Desafios</div>
+                  <div className="text-lg font-bold text-amber-800 font-mono">
                     {xpBreakdown.challenges} XP
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">Avaliações Finais</div>
-                  <div className="text-lg font-bold text-amber-400 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Avaliações Finais</div>
+                  <div className="text-lg font-bold text-amber-800 font-mono">
                     {xpBreakdown.assessments} XP
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">Missões Reais</div>
-                  <div className="text-lg font-bold text-amber-400 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Missões Reais</div>
+                  <div className="text-lg font-bold text-amber-800 font-mono">
                     {xpBreakdown.missions} XP
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">Dica Rápida Diária</div>
-                  <div className="text-lg font-bold text-amber-400 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Dica Rápida Diária</div>
+                  <div className="text-lg font-bold text-amber-800 font-mono">
                     {xpBreakdown.dailyTips} XP
                   </div>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                  <div className="text-[11px] text-slate-400">Grande Missão</div>
-                  <div className="text-lg font-bold text-amber-400 font-mono">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Grande Missão</div>
+                  <div className="text-lg font-bold text-amber-800 font-mono">
                     {xpBreakdown.grandeMissao} XP
                   </div>
                 </div>
 
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
-                  <div className="text-[11px] text-amber-300 font-semibold">Total Geral</div>
-                  <div className="text-lg font-black text-amber-400 font-mono">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-amber-800 font-semibold">Total Geral</div>
+                  <div className="text-lg font-black text-amber-800 font-mono">
                     {student.xp} XP
                   </div>
                 </div>
               </div>
 
               {/* Transaction Logs */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3">
-                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                  <History className="w-4 h-4 text-amber-400" />
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-xs">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <History className="w-4 h-4 text-amber-600" />
                   Histórico de Transações de XP
                 </h4>
 
@@ -702,17 +702,17 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                     {xpHistory.map((tx: any) => (
                       <div
                         key={tx.id}
-                        className="bg-slate-900 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between text-xs"
+                        className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs"
                       >
                         <div>
-                          <div className="font-semibold text-slate-200">
-                            Origem: <span className="text-amber-400 capitalize">{tx.sourceType.replace('_', ' ')}</span>
+                          <div className="font-semibold text-slate-900">
+                            Origem: <span className="text-amber-800 capitalize">{tx.sourceType.replace('_', ' ')}</span>
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-slate-400">
                             {new Date(tx.createdAt).toLocaleString('pt-PT')}
                           </div>
                         </div>
-                        <span className="font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                        <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
                           +{tx.xpGain} XP
                         </span>
                       </div>
@@ -726,13 +726,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
           {/* TAB 4: BADGES */}
           {activeTab === 'badges' && (
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <Award className="w-4 h-4 text-amber-400" />
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <Award className="w-4 h-4 text-amber-600" />
                 Emblemas Conquistados ({badges.length})
               </h4>
 
               {badges.length === 0 ? (
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-8 text-center text-slate-500">
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-400">
                   <Award className="w-10 h-10 mx-auto mb-2 opacity-30" />
                   <p className="text-xs">Este aluno ainda não desbloqueou nenhum emblema.</p>
                 </div>
@@ -741,15 +741,15 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   {badges.map((b: any) => (
                     <div
                       key={b.id}
-                      className="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3 shadow-md"
+                      className="bg-white border border-slate-200 rounded-2xl p-4 flex items-start gap-3 shadow-xs"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 flex items-center justify-center shrink-0">
                         <Award className="w-5 h-5" />
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-slate-100">{b.name}</div>
-                        <div className="text-xs text-slate-400 mt-0.5">{b.description}</div>
-                        <div className="text-[10px] text-amber-400/80 font-mono mt-2">
+                        <div className="text-sm font-bold text-slate-900">{b.name}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">{b.description}</div>
+                        <div className="text-[10px] text-amber-800 font-mono mt-2">
                           {new Date(b.awardedAt).toLocaleDateString('pt-PT')}
                         </div>
                       </div>
@@ -766,29 +766,29 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
               {/* Edit Details */}
               <form
                 onSubmit={handleSaveStudentData}
-                className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4"
+                className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-xs"
               >
-                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                   Alterar Dados do Aluno
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-400 font-semibold">Nickname:</label>
+                    <label className="text-xs text-slate-700 font-semibold">Nickname:</label>
                     <input
                       type="text"
                       value={editNickname}
                       onChange={(e) => setEditNickname(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-400 font-semibold">Turma:</label>
+                    <label className="text-xs text-slate-700 font-semibold">Turma:</label>
                     <select
                       value={editClassId}
                       onChange={(e) => setEditClassId(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
                     >
                       <option value="">Sem Turma</option>
                       {classes.map((c) => (
@@ -804,7 +804,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   <button
                     type="submit"
                     disabled={savingEdit}
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-2"
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-xs"
                   >
                     <Save className="w-3.5 h-3.5" />
                     {savingEdit ? 'A guardar...' : 'Guardar Alterações'}
@@ -815,21 +815,21 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
               {/* Reset Password */}
               <form
                 onSubmit={handleResetPassword}
-                className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4"
+                className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-xs"
               >
-                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                  <Key className="w-4 h-4 text-amber-400" />
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <Key className="w-4 h-4 text-amber-600" />
                   Redefinir Palavra-passe
                 </h4>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-slate-400 font-semibold">Nova Palavra-passe:</label>
+                  <label className="text-xs text-slate-700 font-semibold">Nova Palavra-passe:</label>
                   <input
                     type="text"
                     placeholder="Mínimo 6 caracteres..."
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
                   />
                 </div>
 
@@ -841,7 +841,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                     onChange={(e) => setRequireChange(e.target.checked)}
                     className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500"
                   />
-                  <label htmlFor="requireChangeCheckbox" className="text-xs text-slate-300 font-medium">
+                  <label htmlFor="requireChangeCheckbox" className="text-xs text-slate-700 font-medium">
                     Obrigar o aluno a alterar a palavra-passe no próximo início de sessão
                   </label>
                 </div>
@@ -850,7 +850,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   <button
                     type="submit"
                     disabled={resettingPwd}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs rounded-xl border border-slate-700"
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-xs"
                   >
                     {resettingPwd ? 'A atualizar...' : 'Atualizar Palavra-passe'}
                   </button>
@@ -858,8 +858,8 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
               </form>
 
               {/* Dangerous / Administrative Actions */}
-              <div className="bg-slate-950 border border-rose-500/20 rounded-2xl p-5 space-y-4">
-                <h4 className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+              <div className="bg-rose-50/50 border border-rose-200 rounded-2xl p-5 space-y-4">
+                <h4 className="text-xs font-bold text-rose-800 uppercase tracking-wider flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   Ações Administrativas Especiais
                 </h4>
@@ -868,10 +868,10 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   <button
                     type="button"
                     onClick={handleToggleBlock}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-colors ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-colors shadow-xs ${
                       student.blocked
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                        : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
                     {student.blocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
@@ -881,7 +881,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowResetConfirm(true)}
-                    className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl flex items-center gap-2"
+                    className="px-4 py-2 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl flex items-center gap-2 shadow-xs"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Reiniciar Progresso Pedagógico
@@ -890,7 +890,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg ml-auto"
+                    className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-xs ml-auto"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Eliminar Aluno
@@ -903,27 +903,27 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
         {/* Modal: Confirm Reset Progress */}
         {showResetConfirm && (
-          <div className="fixed inset-0 z-60 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-rose-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+          <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-200">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
                 <RotateCcw className="w-6 h-6" />
               </div>
               <div className="text-center space-y-1">
-                <h3 className="text-lg font-bold text-white">Reiniciar Progresso do Aluno?</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-lg font-bold text-slate-900">Reiniciar Progresso do Aluno?</h3>
+                <p className="text-xs text-slate-600">
                   Esta ação irá apagar todas as tentativas, notas de simuladores, avaliações finais e missões do aluno <strong>{student.name}</strong>, restaurando o XP base inicial para 100 XP.
                 </p>
               </div>
               <div className="flex items-center justify-end gap-3 pt-3">
                 <button
                   onClick={() => setShowResetConfirm(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleResetProgress}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs"
                 >
                   Confirmar Reinicialização
                 </button>
@@ -934,20 +934,20 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
         {/* Modal: Confirm Delete Student */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 z-60 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-rose-600/20 text-rose-400 flex items-center justify-center mx-auto">
+          <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white border border-rose-200 rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-200">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div className="text-center space-y-1">
-                <h3 className="text-lg font-bold text-white">Eliminar Conta Definitivamente?</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-lg font-bold text-slate-900">Eliminar Conta Definitivamente?</h3>
+                <p className="text-xs text-slate-600">
                   A conta do aluno <strong>{student.name}</strong> e todos os registos na nuvem serão eliminados permanentemente. Esta ação é irreversível.
                 </p>
               </div>
 
               <div className="space-y-1 pt-2">
-                <label className="text-[11px] font-bold text-rose-300 uppercase">
+                <label className="text-[11px] font-bold text-rose-700 uppercase">
                   Digita <span className="underline">ELIMINAR</span> para confirmar:
                 </label>
                 <input
@@ -955,21 +955,21 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder="ELIMINAR"
-                  className="w-full bg-slate-950 border border-rose-500/50 rounded-xl px-3 py-2 text-sm text-rose-200 focus:outline-none font-mono text-center"
+                  className="w-full bg-slate-50 border border-rose-300 rounded-xl px-3 py-2 text-sm text-rose-900 focus:outline-none font-mono text-center"
                 />
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleDeleteStudent}
                   disabled={deleteConfirmText !== 'ELIMINAR'}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white text-xs font-bold rounded-xl"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-bold rounded-xl shadow-xs"
                 >
                   Eliminar Definitivamente
                 </button>

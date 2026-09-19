@@ -22,11 +22,11 @@ export const TOPIC_VISUALS_DATA: Record<string, TopicVisualData> = {
   'w1-t1': {
     topicId: 'w1-t1',
     worldId: 1,
-    title: 'Cadeado Digital & Senhas Robustas',
+    title: 'Cadeado Digital & Palavras-Passe Robustas',
     badge: 'Segurança de Acessos',
     imageUrl: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'Cadeado digital de segurança e chaves de encriptação num ecrã de computador',
-    caption: 'Uma senha forte funciona como uma fechadura blindada que protege as tuas contas de jogos, escola e redes sociais.',
+    caption: 'Uma palavra-passe forte funciona como uma fechadura blindada que protege as tuas contas de jogos, escola e redes sociais.',
     visualHighlights: [
       {
         iconName: 'Key',
@@ -41,10 +41,10 @@ export const TOPIC_VISUALS_DATA: Record<string, TopicVisualData> = {
       {
         iconName: 'Lock',
         label: 'Segredo Absoluto',
-        description: 'Não partilhes senhas com amigos; apenas com os teus pais ou encarregados de educação.',
+        description: 'Não partilhes palavras-passe com amigos; apenas com os teus pais ou encarregados de educação.',
       },
     ],
-    proTip: 'Dica do Guardião: Imagina uma frase divertida (ex: "O_Meu_G@to_Comeu_7_Biscoitos!") para criar senhas fáceis de lembrar e impossíveis de adivinhar!',
+    proTip: 'Dica do Guardião: Imagina uma frase divertida (ex: "O_Meu_G@to_Comeu_7_Biscoitos!") para criar palavras-passe fáceis de lembrar e impossíveis de adivinhar!',
     colorTheme: 'blue',
   },
 
@@ -637,6 +637,35 @@ export const TOPIC_VISUALS_DATA: Record<string, TopicVisualData> = {
     colorTheme: 'amber',
   },
 
+  'w4-t6': {
+    topicId: 'w4-t6',
+    worldId: 4,
+    title: 'A Arte do Debugging: Detetar, Analisar e Corrigir',
+    badge: 'Depuração e Testes',
+    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+    imageAlt: 'Linhas de código informático com destaques de depuração e análise de erros lógicos',
+    caption: 'Em engenharia de software, ler o código com espírito crítico e testar cada hipótese é o segredo para construir programas fiáveis.',
+    visualHighlights: [
+      {
+        iconName: 'Bug',
+        label: 'Detetar a Anomalia',
+        description: 'Observa exatamente o ponto onde o comportamento do programa diverge do resultado pretendido.',
+      },
+      {
+        iconName: 'Search',
+        label: 'Isolar a Causa',
+        description: 'Verifica as instruções anteriores e posteriores para identificar o passo que gerou o erro.',
+      },
+      {
+        iconName: 'CheckCircle2',
+        label: 'Testar a Correção',
+        description: 'Aplica a alteração e corre o programa com múltiplos cenários para assegurar total estabilidade.',
+      },
+    ],
+    proTip: 'Dica de Engenheiro: O teste de secretária — ler o programa em voz alta passo a passo como se fosses o robô — revela 90% dos erros lógicos!',
+    colorTheme: 'amber',
+  },
+
   // =======================================================================
   // MUNDO 5: EXPLORADOR DA IA (IA, Prompts e Responsabilidade)
   // =======================================================================
@@ -772,8 +801,8 @@ export const TOPIC_VISUALS_DATA: Record<string, TopicVisualData> = {
       },
       {
         iconName: 'Lock',
-        label: 'Segredos e Senhas',
-        description: 'Nunca insiras senhas, moradas de casa, números de cartão ou fotografias pessoais em assistentes de IA.',
+        label: 'Segredos e Palavras-passe',
+        description: 'Nunca insiras palavras-passe, moradas de casa, números de cartão ou fotografias pessoais em assistentes de IA.',
       },
       {
         iconName: 'Settings',

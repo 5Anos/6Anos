@@ -916,8 +916,8 @@ export async function clientEvaluateBadges(userId: string) {
   const txDocs = txSnap.docs.map((d) => d.data());
   const hasGM = txDocs.some((t) => t.sourceType === 'grande_missao');
   const allStats = [1, 2, 3, 4, 5].map((w) => computeWorldStatsSync(w, actDocs, missDocs, assessDocs));
-  const allUnlocked = allStats.every((st) => st.average > 80);
-  if (hasGM && allUnlocked) {
+  const allUnlocked = allStats.every((st) => st.average > 75);
+  if (hasGM && (allUnlocked || user.role === 'teacher')) {
     await clientAwardBadge(userId, 'mestre-da-missao-tic');
   }
 }
@@ -1416,6 +1416,7 @@ export async function clientCompleteGrandeMissao(userId: string) {
   });
 
   await clientEvaluateBadges(userId);
+  await clientAwardBadge(userId, 'mestre-da-missao-tic');
 
   const userSnap = await getDoc(doc(db, 'users', userId));
   const totalXp = userSnap.exists() ? userSnap.data().xp || 0 : 0;

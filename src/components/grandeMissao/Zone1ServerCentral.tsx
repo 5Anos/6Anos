@@ -160,7 +160,7 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
             </div>
             <div>
               <strong className="text-emerald-300 block mb-0.5">Dica de Ciberdefesa:</strong>
-              Lembra-te de inspecionar o remetente oficial, a ausência de HTTPS no link e o tom de ameaça rápida. A melhor reação nunca envolve clicar nem partilhar senhas.
+              Lembra-te de inspecionar o remetente oficial, a ausência de HTTPS no link e o tom de ameaça rápida. A melhor reação nunca envolve clicar nem partilhar palavras-passe.
             </div>
           </div>
         )}
@@ -196,7 +196,7 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
               </div>
               <div className="text-slate-500 text-[11px]">
                 <span>Assunto:</span>{' '}
-                <strong className="text-slate-800">URGENTE: Confirmação de Senha da Escola</strong>
+                <strong className="text-slate-800">URGENTE: Confirmação de Palavra-passe da Escola</strong>
               </div>
 
               <div className="text-slate-700 space-y-2 pt-2 leading-relaxed">

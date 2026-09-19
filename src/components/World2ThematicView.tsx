@@ -159,47 +159,96 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   ];
 
   // -------------------------------------------------------------
-  // 4. SOURCE COMPARE SIMULATOR STATE
+  // 4. SOURCE COMPARE SIMULATOR STATE (Comparação real entre Fonte A e Fonte B)
   // -------------------------------------------------------------
-  const [selectedCompareOption, setSelectedCompareOption] = useState<string | null>(null);
-  const [compareFeedback, setCompareFeedback] = useState<{
-    score: number;
-    title: string;
-    description: string;
-  } | null>(null);
+  const [sourceCompareAnswers, setSourceCompareAnswers] = useState<Record<string, string>>({});
+  const [compareSubmitted, setCompareSubmitted] = useState(false);
+  const [compareScore, setCompareScore] = useState<number | null>(null);
 
-  const compareOptions = [
+  const sourceA = {
+    title: 'Estudo-Piloto com Robôs Educativos em Salas de Aula',
+    origin: 'Portal de Divulgação Científica "Ciência Hoje Digital"',
+    author: 'Dr. Alexandre Pires (Investigador em Tecnologia Educativa)',
+    date: '12 de Outubro de 2024',
+    content: 'Uma experiência de 3 meses com robôs de apoio ao estudo em duas escolas-piloto de Coimbra revelou um aumento de 20% no foco dos alunos. O equipamento custou 1.500 € por sala, financiado por uma bolsa universitária, e o relatório preliminar foi publicado no repositório institucional.',
+    evidence: 'Relatório metodológico disponível em repositório aberto, amostra identificada de 120 alunos, parecer do conselho pedagógico.',
+  };
+
+  const sourceB = {
+    title: 'BOMBA: Robôs Vão Substituir Todos os Professores no Próximo Mês!',
+    origin: 'Página de Rede Social / Blogue "SuperNovidadesTIC"',
+    author: 'Anónimo ("Redação GeekMaster2000")',
+    date: '19 de Outubro de 2024 (uma semana após a Fonte A)',
+    content: 'Revolução total! Todas as escolas de Portugal vão receber robôs autónomos já no próximo mês. O equipamento custa apenas 20 euros e garante 100% de notas máximas a todos os alunos sem necessidade de estudar!',
+    evidence: 'Sem ligação para estudos, sem nomes de escolas, sem dados orçamentais, apenas uma imagem ilustrativa gerada por IA com título em maiúsculas.',
+  };
+
+  const compareQuestions = [
     {
-      id: 'opt-a',
-      label: 'A',
-      text: 'Fonte A + Fonte C, porque duas páginas dizem a mesma coisa.',
-      score: 40,
-      isCorrect: false,
-      feedback: 'Atenção: A Fonte C apenas copia a Fonte A. Duas páginas que dizem o mesmo porque uma copiou a outra não constituem uma confirmação independente.',
+      id: 'cmp-1',
+      facet: '1. Quem publicou e origem da publicação',
+      question: 'Ao comparar a origem das duas fontes, o que verificas?',
+      options: [
+        { id: 'a', text: 'A Fonte A tem origem institucional transparente com conselho editorial; a Fonte B é uma página pessoal anónima sem revisão.', isCorrect: true },
+        { id: 'b', text: 'Ambas são exatamente iguais porque estão disponíveis na Internet.', isCorrect: false },
+        { id: 'c', text: 'A Fonte B é melhor porque tem um nome mais divertido e moderno.', isCorrect: false },
+      ],
+      explanation: 'A origem institucional com conselho editorial (Fonte A) oferece muito maior transparência do que um blogue anónimo.',
     },
     {
-      id: 'opt-b',
-      label: 'B',
-      text: 'Fonte A + Fonte B, porque têm origens diferentes e podem ser comparadas.',
-      score: 100,
-      isCorrect: true,
-      feedback: 'Correto! Comparar fontes é mais útil quando conseguimos analisar informação proveniente de origens diferentes. Duas páginas que simplesmente copiam a mesma fonte não constituem uma confirmação independente.',
+      id: 'cmp-2',
+      facet: '2. Identificação e credenciais do autor',
+      question: 'Ao analisar a autoria das duas publicações, que diferença notas?',
+      options: [
+        { id: 'a', text: 'Nenhuma fonte tem autor identificado.', isCorrect: false },
+        { id: 'b', text: 'A Fonte A identifica um investigador com nome e especialidade; a Fonte B usa um pseudónimo anónimo sem responsabilidade.', isCorrect: true },
+        { id: 'c', text: 'O pseudónimo da Fonte B garante que é um especialista secreto de inteligência artificial.', isCorrect: false },
+      ],
+      explanation: 'Saber quem assina o texto permite verificar se a pessoa tem experiência no tema e assume responsabilidade pelo que publica.',
     },
     {
-      id: 'opt-c',
-      label: 'C',
-      text: 'Fonte B + Fonte C, porque são páginas diferentes.',
-      score: 50,
-      isCorrect: false,
-      feedback: 'Embora sejam páginas diferentes, a Fonte A é a fonte original e a mais documentada. A melhor comparação cruza fontes primárias e independentes.',
+      id: 'cmp-3',
+      facet: '3. Data de publicação e cronologia',
+      question: 'Observando as datas (12 de Outubro vs 19 de Outubro), o que aconteceu?',
+      options: [
+        { id: 'a', text: 'A Fonte A é a publicação original; a Fonte B surgiu uma semana depois distorcendo e exagerando os factos.', isCorrect: true },
+        { id: 'b', text: 'A Fonte B foi escrita primeiro e a Fonte A copiou-a.', isCorrect: false },
+        { id: 'c', text: 'A data não tem qualquer relevância na credibilidade da informação.', isCorrect: false },
+      ],
+      explanation: 'Verificar a cronologia ajuda a perceber quem produziu a informação original e quem a republicou com alterações sensacionalistas.',
     },
     {
-      id: 'opt-d',
-      label: 'D',
-      text: 'Apenas Fonte C, porque é a página mais recente.',
-      score: 30,
-      isCorrect: false,
-      feedback: 'Apenas uma fonte não permite comparar nada, e ser mais recente não significa que seja a mais fidedigna.',
+      id: 'cmp-4',
+      facet: '4. Evidências apresentadas',
+      question: 'Que evidências são fornecidas para apoiar as afirmações?',
+      options: [
+        { id: 'a', text: 'A Fonte B apresenta provas mais fortes porque garante 100% de sucesso.', isCorrect: false },
+        { id: 'b', text: 'A Fonte A apresenta dados de um estudo de 3 meses com 120 alunos e relatório aberto; a Fonte B não apresenta provas.', isCorrect: true },
+        { id: 'c', text: 'Nenhuma das duas precisa de apresentar evidências para acreditarmos nelas.', isCorrect: false },
+      ],
+      explanation: 'Afirmações sem provas, relatórios ou dados metodológicos verificáveis não têm validade científica ou jornalística.',
+    },
+    {
+      id: 'cmp-5',
+      facet: '5. Confronto de informação: coincidências e contradições',
+      question: 'Ao comparar o conteúdo das duas fontes sobre o mesmo acontecimento:',
+      options: [
+        { id: 'a', text: 'Dizem exatamente a mesma coisa sem qualquer diferença.', isCorrect: false },
+        { id: 'b', text: 'Abordam o mesmo tema geral (robôs na escola), mas a Fonte B inventa prazos imediatos, custos falsos (20€ vs 1.500€) e promessas irrealistas.', isCorrect: true },
+        { id: 'c', text: 'A Fonte A mente sobre o custo porque 20 euros é muito mais barato.', isCorrect: false },
+      ],
+      explanation: 'A desinformação muitas vezes parte de um facto real e deforma os números, os custos e o alcance para gerar cliques fáceis.',
+    },
+    {
+      id: 'cmp-6',
+      facet: '6. Informação a confirmar com urgência antes de partilhar',
+      question: 'Qual destas afirmações precisas de confirmar com urgência antes de partilhar com os teus colegas?',
+      options: [
+        { id: 'a', text: 'Que existem escolas em Coimbra.', isCorrect: false },
+        { id: 'b', text: 'A afirmação sensacionalista da Fonte B de que os robôs vão substituir todos os professores já no próximo mês por 20 €.', isCorrect: true },
+        { id: 'c', text: 'Que um projeto de investigação durou 3 meses.', isCorrect: false },
+      ],
+      explanation: 'Afirmações alarmistas, promessas milagrosas e prazos imediatos devem ser sempre travadas e confirmadas em fontes oficiais.',
     },
   ];
 
@@ -291,16 +340,17 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   };
 
   // 4. Submit Compare
-  const handleCompareSelect = (optId: string) => {
-    setSelectedCompareOption(optId);
-    const item = compareOptions.find((o) => o.id === optId);
-    if (!item) return;
-    setCompareFeedback({
-      score: item.score,
-      title: item.isCorrect ? 'Excelente Escolha de Fontes!' : 'Análise Incompleta de Fontes',
-      description: item.feedback,
+  const handleCompareSubmit = () => {
+    let correctCount = 0;
+    compareQuestions.forEach((q) => {
+      const selected = sourceCompareAnswers[q.id];
+      const opt = q.options.find((o) => o.id === selected);
+      if (opt?.isCorrect) correctCount++;
     });
-    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', item.score);
+    const score = Math.round((correctCount / compareQuestions.length) * 100);
+    setCompareSubmitted(true);
+    setCompareScore(score);
+    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', score);
   };
 
   // 5. Submit News Detective
@@ -907,88 +957,214 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-blue-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Comparação de Fontes
+                  2. Experimenta: Comparação Real de Duas Fontes Independentes
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Páginas independentes vs páginas que copiam
+                Auditoria de Origem, Autoria, Data, Evidências e Contrariedades
               </span>
             </div>
 
-            {/* Investigação das Fontes */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl border border-blue-200 bg-blue-50/60 space-y-1.5">
-                <span className="text-[10px] font-black uppercase text-blue-700 block">Fonte A</span>
-                <h5 className="text-xs font-black text-slate-900">Página institucional</h5>
-                <p className="text-xs text-slate-600">
-                  Autor identificado, data indicada, apresenta referências e dados verificáveis.
-                </p>
-              </div>
-              <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50/60 space-y-1.5">
-                <span className="text-[10px] font-black uppercase text-amber-700 block">Fonte B</span>
-                <h5 className="text-xs font-black text-slate-900">Blogue pessoal</h5>
-                <p className="text-xs text-slate-600">
-                  Autor identificado, sem referências bibliográficas, texto apresenta opiniões pessoais.
-                </p>
-              </div>
-              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-1.5">
-                <span className="text-[10px] font-black uppercase text-slate-600 block">Fonte C</span>
-                <h5 className="text-xs font-black text-slate-900">Outra página na Web</h5>
-                <p className="text-xs text-slate-600">
-                  Copia grande parte do texto da Fonte A sem acrescentar nenhuma informação nova.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-              <p className="text-xs sm:text-sm font-bold text-slate-900">
-                Se queres verificar uma afirmação, qual combinação de fontes é mais útil para começares a investigar?
-              </p>
-
-              <div className="space-y-2">
-                {compareOptions.map((opt) => {
-                  const isSelected = selectedCompareOption === opt.id;
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleCompareSelect(opt.id)}
-                      className={`w-full text-left p-3.5 rounded-xl border text-xs font-medium transition-all ${
-                        isSelected
-                          ? opt.isCorrect
-                            ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30 font-bold text-emerald-950'
-                            : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30 font-bold text-amber-950'
-                          : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-800'
-                      }`}
-                    >
-                      <span className="font-black mr-2 text-blue-700">{opt.label})</span>
-                      <span>{opt.text}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {compareFeedback && (
-              <div
-                className={`p-4 rounded-2xl border text-xs font-medium space-y-1 ${
-                  compareFeedback.score === 100
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                    : 'bg-amber-50 border-amber-200 text-amber-950'
-                }`}
-              >
-                <div className="flex items-center gap-2 font-black">
-                  {compareFeedback.score === 100 ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  )}
-                  <span>
-                    {compareFeedback.title} (Pontuação: {compareFeedback.score}/100)
+            {/* Apresentação das Duas Fontes Independentes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Fonte A */}
+              <div className="p-5 rounded-3xl border-2 border-blue-300 bg-blue-50/50 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between gap-2 border-b border-blue-200/80 pb-2">
+                  <span className="text-xs font-black uppercase tracking-wider bg-blue-600 text-white px-2.5 py-1 rounded-lg">
+                    Fonte A
+                  </span>
+                  <span className="text-[11px] font-bold text-blue-800">
+                    Portal de Divulgação Científica
                   </span>
                 </div>
-                <p>{compareFeedback.description}</p>
+                <div>
+                  <h5 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    {sourceA.title}
+                  </h5>
+                </div>
+                <div className="space-y-1.5 text-xs text-slate-700 bg-white/80 p-3 rounded-2xl border border-blue-100">
+                  <p>
+                    <strong className="text-blue-900 font-black">Origem:</strong> {sourceA.origin}
+                  </p>
+                  <p>
+                    <strong className="text-blue-900 font-black">Autor:</strong> {sourceA.author}
+                  </p>
+                  <p>
+                    <strong className="text-blue-900 font-black">Data:</strong> {sourceA.date}
+                  </p>
+                  <p className="pt-1 text-slate-800 leading-relaxed">
+                    <strong className="text-blue-900 font-black">Informação Apresentada:</strong> "{sourceA.content}"
+                  </p>
+                  <p className="pt-1 text-emerald-800 font-medium">
+                    <strong className="text-emerald-950 font-black">Evidências:</strong> {sourceA.evidence}
+                  </p>
+                </div>
               </div>
-            )}
+
+              {/* Fonte B */}
+              <div className="p-5 rounded-3xl border-2 border-amber-300 bg-amber-50/50 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-2">
+                  <span className="text-xs font-black uppercase tracking-wider bg-amber-600 text-white px-2.5 py-1 rounded-lg">
+                    Fonte B
+                  </span>
+                  <span className="text-[11px] font-bold text-amber-900">
+                    Rede Social / Blogue Pessoal
+                  </span>
+                </div>
+                <div>
+                  <h5 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    {sourceB.title}
+                  </h5>
+                </div>
+                <div className="space-y-1.5 text-xs text-slate-700 bg-white/80 p-3 rounded-2xl border border-amber-100">
+                  <p>
+                    <strong className="text-amber-900 font-black">Origem:</strong> {sourceB.origin}
+                  </p>
+                  <p>
+                    <strong className="text-amber-900 font-black">Autor:</strong> {sourceB.author}
+                  </p>
+                  <p>
+                    <strong className="text-amber-900 font-black">Data:</strong> {sourceB.date}
+                  </p>
+                  <p className="pt-1 text-slate-800 leading-relaxed">
+                    <strong className="text-amber-900 font-black">Informação Apresentada:</strong> "{sourceB.content}"
+                  </p>
+                  <p className="pt-1 text-rose-800 font-medium">
+                    <strong className="text-rose-950 font-black">Evidências:</strong> {sourceB.evidence}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Perguntas de Comparação Cruzada */}
+            <div className="space-y-5 pt-2">
+              <div className="border-b border-slate-200 pb-2">
+                <h5 className="text-sm sm:text-base font-black text-slate-900">
+                  Responde às 6 Dimensões de Comparação Entre as Fontes:
+                </h5>
+                <p className="text-xs text-slate-600">
+                  Analisa as duas publicações em simultâneo para identificar credibilidade, contradições e riscos antes de partilhar.
+                </p>
+              </div>
+
+              {compareQuestions.map((q, qIndex) => {
+                const selected = sourceCompareAnswers[q.id];
+                return (
+                  <div
+                    key={q.id}
+                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                        {qIndex + 1}
+                      </span>
+                      <span className="text-xs font-black uppercase text-blue-700 tracking-wider">
+                        {q.facet}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-black text-slate-900">
+                      {q.question}
+                    </p>
+
+                    <div className="space-y-2">
+                      {q.options.map((opt) => {
+                        const isChosen = selected === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() =>
+                              setSourceCompareAnswers((prev) => ({ ...prev, [q.id]: opt.id }))
+                            }
+                            className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+                              isChosen
+                                ? 'bg-blue-600 text-white border-blue-700 shadow-xs font-bold'
+                                : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-800'
+                            }`}
+                          >
+                            <span className="font-bold mr-2 uppercase">{opt.id})</span>
+                            <span>{opt.text}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {compareSubmitted && (
+                      <div
+                        className={`p-3 rounded-xl border text-xs font-medium ${
+                          q.options.find((o) => o.id === selected)?.isCorrect
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                            : 'bg-amber-50 border-amber-200 text-amber-950'
+                        }`}
+                      >
+                        <p className="font-black mb-0.5">
+                          {q.options.find((o) => o.id === selected)?.isCorrect
+                            ? '✓ Resposta Correta!'
+                            : '⚠️ Observação Pedagógica:'}
+                        </p>
+                        <p>{q.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                <span className="text-xs font-bold text-slate-500">
+                  Respondidas: {Object.keys(sourceCompareAnswers).length} de {compareQuestions.length}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={handleCompareSubmit}
+                  disabled={Object.keys(sourceCompareAnswers).length < compareQuestions.length}
+                  className={`px-6 py-3 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                    Object.keys(sourceCompareAnswers).length >= compareQuestions.length
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  Validar Comparação de Fontes
+                </button>
+              </div>
+
+              {compareSubmitted && compareScore !== null && (
+                <div className="space-y-4 pt-2">
+                  <div
+                    className={`p-4 rounded-2xl border text-xs font-medium ${
+                      compareScore >= 70
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                        : 'bg-amber-50 border-amber-200 text-amber-950'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-black text-sm mb-1">
+                      {compareScore >= 70 ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                      ) : (
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      )}
+                      <span>Pontuação Final da Comparação: {compareScore}%</span>
+                    </div>
+                    <p>
+                      {compareScore >= 70
+                        ? 'Parabéns! Demonstraste espírito crítico rigoroso ao cruzar autoria, cronologia, evidências e distinguir factos reais de exageros sensacionalistas.'
+                        : 'Revê as explicações acima para aprofundares como comparar origens, dados metodológicos e identificar afirmações suspeitas.'}
+                    </p>
+                  </div>
+
+                  {/* Feedback Pedagógico Requerido */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-950 text-xs sm:text-sm space-y-2">
+                    <h6 className="font-black text-indigo-900 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-indigo-600" />
+                      Conclusão Pedagógica Essencial:
+                    </h6>
+                    <p className="leading-relaxed">
+                      Mesmo que uma notícia ou artigo pareça credível, utilize vocabulário técnico ou fale de um assunto verdadeiro (como robôs educativos), pode conter distorções graves, promessas irreais ou custos falsos. Uma fonte nunca deve ser aceite cegamente: cruzar com outras <strong>fontes independentes</strong> e verificar <strong>quem assina, quando publicou e que provas apresenta</strong> é indispensável antes de acreditar ou partilhar.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 🎯 Progresso */}
