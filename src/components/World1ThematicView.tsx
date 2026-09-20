@@ -644,7 +644,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
-                    pwdInput.length >= 12
+                    pwdInput.length >= 10
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                       : pwdInput.length >= 8
                       ? 'bg-amber-50 border-amber-200 text-amber-800'
@@ -652,7 +652,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Comprimento (12+ car.)</span>
+                  <span>Comprimento (10+ car.)</span>
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
@@ -686,13 +686,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                       (/[A-Z]/.test(pwdInput) ? 1 : 0) +
                       (/[0-9]/.test(pwdInput) ? 1 : 0) +
                       (/[^A-Za-z0-9]/.test(pwdInput) ? 1 : 0) >=
-                    3
+                    2
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Variedade de Tipos</span>
+                  <span>2+ Tipos de Caracteres</span>
                 </div>
               </div>
 

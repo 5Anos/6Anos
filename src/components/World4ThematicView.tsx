@@ -1122,7 +1122,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               {/* Desafio 3 */}
               <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
                 <span className="text-xs font-black text-slate-900 block">
-                  Desafio 3: O robô precisa de apanhar 4 objetos, levando cada objeto até à caixa antes de voltar a procurar o seguinte.
+                  Desafio 3: O robô precisa de transportar 4 objetos para a caixa. Para cada objeto, deve repetir a mesma sequência: apanhar o objeto, levá-lo até à caixa e voltar ao ponto de partida.
                 </span>
                 <div className="flex items-center gap-2 text-xs font-mono">
                   <span className="font-bold text-slate-800">REPETIR</span>
@@ -1134,7 +1134,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     onChange={(e) => setLoop3Count(Number(e.target.value))}
                     className="w-16 p-2 bg-white border border-slate-300 rounded-xl text-center text-xs font-bold"
                   />
-                  <span className="font-bold text-slate-800">vezes: [ Apanhar 1 objeto e levá-lo até à caixa ]</span>
+                  <span className="font-bold text-slate-800">vezes: [ Apanhar 1 objeto, levar à caixa e voltar ]</span>
                 </div>
               </div>
             </div>
@@ -1151,8 +1151,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             {loopScore !== null && (
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 font-medium">
                 {loopScore === 100
-                  ? '🎉 Perfeito! Acertaste em todas as repetições (5 passos para a porta, 4 lados para o quadrado e 4 objetos levados até à caixa). Os ciclos tornam o código muito mais conciso!'
-                  : `Pontuação: ${loopScore}/100. Lembra-te: para 5 casas precisamos de repetir 5 vezes; para 4 lados do quadrado, 4 vezes; e para 4 objetos, 4 vezes.`}
+                  ? '🎉 Correto! Como a mesma sequência acontece várias vezes, podemos usar uma repetição em vez de escrever todos os passos novamente.'
+                  : `Pontuação: ${loopScore}/100. Lembra-te: para 5 casas precisamos de repetir 5 vezes; para 4 lados do quadrado, 4 vezes; e para 4 objetos, 4 vezes. Uma repetição poupa comandos repetidos!`}
               </div>
             )}
           </div>

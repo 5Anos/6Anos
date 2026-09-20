@@ -706,7 +706,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-              Como <strong>Criador Digital</strong>, deves criar uma identidade visual única e original para as plataformas escolares, sem copiar o trabalho de outros e sem expor dados pessoais ou fotografias reais do teu rosto.
+              Como <strong>Criador Digital</strong>, deves criar uma identidade visual para as plataformas escolares, sem expor dados pessoais ou fotografias reais do teu rosto.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl">
