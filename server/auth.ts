@@ -35,20 +35,22 @@ export async function createSession(userId: string): Promise<Session> {
 }
 
 export function setSessionCookie(res: Response, sessionId: string) {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('session_id', sessionId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
 
 export function clearSessionCookie(res: Response) {
+  const isProd = process.env.NODE_ENV === 'production';
   res.clearCookie('session_id', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
   });
 }

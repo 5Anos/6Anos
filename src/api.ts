@@ -1,14 +1,56 @@
 // API client relying strictly on HttpOnly session cookies.
 // No tokens are stored in or read from localStorage or sessionStorage.
 
+/**
+ * Resolves the backend base URL dynamically.
+ * Priority:
+ * 1. Build-time Vite env: import.meta.env.VITE_API_URL or import.meta.env.VITE_API_BASE_URL
+ * 2. Runtime global window override: (window as any).__API_URL__
+ * 3. Fallback: empty string (uses relative paths for same-origin dev / unified deployment)
+ */
+export function getApiBaseUrl(): string {
+  const meta = import.meta as any;
+  const envUrl = meta?.env?.VITE_API_URL || meta?.env?.VITE_API_BASE_URL;
+
+  if (typeof envUrl === 'string' && envUrl.trim().length > 0) {
+    return envUrl.trim().replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && (window as any).__API_URL__) {
+    const winUrl = String((window as any).__API_URL__).trim();
+    if (winUrl.length > 0) {
+      return winUrl.replace(/\/+$/, '');
+    }
+  }
+  return '';
+}
+
+/**
+ * Builds the complete URL for an API endpoint.
+ */
+export function buildApiUrl(endpoint: string): string {
+  if (/^https?:\/\//i.test(endpoint)) {
+    return endpoint;
+  }
+
+  const baseUrl = getApiBaseUrl();
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  if (!baseUrl) {
+    return cleanEndpoint;
+  }
+
+  return `${baseUrl}${cleanEndpoint}`;
+}
+
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const url = buildApiUrl(endpoint);
   const headers = new Headers(options.headers || {});
 
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(url, {
     ...options,
     headers,
     credentials: 'include',
@@ -40,8 +82,9 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 }
 
 export async function downloadFile(url: string, defaultFilename: string) {
+  const fullUrl = buildApiUrl(url);
   const headers = new Headers();
-  const response = await fetch(url, { headers, credentials: 'include' });
+  const response = await fetch(fullUrl, { headers, credentials: 'include' });
   if (!response.ok) {
     let msg = `Erro ${response.status}: ${response.statusText}`;
     try {
