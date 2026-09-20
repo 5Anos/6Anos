@@ -1635,7 +1635,7 @@ export const GRANDE_MISSAO = {
   id: 'grande-missao-escola-futuro',
   title: 'A ESCOLA DO FUTURO',
   totalXp: 150,
-  narrativa: 'Ano 2040. O sistema da Escola do Futuro ficou bloqueado. Para o reativar, tens de recuperar 5 códigos de segurança resolvendo os desafios nas 5 zonas da escola (Centro de Segurança, Arquivo Secreto, Estúdio Criativo, Laboratório de Engenharia e Laboratório de IA) e introduzi-los no Núcleo Central para reativar todos os sistemas!',
+  narrativa: 'Ano 2040. O sistema da Escola do Futuro ficou bloqueado. Para o reativar, tens de recuperar 5 códigos de segurança resolvendo os desafios nas 5 primeiras zonas da escola e depois introduzi-los no Núcleo Central para reativar todos os sistemas!',
   stages: [
     {
       step: 1,

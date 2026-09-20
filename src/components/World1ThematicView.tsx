@@ -264,21 +264,21 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     },
     {
       id: 'wb-distance',
-      label: 'Manter o ecrã à distância de 50 a 70 cm (comprimento de um braço esticado)',
+      label: 'Manter uma distância confortável do ecrã (cerca do comprimento de um braço)',
       category: 'Distância do Ecrã',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Mantém a distância de visualização ideal para proteger a saúde dos olhos.',
+      explanation: 'Hábito Saudável: Mantém uma distância confortável para proteger a saúde dos olhos.',
     },
     {
       id: 'wb-wrists',
-      label: 'Apoiar os pulsos confortavelmente na mesa e braços a 90° ao utilizar o teclado',
+      label: 'Apoiar os pulsos e braços confortavelmente ao utilizar o teclado',
       category: 'Ergonomia dos Membros',
       correct: 'saudavel',
       explanation: 'Hábito Saudável: Manter os braços e pulsos numa posição confortável ajuda a evitar desconforto nas mãos e braços.',
     },
     {
       id: 'wb-202020',
-      label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos para 6 metros de distância',
+      label: 'Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
       category: 'Descanso dos Olhos',
       correct: 'saudavel',
       explanation: 'Hábito Saudável: Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
@@ -376,10 +376,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     let description =
       'Esta palavra-passe é curta ou utiliza padrões fáceis de adivinhar. Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.';
 
-    if (score >= 80) {
+    if (score === 100) {
       title = 'Palavra-passe muito segura!';
       description =
         'Excelente! A tua palavra-passe é suficientemente longa, difícil de adivinhar e não apresenta dados pessoais óbvios. Usa palavras-passe diferentes nas tuas contas e nunca as partilhes.';
+    } else if (score >= 80) {
+      title = 'Palavra-passe Segura (Boa Proteção)';
+      description =
+        'Muito bom! A tua palavra-passe tem boa proteção. Para alcançar a pontuação máxima (100 pontos), certifica-te de que tem pelo menos 10 caracteres, sem sequências nem dados pessoais óbvios.';
     } else if (score >= 50) {
       title = 'Palavra-passe Razoável (Pode Melhorar)';
       description =
@@ -485,11 +489,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     if (score === 100) {
       title = 'Equilíbrio e Ergonomia Exemplares!';
       description =
-        'Fantástico! Dominas as regras essenciais de ergonomia (costas direitas, ecrã a 50-70 cm, braços a 90°), descanso ocular (regra 20-20-20) e proteção do sono!';
+        'Fantástico! Uma boa postura, uma posição confortável do ecrã e pausas regulares ajudam a evitar desconforto e cansaço.';
     } else if (score >= 60) {
       title = 'Bom Sentido Ergonómico';
       description =
-        'Identificaste a maioria dos hábitos saudáveis! Revê a iluminação do quarto e a distância correta do ecrã para garantir nota máxima.';
+        'Identificaste a maioria dos hábitos saudáveis! Mantém uma postura correta e faz pausas regulares para garantir o teu bem-estar.';
     }
 
     setWellbeingFeedback({ score, title, description });

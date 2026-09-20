@@ -784,7 +784,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                     className="w-4 h-4 text-purple-600 rounded-md focus:ring-purple-500 cursor-pointer"
                   />
                   <label htmlFor="avatarPrivacy" className="text-xs text-slate-700 font-semibold cursor-pointer">
-                    Confirmo que esta é uma criação original, sem copiar imagens alheias e sem partilhar fotos reais ou dados pessoais.
+                    Confirmo que não incluí dados pessoais desnecessários nem fotografias reais de pessoas.
                   </label>
                 </div>
               </div>
