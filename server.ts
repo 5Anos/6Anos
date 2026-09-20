@@ -8,6 +8,45 @@ import authRoutes from './server/routes/auth';
 import pedagogicalRoutes from './server/routes/pedagogical';
 import teacherRoutes from './server/routes/teacher';
 
+// Filter out benign Firebase/gRPC stream idle timeouts (e.g. Code: 1 CANCELLED: Disconnecting idle stream)
+const origWarn = console.warn;
+console.warn = (...args: any[]) => {
+  const text = args.map((a) => (typeof a === 'string' ? a : a?.message || '')).join(' ');
+  if (
+    text.includes('Disconnecting idle stream') ||
+    text.includes('Timed out waiting for new targets') ||
+    text.includes("RPC 'Listen' stream")
+  ) {
+    return;
+  }
+  origWarn(...args);
+};
+
+const origError = console.error;
+console.error = (...args: any[]) => {
+  const text = args.map((a) => (typeof a === 'string' ? a : a?.message || '')).join(' ');
+  if (
+    text.includes('Disconnecting idle stream') ||
+    text.includes('Timed out waiting for new targets') ||
+    text.includes("RPC 'Listen' stream")
+  ) {
+    return;
+  }
+  origError(...args);
+};
+
+process.on('unhandledRejection', (reason: any) => {
+  const text = typeof reason === 'string' ? reason : reason?.message || '';
+  if (
+    text.includes('Disconnecting idle stream') ||
+    text.includes('Timed out waiting for new targets') ||
+    text.includes("RPC 'Listen' stream")
+  ) {
+    return;
+  }
+  origError('Unhandled rejection:', reason);
+});
+
 const PORT = 3000;
 
 async function startServer() {

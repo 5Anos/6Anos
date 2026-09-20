@@ -21,6 +21,7 @@ import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World4ThematicViewProps {
   world: WorldSummary;
@@ -112,13 +113,16 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
   // -------------------------------------------------------------
   // REPORT COMPLETION HELPER
   // -------------------------------------------------------------
-  const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
+  const reportCompletion = async (simId: string, activityTitle: string, payloadData?: any, score?: number) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
         body: JSON.stringify({
           activityId: simId,
           worldId: 4,
+          answers: payloadData?.answers || payloadData,
+          payload: payloadData,
+          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
           score,
         }),
       });
@@ -153,7 +157,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       decomposedOrder[3] === 'step-4';
     const score = isCorrect ? 100 : Math.min(75, decomposedOrder.length * 15);
     setDecompScore(score);
-    reportCompletion('sim-decomposicao', 'Simulador de Decomposição', score);
+    reportCompletion('sim-decomposicao', 'Simulador de Decomposição', { steps: decomposedOrder }, score);
   };
 
   // 2. Block Coding Handlers
@@ -188,7 +192,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     setRobotSuccess(reached);
     const score = reached ? 100 : Math.round(((curX + curY) / 6) * 80);
     setRobotScore(score);
-    reportCompletion('sim-block-coding', 'Block Coding: O Caminho do Robô', score);
+    reportCompletion('sim-block-coding', 'Block Coding: O Caminho do Robô', { commands: robotProgram, reached }, score);
   };
 
   // 3. Conditions Handlers
@@ -200,7 +204,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     if (c2Correct) correct++;
     const score = Math.round((correct / 2) * 100);
     setConditionScore(score);
-    reportCompletion('sim-algoritmos', 'Algoritmos & Condições (SE / SENÃO)', score);
+    reportCompletion('sim-algoritmos', 'Algoritmos & Condições (SE / SENÃO)', { condition1: condition1Action, condition2: condition2Action }, score);
   };
 
   // 4. Loops Handlers
@@ -208,7 +212,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     const isCorrect = loopCount === 4;
     const score = isCorrect ? 100 : 40;
     setLoopScore(score);
-    reportCompletion('sim-ciclos', 'Simulador de Ciclos', score);
+    reportCompletion('sim-ciclos', 'Simulador de Ciclos', { loopCount }, score);
   };
 
   // 5. Dados Handlers
@@ -220,7 +224,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     if (avgCorrect) correct++;
     const score = Math.round((correct / 2) * 100);
     setDataScore(score);
-    reportCompletion('sim-dados', 'Simulador de Dados & Gráficos', score);
+    reportCompletion('sim-dados', 'Simulador de Dados & Gráficos', { mostReadDay, avgScoreChoice }, score);
   };
 
   // 6. Debugging Handlers
@@ -232,7 +236,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     if (fixCorrect) correct++;
     const score = Math.round((correct / 2) * 100);
     setDebugScore(score);
-    reportCompletion('sim-debugging', 'Simulador de Debugging & Depuração', score);
+    reportCompletion('sim-debugging', 'Simulador de Debugging & Depuração', { bugId: debugIdentifiedBug, fixId: debugSelectedFix }, score);
   };
 
   // Helper
@@ -1281,7 +1285,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
 
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl max-w-md mx-auto text-xs text-amber-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloquear o Mundo 5: Média &gt; 80%</p>
+            <p>🏆 Requisito para desbloquear o Mundo 5: Média &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null

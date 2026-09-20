@@ -27,7 +27,7 @@ import {
   getAllUsers,
   getClassById,
 } from '../firestoreDb';
-import { AuthRequest, requireAuth } from '../auth';
+import { AuthRequest, requireAuth, requireStudent } from '../auth';
 import {
   WORLDS_DATA,
   FINAL_ASSESSMENTS,
@@ -37,59 +37,110 @@ import {
   calculateLevel,
   BADGES_CATALOG,
 } from '../catalog';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { evaluateActivity } from '../activityEvaluator';
 
 const router = Router();
 
-// Helper to compute world average strictly for a student user
-export async function computeWorldStats(userId: string, worldId: number, userRole?: string): Promise<{
+export interface WorldStats {
   worldId: number;
   average: number;
   completedCount: number;
   totalComponents: number;
-  isUnlocked: boolean;
+  completedSimulatorsCount: number;
+  totalSimulatorsCount: number;
+  allSimulatorsCompleted: boolean;
+  hasAssessment: boolean;
+  bestAssessmentPercentage: number | null;
   hasAssessmentPassed: boolean;
-}> {
+  isWorldCompleted: boolean;
+  isUnlocked: boolean;
+}
+
+// Authoritative world progression and stats evaluator
+export async function computeWorldStats(
+  userId: string,
+  worldId: number,
+  userRole?: string
+): Promise<WorldStats> {
   const world = WORLDS_DATA.find((w) => w.id === worldId);
   if (!world) {
-    return { worldId, average: 0, completedCount: 0, totalComponents: 0, isUnlocked: false, hasAssessmentPassed: false };
+    return {
+      worldId,
+      average: 0,
+      completedCount: 0,
+      totalComponents: 0,
+      completedSimulatorsCount: 0,
+      totalSimulatorsCount: 0,
+      allSimulatorsCompleted: false,
+      hasAssessment: false,
+      bestAssessmentPercentage: null,
+      hasAssessmentPassed: false,
+      isWorldCompleted: false,
+      isUnlocked: false,
+    };
   }
 
-  const [userProgress, missions, assessmentAttempts] = await Promise.all([
+  const [userProgress, assessmentAttempts] = await Promise.all([
     getUserActivityProgress(userId),
-    getMissionSubmissions({ userId, worldId, status: 'graded' }),
     getAssessmentAttempts(userId, worldId),
   ]);
 
   const scores: number[] = [];
+  let completedSimulatorsCount = 0;
 
-  // Simulators
+  // 1. Simulators completion
   for (const sim of world.simulators) {
     const prog = userProgress.find((p) => p.activityId === sim.id);
     if (prog && prog.completed) {
+      completedSimulatorsCount++;
       scores.push(prog.bestScore);
     }
   }
 
-  // Final Assessment (best percentage)
-  if (assessmentAttempts.length > 0) {
-    const bestAssess = Math.max(...assessmentAttempts.map((a) => a.percentage));
-    scores.push(bestAssess);
+  const totalSimulatorsCount = world.simulators.length;
+  const allSimulatorsCompleted = completedSimulatorsCount >= totalSimulatorsCount;
+
+  // 2. Final Assessment completion
+  const hasAssessment = assessmentAttempts.length > 0;
+  const bestAssessmentPercentage = hasAssessment
+    ? Math.max(...assessmentAttempts.map((a) => a.percentage))
+    : null;
+
+  if (bestAssessmentPercentage !== null) {
+    scores.push(bestAssessmentPercentage);
   }
 
-  const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
-  const totalComponents = world.simulators.length + 1; // sims + assessment
-  const completedCount = scores.length;
+  const hasAssessmentPassed =
+    bestAssessmentPercentage !== null &&
+    bestAssessmentPercentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
-  // Progression rule:
-  // Teacher has unrestricted preview access to all worlds
-  // Mundo 1 is unlocked initially for all students
-  // Mundo N (N > 1) is unlocked ONLY IF previous world average > 75%
+  const totalComponents = totalSimulatorsCount + 1; // All simulators + final assessment
+  const completedCount = scores.length;
+  const average =
+    scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
+
+  // Curricular World Completion Rule:
+  // A world is completed ONLY when:
+  // - All required simulators are completed
+  // - The final assessment has been taken
+  // - The assessment score meets or exceeds the competency threshold (75%)
+  // - The world average across components meets or exceeds 75%
+  const isWorldCompleted =
+    allSimulatorsCompleted &&
+    hasAssessmentPassed &&
+    average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+
+  // Progression Unlocking Rule:
+  // - Mundo 1 is always unlocked
+  // - Teachers have unrestricted access to all worlds
+  // - Mundo N (N > 1) is unlocked ONLY IF Mundo N - 1 is completed with distinction
   let isUnlocked = worldId === 1;
   if (userRole === 'teacher') {
     isUnlocked = true;
   } else if (worldId > 1) {
     const prevStats = await computeWorldStats(userId, worldId - 1, userRole);
-    isUnlocked = prevStats.average > 75; // Strict rule: > 75% unlocks next world
+    isUnlocked = prevStats.isWorldCompleted;
   }
 
   return {
@@ -97,8 +148,14 @@ export async function computeWorldStats(userId: string, worldId: number, userRol
     average,
     completedCount,
     totalComponents,
+    completedSimulatorsCount,
+    totalSimulatorsCount,
+    allSimulatorsCompleted,
+    hasAssessment,
+    bestAssessmentPercentage,
+    hasAssessmentPassed,
+    isWorldCompleted,
     isUnlocked,
-    hasAssessmentPassed: assessmentAttempts.some((a) => a.percentage >= 75),
   };
 }
 
@@ -117,7 +174,7 @@ export async function evaluateBadges(userId: string) {
 
   for (let w = 1; w <= 5; w++) {
     const stats = await computeWorldStats(userId, w, user.role);
-    if (stats.average > 75 && stats.completedCount >= 3) {
+    if (stats.isWorldCompleted) {
       await awardBadge(userId, worldBadgeMap[w]);
     }
   }
@@ -125,16 +182,16 @@ export async function evaluateBadges(userId: string) {
   // Centurion: >= 1000 XP or 100% in an assessment
   const assessments = await getAssessmentAttempts(userId);
   const has100Assess = assessments.some((a) => a.percentage === 100);
-  if (user.xp >= 1000 || has100Assess) {
+  if (user.xp >= PROGRESSION_CONFIG.BADGES.CENTURION_XP_THRESHOLD || has100Assess) {
     await awardBadge(userId, 'centuriao-digital');
   }
 
-  // Master: Grande Missão completed + all 5 worlds average > 75
+  // Master: Grande Missão completed + all 5 worlds completed
   const userTx = await getUserXPTransactions(userId);
   const hasGM = userTx.some((t) => t.sourceType === 'grande_missao');
   const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w, user.role)));
-  const allUnlocked = allStats.every((st) => st.average > 75);
-  if (hasGM && allUnlocked) {
+  const allCompleted = allStats.every((st) => st.isWorldCompleted);
+  if (hasGM && allCompleted) {
     await awardBadge(userId, 'mestre-da-missao-tic');
   }
 }
@@ -147,9 +204,12 @@ router.get('/worlds', async (req: AuthRequest, res) => {
       const defaultWorlds = WORLDS_DATA.map((w) => ({
         ...w,
         isUnlocked: w.id === 1,
+        isCompleted: false,
+        allSimulatorsCompleted: false,
+        hasAssessmentPassed: false,
         average: 0,
         completedCount: 0,
-        totalComponents: w.simulators.length + 3,
+        totalComponents: w.simulators.length + 1,
         challengeProgress: null,
         missionProgress: null,
         bestAssessmentPercentage: null,
@@ -179,15 +239,22 @@ router.get('/worlds', async (req: AuthRequest, res) => {
         return {
           ...w,
           isUnlocked: stats.isUnlocked,
+          isCompleted: stats.isWorldCompleted,
+          allSimulatorsCompleted: stats.allSimulatorsCompleted,
+          hasAssessmentPassed: stats.hasAssessmentPassed,
           average: stats.average,
           completedCount: stats.completedCount,
           totalComponents: stats.totalComponents,
           challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
           missionProgress: mission
-            ? { status: mission.status, score: mission.score, feedback: mission.feedback }
+            ? {
+                status: mission.status,
+                score: mission.score,
+                feedback: mission.feedback,
+                submissionText: mission.submissionText || mission.submission,
+              }
             : null,
-          bestAssessmentPercentage:
-            worldAssessments.length > 0 ? Math.max(...worldAssessments.map((a) => a.percentage)) : null,
+          bestAssessmentPercentage: stats.bestAssessmentPercentage,
           simulatorsProgress: w.simulators.map((s) => {
             const prog = userProgress.find((p) => p.activityId === s.id);
             return {
@@ -225,7 +292,7 @@ router.get('/worlds/:worldId', requireAuth, async (req: AuthRequest, res) => {
 
     if (userRole !== 'teacher' && !stats.isUnlocked) {
       return res.status(403).json({
-        error: `Mundo ${worldId} bloqueado. Precisas de obter mais de 75% no Mundo anterior para o desbloquear.`,
+        error: `Mundo ${worldId} bloqueado. Precisas de concluir todas as atividades e obter pelo menos ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% na Avaliação Final do Mundo anterior para o desbloquear.`,
       });
     }
 
@@ -241,6 +308,9 @@ router.get('/worlds/:worldId', requireAuth, async (req: AuthRequest, res) => {
         id: a.id,
         score: a.score,
         percentage: a.percentage,
+        totalQuestions: a.totalQuestions,
+        correctCount: a.correctCount,
+        passed: a.passed,
         createdAt: a.createdAt,
       })),
     });
@@ -258,14 +328,13 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
     if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
 
     const stats = await computeWorldStats(req.user!.id, worldId, req.user?.role);
-    if (!stats.isUnlocked) {
-      return res.status(403).json({ error: 'Este Mundo ainda está bloqueado. Completa o Mundo anterior com média > 75%.' });
+    if (!stats.isUnlocked && req.user?.role !== 'teacher') {
+      return res.status(403).json({ error: 'Mundo bloqueado.' });
     }
 
-    // Strip correctIndex and explanation from payload!
-    const sanitizedQuestions = assess.questions.map((q, idx) => ({
+    // STRICT SECURITY: Do not send correctIndex or explanation to the client!
+    const sanitizedQuestions = assess.questions.map((q) => ({
       id: q.id,
-      number: idx + 1,
       text: q.text,
       options: q.options,
     }));
@@ -276,6 +345,7 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
       title: assess.title,
       questionCount: sanitizedQuestions.length,
       questions: sanitizedQuestions,
+      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
     });
   } catch (err) {
     console.error('Error in /assessments/:worldId:', err);
@@ -283,8 +353,8 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
   }
 });
 
-// POST submit assessment
-router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) => {
+// POST submit assessment (Student ONLY, server-side grading, complete attempt record)
+router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, res) => {
   try {
     const worldId = parseInt(req.params.worldId, 10);
     const assess = FINAL_ASSESSMENTS[worldId];
@@ -301,6 +371,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       return res.status(400).json({ error: 'Respostas inválidas.' });
     }
 
+    // Authoritative Server-Side Evaluation against official answer keys
     let correctCount = 0;
     const resultsFeedback = assess.questions.map((q) => {
       const chosenIndex = answers[q.id];
@@ -316,13 +387,14 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
     });
 
     const percentage = Math.round((correctCount / assess.questions.length) * 100);
+    const passed = percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
     const prevAttempts = await getAssessmentAttempts(userId, worldId);
     const previousBest = prevAttempts.length > 0 ? Math.max(...prevAttempts.map((a) => a.percentage)) : 0;
     const newBest = Math.max(previousBest, percentage);
     const xpGain = newBest - previousBest;
 
-    // Save attempt in Cloud Firestore
+    // Save complete attempt in database
     const attempt: AssessmentAttempt = {
       id: `attempt-${crypto.randomUUID()}`,
       userId,
@@ -330,6 +402,9 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       worldId,
       score: correctCount,
       percentage,
+      totalQuestions: assess.questions.length,
+      correctCount,
+      passed,
       answers,
       createdAt: new Date().toISOString(),
     };
@@ -354,7 +429,8 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       percentage,
       correctCount,
       totalQuestions: assess.questions.length,
-      passed: percentage > 80,
+      passed,
+      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
       previousBest,
       newBest,
       xpGain,
@@ -367,12 +443,12 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
   }
 });
 
-// POST submit activity / simulator completion
-router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) => {
+// POST submit activity / simulator completion (Student ONLY, authoritative evaluation)
+router.post('/activities/complete', requireStudent, async (req: AuthRequest, res) => {
   try {
-    const { activityId, worldId, score } = req.body;
-    if (!activityId || !worldId || typeof score !== 'number') {
-      return res.status(400).json({ error: 'Dados da atividade inválidos.' });
+    const { activityId, worldId, answers, payload, completedAction, score: clientScore } = req.body;
+    if (!activityId || !worldId) {
+      return res.status(400).json({ error: 'Identificador de atividade e Mundo são obrigatórios.' });
     }
 
     const userId = req.user!.id;
@@ -385,15 +461,24 @@ router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) =
       return res.status(400).json({ error: 'Atividade não reconhecida no catálogo canónico.' });
     }
 
-    const stats = await computeWorldStats(userId, worldId);
+    const stats = await computeWorldStats(userId, worldId, req.user?.role);
     if (!stats.isUnlocked) {
       return res.status(403).json({ error: 'Mundo bloqueado.' });
     }
 
-    const normalizedScore = Math.min(100, Math.max(0, Math.round(score)));
+    // Authoritative Server-Side Evaluation
+    const evaluation = evaluateActivity(activityId, worldId, {
+      answers,
+      payload,
+      completedAction,
+      score: clientScore,
+    });
+
+    const evaluatedScore = evaluation.score;
+
     let prog = await getActivityProgress(userId, activityId);
     const previousBest = prog ? prog.bestScore : 0;
-    const newBest = Math.max(previousBest, normalizedScore);
+    const newBest = Math.max(previousBest, evaluatedScore);
     const xpGain = newBest - previousBest;
 
     if (!prog) {
@@ -438,7 +523,9 @@ router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) =
       newBest,
       xpGain,
       totalXp,
-      score: normalizedScore,
+      score: evaluatedScore,
+      isValidated: evaluation.isValidated,
+      feedback: evaluation.feedback,
     });
   } catch (err) {
     console.error('Error in /activities/complete:', err);
@@ -446,30 +533,33 @@ router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) =
   }
 });
 
-// POST submit Real Mission
-router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => {
+// POST submit Real Mission (Student ONLY, normalized submission fields)
+router.post('/missions/:worldId', requireStudent, async (req: AuthRequest, res) => {
   try {
     const worldId = parseInt(req.params.worldId, 10);
     const world = WORLDS_DATA.find((w) => w.id === worldId);
     if (!world) return res.status(404).json({ error: 'Mundo não encontrado' });
 
     const userId = req.user!.id;
-    const stats = await computeWorldStats(userId, worldId);
+    const stats = await computeWorldStats(userId, worldId, req.user?.role);
     if (!stats.isUnlocked) {
       return res.status(403).json({ error: 'Mundo bloqueado.' });
     }
 
-    const { submission } = req.body;
-    if (!submission || submission.trim().length < 20) {
+    const text = (req.body.submission || req.body.submissionText || req.body.content || '').trim();
+    if (!text || text.length < 20) {
       return res.status(400).json({ error: 'A submissão deve conter uma resposta detalhada (mínimo 20 caracteres).' });
     }
 
+    const now = new Date().toISOString();
     const existingMissions = await getMissionSubmissions({ userId, worldId });
     if (existingMissions.length > 0) {
       const existing = existingMissions[0];
-      existing.submission = submission.trim();
+      existing.submission = text;
+      existing.submissionText = text;
       existing.status = 'pending';
-      existing.submittedAt = new Date().toISOString();
+      existing.submittedAt = now;
+      existing.updatedAt = now;
       await saveMissionSubmission(existing);
     } else {
       const newSubmission: MissionSubmission = {
@@ -481,10 +571,12 @@ router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => 
         missionId: world.mission.id,
         worldId,
         title: world.mission.title,
-        submission: submission.trim(),
+        submission: text,
+        submissionText: text,
         score: 0,
         status: 'pending',
-        submittedAt: new Date().toISOString(),
+        submittedAt: now,
+        createdAt: now,
       };
       await saveMissionSubmission(newSubmission);
     }
@@ -509,9 +601,12 @@ router.get('/daily-tip', async (req: AuthRequest, res) => {
     const claim = req.user ? await getDailyTipClaim(req.user.id, today) : null;
 
     return res.json({
-      tip,
-      alreadyClaimed: !!claim,
-      xpReward: 10,
+      tip: {
+        ...tip,
+        xpReward: PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP,
+      },
+      claimedToday: !!claim,
+      date: today,
     });
   } catch (err) {
     console.error('Error in /daily-tip:', err);
@@ -519,22 +614,37 @@ router.get('/daily-tip', async (req: AuthRequest, res) => {
   }
 });
 
-router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
+// POST claim Daily Tip (Student ONLY, exactly once per day)
+router.post('/daily-tip/claim', requireStudent, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
     const today = new Date().toISOString().split('T')[0];
 
-    const result = await claimDailyTipAtomic(userId, today);
-    if (!result.success) {
-      return res.status(400).json({ error: 'Já recolheste a recompensa da Dica Rápida de hoje! Volta amanhã.' });
+    const existingClaim = await getDailyTipClaim(userId, today);
+    if (existingClaim) {
+      return res.status(400).json({ error: 'Já reclamaste a dica diária de hoje!' });
     }
 
-    const updatedUser = await getUserById(userId);
+    const tipReward = PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP;
+    const success = await claimDailyTipAtomic(userId, today, tipReward);
+    if (!success) {
+      return res.status(400).json({ error: 'Não foi possível reclamar a dica diária.' });
+    }
+
+    const resAward = await atomicAwardXP(userId, tipReward, {
+      sourceType: 'daily_tip',
+      sourceId: `daily_tip_${today}`,
+      previousBest: 0,
+      newBest: tipReward,
+    });
+
+    await evaluateBadges(userId);
 
     return res.json({
       success: true,
-      message: 'Parabéns! Ganhaste +10 XP pela Dica Rápida!',
-      totalXp: updatedUser?.xp || req.user!.xp + 10,
+      xpGain: tipReward,
+      totalXp: resAward?.newTotalXP || req.user!.xp + tipReward,
+      message: `+${tipReward} XP ganhos com a Dica Diária!`,
     });
   } catch (err) {
     console.error('Error in /daily-tip/claim:', err);
@@ -542,19 +652,24 @@ router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
-// GET Weekly Challenge status
+// GET Weekly Challenge
 router.get('/weekly-challenge', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
-    const challengeProg = userId ? await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id) : null;
+    const progress = userId ? await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id) : null;
 
+    // Do NOT send isCorrect or explanation to client!
     const sanitized = {
-      ...WEEKLY_CHALLENGE,
-      options: WEEKLY_CHALLENGE.options.map((o, idx) => ({
-        id: idx,
+      id: WEEKLY_CHALLENGE.id,
+      title: WEEKLY_CHALLENGE.title,
+      description: WEEKLY_CHALLENGE.description,
+      scenario: WEEKLY_CHALLENGE.scenario,
+      xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
+      options: WEEKLY_CHALLENGE.options.map((o) => ({
+        id: o.id,
         text: o.text,
       })),
-      completed: !!challengeProg,
+      completed: progress?.status === 'completed',
     };
 
     return res.json({ challenge: sanitized });
@@ -564,8 +679,8 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
   }
 });
 
-// POST submit Weekly Challenge
-router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, async (req: AuthRequest, res) => {
+// POST submit Weekly Challenge (Student ONLY)
+router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireStudent, async (req: AuthRequest, res) => {
   try {
     let { optionIndex, isPhishing } = req.body;
     if (typeof optionIndex !== 'number' && typeof isPhishing === 'boolean') {
@@ -599,9 +714,9 @@ router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, asyn
         completedAt: new Date().toISOString(),
       });
 
-      xpGain = WEEKLY_CHALLENGE.xpReward;
+      xpGain = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE;
       const resAward = await atomicAwardXP(userId, xpGain, {
-        sourceType: 'challenge',
+        sourceType: 'weekly_challenge',
         sourceId: WEEKLY_CHALLENGE.id,
         previousBest: 0,
         newBest: 100,
@@ -629,10 +744,18 @@ router.get('/grande-missao', requireAuth, async (req: AuthRequest, res) => {
     const userId = req.user!.id;
     const progress = await getGrandeMissaoProgress(userId);
 
+    const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w, req.user?.role)));
+    const allCompleted = allStats.every((st) => st.isWorldCompleted);
+
     return res.json({
-      grandeMissao: GRANDE_MISSAO,
+      grandeMissao: {
+        ...GRANDE_MISSAO,
+        totalXp: PROGRESSION_CONFIG.XP_REWARDS.GRANDE_MISSAO,
+      },
       progress,
       completed: progress.status === 'completed',
+      isUnlocked: allCompleted || req.user?.role === 'teacher',
+      requiredWorldsCompleted: allCompleted,
     });
   } catch (err) {
     console.error('Error in /grande-missao:', err);
@@ -640,8 +763,8 @@ router.get('/grande-missao', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
-// POST complete Grande Missão
-router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res) => {
+// POST complete Grande Missão (Student ONLY, enforces all 5 worlds passed at 75%)
+router.post('/grande-missao/complete', requireStudent, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
     const progress = await getGrandeMissaoProgress(userId);
@@ -650,13 +773,21 @@ router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res
       return res.status(400).json({ error: 'Já concluíste a Grande Missão e recebeste a recompensa.' });
     }
 
+    const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w, req.user?.role)));
+    const allCompleted = allStats.every((st) => st.isWorldCompleted);
+    if (!allCompleted) {
+      return res.status(403).json({
+        error: `A Grande Missão apenas pode ser concluída após aprovação em todos os 5 Mundos curriculares (todas as atividades concluídas e média >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%).`,
+      });
+    }
+
     progress.status = 'completed';
     progress.currentStage = 5;
     progress.completedStages = [1, 2, 3, 4, 5];
     progress.completedAt = new Date().toISOString();
     await saveGrandeMissaoProgress(progress);
 
-    const xpGain = GRANDE_MISSAO.totalXp;
+    const xpGain = PROGRESSION_CONFIG.XP_REWARDS.GRANDE_MISSAO;
     const resAward = await atomicAwardXP(userId, xpGain, {
       sourceType: 'grande_missao',
       sourceId: GRANDE_MISSAO.id,
@@ -668,7 +799,7 @@ router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res
 
     return res.json({
       success: true,
-      message: 'Parabéns! Concluíste com distinção a Grande Missão A ESCOLA DO FUTURO! +150 XP atribuídos!',
+      message: `Parabéns! Concluíste com distinção a Grande Missão A ESCOLA DO FUTURO! +${xpGain} XP atribuídos!`,
       totalXp: resAward?.newTotalXP || req.user!.xp + xpGain,
     });
   } catch (err) {
@@ -677,63 +808,60 @@ router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res
   }
 });
 
-// GET Class-Private Ranking
+// GET Class Ranking
 router.get('/class-ranking', async (req: AuthRequest, res) => {
   try {
-    const userClassId = req.user?.classId || 'class-6a';
-    const allUsers = await getAllUsers();
+    const { classId } = req.query;
+    const users = await getAllUsers();
+    let students = users.filter((u) => u.role === 'student' && !u.isBlocked);
 
-    const classStudents = allUsers
-      .filter((u) => u.role === 'student' && u.classId === userClassId && !u.blocked)
-      .map((s) => {
-        const levelInfo = calculateLevel(s.xp);
-        return {
-          id: s.id,
-          nickname: s.nickname,
-          avatar: s.avatar,
-          xp: s.xp,
-          level: levelInfo.level,
-          levelName: levelInfo.name,
-          isCurrentUser: req.user ? s.id === req.user.id : false,
-        };
-      })
-      .sort((a, b) => b.xp - a.xp)
-      .map((s, index) => ({
-        position: index + 1,
-        ...s,
-      }));
+    if (classId && typeof classId === 'string' && classId !== 'all') {
+      students = students.filter((s) => s.classId === classId);
+    }
 
-    const classroom = userClassId ? await getClassById(userClassId) : null;
+    students.sort((a, b) => b.xp - a.xp);
 
-    return res.json({
-      className: classroom ? classroom.name : 'Turma 6.º A',
-      ranking: classStudents,
+    const ranking = students.slice(0, 50).map((s, index) => {
+      const isCurrentUser = req.user?.id === s.id;
+      return {
+        rank: index + 1,
+        id: s.id,
+        name: isCurrentUser ? s.name : s.nickname,
+        nickname: s.nickname,
+        avatar: s.avatar,
+        xp: s.xp,
+        level: calculateLevel(s.xp),
+        classId: s.classId,
+        isCurrentUser,
+      };
     });
+
+    return res.json({ ranking });
   } catch (err) {
     console.error('Error in /class-ranking:', err);
-    return res.status(500).json({ error: 'Erro ao carregar ranking da turma.' });
+    return res.status(500).json({ error: 'Erro ao carregar o ranking da turma.' });
   }
 });
 
-// GET Badges list (all badges + user ownership)
+// GET Badges Catalog & User Badges
 router.get('/badges', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userBadges = userId ? await getUserBadges(userId) : [];
 
-    const badges = BADGES_CATALOG.map((badge) => {
-      const owned = userBadges.find((b) => b.badgeId === badge.id);
+    const badges = BADGES_CATALOG.map((b) => {
+      const earned = userBadges.find((ub) => ub.badgeId === b.id);
       return {
-        ...badge,
-        unlocked: !!owned,
-        awardedAt: owned ? owned.awardedAt : null,
+        ...b,
+        unlocked: !!earned,
+        unlockedAt: earned?.unlockedAt || null,
       };
     });
 
     return res.json({ badges });
   } catch (err) {
     console.error('Error in /badges:', err);
-    return res.status(500).json({ error: 'Erro ao carregar emblemas.' });
+    return res.status(500).json({ error: 'Erro ao carregar insígnias.' });
   }
 });
 

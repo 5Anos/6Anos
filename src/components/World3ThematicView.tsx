@@ -19,6 +19,7 @@ import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World3ThematicViewProps {
   world: WorldSummary;
@@ -195,19 +196,22 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     const score = 100;
     setAvatarScore(score);
     setAvatarFeedback('🎉 Excelente! Criaste o teu Avatar Digital com sucesso sem expor a tua imagem real ou dados pessoais!');
-    reportCompletion('sim-avatar-challenge', 'Avatar Challenge', score);
+    reportCompletion('sim-avatar-challenge', 'Avatar Challenge', { avatarName, avatarPrivacyChecked, avatarBase }, score);
   };
 
   // -------------------------------------------------------------
   // REPORT COMPLETION HELPER
   // -------------------------------------------------------------
-  const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
+  const reportCompletion = async (simId: string, activityTitle: string, payloadData?: any, score?: number) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
         body: JSON.stringify({
           activityId: simId,
           worldId: 3,
+          answers: payloadData?.answers || payloadData,
+          payload: payloadData,
+          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
           score,
         }),
       });
@@ -230,7 +234,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     const item = messageOptions.find((m) => m.id === id);
     const score = item ? item.score : 50;
     setMessageScore(score);
-    reportCompletion('sim-comunicacao-digital', 'Comunicação Digital', score);
+    reportCompletion('sim-comunicacao-digital', 'Comunicação Digital', { toneId: id }, score);
   };
 
   const handleNetiquetteSubmit = () => {
@@ -240,7 +244,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     });
     const score = Math.round((correct / netiquetteScenarios.length) * 100);
     setNetiquetteScore(score);
-    reportCompletion('sim-netiqueta', 'Simulador de Netiqueta', score);
+    reportCompletion('sim-netiqueta', 'Simulador de Netiqueta', { answers: netiquetteChoices }, score);
   };
 
   const handleCollabSubmit = () => {
@@ -251,7 +255,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     });
     const score = Math.round((correct / collabScenarios.length) * 100);
     setCollabScore(score);
-    reportCompletion('sim-colaboracao', 'Simulador de Colaboração & Equipa', score);
+    reportCompletion('sim-colaboracao', 'Simulador de Colaboração & Equipa', { answers: collabChoices }, score);
   };
 
   const handleCopyrightSubmit = () => {
@@ -261,14 +265,14 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     });
     const score = Math.round((correct / copyrightScenarios.length) * 100);
     setCopyrightScore(score);
-    reportCompletion('sim-direitos-autor', 'Direitos de Autor & Permissões', score);
+    reportCompletion('sim-direitos-autor', 'Direitos de Autor & Permissões', { answers: copyrightChoices }, score);
   };
 
   const handlePlagiarismSelect = (optId: string) => {
     setPlagiarismOption(optId);
     const score = optId === 'correct' ? 100 : 30;
     setPlagiarismScore(score);
-    reportCompletion('sim-plagio-citacao', 'Simulador de Citação & Reconhecimento', score);
+    reportCompletion('sim-plagio-citacao', 'Simulador de Citação & Reconhecimento', { optionId: optId }, score);
   };
 
   const handleCcSubmit = () => {
@@ -279,7 +283,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     if (ccMatched['SA'] === 'mesma') count++;
     const score = Math.round((count / 4) * 100);
     setCcScore(score);
-    reportCompletion('sim-creative-commons', 'Simulador de Licenças Creative Commons', score);
+    reportCompletion('sim-creative-commons', 'Simulador de Licenças Creative Commons', { answers: ccMatched }, score);
   };
 
   // Helper
@@ -1327,7 +1331,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
 
           <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl max-w-md mx-auto text-xs text-purple-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloquear o Mundo 4: Média &gt; 80%</p>
+            <p>🏆 Requisito para desbloquear o Mundo 4: Média &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null

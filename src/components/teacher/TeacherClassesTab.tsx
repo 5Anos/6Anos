@@ -15,6 +15,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
+import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 interface TeacherClassesTabProps {
   classes: any[];
@@ -203,7 +204,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                       <div className="text-slate-500 text-[11px]">Média da Turma</div>
                       <div
                         className={`font-bold font-mono text-sm mt-0.5 ${
-                          avgPass > 80 ? 'text-emerald-700' : 'text-slate-700'
+                          avgPass >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-slate-700'
                         }`}
                       >
                         {avgPass > 0 ? `${avgPass}%` : '—'}

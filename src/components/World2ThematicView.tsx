@@ -266,13 +266,16 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   // -------------------------------------------------------------
   // PROGRESS & SCORE REPORTING
   // -------------------------------------------------------------
-  const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
+  const reportCompletion = async (simId: string, activityTitle: string, payloadData?: any, score?: number) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
         body: JSON.stringify({
           activityId: simId,
           worldId: 2,
+          answers: payloadData?.answers || payloadData,
+          payload: payloadData,
+          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
           score,
         }),
       });
@@ -299,7 +302,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       title: item.title,
       description: item.description,
     });
-    reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', item.score);
+    reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', { queryId: qId }, item.score);
   };
 
   // 2. Submit Authors
@@ -311,7 +314,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     const score = Math.round((correctCount / authorScenarios.length) * 100);
     setAuthorSubmitted(true);
     setAuthorScore(score);
-    reportCompletion('sim-author-check', 'Simulador de Autoria & Origem', score);
+    reportCompletion('sim-author-check', 'Simulador de Autoria & Origem', { answers: authorChoices }, score);
   };
 
   // 3. Submit Dates
@@ -323,7 +326,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     const score = Math.round((correctCount / dateScenarios.length) * 100);
     setDateSubmitted(true);
     setDateScore(score);
-    reportCompletion('sim-date-verifier', 'Simulador de Linha Temporal & Data', score);
+    reportCompletion('sim-date-verifier', 'Simulador de Linha Temporal & Data', { answers: dateChoices }, score);
   };
 
   // 4. Submit Compare
@@ -337,7 +340,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     const score = Math.round((correctCount / compareQuestions.length) * 100);
     setCompareSubmitted(true);
     setCompareScore(score);
-    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', score);
+    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', { answers: sourceCompareAnswers }, score);
   };
 
   // 5. Submit News Detective
@@ -351,7 +354,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       finalScore = 30;
     }
     setNewsScore(finalScore);
-    reportCompletion('sim-news-detective', 'DETETIVE DE NOTÍCIAS', finalScore);
+    reportCompletion('sim-news-detective', 'DETETIVE DE NOTÍCIAS', { decision, audit: newsDetectiveAudit }, finalScore);
   };
 
   // Helpers

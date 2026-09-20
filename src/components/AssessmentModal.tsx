@@ -13,6 +13,7 @@ import { AssessmentQuestion, AssessmentSubmissionResult } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface AssessmentModalProps {
   worldId: number;
@@ -141,8 +142,8 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 </h3>
                 <p className="text-sm font-medium mt-1">
                   {result.passed
-                    ? 'Parabéns! Cumpriste o requisito curricular (> 80%)!'
-                    : 'Ainda não atingiste os 80%. Revê os conteúdos e tenta novamente para melhorar a tua pontuação!'}
+                    ? `Parabéns! Cumpriste o requisito curricular (>= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)!`
+                    : `Ainda não atingiste os ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%. Revê os conteúdos e tenta novamente para melhorar a tua pontuação!`}
                 </p>
                 {result.xpGain > 0 && (
                   <div className="mt-3 inline-block bg-blue-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full shadow-xs">

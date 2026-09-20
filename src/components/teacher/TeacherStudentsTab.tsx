@@ -19,6 +19,7 @@ import {
   Award,
 } from 'lucide-react';
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
+import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 interface TeacherStudentsTabProps {
   students: any[];
@@ -235,7 +236,7 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
               ) : (
                 filteredStudents.map((s) => {
                   const isSelected = selectedIds.includes(s.id);
-                  const isPassGlobal = s.globalAverage > 80;
+                  const isPassGlobal = s.globalAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
                   return (
                     <tr

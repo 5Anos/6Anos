@@ -9,6 +9,7 @@ import {
   Sparkles,
   Award,
 } from 'lucide-react';
+import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 interface TeacherPautasTabProps {
   pautaData: any;
@@ -149,8 +150,8 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
       <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-xs text-slate-700 shadow-2xs">
         <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
         <div>
-          <strong>Critério de Desbloqueio e Conclusão:</strong> Média estritamente superior a{' '}
-          <span className="text-emerald-700 font-bold font-mono">80%</span> (ex: 81% ou mais desbloqueia o mundo seguinte; 80% ou inferior mantém bloqueado).
+          <strong>Critério de Desbloqueio e Conclusão:</strong> Média de pelo menos{' '}
+          <span className="text-emerald-700 font-bold font-mono">{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</span> (ex: {PROGRESSION_CONFIG.PASSING_THRESHOLD}% ou mais desbloqueia o mundo seguinte; inferior mantém bloqueado).
         </div>
       </div>
 
@@ -182,7 +183,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   </tr>
                 ) : (
                   filteredPautaGeral.map((item: any) => {
-                    const isPassedGlobal = item.globalAverage > 80;
+                    const isPassedGlobal = item.globalAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
                     return (
                       <tr
@@ -206,7 +207,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         </td>
 
                         {item.worldScores.map((score: number, idx: number) => {
-                          const isWorldPassed = score > 80;
+                          const isWorldPassed = score >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
                           return (
                             <td key={idx} className="py-3 px-4 text-center font-mono">
                               <span
@@ -297,7 +298,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   </tr>
                 ) : (
                   filteredWorldStudents.map((st: any) => {
-                    const isWorldPassed = st.worldAverage > 80;
+                    const isWorldPassed = st.worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
                     return (
                       <tr
@@ -344,7 +345,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                           {st.assessmentScore > 0 ? (
                             <span
                               className={`font-bold ${
-                                st.assessmentScore > 80 ? 'text-emerald-700' : 'text-rose-700'
+                                st.assessmentScore >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-rose-700'
                               }`}
                             >
                               {st.assessmentScore}%

@@ -347,13 +347,16 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
   // -------------------------------------------------------------
   // REPORT COMPLETION HELPER
   // -------------------------------------------------------------
-  const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
+  const reportCompletion = async (simId: string, activityTitle: string, payloadData?: any, score?: number) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
         body: JSON.stringify({
           activityId: simId,
           worldId: 5,
+          answers: payloadData?.answers || payloadData,
+          payload: payloadData,
+          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
           score,
         }),
       });
@@ -383,7 +386,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / conceptItems.length) * 100);
     setConceptScore(score);
     setConceptValidated(true);
-    reportCompletion('sim-ia-concepts', 'Simulador de Conceitos de IA', score);
+    reportCompletion('sim-ia-concepts', 'Simulador de Conceitos de IA', { answers: conceptChoices }, score);
   };
 
   const handleValidateGen = () => {
@@ -399,7 +402,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / genSituations.length) * 100);
     setGenScore(score);
     setGenValidated(true);
-    reportCompletion('sim-ai-generation', 'Simulador de IA Generativa & Verificação', score);
+    reportCompletion('sim-ai-generation', 'Simulador de IA Generativa & Verificação', { answers: genChoices }, score);
   };
 
   const handleValidatePromptLevel = () => {
@@ -415,7 +418,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / promptLevels.length) * 100);
     setPromptScore(score);
     setPromptValidated(true);
-    reportCompletion('sim-prompt', 'Prompt Simulator Progressivo', score);
+    reportCompletion('sim-prompt', 'Prompt Simulator Progressivo', { answers: promptChoices }, score);
   };
 
   const handleValidateHallucination = () => {
@@ -430,7 +433,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / hallucinationStatements.length) * 100);
     setHallucinationScore(score);
     setHallucinationValidated(true);
-    reportCompletion('sim-hallucination', 'Hallucination & Evidence Simulator', score);
+    reportCompletion('sim-hallucination', 'Hallucination & Evidence Simulator', { answers: hallucinationChoices }, score);
   };
 
   const handleValidatePrivacy = () => {
@@ -445,7 +448,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / privacyItems.length) * 100);
     setPrivacyScore(score);
     setPrivacyValidated(true);
-    reportCompletion('sim-ai-responsibility', 'Simulador de Privacidade e Classificação de Dados', score);
+    reportCompletion('sim-ai-responsibility', 'Simulador de Privacidade e Classificação de Dados', { answers: privacyChoices }, score);
   };
 
   const handleValidateRec = () => {
@@ -461,7 +464,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / recSituations.length) * 100);
     setRecommendationScore(score);
     setRecValidated(true);
-    reportCompletion('sim-recommendation', 'Recommendation & Autonomy Simulator', score);
+    reportCompletion('sim-recommendation', 'Recommendation & Autonomy Simulator', { answers: recChoices }, score);
   };
 
   // Helper

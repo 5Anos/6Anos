@@ -79,13 +79,16 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   const [selectedPromptType, setSelectedPromptType] = useState<'vague' | 'detailed' | null>(null);
 
   // Complete simulator API caller
-  const reportCompletion = async (simId: string, wId: number, score: number) => {
+  const reportCompletion = async (simId: string, wId: number, payloadData?: any, score?: number) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
         body: JSON.stringify({
           activityId: simId,
           worldId: wId,
+          answers: payloadData?.answers || payloadData,
+          payload: payloadData,
+          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
           score,
         }),
       });
@@ -142,7 +145,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
 
     setHasTestedPwd(true);
     setPwdFeedback({ score, title, description });
-    reportCompletion('sim-password', 1, score);
+    reportCompletion('sim-password', 1, { password: pwdInput }, score);
   };
 
   // 2. Phishing Simulator Scenarios
@@ -202,7 +205,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
       });
       const finalScore = Math.round((correctCount / phishingScenarios.length) * 100);
       setPhishingCompleted(true);
-      reportCompletion('sim-phishing', 1, finalScore);
+      reportCompletion('sim-phishing', 1, { answers: updatedChoices }, finalScore);
     }
   };
 
@@ -247,7 +250,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     });
     const score = Math.round((correctCount / privacyItems.length) * 100);
     setPrivacyScore(score);
-    reportCompletion('sim-privacy', 1, score);
+    reportCompletion('sim-privacy', 1, { answers: privacyChoices }, score);
   };
 
   // 3b. Digital Footprint Simulator
@@ -290,7 +293,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     });
     const score = Math.round((correctCount / footprintScenarios.length) * 100);
     setFootprintScore(score);
-    reportCompletion('sim-digital-footprint', 1, score);
+    reportCompletion('sim-digital-footprint', 1, { answers: footprintChoices }, score);
   };
 
   // 3c. Digital Wellbeing Simulator
@@ -330,7 +333,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     });
     const score = Math.round((correctCount / wellbeingHabits.length) * 100);
     setWellbeingScore(score);
-    reportCompletion('sim-digital-wellbeing', 1, score);
+    reportCompletion('sim-digital-wellbeing', 1, { answers: wellbeingChoices }, score);
   };
 
   // 4. Block Coding / Algorithm Execution
@@ -341,11 +344,11 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     if (forwardCount >= 2) {
       setRobotPos({ x: 2, y: 0, dir: 'E' });
       setCodeSuccess(true);
-      reportCompletion('sim-block-coding', 4, 100);
+      reportCompletion('sim-block-coding', 4, { commands: codeCommands, forwardCount }, 100);
     } else {
       setRobotPos({ x: forwardCount, y: 0, dir: 'E' });
       setCodeSuccess(false);
-      reportCompletion('sim-block-coding', 4, 50);
+      reportCompletion('sim-block-coding', 4, { commands: codeCommands, forwardCount }, 50);
     }
   };
 
@@ -1076,7 +1079,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             <div
               onClick={() => {
                 setSelectedPromptType('detailed');
-                reportCompletion('sim-prompt', 5, 100);
+                reportCompletion('sim-prompt', 5, { selectedOption: 'detailed' }, 100);
               }}
               className={`p-5 rounded-2xl border cursor-pointer transition-all ${
                 selectedPromptType === 'detailed'

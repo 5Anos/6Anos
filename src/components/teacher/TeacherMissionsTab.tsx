@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
+import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 interface TeacherMissionsTabProps {
   missions: any[];
@@ -298,7 +299,9 @@ export const TeacherMissionsTab: React.FC<TeacherMissionsTabProps> = ({
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono font-bold text-amber-700 focus:outline-none focus:border-amber-500"
                   />
                   <div className="text-[10px] text-slate-500">
-                    {score > 80 ? '✓ Aprovado (>80%)' : '✗ Insuficiente (≤80%)'}
+                    {score >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                      ? `✓ Aprovado (>=${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`
+                      : `✗ Insuficiente (<${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`}
                   </div>
                 </div>
 

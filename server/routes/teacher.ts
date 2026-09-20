@@ -51,6 +51,7 @@ import {
   BADGES_CATALOG,
 } from '../catalog';
 import { computeWorldStats } from './pedagogical';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 const router = Router();
 
@@ -106,7 +107,7 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
             sumAvg += stats.average;
             count++;
           }
-          if (stats.average > 80) {
+          if (stats.isWorldCompleted || stats.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
             passedCount++;
           }
         }
@@ -172,7 +173,7 @@ router.get('/students', async (req: AuthRequest, res) => {
         const levelInfo = calculateLevel(s.xp);
         const classroom = classes.find((c) => c.id === s.classId);
 
-        // Calculate world averages strictly with > 80% unlock rule
+        // Calculate world averages strictly with centralized progression policy
         const worldAverages = await Promise.all(
           [1, 2, 3, 4, 5].map(async (wId) => {
             const st = await computeWorldStats(s.id, wId);
@@ -182,6 +183,7 @@ router.get('/students', async (req: AuthRequest, res) => {
               completedCount: st.completedCount,
               totalComponents: st.totalComponents,
               isUnlocked: st.isUnlocked,
+              isCompleted: st.isWorldCompleted,
               hasAssessmentPassed: st.hasAssessmentPassed,
             };
           })
@@ -316,18 +318,20 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
         scores.push(bestAssess);
       }
       const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
-      previousWorldPassed = average > 80;
+      const worldStats = await computeWorldStats(student.id, w.id);
+      previousWorldPassed = worldStats.isWorldCompleted;
 
       return {
         worldId: w.id,
         title: w.title,
         subtitle: w.subtitle,
         color: w.color,
-        average,
-        isUnlocked,
-        completedCount: scores.length,
-        totalComponents: w.simulators.length + 1,
-        hasAssessmentPassed: worldAssessments.some((a) => a.percentage >= 80),
+        average: worldStats.average,
+        isUnlocked: worldStats.isUnlocked,
+        isCompleted: worldStats.isWorldCompleted,
+        completedCount: worldStats.completedCount,
+        totalComponents: worldStats.totalComponents,
+        hasAssessmentPassed: worldStats.hasAssessmentPassed,
         simulators: simulatorsDetail,
         challenge: {
           id: w.challenge.id,
@@ -959,17 +963,25 @@ router.post('/missions/:submissionId/grade', async (req: AuthRequest, res) => {
     const submission = await getMissionSubmissionById(submissionId);
     if (!submission) return res.status(404).json({ error: 'Submissão não encontrada.' });
 
+    // Authorization: Teachers assigned to a specific class can only grade their class
+    if (req.user!.classId && submission.classId && req.user!.classId !== submission.classId) {
+      return res.status(403).json({ error: 'Não tens autorização para avaliar alunos de outra turma.' });
+    }
+
     const student = await getUserById(submission.userId);
     if (!student) return res.status(404).json({ error: 'Aluno associado não encontrado.' });
 
     const prevScore = submission.score || 0;
     const normalizedScore = Math.round(score);
 
+    const now = new Date().toISOString();
     submission.score = normalizedScore;
     submission.feedback = feedback ? feedback.trim() : '';
     submission.status = 'graded';
     submission.gradedBy = req.user!.name;
-    submission.gradedAt = new Date().toISOString();
+    submission.gradedAt = now;
+    submission.updatedAt = now;
+    submission.submissionText = submission.submissionText || submission.submission;
 
     await saveMissionSubmission(submission);
 
@@ -1035,7 +1047,7 @@ router.get('/assessments-summary', async (req: AuthRequest, res) => {
           hasAttempted: studentAttempts.length > 0,
           attemptsCount: studentAttempts.length,
           bestPercentage: bestAttempt ? bestAttempt.percentage : null,
-          passed: bestAttempt ? bestAttempt.percentage > 80 : false,
+          passed: bestAttempt ? bestAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD : false,
           lastAttemptAt: bestAttempt ? bestAttempt.createdAt : null,
         };
       });
@@ -1458,10 +1470,11 @@ router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: R
           : 0;
 
       let unlockedCount = 1;
-      if (m1 > 80) unlockedCount = 2;
-      if (m1 > 80 && m2 > 80) unlockedCount = 3;
-      if (m1 > 80 && m2 > 80 && m3 > 80) unlockedCount = 4;
-      if (m1 > 80 && m2 > 80 && m3 > 80 && m4 > 80) unlockedCount = 5;
+      const th = PROGRESSION_CONFIG.PASSING_THRESHOLD;
+      if (m1 >= th) unlockedCount = 2;
+      if (m1 >= th && m2 >= th) unlockedCount = 3;
+      if (m1 >= th && m2 >= th && m3 >= th) unlockedCount = 4;
+      if (m1 >= th && m2 >= th && m3 >= th && m4 >= th) unlockedCount = 5;
 
       const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
       const needsHelp = failedAttempts >= 2 || (m1 > 0 && m1 < 50) ? 'SIM' : 'NAO';
@@ -1547,10 +1560,11 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
           : 0;
 
       let unlockedCount = 1;
-      if (m1 > 80) unlockedCount = 2;
-      if (m1 > 80 && m2 > 80) unlockedCount = 3;
-      if (m1 > 80 && m2 > 80 && m3 > 80) unlockedCount = 4;
-      if (m1 > 80 && m2 > 80 && m3 > 80 && m4 > 80) unlockedCount = 5;
+      const th = PROGRESSION_CONFIG.PASSING_THRESHOLD;
+      if (m1 >= th) unlockedCount = 2;
+      if (m1 >= th && m2 >= th) unlockedCount = 3;
+      if (m1 >= th && m2 >= th && m3 >= th) unlockedCount = 4;
+      if (m1 >= th && m2 >= th && m3 >= th && m4 >= th) unlockedCount = 5;
 
       pautaRows.push({
         'Nickname': s.nickname,
@@ -1584,7 +1598,7 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
         'Mundo': a.worldId,
         'Pontuação (Questões)': a.score,
         'Percentagem (%)': a.percentage,
-        'Aprovado (>80%)': a.percentage > 80 ? 'Sim' : 'Não',
+        'Aprovado (>=75%)': a.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'Sim' : 'Não',
         'Data': new Date(a.createdAt).toLocaleString('pt-PT'),
       };
     });

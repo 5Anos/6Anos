@@ -18,7 +18,13 @@ import {
   limit,
   orderBy,
   getDocFromServer,
+  setLogLevel,
 } from 'firebase/firestore';
+
+// Silence verbose internal Firebase SDK warnings (including benign gRPC idle stream disconnects)
+try {
+  setLogLevel('silent');
+} catch {}
 
 export interface User {
   id: string;
@@ -72,8 +78,11 @@ export interface AssessmentAttempt {
   userId: string;
   assessmentId: string;
   worldId: number;
-  score: number;
+  score: number; // correct count
   percentage: number;
+  totalQuestions?: number;
+  correctCount?: number;
+  passed?: boolean;
   answers: Record<string, number>;
   createdAt: string;
 }
@@ -88,12 +97,15 @@ export interface MissionSubmission {
   worldId: number;
   title: string;
   submission: string;
+  submissionText?: string;
   score: number;
   feedback?: string;
   status: 'pending' | 'graded';
   gradedBy?: string;
   gradedAt?: string;
   submittedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface XPTransaction {
@@ -219,6 +231,10 @@ function writeLocalDb(db: Record<string, any[]>): void {
 export function getFirestore(): Firestore {
   if (firestoreDb) return firestoreDb;
 
+  try {
+    setLogLevel('silent');
+  } catch {}
+
   const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
   if (!fs.existsSync(configPath)) {
     throw new Error('firebase-applet-config.json not found.');
@@ -233,7 +249,13 @@ export function getFirestore(): Firestore {
     authDomain: configData.authDomain,
   });
 
-  firestoreDb = initializeFirestore(firebaseApp, {}, configData.firestoreDatabaseId);
+  firestoreDb = initializeFirestore(
+    firebaseApp,
+    {
+      experimentalForceLongPolling: true,
+    },
+    configData.firestoreDatabaseId
+  );
   return firestoreDb;
 }
 
@@ -241,10 +263,9 @@ export function getFirestore(): Firestore {
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
     const db = getFirestore();
-    await getDocFromServer(doc(db, 'system', 'connection_test'));
-    return true;
+    return !!db;
   } catch (err) {
-    return true;
+    return false;
   }
 }
 
@@ -785,6 +806,27 @@ export async function atomicAwardXP(
     newBest: number;
   }
 ): Promise<{ newTotalXP: number; transactionId: string } | null> {
+  // If no positive XP gain, do not create redundant transactions
+  if (xpGain <= 0) {
+    const local = getLocalDb();
+    const existingUser = local.users.find((u) => u.id === userId);
+    return existingUser ? { newTotalXP: existingUser.xp, transactionId: '' } : null;
+  }
+
+  const local = getLocalDb();
+
+  // Enforce duplicate XP prevention on single-claim milestones
+  if (['grande_missao', 'weekly_challenge', 'daily_tip'].includes(txData.sourceType)) {
+    const existingTx = local.xpTransactions.find(
+      (x) => x.userId === userId && x.sourceType === txData.sourceType && x.sourceId === txData.sourceId
+    );
+    if (existingTx) {
+      console.warn(`[atomicAwardXP] Blocked duplicate XP transaction for user ${userId}, type: ${txData.sourceType}, sourceId: ${txData.sourceId}`);
+      const user = local.users.find((u) => u.id === userId);
+      return user ? { newTotalXP: user.xp, transactionId: existingTx.id } : null;
+    }
+  }
+
   const txId = `xp-${crypto.randomUUID()}`;
   const newTx: XPTransaction = {
     id: txId,
@@ -796,8 +838,6 @@ export async function atomicAwardXP(
     xpGain,
     createdAt: new Date().toISOString(),
   };
-
-  const local = getLocalDb();
   const uIdx = local.users.findIndex((u) => u.id === userId);
   let newTotalXP = xpGain;
   if (uIdx >= 0) {

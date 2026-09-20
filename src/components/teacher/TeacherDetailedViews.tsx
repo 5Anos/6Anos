@@ -19,6 +19,7 @@ import {
   Users,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
+import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 // =================================================================
 // 1. ASSESSMENTS TAB (Avaliações Finais dos 5 Mundos)
@@ -82,7 +83,7 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
               <div className="text-2xl font-bold text-slate-900 mt-1">{currentWorld.totalAttempted || 0}</div>
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-              <div className="text-xs text-slate-500 font-semibold">Aprovados (&gt;80%)</div>
+              <div className="text-xs text-slate-500 font-semibold">Aprovados (&gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%)</div>
               <div className="text-2xl font-bold text-emerald-700 mt-1">{currentWorld.totalPassed || 0}</div>
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
@@ -122,11 +123,11 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
                     <td className="py-3 px-4 text-center">
                       {s.passed ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3" /> Aprovado (&gt;80%)
+                          <CheckCircle2 className="w-3 h-3" /> Aprovado (&gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
                         </span>
                       ) : s.attempts > 0 ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                          <XCircle className="w-3 h-3" /> Insuficiente (≤80%)
+                          <XCircle className="w-3 h-3" /> Insuficiente (&lt;{PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
                         </span>
                       ) : (
                         <span className="text-xs text-slate-400">Não Realizou</span>

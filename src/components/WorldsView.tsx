@@ -35,7 +35,9 @@ import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { AssessmentModal } from './AssessmentModal';
+import { WorldMissionCard } from './WorldMissionCard';
 import { World1ThematicView } from './World1ThematicView';
 import { World2ThematicView } from './World2ThematicView';
 import { World3ThematicView } from './World3ThematicView';
@@ -140,7 +142,13 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     if (simId === 'assessment') {
       return (
         currentWorld.bestAssessmentPercentage !== null &&
-        currentWorld.bestAssessmentPercentage >= 75
+        currentWorld.bestAssessmentPercentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+      );
+    }
+    if (simId === 'mission') {
+      return (
+        currentWorld.missionProgress !== null &&
+        (currentWorld.missionProgress.status === 'graded' || currentWorld.missionProgress.status === 'pending')
       );
     }
     return currentWorld.simulatorsProgress?.some((s) => s.id === simId && s.completed);
@@ -173,6 +181,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       icon: CheckCircle2,
       simId: 'assessment',
     },
+    {
+      id: 'missao',
+      label: 'Missão Prática',
+      icon: FileText,
+      simId: 'mission',
+    },
   ];
 
   const world2Tabs = [
@@ -186,6 +200,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       label: '6. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
+    },
+    {
+      id: 'missao',
+      label: 'Missão Prática',
+      icon: FileText,
+      simId: 'mission',
     },
   ];
 
@@ -202,6 +222,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       icon: CheckCircle2,
       simId: 'assessment',
     },
+    {
+      id: 'missao',
+      label: 'Missão Prática',
+      icon: FileText,
+      simId: 'mission',
+    },
   ];
 
   const world4Tabs = [
@@ -217,6 +243,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       icon: CheckCircle2,
       simId: 'assessment',
     },
+    {
+      id: 'missao',
+      label: 'Missão Prática',
+      icon: FileText,
+      simId: 'mission',
+    },
   ];
 
   const world5Tabs = [
@@ -231,6 +263,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       label: '7. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
+    },
+    {
+      id: 'missao',
+      label: 'Missão Prática',
+      icon: FileText,
+      simId: 'mission',
     },
   ];
 
@@ -306,7 +344,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                 )}
                 {!isUnlocked && (
                   <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">
-                    &gt; 75% M{world.id - 1}
+                    &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}% M{world.id - 1}
                   </span>
                 )}
               </button>
@@ -328,7 +366,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             {currentWorld.title} Bloqueado
           </h3>
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-            Para acederes e realizares as atividades do <strong>Mundo {currentWorld.id}</strong>, precisas de alcançar uma pontuação média superior a <strong>75%</strong> no <strong>Mundo {currentWorld.id - 1}</strong>.
+            Para acederes e realizares as atividades do <strong>Mundo {currentWorld.id}</strong>, precisas de alcançar uma pontuação média de pelo menos <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> no <strong>Mundo {currentWorld.id - 1}</strong>.
           </p>
           <button
             onClick={() => {
@@ -410,56 +448,65 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           </div>
 
           {/* ========================================================= */}
-          {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC) */}
+          {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC) OR MISSION */}
           {/* ========================================================= */}
-          {currentWorld.id === 1 && (
-            <World1ThematicView
+          {activeTab === 'missao' ? (
+            <WorldMissionCard
               world={currentWorld}
-              activeTopicId={activeTab}
-              onNavigateTopic={(topicId) => setActiveTab(topicId)}
-              onOpenAssessment={() => setShowAssessmentModal(true)}
               onRefreshWorld={loadWorlds}
             />
-          )}
+          ) : (
+            <>
+              {currentWorld.id === 1 && (
+                <World1ThematicView
+                  world={currentWorld}
+                  activeTopicId={activeTab}
+                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
+                  onOpenAssessment={() => setShowAssessmentModal(true)}
+                  onRefreshWorld={loadWorlds}
+                />
+              )}
 
-          {currentWorld.id === 2 && (
-            <World2ThematicView
-              world={currentWorld}
-              activeTopicId={activeTab}
-              onNavigateTopic={(topicId) => setActiveTab(topicId)}
-              onOpenAssessment={() => setShowAssessmentModal(true)}
-              onRefreshWorld={loadWorlds}
-            />
-          )}
+              {currentWorld.id === 2 && (
+                <World2ThematicView
+                  world={currentWorld}
+                  activeTopicId={activeTab}
+                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
+                  onOpenAssessment={() => setShowAssessmentModal(true)}
+                  onRefreshWorld={loadWorlds}
+                />
+              )}
 
-          {currentWorld.id === 3 && (
-            <World3ThematicView
-              world={currentWorld}
-              activeTopicId={activeTab}
-              onNavigateTopic={(topicId) => setActiveTab(topicId)}
-              onOpenAssessment={() => setShowAssessmentModal(true)}
-              onRefreshWorld={loadWorlds}
-            />
-          )}
+              {currentWorld.id === 3 && (
+                <World3ThematicView
+                  world={currentWorld}
+                  activeTopicId={activeTab}
+                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
+                  onOpenAssessment={() => setShowAssessmentModal(true)}
+                  onRefreshWorld={loadWorlds}
+                />
+              )}
 
-          {currentWorld.id === 4 && (
-            <World4ThematicView
-              world={currentWorld}
-              activeTopicId={activeTab}
-              onNavigateTopic={(topicId) => setActiveTab(topicId)}
-              onOpenAssessment={() => setShowAssessmentModal(true)}
-              onRefreshWorld={loadWorlds}
-            />
-          )}
+              {currentWorld.id === 4 && (
+                <World4ThematicView
+                  world={currentWorld}
+                  activeTopicId={activeTab}
+                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
+                  onOpenAssessment={() => setShowAssessmentModal(true)}
+                  onRefreshWorld={loadWorlds}
+                />
+              )}
 
-          {currentWorld.id === 5 && (
-            <World5ThematicView
-              world={currentWorld}
-              activeTopicId={activeTab}
-              onNavigateTopic={(topicId) => setActiveTab(topicId)}
-              onOpenAssessment={() => setShowAssessmentModal(true)}
-              onRefreshWorld={loadWorlds}
-            />
+              {currentWorld.id === 5 && (
+                <World5ThematicView
+                  world={currentWorld}
+                  activeTopicId={activeTab}
+                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
+                  onOpenAssessment={() => setShowAssessmentModal(true)}
+                  onRefreshWorld={loadWorlds}
+                />
+              )}
+            </>
           )}
         </>
       )}

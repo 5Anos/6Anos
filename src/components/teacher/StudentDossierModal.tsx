@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../../api';
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
+import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 interface StudentDossierModalProps {
   studentId: string;
@@ -377,7 +378,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                   {worldDetails.map((w: any) => {
-                    const isPassed = w.average > 80;
+                    const isPassed = w.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
                     const isUnlocked = w.isUnlocked;
 
                     return (
@@ -443,7 +444,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                               }`}
                             >
                               {w.mission
-                                ? w.mission.status === 'graded'
+                                  ? w.mission.status === 'graded'
                                   ? `${w.mission.score}/100`
                                   : 'Pendente'
                                 : 'Por entregar'}
@@ -458,9 +459,9 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                                   : 'bg-rose-50 text-rose-700 border-rose-200'
                               }`}
                             >
-                              {w.average > 80
-                                ? 'MÉDIA > 80% (APROVADO)'
-                                : 'MÉDIA ≤ 80% (BLOQUEADO)'}
+                              {isPassed
+                                ? `MÉDIA >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (APROVADO)`
+                                : `MÉDIA < ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (BLOQUEADO)`}
                             </span>
                           </div>
                         </div>
@@ -496,7 +497,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                         <div className="text-[10px] text-slate-400 uppercase font-semibold">Média do Mundo</div>
                         <div
                           className={`text-lg font-black font-mono ${
-                            w.average > 80 ? 'text-emerald-700' : 'text-rose-700'
+                            w.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-rose-700'
                           }`}
                         >
                           {w.average > 0 ? `${w.average}%` : '0%'}
@@ -552,7 +553,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                           </div>
                           <span
                             className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
-                              w.assessments.length > 0 && w.assessments[0].percentage > 80
+                              w.assessments.length > 0 && w.assessments[0].percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 : w.assessments.length > 0
                                 ? 'bg-rose-50 text-rose-700 border border-rose-200'

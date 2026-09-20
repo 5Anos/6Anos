@@ -22,6 +22,7 @@ import { Zone4AutomationWorkshop } from './grandeMissao/Zone4AutomationWorkshop'
 import { Zone5AILab } from './grandeMissao/Zone5AILab';
 import { Zone6CoreSchool } from './grandeMissao/Zone6CoreSchool';
 import { GrandeMissaoCelebration } from './grandeMissao/GrandeMissaoCelebration';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface GrandeMissaoViewProps {
   onBack: () => void;
@@ -52,7 +53,8 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           const res = await apiRequest('/api/pedagogical/worlds');
           const worlds = res.worlds || [];
           const allCompletedWith75 =
-            worlds.length >= 5 && worlds.every((w: any) => (w.average || 0) > 75);
+            worlds.length >= 5 &&
+            worlds.every((w: any) => w.completed || (w.average || 0) >= PROGRESSION_CONFIG.PASSING_THRESHOLD);
           if (!allCompletedWith75) {
             setIsLocked(true);
           }

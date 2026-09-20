@@ -243,13 +243,16 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   // -------------------------------------------------------------
   // PROGRESS & SCORE REPORTING
   // -------------------------------------------------------------
-  const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
+  const reportCompletion = async (simId: string, activityTitle: string, payloadData?: any, score?: number) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
         body: JSON.stringify({
           activityId: simId,
           worldId: 1,
+          answers: payloadData?.answers || payloadData,
+          payload: payloadData,
+          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
           score,
         }),
       });
@@ -298,7 +301,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     setHasTestedPwd(true);
     setPwdScore(score);
     setPwdFeedback({ score, title, description });
-    reportCompletion('sim-password', 'Laboratório de Palavras-Passe', score);
+    reportCompletion('sim-password', 'Laboratório de Palavras-Passe', { password: pwdInput }, score);
   };
 
   // Evaluate Phishing Decision
@@ -324,7 +327,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     });
 
     const totalScore = Math.round((correctCount / phishingScenarios.length) * 100);
-    reportCompletion('sim-phishing', 'Laboratório de Phishing', totalScore);
+    reportCompletion('sim-phishing', 'Laboratório de Phishing', { answers: nextChoices }, totalScore);
   };
 
   // Evaluate Privacy Choices
@@ -350,7 +353,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     }
 
     setPrivacyFeedback({ score, title, description });
-    reportCompletion('sim-privacy', 'Laboratório de Privacidade', score);
+    reportCompletion('sim-privacy', 'Laboratório de Privacidade', { answers: privacyChoices }, score);
   };
 
   // Evaluate Footprint Choices
@@ -376,7 +379,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     }
 
     setFootprintFeedback({ score, title, description });
-    reportCompletion('sim-digital-footprint', 'Simulador de Pegada Digital', score);
+    reportCompletion('sim-digital-footprint', 'Simulador de Pegada Digital', { answers: footprintChoices }, score);
   };
 
   // Evaluate Wellbeing Choices
@@ -402,7 +405,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     }
 
     setWellbeingFeedback({ score, title, description });
-    reportCompletion('sim-digital-wellbeing', 'Simulador de Bem-estar Digital', score);
+    reportCompletion('sim-digital-wellbeing', 'Simulador de Bem-estar Digital', { answers: wellbeingChoices }, score);
   };
 
   // Helper to find simulator progress

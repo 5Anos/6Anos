@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { WorldSummary, RankingStudent, DailyTipData, WeeklyChallengeData } from '../types';
 import { apiRequest } from '../api';
 import { t } from '../i18n';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 import {
   Island1Artwork,
   Island2Artwork,
@@ -415,7 +416,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg > 80
+                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-blue-100 text-blue-800'
@@ -426,7 +427,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!user
                           ? 'Registo Obrigatório'
-                          : avg > 80
+                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
