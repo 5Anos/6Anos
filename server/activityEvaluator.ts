@@ -27,8 +27,12 @@ export function evaluateActivity(
   worldId: number,
   data: EvaluationInput
 ): EvaluationResult {
-  const { answers, payload, completedAction, score: clientScore } = data;
-  const input = payload || answers || {};
+  const { answers, payload } = data;
+  let input = payload !== undefined ? payload : (answers !== undefined ? answers : {});
+  // Unwrap nested answers object if present
+  if (input && typeof input === 'object' && input.answers !== undefined && Object.keys(input).length === 1) {
+    input = input.answers;
+  }
 
   switch (activityId) {
     // -------------------------------------------------------------
@@ -36,9 +40,9 @@ export function evaluateActivity(
     // -------------------------------------------------------------
     case 'sim-password': {
       // Deterministic password strength evaluation
-      const pwd = typeof input === 'string' ? input : input.password || input.pwdInput || '';
-      if (!pwd || typeof pwd !== 'string') {
-        return { score: 0, isValidated: true, feedback: 'Nenhuma palavra-passe fornecida para teste.' };
+      const pwd = typeof input === 'string' ? input : input?.password || input?.pwdInput || '';
+      if (!pwd || typeof pwd !== 'string' || pwd.trim().length === 0) {
+        return { score: 0, isValidated: false, feedback: 'Nenhuma palavra-passe fornecida para teste.' };
       }
       let score = 0;
       const len = pwd.length;
@@ -63,10 +67,11 @@ export function evaluateActivity(
         2: true,
         3: false,
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correctCount = 0;
         let totalChecked = 0;
-        for (const [idxStr, val] of Object.entries(input)) {
+        for (const [idxStr, val] of Object.entries(ans)) {
           const idx = parseInt(idxStr, 10);
           if (idx in expected) {
             totalChecked++;
@@ -92,13 +97,20 @@ export function evaluateActivity(
         'item-desenho': 'publico',
         'item-resumo': 'publico',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correctCount = 0;
+        let matched = 0;
         for (const [key, expected] of Object.entries(privacyKeys)) {
-          if (input[key] === expected) correctCount++;
+          if (key in ans) {
+            matched++;
+            if (ans[key] === expected) correctCount++;
+          }
         }
-        const score = Math.round((correctCount / Object.keys(privacyKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correctCount / Object.keys(privacyKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -111,13 +123,20 @@ export function evaluateActivity(
         'fp-gps': 'risco',
         'fp-scratch': 'positivo',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correctCount = 0;
+        let matched = 0;
         for (const [key, expected] of Object.entries(footprintKeys)) {
-          if (input[key] === expected) correctCount++;
+          if (key in ans) {
+            matched++;
+            if (ans[key] === expected) correctCount++;
+          }
         }
-        const score = Math.round((correctCount / Object.keys(footprintKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correctCount / Object.keys(footprintKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -130,13 +149,20 @@ export function evaluateActivity(
         'wb-ignorar': 'risco',
         'wb-desporto': 'saudavel',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correctCount = 0;
+        let matched = 0;
         for (const [key, expected] of Object.entries(wellbeingKeys)) {
-          if (input[key] === expected) correctCount++;
+          if (key in ans) {
+            matched++;
+            if (ans[key] === expected) correctCount++;
+          }
         }
-        const score = Math.round((correctCount / Object.keys(wellbeingKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correctCount / Object.keys(wellbeingKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -152,13 +178,14 @@ export function evaluateActivity(
         q3: 70,
         q4: 100,
       };
-      const qId = typeof input === 'string' ? input : input.queryId || input.selectedQuery || input.id;
+      const qId = typeof input === 'string' ? input : input?.queryId || input?.selectedQuery || input?.id;
       if (qId && qId in queryScores) {
         return { score: queryScores[qId], isValidated: true };
       }
       break;
     }
 
+    case 'sim-author':
     case 'sim-author-check': {
       // author scenarios
       const authorKeys: Record<string, string> = {
@@ -166,54 +193,77 @@ export function evaluateActivity(
         'scen-2': 'confiavel',
         'scen-3': 'falso',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(authorKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(authorKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(authorKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
 
+    case 'sim-date':
     case 'sim-date-verifier': {
       // date scenarios
       const dateKeys: Record<string, string> = {
         'date-1': 'desatualizado',
         'date-2': 'atual',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(dateKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(dateKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(dateKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
 
+    case 'sim-compare':
     case 'sim-source-compare': {
       // compare questions: q1: 'opt-2' is correct, q2: 'opt-3' is correct
       const compareKeys: Record<string, string> = {
         'comp-1': 'opt-2',
         'comp-2': 'opt-3',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(compareKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(compareKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(compareKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
 
     case 'sim-news-detective': {
-      const decision = input.decision || input.newsDecision;
-      const audit = input.audit || input.newsDetectiveAudit || {};
+      const decision = input?.decision || input?.newsDecision;
+      const audit = input?.audit || input?.newsDetectiveAudit || {};
       const checksCount = Object.values(audit).filter(Boolean).length;
       if (decision === 'verificar') {
         const score = Math.min(100, checksCount * 15 + 40);
@@ -229,14 +279,18 @@ export function evaluateActivity(
     // -------------------------------------------------------------
     case 'sim-avatar-challenge': {
       // Checks that avatar is created without revealing real face/name
-      const privacyChecked = Boolean(input.avatarPrivacyChecked || input.privacyChecked);
-      const nickname = input.nickname || input.customNickname || '';
-      if (privacyChecked && typeof nickname === 'string' && nickname.trim().length >= 2) {
+      const privacyChecked = Boolean(input?.avatarPrivacyChecked || input?.privacyChecked);
+      const handle = input?.avatarHandle || input?.nickname || input?.customNickname || '';
+      if (privacyChecked && typeof handle === 'string' && handle.trim().length >= 2) {
         return { score: 100, isValidated: true };
       }
-      return { score: 50, isValidated: true, feedback: 'Necessário confirmar privacidade do avatar.' };
+      if (privacyChecked) {
+        return { score: 70, isValidated: true, feedback: 'Avatar configurado com sucesso.' };
+      }
+      return { score: 0, isValidated: false, feedback: 'Necessário confirmar privacidade do avatar.' };
     }
 
+    case 'sim-digital-comm':
     case 'sim-comunicacao-digital': {
       const toneScores: Record<string, number> = {
         formal: 100,
@@ -244,13 +298,14 @@ export function evaluateActivity(
         informal: 60,
         agressivo: 20,
       };
-      const tone = input.tone || input.selectedMessageTone || input.id;
+      const tone = input?.tone || input?.selectedMessageTone || input?.id || input?.toneId;
       if (tone && tone in toneScores) {
         return { score: toneScores[tone], isValidated: true };
       }
       break;
     }
 
+    case 'sim-netiquette':
     case 'sim-netiqueta': {
       const netiquetteKeys: Record<string, string> = {
         'net-1': 'adequado',
@@ -258,133 +313,182 @@ export function evaluateActivity(
         'net-3': 'inadequado',
         'net-4': 'adequado',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(netiquetteKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(netiquetteKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(netiquetteKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
 
+    case 'sim-collab':
     case 'sim-colaboracao': {
       const collabKeys: Record<string, string> = {
         'col-1': 'opt-c1',
         'col-2': 'opt-c2',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(collabKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(collabKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(collabKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
 
+    case 'sim-copyright':
     case 'sim-direitos-autor': {
       const copyrightKeys: Record<string, string> = {
         'cp-1': 'precisa-autorizacao',
         'cp-2': 'livre-atribuicao',
         'cp-3': 'precisa-autorizacao',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(copyrightKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(copyrightKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(copyrightKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
 
+    case 'sim-plagiarism':
     case 'sim-plagio-citacao': {
-      const opt = input.optionId || input.selectedOption || input;
+      const opt = input?.optionId || input?.selectedOption || (typeof input === 'string' ? input : null);
       if (opt === 'correct' || opt === 'citacao-correta') {
         return { score: 100, isValidated: true };
-      } else if (opt) {
+      } else if (opt && typeof opt === 'string') {
         return { score: 30, isValidated: true };
       }
       break;
     }
 
+    case 'sim-cc':
     case 'sim-creative-commons': {
-      const matched = input.ccMatched || input;
-      let count = 0;
-      if (matched['BY'] === 'crédito') count++;
-      if (matched['NC'] === 'lucro') count++;
-      if (matched['ND'] === 'alterado') count++;
-      if (matched['SA'] === 'mesma') count++;
-      const score = Math.round((count / 4) * 100);
-      return { score, isValidated: true };
+      const matched = input?.ccMatched || input?.answers || input;
+      if (typeof matched === 'object' && matched !== null && Object.keys(matched).length > 0) {
+        let count = 0;
+        let checked = 0;
+        if ('BY' in matched) { checked++; if (matched['BY'] === 'crédito') count++; }
+        if ('NC' in matched) { checked++; if (matched['NC'] === 'lucro') count++; }
+        if ('ND' in matched) { checked++; if (matched['ND'] === 'alterado') count++; }
+        if ('SA' in matched) { checked++; if (matched['SA'] === 'mesma') count++; }
+        if (checked > 0) {
+          const score = Math.round((count / 4) * 100);
+          return { score, isValidated: true };
+        }
+      }
+      break;
     }
 
     // -------------------------------------------------------------
     // WORLD 4: PENSAMENTO COMPUTACIONAL & ALGORITMOS
     // -------------------------------------------------------------
     case 'sim-decomposicao': {
-      const order = Array.isArray(input) ? input : input.order || input.decomposedOrder || [];
-      const isCorrect =
-        order.length === 4 &&
-        order[0] === 'step-1' &&
-        order[1] === 'step-2' &&
-        order[2] === 'step-3' &&
-        order[3] === 'step-4';
-      const score = isCorrect ? 100 : Math.min(75, order.length * 15);
-      return { score, isValidated: true };
+      const order = Array.isArray(input) ? input : input?.steps || input?.order || input?.decomposedOrder || [];
+      if (Array.isArray(order) && order.length > 0) {
+        const isCorrect =
+          order.length === 4 &&
+          order[0] === 'step-1' &&
+          order[1] === 'step-2' &&
+          order[2] === 'step-3' &&
+          order[3] === 'step-4';
+        const score = isCorrect ? 100 : Math.min(75, order.length * 15);
+        return { score, isValidated: true };
+      }
+      break;
     }
 
     case 'sim-block-coding': {
-      const program: string[] = Array.isArray(input) ? input : input.robotProgram || input.program || [];
-      let curX = 0;
-      let curY = 0;
-      for (const cmd of program) {
-        if (cmd === 'DIR' && curX < 3) curX++;
-        if (cmd === 'BAIXO' && curY < 3) curY++;
+      const program: string[] = Array.isArray(input) ? input : input?.commands || input?.robotProgram || input?.program || [];
+      if (Array.isArray(program) && program.length > 0) {
+        let curX = 0;
+        let curY = 0;
+        for (const cmd of program) {
+          if ((cmd === 'DIR' || cmd === 'forward') && curX < 3) curX++;
+          if ((cmd === 'BAIXO' || cmd === 'down') && curY < 3) curY++;
+        }
+        const reached = curX === 3 && curY === 3;
+        const score = reached ? 100 : Math.round(((curX + curY) / 6) * 80);
+        return { score, isValidated: true };
       }
-      const reached = curX === 3 && curY === 3;
-      const score = reached ? 100 : Math.round(((curX + curY) / 6) * 80);
-      return { score, isValidated: true };
+      break;
     }
 
     case 'sim-algoritmos': {
-      const c1 = input.condition1Action || input.c1;
-      const c2 = input.condition2Action || input.c2;
-      let correct = 0;
-      if (c1 === 'carregar') correct++;
-      if (c2 === 'desviar') correct++;
-      const score = Math.round((correct / 2) * 100);
-      return { score, isValidated: true };
+      const c1 = input?.condition1 || input?.condition1Action || input?.c1;
+      const c2 = input?.condition2 || input?.condition2Action || input?.c2;
+      if (c1 || c2) {
+        let correct = 0;
+        if (c1 === 'carregar') correct++;
+        if (c2 === 'desviar') correct++;
+        const score = Math.round((correct / 2) * 100);
+        return { score, isValidated: true };
+      }
+      break;
     }
 
     case 'sim-ciclos': {
-      const loops = typeof input === 'number' ? input : parseInt(input.loopCount || input.count, 10);
-      const score = loops === 4 ? 100 : 40;
-      return { score, isValidated: true };
+      const loops = typeof input === 'number' ? input : parseInt(input?.loopCount || input?.count, 10);
+      if (!isNaN(loops)) {
+        const score = loops === 4 ? 100 : 40;
+        return { score, isValidated: true };
+      }
+      break;
     }
 
     case 'sim-dados': {
-      const day = input.mostReadDay || input.day;
-      const avg = input.avgScoreChoice || input.avg;
-      let correct = 0;
-      if (day === 'quinta') correct++;
-      if (avg === '24') correct++;
-      const score = Math.round((correct / 2) * 100);
-      return { score, isValidated: true };
+      const day = input?.mostReadDay || input?.day;
+      const avg = input?.avgScoreChoice || input?.avg;
+      if (day || avg) {
+        let correct = 0;
+        if (day === 'quinta') correct++;
+        if (avg === '24') correct++;
+        const score = Math.round((correct / 2) * 100);
+        return { score, isValidated: true };
+      }
+      break;
     }
 
     case 'sim-debugging': {
-      const bug = input.debugIdentifiedBug || input.bug;
-      const fix = input.debugSelectedFix || input.fix;
-      let correct = 0;
-      if (bug === 'st-3') correct++;
-      if (fix === 'fx-1') correct++;
-      const score = Math.round((correct / 2) * 100);
-      return { score, isValidated: true };
+      const bug = input?.bugId || input?.debugIdentifiedBug || input?.bug;
+      const fix = input?.fixId || input?.debugSelectedFix || input?.fix;
+      if (bug || fix) {
+        let correct = 0;
+        if (bug === 'st-3') correct++;
+        if (fix === 'fx-1') correct++;
+        const score = Math.round((correct / 2) * 100);
+        return { score, isValidated: true };
+      }
+      break;
     }
 
     // -------------------------------------------------------------
@@ -399,13 +503,20 @@ export function evaluateActivity(
         'c-5': 'ia',
         'c-6': 'regra',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(conceptKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(conceptKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(conceptKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -419,13 +530,20 @@ export function evaluateActivity(
         's-4': 'opt-4-alucinacao',
         's-5': 'opt-5-rever',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(genKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(genKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(genKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -437,13 +555,23 @@ export function evaluateActivity(
         3: 'opt-p3-passos',
         4: 'opt-p4-revisao',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(promptKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / 4) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / 4) * 100);
+          return { score, isValidated: true };
+        }
+      }
+      if (input?.selectedOption === 'detailed') {
+        return { score: 100, isValidated: true };
       }
       break;
     }
@@ -457,13 +585,20 @@ export function evaluateActivity(
         'h-5': 'alucinacao',
         'h-6': 'fato',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(hallKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(hallKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(hallKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -481,13 +616,20 @@ export function evaluateActivity(
         'd-9': 'seguro',
         'd-10': 'proibido',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(privacyDataKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(privacyDataKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(privacyDataKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
@@ -500,29 +642,30 @@ export function evaluateActivity(
         'r-4': 'opt-r4-critica',
         'r-5': 'opt-r5-autonomia',
       };
-      if (typeof input === 'object' && input !== null) {
+      const ans = input?.answers || input;
+      if (typeof ans === 'object' && ans !== null && Object.keys(ans).length > 0) {
         let correct = 0;
+        let matched = 0;
         for (const [k, expected] of Object.entries(recKeys)) {
-          if (input[k] === expected) correct++;
+          if (k in ans) {
+            matched++;
+            if (ans[k] === expected) correct++;
+          }
         }
-        const score = Math.round((correct / Object.keys(recKeys).length) * 100);
-        return { score, isValidated: true };
+        if (matched > 0) {
+          const score = Math.round((correct / Object.keys(recKeys).length) * 100);
+          return { score, isValidated: true };
+        }
       }
       break;
     }
   }
 
-  // Fallback for actions/activities without a granular key:
-  // If client supplied completedAction or legacy score, clamp strictly
-  if (completedAction) {
-    return { score: 100, isValidated: true };
-  }
-
-  if (typeof clientScore === 'number' && !isNaN(clientScore)) {
-    const clamped = Math.min(100, Math.max(0, Math.round(clientScore)));
-    // We do NOT treat clientScore as authoritative validation
-    return { score: clamped, isValidated: false, feedback: 'Pontuação não validada pelo motor pedagógico.' };
-  }
-
-  return { score: 0, isValidated: false, feedback: 'Dados insuficientes para validação pedagógica.' };
+  // Case 2: Activity has no server-side evaluator or insufficient/invalid input.
+  // The server NEVER trusts client-provided scores, completedAction, or unverified claims.
+  return {
+    score: 0,
+    isValidated: false,
+    feedback: 'Atividade sem validação pedagógica do servidor ou dados de submissão insuficientes.',
+  };
 }

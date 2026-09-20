@@ -474,6 +474,22 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
       score: clientScore,
     });
 
+    // If evaluation is not validated, do NOT update score, progress, or XP
+    if (!evaluation.isValidated) {
+      const prog = await getActivityProgress(userId, activityId);
+      const previousBest = prog ? prog.bestScore : 0;
+      return res.status(200).json({
+        activityId,
+        previousBest,
+        newBest: previousBest,
+        xpGain: 0,
+        totalXp: req.user!.xp,
+        score: 0,
+        isValidated: false,
+        feedback: evaluation.feedback || 'Submissão incompleta ou não validada pelo motor pedagógico.',
+      });
+    }
+
     const evaluatedScore = evaluation.score;
 
     let prog = await getActivityProgress(userId, activityId);
@@ -524,7 +540,7 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
       xpGain,
       totalXp,
       score: evaluatedScore,
-      isValidated: evaluation.isValidated,
+      isValidated: true,
       feedback: evaluation.feedback,
     });
   } catch (err) {
