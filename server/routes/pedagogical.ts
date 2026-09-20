@@ -626,8 +626,8 @@ router.post('/daily-tip/claim', requireStudent, async (req: AuthRequest, res) =>
     }
 
     const tipReward = PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP;
-    const success = await claimDailyTipAtomic(userId, today, tipReward);
-    if (!success) {
+    const resClaim = await claimDailyTipAtomic(userId, today);
+    if (!resClaim.success) {
       return res.status(400).json({ error: 'Não foi possível reclamar a dica diária.' });
     }
 
@@ -662,11 +662,13 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
     const sanitized = {
       id: WEEKLY_CHALLENGE.id,
       title: WEEKLY_CHALLENGE.title,
-      description: WEEKLY_CHALLENGE.description,
-      scenario: WEEKLY_CHALLENGE.scenario,
+      context: WEEKLY_CHALLENGE.context,
+      messageSample: WEEKLY_CHALLENGE.messageSample,
+      problem: WEEKLY_CHALLENGE.problem,
+      task: WEEKLY_CHALLENGE.task,
       xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
-      options: WEEKLY_CHALLENGE.options.map((o) => ({
-        id: o.id,
+      options: WEEKLY_CHALLENGE.options.map((o, idx) => ({
+        id: String(idx),
         text: o.text,
       })),
       completed: progress?.status === 'completed',
@@ -813,7 +815,7 @@ router.get('/class-ranking', async (req: AuthRequest, res) => {
   try {
     const { classId } = req.query;
     const users = await getAllUsers();
-    let students = users.filter((u) => u.role === 'student' && !u.isBlocked);
+    let students = users.filter((u) => u.role === 'student' && !u.blocked);
 
     if (classId && typeof classId === 'string' && classId !== 'all') {
       students = students.filter((s) => s.classId === classId);
@@ -823,14 +825,17 @@ router.get('/class-ranking', async (req: AuthRequest, res) => {
 
     const ranking = students.slice(0, 50).map((s, index) => {
       const isCurrentUser = req.user?.id === s.id;
+      const levelInfo = calculateLevel(s.xp);
       return {
+        position: index + 1,
         rank: index + 1,
         id: s.id,
         name: isCurrentUser ? s.name : s.nickname,
         nickname: s.nickname,
         avatar: s.avatar,
         xp: s.xp,
-        level: calculateLevel(s.xp),
+        level: levelInfo.level,
+        levelName: levelInfo.name,
         classId: s.classId,
         isCurrentUser,
       };
@@ -854,7 +859,7 @@ router.get('/badges', async (req: AuthRequest, res) => {
       return {
         ...b,
         unlocked: !!earned,
-        unlockedAt: earned?.unlockedAt || null,
+        unlockedAt: earned?.awardedAt || null,
       };
     });
 

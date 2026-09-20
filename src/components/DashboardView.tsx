@@ -1195,7 +1195,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             {item.nickname} {isCurrent && '(Tu)'}
                           </span>
                           <span className="text-[10px] text-slate-400 block font-medium">
-                            Nível {item.level} • {item.levelName}
+                            Nível {typeof item.level === 'object' && item.level !== null ? (item.level as any).level : item.level} • {typeof item.level === 'object' && item.level !== null ? (item.level as any).name : (item.levelName || 'Explorador')}
                           </span>
                         </div>
                       </div>

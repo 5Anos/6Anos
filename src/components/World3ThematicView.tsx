@@ -196,7 +196,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     const score = 100;
     setAvatarScore(score);
     setAvatarFeedback('🎉 Excelente! Criaste o teu Avatar Digital com sucesso sem expor a tua imagem real ou dados pessoais!');
-    reportCompletion('sim-avatar-challenge', 'Avatar Challenge', { avatarName, avatarPrivacyChecked, avatarBase }, score);
+    reportCompletion('sim-avatar-challenge', 'Avatar Challenge', { avatarHandle, avatarPrivacyChecked, avatarStyle, avatarColor }, score);
   };
 
   // -------------------------------------------------------------

@@ -289,79 +289,69 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
     const levelInfo = calculateLevel(student.xp);
 
     // Build pedagogical breakdown for each of the 5 Worlds in-memory
-    let previousWorldPassed = true;
-    const worldDetails = WORLDS_DATA.map((w, idx) => {
-      const isUnlocked = idx === 0 ? true : previousWorldPassed;
-      const mission = missions.find((m) => m.worldId === w.id);
-      const chalProg = activityProgress.find((p) => p.activityId === w.challenge.id);
-      const worldAssessments = assessments.filter((a) => a.worldId === w.id);
+    const worldDetails = await Promise.all(
+      WORLDS_DATA.map(async (w) => {
+        const mission = missions.find((m) => m.worldId === w.id);
+        const chalProg = activityProgress.find((p) => p.activityId === w.challenge.id);
+        const worldAssessments = assessments.filter((a) => a.worldId === w.id);
 
-      const simulatorsDetail = w.simulators.map((sim) => {
-        const prog = activityProgress.find((p) => p.activityId === sim.id);
+        const simulatorsDetail = w.simulators.map((sim) => {
+          const prog = activityProgress.find((p) => p.activityId === sim.id);
+          return {
+            id: sim.id,
+            title: sim.name,
+            description: sim.description,
+            completed: prog ? prog.completed : false,
+            bestScore: prog ? prog.bestScore : 0,
+            attempts: prog ? prog.attempts : 0,
+            lastAttemptAt: prog ? prog.lastAttemptAt : null,
+          };
+        });
+
+        const worldStats = await computeWorldStats(student.id, w.id);
+
         return {
-          id: sim.id,
-          title: sim.name,
-          description: sim.description,
-          completed: prog ? prog.completed : false,
-          bestScore: prog ? prog.bestScore : 0,
-          attempts: prog ? prog.attempts : 0,
-          lastAttemptAt: prog ? prog.lastAttemptAt : null,
+          worldId: w.id,
+          title: w.title,
+          subtitle: w.subtitle,
+          color: w.color,
+          average: worldStats.average,
+          isUnlocked: worldStats.isUnlocked,
+          isCompleted: worldStats.isWorldCompleted,
+          completedCount: worldStats.completedCount,
+          totalComponents: worldStats.totalComponents,
+          hasAssessmentPassed: worldStats.hasAssessmentPassed,
+          simulators: simulatorsDetail,
+          challenge: {
+            id: w.challenge.id,
+            title: w.challenge.title,
+            completed: chalProg ? chalProg.completed : false,
+            bestScore: chalProg ? chalProg.bestScore : 0,
+            attempts: chalProg ? chalProg.attempts : 0,
+          },
+          mission: mission
+            ? {
+                id: mission.id,
+                title: mission.title,
+                status: mission.status,
+                score: mission.score,
+                submission: mission.submission,
+                feedback: mission.feedback,
+                gradedBy: mission.gradedBy,
+                gradedAt: mission.gradedAt,
+                submittedAt: mission.submittedAt,
+              }
+            : null,
+          assessments: worldAssessments.map((a) => ({
+            id: a.id,
+            score: a.score,
+            percentage: a.percentage,
+            createdAt: a.createdAt,
+            answersCount: Object.keys(a.answers || {}).length,
+          })),
         };
-      });
-
-      const scores: number[] = [];
-      simulatorsDetail.forEach((s) => {
-        if (s.completed) scores.push(s.bestScore);
-      });
-      if (worldAssessments.length > 0) {
-        const bestAssess = Math.max(...worldAssessments.map((a) => a.percentage));
-        scores.push(bestAssess);
-      }
-      const average = scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
-      const worldStats = await computeWorldStats(student.id, w.id);
-      previousWorldPassed = worldStats.isWorldCompleted;
-
-      return {
-        worldId: w.id,
-        title: w.title,
-        subtitle: w.subtitle,
-        color: w.color,
-        average: worldStats.average,
-        isUnlocked: worldStats.isUnlocked,
-        isCompleted: worldStats.isWorldCompleted,
-        completedCount: worldStats.completedCount,
-        totalComponents: worldStats.totalComponents,
-        hasAssessmentPassed: worldStats.hasAssessmentPassed,
-        simulators: simulatorsDetail,
-        challenge: {
-          id: w.challenge.id,
-          title: w.challenge.title,
-          completed: chalProg ? chalProg.completed : false,
-          bestScore: chalProg ? chalProg.bestScore : 0,
-          attempts: chalProg ? chalProg.attempts : 0,
-        },
-        mission: mission
-          ? {
-              id: mission.id,
-              title: mission.title,
-              status: mission.status,
-              score: mission.score,
-              submission: mission.submission,
-              feedback: mission.feedback,
-              gradedBy: mission.gradedBy,
-              gradedAt: mission.gradedAt,
-              submittedAt: mission.submittedAt,
-            }
-          : null,
-        assessments: worldAssessments.map((a) => ({
-          id: a.id,
-          score: a.score,
-          percentage: a.percentage,
-          createdAt: a.createdAt,
-          answersCount: Object.keys(a.answers || {}).length,
-        })),
-      };
-    });
+      })
+    );
 
     // XP Breakdown by source
     const xpBreakdown = {
