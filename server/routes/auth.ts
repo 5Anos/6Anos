@@ -217,7 +217,7 @@ router.post('/logout', async (req: AuthRequest, res) => {
 // Get Current User
 router.get('/me', async (req: AuthRequest, res) => {
   if (!req.user) {
-    return res.status(401).json({ error: 'Não autenticado' });
+    return res.json({ user: null, badges: [], classroom: null });
   }
 
   try {

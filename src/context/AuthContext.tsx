@@ -105,9 +105,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(res.user);
         setBadges(res.badges || []);
         setClassroom(res.classroom || null);
+      } else {
+        setUser(null);
+        setBadges([]);
+        setClassroom(null);
       }
-    } catch (e) {
-      console.error('Failed to refresh user', e);
+    } catch {
+      setUser(null);
+      setBadges([]);
+      setClassroom(null);
     }
   };
 
