@@ -808,7 +808,7 @@ export const WORLDS_DATA: WorldContent[] = [
       instructions: [
         'Escolhe uma tarefa simples do dia a dia (ex.: preparar a mochila para a escola, organizar a secretária, regar uma planta, preparar o material para uma aula).',
         'Divide a tarefa em passos simples e coloca-os pela ordem certa.',
-        'Inclui pelo menos uma condição simples (SE ... SENÃO).',
+        'Se fizer sentido, podes incluir uma decisão simples (por exemplo: SE... SENÃO).',
         'Verifica se outra pessoa conseguiria seguir o teu algoritmo sem ter dúvidas.',
       ],
       xpReward: 100,
@@ -877,7 +877,7 @@ export const WORLDS_DATA: WorldContent[] = [
         paragraphs: [
           'Às vezes, uma IA pode dar uma resposta que parece correta, mas contém informações falsas ou inventadas.',
           'A este fenómeno costuma chamar-se "alucinação": a IA pode gerar uma resposta errada sem perceber que está errada.',
-          'A IA não mente de propósito, porque não tem intenções nem consciência; ela apenas combina palavras de acordo com padrões estatísticos.',
+          'A IA não mente de propósito, porque não tem intenções nem consciência; ela apenas junta palavras a partir dos exemplos e padrões que aprendeu.',
           'Isto pode acontecer mesmo quando a resposta parece muito segura, bem escrita e convincente.',
           'Por isso, não devemos acreditar automaticamente numa resposta da IA. Pergunta sempre: "Como posso confirmar esta informação numa fonte fiável?"',
         ],

@@ -257,21 +257,21 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const [compareScore, setCompareScore] = useState<number | null>(null);
 
   const sourceA = {
-    title: 'Estudo-Piloto com Robôs Educativos em Salas de Aula',
-    origin: 'Portal de Divulgação Científica "Ciência Hoje Digital"',
-    author: 'Dr. Alexandre Pires (Investigador em Tecnologia Educativa)',
+    title: 'Como os robôs podem ajudar a aprender?',
+    origin: 'Portal de Ciência e Educação',
+    author: 'Equipa de investigadores em educação',
     date: '12 de Outubro de 2024',
-    content: 'Uma experiência de 3 meses com robôs de apoio ao estudo em duas escolas-piloto de Coimbra revelou um aumento de 20% no foco dos alunos. O equipamento custou 1.500 € por sala, financiado por uma bolsa universitária, e o relatório preliminar foi publicado no repositório institucional.',
-    evidence: 'Relatório metodológico disponível em repositório aberto, amostra identificada de 120 alunos, parecer do conselho pedagógico.',
+    content: 'Um pequeno estudo realizado em duas escolas analisou a utilização de robôs educativos durante algumas aulas. Os investigadores observaram como os alunos utilizaram os robôs e explicaram os resultados do estudo.',
+    evidence: 'O artigo identifica os investigadores, as escolas participantes e explica como a experiência foi realizada.',
   };
 
   const sourceB = {
-    title: 'BOMBA: Robôs Vão Substituir Todos os Professores no Próximo Mês!',
-    origin: 'Página de Rede Social / Blogue "SuperNovidadesTIC"',
-    author: 'Anónimo ("Redação GeekMaster2000")',
-    date: '19 de Outubro de 2024 (uma semana após a Fonte A)',
-    content: 'Revolução total! Todas as escolas de Portugal vão receber robôs autónomos já no próximo mês. O equipamento custa apenas 20 euros e garante 100% de notas máximas a todos os alunos sem necessidade de estudar!',
-    evidence: 'Sem ligação para estudos, sem nomes de escolas, sem dados orçamentais, apenas uma imagem ilustrativa gerada por IA com título em maiúsculas.',
+    title: 'BOMBA: Os robôs vão substituir os professores!',
+    origin: 'Página de vídeos "SuperNovidadesTIC"',
+    author: 'Perfil sem nome',
+    date: '19 de Outubro de 2024',
+    content: 'Todos os alunos vão deixar de ter professores porque os robôs conseguem ensinar tudo melhor! Acontecerá já no próximo mês!',
+    evidence: 'Não apresenta estudos, escolas, investigadores ou outras fontes que confirmem a afirmação.',
   };
 
   const compareQuestions = [
@@ -280,11 +280,11 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       facet: '1. Origem e Transparência',
       question: 'Ao comparar a origem das duas fontes, o que concluis?',
       options: [
-        { id: 'a', text: 'A Fonte A tem origem editorial com conselho científico; a Fonte B é um blogue anónimo sem verificação.', isCorrect: true },
+        { id: 'a', text: 'A Fonte A tem origem num portal de ciência e educação; a Fonte B é uma página de vídeos sem identificação.', isCorrect: true },
         { id: 'b', text: 'As duas fontes são iguais porque estão ambas na Internet.', isCorrect: false },
         { id: 'c', text: 'A Fonte B é melhor porque tem um título com exclamações e emojis.', isCorrect: false },
       ],
-      explanation: 'A transparência da entidade responsável (Fonte A) dá garantias de verificação editorial que um blogue anónimo (Fonte B) não tem.',
+      explanation: 'A transparência da entidade responsável (Fonte A) dá garantias de verificação que uma página sem identificação (Fonte B) não tem.',
     },
     {
       id: 'cmp-2',
@@ -292,8 +292,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       question: 'Ao analisar quem escreveu os textos, que pista encontras?',
       options: [
         { id: 'a', text: 'Nenhuma tem autor.', isCorrect: false },
-        { id: 'b', text: 'A Fonte A identifica um investigador com área de especialidade; a Fonte B esconde-se num pseudónimo fictício.', isCorrect: true },
-        { id: 'c', text: 'Usar um pseudónimo inventado garante que o autor é um especialista secreto.', isCorrect: false },
+        { id: 'b', text: 'A Fonte A identifica uma equipa de investigadores; a Fonte B tem um perfil sem nome.', isCorrect: true },
+        { id: 'c', text: 'Um perfil anónimo garante que o autor é um especialista secreto.', isCorrect: false },
       ],
       explanation: 'Saber quem assina o texto permite verificar se a pessoa tem conhecimentos na área e assume a responsabilidade pelo que escreve.',
     },
@@ -302,11 +302,11 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       facet: '3. Cronologia e Relação entre Fontes',
       question: 'Observando as datas (12 de Outubro vs 19 de Outubro), qual é a relação entre as duas?',
       options: [
-        { id: 'a', text: 'A Fonte A fez o estudo original; a Fonte B apareceu uma semana depois distorcendo o estudo original com exageros.', isCorrect: true },
+        { id: 'a', text: 'A Fonte A fez o estudo original; a Fonte B apareceu dias depois distorcendo o estudo original com exageros.', isCorrect: true },
         { id: 'b', text: 'A Fonte B inventou o estudo e a Fonte A apenas copiou.', isCorrect: false },
         { id: 'c', text: 'As duas fontes foram escritas por pessoas que trabalharam juntas.', isCorrect: false },
       ],
-      explanation: 'Muitas publicações sensacionalistas pegam em notícias científicas reais e distorcem os factos dias depois para conseguir partilhas.',
+      explanation: 'Muitas publicações sensacionalistas pegam em notícias reais e distorcem os factos dias depois para conseguir visualizações e partilhas.',
     },
     {
       id: 'cmp-4',
@@ -324,11 +324,11 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       facet: '5. Distinção de Factos vs Exageros',
       question: 'Ao comparar o conteúdo concreto das duas publicações sobre os robôs:',
       options: [
-        { id: 'a', text: 'A Fonte A descreve um teste de apoio ao estudo em 2 salas; a Fonte B exagera dizendo que vão substituir professores por 20€.', isCorrect: true },
-        { id: 'b', text: 'Ambas dizem exatamente o mesmo preço e o mesmo prazo.', isCorrect: false },
+        { id: 'a', text: 'A Fonte A descreve uma experiência educativa em duas escolas; a Fonte B exagera dizendo que vão substituir os professores.', isCorrect: true },
+        { id: 'b', text: 'Ambas dizem exatamente o mesmo com as mesmas palavras.', isCorrect: false },
         { id: 'c', text: 'A Fonte B tem razão porque é mais fácil substituir professores.', isCorrect: false },
       ],
-      explanation: 'O boato pegou numa notícia real sobre apoio ao estudo e transformou-a num disparate sensacionalista.',
+      explanation: 'A publicação sensacionalista pegou numa experiência real de apoio às aulas e transformou-a num disparate exagerado.',
     },
     {
       id: 'cmp-6',

@@ -137,16 +137,16 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
   const [debugScore, setDebugScore] = useState<number | null>(null);
 
   const debugAlgorithmSteps = [
-    { id: 'st-1', text: 'Passo 1: Ligar os sensores de movimento e verificar o caminho livre.' },
-    { id: 'st-2', text: 'Passo 2: Avançar 3 metros em linha reta até à estante de livros.' },
-    { id: 'st-3', text: 'Passo 3 [ERRO]: Virar 180 graus e desligar o motor sem recolher o livro.' },
-    { id: 'st-4', text: 'Passo 4: Transportar o livro e colocá-lo na mesa de leitura dos alunos.' },
+    { id: 'st-1', text: 'Passo 1: Ligar os sensores de movimento e verificar se o caminho está livre.' },
+    { id: 'st-2', text: 'Passo 2: Avançar 3 metros até à estante dos livros.' },
+    { id: 'st-3', text: 'Passo 3: Quando chegar à estante, aproximar o braço robótico do livro.' },
+    { id: 'st-4', text: 'Passo 4: Transportar o livro e colocá-lo na mesa de leitura.' },
   ];
 
   const debugFixOptions = [
-    { id: 'fx-1', text: 'Substituir o Passo 3 por: "Acionar o braço robótico para segurar o livro com cuidado".', isCorrect: true },
-    { id: 'fx-2', text: 'Apagar todas as instruções e desistir sem testar.', isCorrect: false },
-    { id: 'fx-3', text: 'Acelerar o robô para tentar ignorar o Passo 3.', isCorrect: false },
+    { id: 'fx-1', text: 'Adicionar ao Passo 3: agarrar o livro com o braço robótico antes de avançar.', isCorrect: true },
+    { id: 'fx-2', text: 'Retirar o Passo 3 e mandar o robô avançar sem apanhar o livro.', isCorrect: false },
+    { id: 'fx-3', text: 'Fazer o robô voltar ao ponto de partida sem transportar o livro.', isCorrect: false },
   ];
 
   // -------------------------------------------------------------
@@ -301,7 +301,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     let correct = 0;
     if (loop1Count === 5) correct++;
     if (loop2Count === 4) correct++;
-    if (loop3Count === 3) correct++;
+    if (loop3Count === 4) correct++;
 
     const score = Math.round((correct / 3) * 100);
     setLoopScore(score);
@@ -313,7 +313,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
     let correct = 0;
     if (mostVotedSport === 'futebol') correct++;
     if (leastVotedSport === 'voleibol') correct++;
-    if (sumSports === '14') correct++;
+    if (sumSports === 'futebol_mais_escolhido') correct++;
     if (totalStudents === '30') correct++;
 
     const score = Math.round((correct / 4) * 100);
@@ -1122,7 +1122,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               {/* Desafio 3 */}
               <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
                 <span className="text-xs font-black text-slate-900 block">
-                  Desafio 3: Encher 3 garrafas de água para a caminhada da turma.
+                  Desafio 3: O robô precisa de apanhar 4 objetos, levando cada objeto até à caixa antes de voltar a procurar o seguinte.
                 </span>
                 <div className="flex items-center gap-2 text-xs font-mono">
                   <span className="font-bold text-slate-800">REPETIR</span>
@@ -1134,7 +1134,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     onChange={(e) => setLoop3Count(Number(e.target.value))}
                     className="w-16 p-2 bg-white border border-slate-300 rounded-xl text-center text-xs font-bold"
                   />
-                  <span className="font-bold text-slate-800">vezes: [ Encher 1 garrafa de água ]</span>
+                  <span className="font-bold text-slate-800">vezes: [ Apanhar 1 objeto e levá-lo até à caixa ]</span>
                 </div>
               </div>
             </div>
@@ -1151,8 +1151,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             {loopScore !== null && (
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 font-medium">
                 {loopScore === 100
-                  ? '🎉 Perfeito! Acertaste em todas as repetições (5 passos para a porta, 4 lados para o quadrado e 3 garrafas de água). Os ciclos tornam o código muito mais conciso!'
-                  : `Pontuação: ${loopScore}/100. Lembra-te: para 5 casas precisamos de repetir 5 vezes; para 4 lados do quadrado, 4 vezes; e para 3 garrafas, 3 vezes.`}
+                  ? '🎉 Perfeito! Acertaste em todas as repetições (5 passos para a porta, 4 lados para o quadrado e 4 objetos levados até à caixa). Os ciclos tornam o código muito mais conciso!'
+                  : `Pontuação: ${loopScore}/100. Lembra-te: para 5 casas precisamos de repetir 5 vezes; para 4 lados do quadrado, 4 vezes; e para 4 objetos, 4 vezes.`}
               </div>
             )}
           </div>
@@ -1308,17 +1308,17 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700">
-                  3. Quantos alunos votaram em Basquetebol ou Natação no total?
+                  3. Qual destas conclusões sobre o inquérito é correta?
                 </label>
                 <select
                   value={sumSports}
                   onChange={(e) => setSumSports(e.target.value)}
                   className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
                 >
-                  <option value="">Calcula o subtotal...</option>
-                  <option value="12">12 alunos</option>
-                  <option value="14">14 alunos (8 + 6)</option>
-                  <option value="16">16 alunos</option>
+                  <option value="">Seleciona a conclusão...</option>
+                  <option value="futebol_mais_escolhido">O Futebol foi o desporto mais escolhido.</option>
+                  <option value="voleibol_mais_escolhido">O Voleibol foi o desporto mais escolhido.</option>
+                  <option value="todos_iguais">Todos os desportos tiveram o mesmo número de votos.</option>
                 </select>
               </div>
 
@@ -1351,8 +1351,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             {dataScore !== null && (
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 font-medium">
                 {dataScore === 100
-                  ? '🎉 Fantástico! Leste e interpretaste com rigor todos os dados da tabela (Futebol mais votado, Voleibol menos votado, 14 em Basquete+Natação e 30 alunos no total)!'
-                  : `Pontuação: ${dataScore}/100. Revê a contagem dos dados: Futebol teve 12 votos, Voleibol 4 votos, Basquete+Natação dá 14 (8+6) e o total é 30 alunos.`}
+                  ? '🎉 Fantástico! Leste e interpretaste com rigor todos os dados da tabela (Futebol mais votado com 12 votos, Voleibol menos votado com 4 votos e 30 alunos no total)!'
+                  : `Pontuação: ${dataScore}/100. Revê a contagem dos dados: Futebol teve 12 votos, Voleibol 4 votos, o Futebol foi o mais escolhido e o total é 30 alunos.`}
               </div>
             )}
           </div>
@@ -1456,7 +1456,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              O robô de entrega da biblioteca escolar falha a meio da sua rota. Analisa os passos do algoritmo abaixo, deteta o passo com o erro lógico e seleciona a instrução de correção adequada!
+              O robô de entrega da biblioteca escolar aproxima o braço robótico do livro, mas não o agarra antes de avançar. Analisa os passos do algoritmo abaixo, deteta o passo com o erro lógico e seleciona a instrução de correção adequada!
             </p>
 
             {/* Step 1: Detect the Buggy Step */}
@@ -1526,11 +1526,11 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 {debugScore === 100 ? (
                   <span className="text-emerald-800 font-bold flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    Excelente! Identificaste o passo erróneo e aplicaste a instrução correta. O robô completou a entrega do livro com sucesso! Pontuação: 100/100 (+100 XP)
+                    Excelente! O problema está no Passo 3: aproximar o braço do livro não é suficiente. O robô precisa de o agarrar antes de o transportar. Pontuação: 100/100 (+100 XP)
                   </span>
                 ) : (
                   <span className="text-amber-900 font-medium">
-                    Pontuação: {debugScore}/100. Analisa com atenção: o Passo 3 mandava o robô virar e desligar o motor antes de recolher o livro. Substitui esse passo pela ação de segurar o livro!
+                    Pontuação: {debugScore}/100. Analisa com atenção: aproximar o braço do livro não chega para o transportar. É necessário agarrar o livro com o braço robótico no Passo 3!
                   </span>
                 )}
               </div>

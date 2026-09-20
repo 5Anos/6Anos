@@ -212,7 +212,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       options: [
         { id: 'p4-a', text: '"Vulcões."', isCorrect: false, explanation: 'Apenas uma palavra solta sem qualquer instrução.' },
         { id: 'p4-b', text: '"Fala sobre vulcões."', isCorrect: false, explanation: 'Pedido demasiado geral que não especifica as partes do vulcão nem a matéria escolar.' },
-        { id: 'p4-c', text: '"Explica a um aluno do 6.º ano as partes principais de um vulcão e como acontece uma erupção, com linguagem simples e organizada por tópicos."', isCorrect: true, explanation: 'Perfeito! Apresenta o tema exato, o nível de escolaridade, os elementos a explicar e o formato organizado.' },
+        { id: 'p4-c', text: '"Explica a um aluno do 6.º ano as partes principais de um vulcão e como acontece uma erupção, com linguagem simples e organizada por tópicos."', isCorrect: true, explanation: 'Excelente! Um bom prompt não precisa de ser longo: deve ser claro, indicar o tema, o objetivo e os detalhes importantes para obteres uma resposta útil.' },
         { id: 'p4-d', text: '"Faz um trabalho enorme sobre vulcões com milhares de palavras difíceis."', isCorrect: false, explanation: 'Um texto demasiado longo e complexo dificulta a compreensão da matéria.' },
       ],
     },
@@ -464,7 +464,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     const score = Math.round((count / recSituations.length) * 100);
     setRecommendationScore(score);
     setRecValidated(true);
-    reportCompletion('sim-recommendation', 'Recommendation & Autonomy Simulator', { answers: recChoices }, score);
+    reportCompletion('sim-recommendation', 'Simulador de Recomendações', { answers: recChoices }, score);
   };
 
   // Helper
@@ -1012,7 +1012,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
             {promptScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação do Prompt Simulator: <strong>{promptScore}/100</strong>. Não existe prompt "mágico", mas sim prompts adequados ao objetivo: com clareza, contexto, público e formato definido!
+                Pontuação do Prompt Simulator: <strong>{promptScore}/100</strong>. Excelente! Um bom prompt não precisa de ser longo: deve ser claro, indicar o tema, o objetivo e os detalhes importantes para obteres uma resposta útil.
               </div>
             )}
           </div>
@@ -1465,7 +1465,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Recommendation & Autonomy Simulator (5 Situações)
+                  2. Experimenta: Simulador de Recomendações (5 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1543,7 +1543,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
             {recommendationScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação de Autonomia: <strong>{recommendationScore}/100</strong>. Os algoritmos de recomendação tentam manter-te preso a conteúdos semelhantes. Pensar com a IA exige autonomia para explorar o mundo além do algoritmo!
+                Pontuação: <strong>{recommendationScore}/100</strong>. Muito bem! As recomendações da IA podem ser úteis, mas devemos continuar a escolher com curiosidade e autonomia aquilo que queremos explorar.
               </div>
             )}
           </div>

@@ -88,12 +88,12 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       body: 'Caros alunos e encarregados de educação, o calendário das atividades curriculares do 2.º período está disponível para consulta no placard da escola e na plataforma oficial Moodle/Inovar habitual. Não é solicitada qualquer partilha de dados pessoais. Bom trabalho a todos!',
       isPhishing: false,
       signals: [
-        'Domínio institucional oficial do Ministério da Educação (.edu.pt)',
-        'Comunicação informativa que não pede palavras-passe nem dados privados',
-        'Encaminha para a plataforma interna oficial habitual da escola',
+        'A mensagem tem contexto escolar e não pede palavras-passe nem outros dados privados.',
+        'Indica onde consultar a informação: o placard da escola e a plataforma oficial que os alunos já utilizam.',
+        'Mesmo assim, uma mensagem não deve ser considerada segura apenas por parecer vir da escola: em caso de dúvida, confirma através de um canal oficial conhecido.',
       ],
       explanation:
-        'Mensagem legítima e segura. Provém do domínio institucional oficial (.edu.pt), tem um propósito puramente escolar e não pede palavras-passe nem links suspeitos.',
+        'Esta mensagem não apresenta os sinais habituais de phishing, porque não pede palavras-passe, códigos ou dados pessoais e indica canais oficiais que já conheces. Mesmo assim, não deves confiar apenas no endereço do remetente. Se tiveres dúvidas, confirma a informação através de um canal oficial da escola.',
     },
     {
       sender: 'partilha-trabalhos@cloud-documentos-storage.net',
@@ -225,6 +225,16 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       explanation:
         'Impacto Positivo: Demonstra competências digitais, cooperação, sentido cívico e respeito pela privacidade, construindo uma excelente reputação digital.',
     },
+    {
+      id: 'fp-4',
+      title: 'Comentário num vídeo da escola',
+      description:
+        'Escrever num vídeo da escola um comentário sobre o trabalho realizado pela turma, sem indicar moradas, contactos ou outras informações pessoais.',
+      correct: 'positivo',
+      riskLevelText: 'Impacto Positivo e Construtivo',
+      explanation:
+        'Impacto Positivo: Um comentário respeitoso e sem dados pessoais pode contribuir para uma presença digital positiva.',
+    },
   ];
 
   // -------------------------------------------------------------
@@ -250,7 +260,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       label: 'Utilizar o computador num quarto às escuras com o brilho do ecrã no máximo',
       category: 'Iluminação & Visão',
       correct: 'risco',
-      explanation: 'Hábito Prejudicial: O contraste extremo no escuro força excessivamente a visão, causando dores de cabeça e cansaço ocular.',
+      explanation: 'Hábito Prejudicial: Usar um ecrã muito brilhante num quarto escuro pode cansar os olhos. É melhor ter uma iluminação adequada e evitar grandes diferenças entre a luz do quarto e a luz do ecrã.',
     },
     {
       id: 'wb-distance',
@@ -264,7 +274,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       label: 'Apoiar os pulsos confortavelmente na mesa e braços a 90° ao utilizar o teclado',
       category: 'Ergonomia dos Membros',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Alinha as articulações e previne lesões por esforço repetitivo nos pulsos e mãos.',
+      explanation: 'Hábito Saudável: Manter os braços e pulsos numa posição confortável ajuda a evitar desconforto nas mãos e braços.',
     },
     {
       id: 'wb-202020',
@@ -278,7 +288,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       label: 'Levar o telemóvel para a cama e ficar a ver vídeos no escuro até de madrugada',
       category: 'Sono & Descanso',
       correct: 'risco',
-      explanation: 'Hábito Prejudicial: A luz azul dos ecrãs bloqueia a melatonina, prejudicando o sono, a memória e a energia escolar.',
+      explanation: 'Hábito Prejudicial: Usar ecrãs até muito tarde pode dificultar o descanso e o sono.',
     },
   ];
 

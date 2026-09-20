@@ -54,23 +54,23 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const messageOptions = [
     {
       id: 'opt-impaciente',
-      text: 'Diogo, despacha-te com o resumo porque estamos todos à tua espera e o prazo é hoje.',
-      tone: 'Mensagem Impaciente e Acusatória',
-      feedback: 'Esta mensagem culpa o colega e cria tensão no grupo, sem definir um horário concreto nem perguntar se precisa de ajuda.',
-      score: 40,
-    },
-    {
-      id: 'opt-vaga',
-      text: 'Não te esqueças de mandar o que falta para o trabalho.',
-      tone: 'Mensagem Vaga e Pouco Concreta',
-      feedback: 'Esta mensagem não indica que parte do trabalho é necessária, qual é a hora limite nem se o colega tem dúvidas.',
+      text: 'Diogo, precisamos mesmo da tua parte. Consegues enviá-la hoje? Já estamos atrasados.',
+      tone: 'Direta, mas pouco cuidadosa',
+      feedback: 'A mensagem explica o problema, mas pode criar pressão. Pode ser melhor indicar o prazo e perguntar se o colega precisa de ajuda.',
       score: 55,
     },
     {
+      id: 'opt-vaga',
+      text: 'Olá, Diogo. Quando puderes, manda a tua parte para vermos o trabalho.',
+      tone: 'Educada, mas pouco concreta',
+      feedback: 'A mensagem é respeitosa, mas não indica claramente quando é necessária a parte do trabalho.',
+      score: 70,
+    },
+    {
       id: 'opt-clara-respeitosa',
-      text: 'Olá, Diogo! Consegues enviar a tua parte do resumo até às 17h para podermos juntar os textos com calma? Se precisares de ajuda com alguma dúvida, avisa. Obrigado!',
-      tone: 'Clara, Respeitosa e com Pedido Concreto (Recomendada)',
-      feedback: 'Excelente! É educada, define um horário limite claro, explica para que serve e oferece ajuda em caso de dificuldade.',
+      text: 'Olá, Diogo! Precisamos da tua parte do resumo até às 17h para juntarmos o trabalho. Se estiveres com alguma dificuldade, diz-nos e tentamos ajudar.',
+      tone: 'Clara, respeitosa e com pedido concreto',
+      feedback: 'Muito bem! A mensagem é clara, indica o prazo, explica o motivo e oferece ajuda.',
       score: 100,
     },
   ];
@@ -117,32 +117,32 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       id: 'col-1',
       situation: 'Faltam 2 dias para a entrega do trabalho e um colega ainda não enviou a sua parte.',
       options: [
-        { id: 'opt-a1', label: 'Enviar-lhe uma mensagem simpática a perguntar se precisa de ajuda e a relembrar o prazo combinado.', correct: true },
-        { id: 'opt-a2', label: 'Fazer a parte dele sem dizer nada e pedir ao professor para lhe dar nota zero.', correct: false },
+        { id: 'opt-a1', label: 'Perguntar se precisa de ajuda e combinar uma hora para receber a parte que falta.', correct: true },
+        { id: 'opt-a2', label: 'Esperar até ao último momento para não pressionar o colega, mesmo que o grupo fique sem tempo.', correct: false },
       ],
     },
     {
       id: 'col-2',
       situation: 'Duas pessoas do grupo querem organizar a apresentação de maneiras diferentes.',
       options: [
-        { id: 'opt-b1', label: 'Cada um explica a sua ideia com calma, ouvem-se e combinam uma estrutura que agrade aos dois.', correct: true },
-        { id: 'opt-b2', label: 'Discutir no chat até um deles desistir e apagar as suas propostas.', correct: false },
+        { id: 'opt-b1', label: 'Explicar as duas ideias, ouvir os argumentos e escolher em conjunto a estrutura mais adequada.', correct: true },
+        { id: 'opt-b2', label: 'Escolher rapidamente a ideia de quem fala primeiro para não perder tempo.', correct: false },
       ],
     },
     {
       id: 'col-3',
       situation: 'Um elemento da equipa tem dificuldade em utilizar a ferramenta de edição partilhada.',
       options: [
-        { id: 'opt-c1', label: 'Explicar com paciência os passos na ferramenta para ele aprender a fazer e participar.', correct: true },
-        { id: 'opt-c2', label: 'Dizer que ele atrasa o grupo e retirar-lhe o acesso ao documento.', correct: false },
+        { id: 'opt-c1', label: 'Mostrar os passos necessários e deixar o colega experimentar para também participar.', correct: true },
+        { id: 'opt-c2', label: 'Fazer essa parte sozinho para terminar mais depressa e deixar o colega com outra tarefa.', correct: false },
       ],
     },
     {
       id: 'col-4',
-      situation: 'Um colega quer fazer o trabalho quase todo sozinho para despachar mais depressa.',
+      situation: 'Um colega quer fazer o trabalho quase todo sozinho para acabar mais depressa.',
       options: [
-        { id: 'opt-d1', label: 'Lembrar que o trabalho é de equipa, dividir as tarefas com justiça e reverem tudo juntos.', correct: true },
-        { id: 'opt-d2', label: 'Deixar o colega fazer tudo sozinho e não participar no trabalho.', correct: false },
+        { id: 'opt-d1', label: 'Dividir as tarefas de forma justa e combinar que todos revêm o trabalho no final.', correct: true },
+        { id: 'opt-d2', label: 'Deixá-lo fazer quase tudo, desde que o trabalho fique pronto a tempo.', correct: false },
       ],
     },
   ];
@@ -173,9 +173,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     },
     {
       id: 'cpr-4',
-      case: 'O Martim tirou uma fotografia a um colega no recreio e publicou-a num blogue público sem a autorização do colega.',
-      correct: 'proibido',
-      explanation: 'Nunca devemos publicar fotografias de colegas sem a sua autorização expressa.',
+      case: 'A Leonor encontrou uma imagem num site e quer utilizá-la no seu trabalho de TIC. Antes de a colocar no trabalho, verifica se a imagem pode ser utilizada e indica quem a criou.',
+      correct: 'permitido',
+      explanation: 'Muito bem! Antes de utilizares um conteúdo encontrado na Internet, deves verificar as regras de utilização e, quando necessário, indicar quem o criou.',
     },
   ];
 
@@ -187,24 +187,24 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const plagiarismCases = [
     {
       id: 'copia_sem_credito',
-      title: 'Opção A: Copiar o texto diretamente sem aspas nem indicação',
-      text: '"Os fundos marinhos da costa portuguesa contêm recifes de coral com mais de mil anos de idade." (Colado sem aspas e assinado apenas com o nome do aluno).',
+      title: 'Opção A: Copiar o texto diretamente sem indicar a fonte',
+      text: '"Os golfinhos conseguem comunicar através de diferentes sons." (Texto copiado e assinado apenas com o nome do aluno.)',
       isCorrect: false,
-      feedback: 'Incorreto (Plágio). Copiar o texto de outra pessoa e assinar com o nosso nome não transforma o trabalho em nosso.',
+      feedback: 'Incorreto. Copiar o texto de outra pessoa e colocar o nosso nome não transforma o trabalho em nosso.',
     },
     {
       id: 'palavras_proprias',
       title: 'Opção B: Explicar por palavras próprias e indicar a fonte',
-      text: 'Segundo a pesquisa do biólogo Dr. Tiago Ramos, existem recifes de coral muito antigos nos fundos marinhos portugueses. [Fonte: Revista Oceano Vivo]',
+      text: 'Segundo a informação consultada, os golfinhos utilizam diferentes sons para comunicar. [Fonte: manual de Ciências]',
       isCorrect: true,
-      feedback: 'Correto! Explicaste a ideia pelas tuas próprias palavras e indicaste com clareza quem fez a descoberta e a fonte.',
+      feedback: 'Correto! Explicaste a ideia pelas tuas próprias palavras e indicaste de onde veio a informação.',
     },
     {
       id: 'citacao_com_aspas',
-      title: 'Opção C: Usar o texto com aspas e indicar o autor',
-      text: 'Como afirmou o biólogo Dr. Tiago Ramos: "Os fundos marinhos da costa portuguesa contêm recifes de coral com mais de mil anos de idade." [Fonte: Revista Oceano Vivo]',
+      title: 'Opção C: Usar as palavras exatas e indicar a fonte',
+      text: 'No manual de Ciências pode ler-se: "Os golfinhos conseguem comunicar através de diferentes sons." [Fonte: manual de Ciências]',
       isCorrect: true,
-      feedback: 'Correto! Quando utilizamos as palavras exatas de outra pessoa, devemos colocar entre aspas e indicar o autor e a fonte.',
+      feedback: 'Correto! Quando utilizamos as palavras exatas de outra fonte, devemos deixar claro que essas palavras não são nossas e indicar a fonte.',
     },
   ];
 
