@@ -253,7 +253,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       label: 'Costas direitas apoiadas na cadeira, pés no chão e ecrã ao nível dos olhos',
       category: 'Ergonomia & Postura',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Uma postura correta previne dores lombares, tensão no pescoço e fadiga muscular.',
+      explanation: 'Hábito Saudável: Uma postura correta ajuda a evitar dores e desconforto nas costas, no pescoço e nos braços.',
     },
     {
       id: 'wb-lighting',
@@ -281,7 +281,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos para 6 metros de distância',
       category: 'Descanso dos Olhos',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Relaxa a musculatura de focagem dos olhos e previne a fadiga visual digital.',
+      explanation: 'Hábito Saudável: Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
     },
     {
       id: 'wb-bed',
@@ -326,45 +326,50 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     let score = 0;
     const len = pwdInput.length;
 
-    // 1. Length evaluation (primary factor)
-    if (len >= 14) score += 40;
-    else if (len >= 12) score += 35;
-    else if (len >= 8) score += 20;
-    else if (len > 0) score += 5;
+    if (len === 0) {
+      setHasTestedPwd(true);
+      setPwdScore(0);
+      setPwdFeedback({
+        score: 0,
+        title: 'Insere uma palavra-passe',
+        description: 'Escreve uma palavra-passe no campo acima para testares a sua segurança.',
+      });
+      return;
+    }
 
-    // 2. Predictability checks (repetitive patterns, keyboard walks)
+    // 1. Comprimento
+    if (len >= 10) score += 40;
+    else if (len >= 8) score += 30;
+    else if (len >= 6) score += 20;
+    else score += 10;
+
+    // 2. Imprevisibilidade (sequências óbvias)
     const lower = pwdInput.toLowerCase();
     const predictableWalks = ['123', '234', '345', '456', '789', 'abc', 'bcd', 'cde', 'qwerty', 'asdf', 'zxcv', 'aaaa', '1111', '0000'];
     const hasPredictableWalk = predictableWalks.some((walk) => lower.includes(walk));
     if (!hasPredictableWalk && len >= 8) {
-      score += 20;
+      score += 30;
     }
 
-    // 3. Personal data checks (names, years, school words)
+    // 3. Dados pessoais óbvios
     const personalKeywords = ['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', 'benfica', 'sporting', 'porto', '2024', '2025', '2026', '2014', '2013', '2012', '2011', 'password', 'passe', 'admin'];
     const hasPersonalData = personalKeywords.some((kw) => lower.includes(kw));
     if (!hasPersonalData && len >= 8) {
       score += 20;
     }
 
-    // 4. Character variety (secondary factor)
+    // 4. Variedade de caracteres
     let varietyCount = 0;
     if (/[a-z]/.test(pwdInput)) varietyCount++;
     if (/[A-Z]/.test(pwdInput)) varietyCount++;
     if (/[0-9]/.test(pwdInput)) varietyCount++;
     if (/[^A-Za-z0-9]/.test(pwdInput)) varietyCount++;
 
-    if (varietyCount >= 3) score += 20;
-    else if (varietyCount >= 2) score += 10;
-
-    // Penalties for obvious weaknesses
-    if (hasPredictableWalk || hasPersonalData) {
-      score = Math.max(15, score - 25);
-    }
-    if (len < 8) {
-      score = Math.min(30, score);
+    if (varietyCount >= 2) {
+      score += 10;
     }
 
+    // Limitar entre 0 e 100
     score = Math.min(100, Math.max(0, score));
 
     let title = 'Palavra-passe Vulnerável / Curta';
@@ -372,13 +377,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       'Esta palavra-passe é curta ou utiliza padrões fáceis de adivinhar. Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.';
 
     if (score >= 80) {
-      title = 'Palavra-passe Segura e Robusta!';
+      title = 'Palavra-passe muito segura!';
       description =
-        'Excelente! Comprimento adequado, imprevisível e sem dados pessoais óbvios.\n\n“Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.” Lembra-te de não a reutilizar noutras contas nem a partilhar com ninguém.';
+        'Excelente! A tua palavra-passe é suficientemente longa, difícil de adivinhar e não apresenta dados pessoais óbvios. Usa palavras-passe diferentes nas tuas contas e nunca as partilhes.';
     } else if (score >= 50) {
       title = 'Palavra-passe Razoável (Pode Melhorar)';
       description =
-        'Bom progresso! Para ficar verdadeiramente segura, aumenta o comprimento para 12+ caracteres e certifica-te de que não usas nomes, datas ou sequências previsíveis.\n\n“Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.”';
+        'Bom progresso! Para ficar verdadeiramente segura, tenta que tenha cerca de 10 caracteres, seja difícil de adivinhar e não use nomes, datas ou sequências previsíveis.';
     }
 
     setHasTestedPwd(true);

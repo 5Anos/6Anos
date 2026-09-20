@@ -284,7 +284,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
         { id: 'b', text: 'As duas fontes são iguais porque estão ambas na Internet.', isCorrect: false },
         { id: 'c', text: 'A Fonte B é melhor porque tem um título com exclamações e emojis.', isCorrect: false },
       ],
-      explanation: 'A transparência da entidade responsável (Fonte A) dá garantias de verificação que uma página sem identificação (Fonte B) não tem.',
+      explanation: 'Quando sabemos quem publicou a informação, é mais fácil perceber de onde veio e confirmar se é de confiança.',
     },
     {
       id: 'cmp-2',
@@ -295,7 +295,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
         { id: 'b', text: 'A Fonte A identifica uma equipa de investigadores; a Fonte B tem um perfil sem nome.', isCorrect: true },
         { id: 'c', text: 'Um perfil anónimo garante que o autor é um especialista secreto.', isCorrect: false },
       ],
-      explanation: 'Saber quem assina o texto permite verificar se a pessoa tem conhecimentos na área e assume a responsabilidade pelo que escreve.',
+      explanation: 'Saber quem escreveu ou publicou a informação ajuda-nos a perceber quem está por trás dela e a confirmar a informação.',
     },
     {
       id: 'cmp-3',

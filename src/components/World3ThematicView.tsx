@@ -281,12 +281,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       return;
     }
     if (!avatarPrivacyChecked) {
-      setAvatarFeedback('⚠️ Por favor marca a opção de confirmação para garantir que a tua criação é original e protege a tua privacidade.');
+      setAvatarFeedback('⚠️ Por favor marca a opção de confirmação para confirmar que não incluíste dados pessoais desnecessários e que estás a proteger a tua privacidade.');
       return;
     }
     const score = 100;
     setAvatarScore(score);
-    setAvatarFeedback('🎉 Excelente! Criaste a tua identidade visual de Criador Digital com originalidade, protegendo a tua privacidade!');
+    setAvatarFeedback('🎉 Excelente! Criaste a tua identidade visual de Criador Digital sem partilhar dados pessoais desnecessários.');
     reportCompletion('sim-avatar-challenge', 'Avatar Challenge', { avatarHandle, avatarPrivacyChecked, avatarStyle, avatarColor }, score);
   };
 
@@ -1187,10 +1187,10 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
               <span className="text-[10px] font-black uppercase text-purple-600 block">
-                Texto Original no Artigo do Biólogo Dr. Tiago Ramos:
+                Texto Original no Manual de Ciências:
               </span>
               <p className="text-xs text-slate-800 italic font-medium">
-                "Os fundos marinhos da costa portuguesa contêm recifes de coral com mais de mil anos de idade."
+                "Os golfinhos conseguem comunicar através de diferentes sons."
               </p>
             </div>
 
@@ -1329,7 +1329,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Aplicações práticas em trabalhos escolares
+                Lê a licença e descobre o que podes fazer com este conteúdo.
               </span>
             </div>
 
@@ -1379,7 +1379,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             {ccScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Resultado do Simulador: {ccScore}/100. As licenças Creative Commons facilitam a partilha de conteúdos e ajudam a saber com clareza o que é permitido fazer!
+                {ccScore === 100
+                  ? 'Correto! A licença indica o que podes fazer com este conteúdo.'
+                  : `Resultado do Simulador: ${ccScore}/100. A licença indica o que podes fazer com este conteúdo.`}
               </div>
             )}
           </div>
