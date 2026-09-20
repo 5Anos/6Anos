@@ -124,10 +124,10 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
               <Brain className="w-8 h-8 text-indigo-400 shrink-0" />
-              <span>O Laboratório de IA</span>
+              <span>Laboratório de IA</span>
             </h2>
             <p className="text-xs sm:text-sm text-indigo-100/80 mt-1 max-w-xl leading-relaxed">
-              O assistente de IA da Escola do Futuro foi descalibrado. Como Explorador da IA, seleciona um prompt exemplar e ativa as proteções éticas para impedir vazamentos de dados e alucinações!
+              O assistente de IA da escola está a ajudar na recuperação dos sistemas. Lembra-te: a IA pode ajudar, mas não devemos aceitar tudo o que responde. Escolhe prompts claros, verifica as respostas e protege a privacidade!
             </p>
           </div>
 

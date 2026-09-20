@@ -34,48 +34,48 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
   const clues = [
     {
       id: 'sender',
-      label: 'Remetente Suspeito: "direcao-alerta@suporte-login-rapido.net" (não é o domínio oficial @escola.pt)',
+      label: 'Remetente Falso: "direcao-alerta@suporte-login-rapido.net" (não é o domínio oficial da escola)',
       isSuspicious: true,
-      tip: 'Endereços estranhos com nomes longos e extensões invulgares são um sinal clássico de phishing.',
+      tip: 'Endereços desconhecidos com nomes estranhos são um sinal claro de phishing.',
     },
     {
       id: 'urgency',
-      label: 'Pressão Psicológica: "A tua conta será eliminada nos próximos 10 minutos se não clicares!"',
+      label: 'Pressão e Pânico: "A tua conta será eliminada em 10 minutos se não clicares!"',
       isSuspicious: true,
-      tip: 'Os atacantes criam sentido de pânico e urgência artificial para impedir que penses com calma.',
+      tip: 'Mensagens que criam pressa ou medo tentam impedir que penses com calma antes de agir.',
     },
     {
       id: 'link',
-      label: 'Hiperligação Estranha: "http://login-atualizar-pass.xyz/recuperar" (endereço não seguro HTTP)',
+      label: 'Ligação Estranha & Pedido de Dados: Pede para introduzir a palavra-passe e dados pessoais num site desconhecido',
       isSuspicious: true,
-      tip: 'Links suspeitos sem HTTPS e com domínios desconhecidos tentam roubar credenciais.',
+      tip: 'Nunca introduzas palavras-passe ou dados pessoais em sites que não conheces nem confias.',
     },
     {
       id: 'logo',
-      label: 'Logótipo da Escola: A imagem do brasão escolar está no topo do e-mail.',
+      label: 'Imagem do Logótipo: Imagem do brasão da escola copiada da internet',
       isSuspicious: false,
-      tip: 'Qualquer pessoa pode copiar uma imagem da internet para parecer legítima, mas o logótipo em si não é o perigo principal.',
+      tip: 'Qualquer pessoa pode copiar uma imagem para tentar parecer legítima, mas o perigo real está nos pedidos de dados e nos links.',
     },
   ];
 
   const actionProtocols = [
     {
       id: 'protocol-a',
-      title: 'Protocolo Alpha: Clicar no link imediatamente e inserir a password antiga para testar.',
+      title: 'Plano A: Clicar na ligação imediatamente e introduzir a palavra-passe para testar se funciona.',
       isCorrect: false,
-      explanation: 'Nunca introduzas as tuas credenciais em ligações não verificadas! Isso entregaria o acesso direto aos invasores.',
+      explanation: 'Nunca introduzas as tuas palavras-passe ou dados pessoais em ligações suspeitas! Isso entregaria o acesso direto a terceiros.',
     },
     {
       id: 'protocol-b',
-      title: 'Protocolo de Ciberdefesa: Reportar a tentativa de Phishing, bloquear o remetente e ativar autenticação de dois fatores (2FA) em todos os postos.',
+      title: 'Plano Seguro: Denunciar a mensagem como Phishing, avisar os responsáveis, proteger os dados pessoais e usar palavras-passe fortes com autenticação em dois passos.',
       isCorrect: true,
-      explanation: 'Excelente! Bloquear a ameaça, alertar os administradores e garantir que o 2FA está ativo neutraliza a invasão.',
+      explanation: 'Excelente! Ao denunciar o perigo, proteger os dados privados e reforçar as palavras-passe, defendes a tua pegada digital e a segurança de toda a escola.',
     },
     {
       id: 'protocol-c',
-      title: 'Protocolo Beta: Reencaminhar o e-mail para todos os colegas da turma para avisar sem reportar.',
+      title: 'Plano C: Reencaminhar a mensagem para todos os colegas da turma através das redes sociais.',
       isCorrect: false,
-      explanation: 'Reencaminhar o e-mail pode fazer com que outros colegas cliquem por engano no link fraudulento!',
+      explanation: 'Reencaminhar a mensagem pode espalhar o perigo e fazer com que outros colegas cliquem por engano!',
     },
   ];
 
@@ -134,10 +134,10 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
               <Shield className="w-8 h-8 text-emerald-400 shrink-0" />
-              <span>O Servidor Central</span>
+              <span>Centro de Segurança</span>
             </h2>
             <p className="text-xs sm:text-sm text-emerald-100/80 mt-1 max-w-xl leading-relaxed">
-              O firewall do servidor detetou uma mensagem maliciosa com o objetivo de roubar as credenciais dos computadores escolares. Analisa o ataque e restaura a ciberdefesa!
+              O sistema de segurança da escola detetou uma mensagem maliciosa com o objetivo de roubar palavras-passe e dados pessoais. Analisa a mensagem, identifica os perigos e recupera o acesso ao sistema!
             </p>
           </div>
 

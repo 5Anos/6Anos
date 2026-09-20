@@ -90,11 +90,11 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
           Certificado de Distinção Máxima
         </span>
         <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-3">
-          A Escola do Futuro foi Salva!
+          ESCOLA DO FUTURO REATIVADA!
         </h2>
 
-        <p className="text-sm text-slate-600 font-medium max-w-lg mx-auto leading-relaxed mb-6">
-          Parabéns, <strong className="text-slate-900">{studentName}</strong>! Recuperaste os 5 Códigos de Segurança, reconfiguraste o Núcleo Central e provaste mestria transversal em todas as competências digitais do 6.º ano.
+        <p className="text-sm text-slate-700 font-medium max-w-xl mx-auto leading-relaxed mb-6">
+          Conseguiste, <strong className="text-slate-900">{studentName}</strong>! Usaste conhecimentos de segurança, pesquisa, criação digital, pensamento computacional e inteligência artificial para reativar a Escola do Futuro. A partir de agora, és oficialmente: <strong className="text-amber-800 uppercase font-black">Mestre da Missão TIC</strong>!
         </p>
 
         {/* Reward Pill */}

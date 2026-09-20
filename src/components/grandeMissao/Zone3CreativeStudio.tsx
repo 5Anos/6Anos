@@ -140,10 +140,10 @@ export const Zone3CreativeStudio: React.FC<Zone3Props> = ({
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
               <Palette className="w-8 h-8 text-purple-400 shrink-0" />
-              <span>O Estúdio Criativo</span>
+              <span>Estúdio Criativo</span>
             </h2>
             <p className="text-xs sm:text-sm text-purple-100/80 mt-1 max-w-xl leading-relaxed">
-              O mural multimédia da escola está a ser montado. Como criador responsável, seleciona materiais com direitos de autor protegidos (Creative Commons) e aplica a netiqueta de publicação!
+              No estúdio é necessário preparar uma publicação digital para ajudar a reativar a escola. Seleciona materiais que respeitem a autoria e os direitos de autor (Creative Commons) e usa uma comunicação positiva e colaborativa!
             </p>
           </div>
 

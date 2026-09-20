@@ -109,7 +109,7 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              O ecossistema digital da escola entrou em bloqueio de segurança. Explora os 5 setores, resolve as mini-missões práticas para recolher os <strong>5 Códigos de Segurança</strong> e desbloqueia o <strong>Núcleo Central</strong> para restabelecer a escola!
+              Estamos no ano 2040. O sistema da Escola do Futuro foi bloqueado. Para o reativar, tens de recuperar cinco códigos de segurança escondidos em diferentes zonas da escola. Cada zona testa conhecimentos que aprendeste nos cinco Mundos TIC. Quando recuperares os cinco códigos, poderás chegar ao Núcleo Central e tentar reativar a escola.
             </p>
           </div>
 

@@ -122,10 +122,10 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
               <Search className="w-8 h-8 text-blue-400 shrink-0" />
-              <span>O Arquivo de Notícias</span>
+              <span>Arquivo Secreto</span>
             </h2>
             <p className="text-xs sm:text-sm text-blue-100/80 mt-1 max-w-xl leading-relaxed">
-              O sistema de informação da escola foi invadido por boatos e notícias falsas. Aplica os critérios do Detetive Digital (Autor, Fonte, Data e Conteúdo) para restabelecer a verdade!
+              Encontraste uma informação no arquivo. Antes de a usares, tens de descobrir se é verdadeira e de onde veio. Investiga quem publicou, a data e compara com fontes credíveis!
             </p>
           </div>
 
