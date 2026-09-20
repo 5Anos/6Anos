@@ -70,72 +70,78 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   const [phishingUserChoices, setPhishingUserChoices] = useState<Record<number, boolean>>({});
   const phishingScenarios = [
     {
-      sender: 'servicos-urgentes@banc0-alerta.net',
-      subject: 'A tua conta foi suspensa! Clica já para reativar em 10 minutos',
-      body: 'Caro cliente, detetámos acessos suspeitos. Se não entrares em http://bit.ly/login-recupera agora, todos os teus acessos serão eliminados.',
+      sender: 'suporte@notificacoes-plataforma-jog0s.com',
+      subject: 'Aviso de Segurança: Início de sessão detetado num novo dispositivo',
+      body: 'Olá! Detetámos um novo início de sessão na tua conta a partir de um dispositivo desconhecido. Se não foste tu, clica imediatamente em http://verificacao-conta-jog0s.com/login e introduz a tua palavra-passe para bloquear o acesso.',
       isPhishing: true,
       signals: [
-        'Domínio falso com zero em vez de "o" (@banc0-alerta.net)',
-        'Falsa urgência e ameaça de encerramento imediato',
-        'Link encurtado (bit.ly) a esconder o destino real',
+        'Endereço falsificado com "0" em vez de "o" (@notificacoes-plataforma-jog0s.com)',
+        'Criação de urgência artificial e medo de perda da conta',
+        'Link externo não oficial a solicitar a introdução da palavra-passe',
       ],
       explanation:
-        'Esta mensagem é phishing. Os burlões usam urgência e ameaças de perda de conta para te levar a clicar sem pensar. Bancos e serviços legítimos nunca enviam links encurtados a pedir palavras-passe.',
+        'Esta mensagem é phishing. Os atacantes alteram subtilmente o endereço com um zero ("jog0s") e criam falsos alertas de segurança para que introduzas a tua palavra-passe num site falso.',
     },
     {
-      sender: 'professor.tic@escola.edu.pt',
-      subject: 'Trabalho de Grupo de TIC - Prazo de Entrega',
-      body: 'Olá a todos. Lembramos que a entrega da atividade é na próxima sexta-feira através da plataforma oficial da escola. Bom trabalho!',
+      sender: 'direcao.turma@agrupamento-escolas.edu.pt',
+      subject: 'Aviso: Calendário de Atividades e Avaliações do 2.º Período',
+      body: 'Caros alunos e encarregados de educação, o calendário das atividades curriculares do 2.º período está disponível para consulta no placard da escola e na plataforma oficial Moodle/Inovar habitual. Não é solicitada qualquer partilha de dados pessoais. Bom trabalho a todos!',
       isPhishing: false,
       signals: [
-        'Endereço institucional autêntico (.edu.pt)',
-        'Tom profissional e formativo adequado',
-        'Encaminha para canais oficiais escolares já conhecidos',
+        'Domínio institucional oficial do Ministério da Educação (.edu.pt)',
+        'Comunicação informativa que não pede palavras-passe nem dados privados',
+        'Encaminha para a plataforma interna oficial habitual da escola',
       ],
       explanation:
-        'Mensagem legítima. Provém do endereço institucional do professor e remete para a plataforma oficial habitual da escola, sem solicitar dados confidenciais nem criar alarmismo.',
+        'Mensagem legítima e segura. Provém do domínio institucional oficial (.edu.pt), tem um propósito puramente escolar e não pede palavras-passe nem links suspeitos.',
     },
     {
-      sender: 'premios@jogos-online-gratis-100.com',
-      subject: 'GANHASTE 5000 MOEDAS NO TEU JOGO FAVORITO!',
-      body: 'Parabéns! Foste o vencedor sortudo do sorteio diário. Introduz o teu email e a tua palavra-passe para receberes as moedas de imediato.',
+      sender: 'partilha-trabalhos@cloud-documentos-storage.net',
+      subject: 'Um colega partilhou o documento "Trabalho_TIC_6Ano.docx" contigo',
+      body: 'Para acederes ao documento partilhado e editares o trabalho de grupo, inicia sessão com o teu email institucional e palavra-passe escolar em http://cloud-documentos-storage.net/auth-escola.',
       isPhishing: true,
       signals: [
-        'Promessa de prémios fáceis e ofertas gratuitas irrealistas',
-        'Pedido explícito da tua palavra-passe',
-        'Domínio genérico e desconhecido (.com duvidoso)',
+        'Domínio externo desconhecido (.storage.net) que não pertence à escola',
+        'Pedido de introdução de credenciais escolares num site externo',
+        'Não utiliza a plataforma oficial autorizada pela escola (ex.: Google Classroom / Teams)',
       ],
       explanation:
-        'Esta mensagem é phishing. Nenhuma plataforma ou jogo oficial alguma vez pede a tua palavra-passe para entregar moedas ou itens no jogo.',
+        'Esta mensagem é phishing. Nunca deves introduzir a tua palavra-passe escolar num site externo desconhecido. As partilhas de trabalhos escolares devem ocorrer apenas nas plataformas oficiais autorizadas pela escola.',
     },
   ];
 
   // -------------------------------------------------------------
   // 3. PRIVACY SIMULATOR STATE
   // -------------------------------------------------------------
-  const [privacyChoices, setPrivacyChoices] = useState<Record<string, 'public' | 'private'>>({});
+  const [privacyChoices, setPrivacyChoices] = useState<Record<string, 'public' | 'private' | 'context'>>({});
   const [privacyScore, setPrivacyScore] = useState<number | null>(null);
   const [privacyFeedback, setPrivacyFeedback] = useState<{
     score: number;
     title: string;
     description: string;
   } | null>(null);
-  const privacyItems = [
+  const privacyItems: {
+    id: string;
+    label: string;
+    hint: string;
+    correct: 'public' | 'private' | 'context';
+    explanation: string;
+  }[] = [
     {
       id: 'item-phone',
       label: 'O teu número de telemóvel pessoal',
       hint: 'Contacto direto via chamadas ou SMS',
       correct: 'private',
       explanation:
-        'Correto ao proteger: o número de telemóvel permite contactos não solicitados, spam e tentativas de burla via SMS/WhatsApp.',
+        'Proteger (Privado): O número de telemóvel é um dado confidencial crítico que permite contactos não solicitados, mensagens indesejadas e tentativas de burla.',
     },
     {
       id: 'item-hobby',
-      label: 'O teu desporto ou passatempo preferido',
+      label: 'O teu desporto, livro ou passatempo preferido',
       hint: 'Interesses culturais e desportivos',
       correct: 'public',
       explanation:
-        'Partilha segura: interesses e passatempos gerais promovem a convivência saudável e não colocam em causa a tua segurança física.',
+        'Partilhar publicamente: Interesses e gostos gerais são partilhas positivas e saudáveis que não revelam a tua identidade confidencial nem a tua localização.',
     },
     {
       id: 'item-address',
@@ -143,63 +149,81 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       hint: 'Rua, número de porta e código postal',
       correct: 'private',
       explanation:
-        'Correto ao proteger: a morada da tua residência é um dado confidencial crítico e nunca deve ser partilhada publicamente.',
+        'Proteger (Privado): A morada de residência nunca deve ser divulgada publicamente para garantir a segurança física e a privacidade da tua família.',
     },
     {
-      id: 'item-school',
-      label: 'Horário em que sais sozinho da escola',
+      id: 'item-photo-friends',
+      label: 'Fotografia com colegas de turma no recreio da escola',
+      hint: 'Imagem que envolve a cara e presença de outras pessoas',
+      correct: 'context',
+      explanation:
+        'Pensar antes de partilhar: Depende do contexto e exige sempre a autorização prévia de todos os colegas que aparecem na foto, além de ser publicada apenas em contas com definições restritas a amigos conhecidos.',
+    },
+    {
+      id: 'item-school-routine',
+      label: 'O horário e percurso exato em que vais e voltas sozinho da escola',
       hint: 'Rotinas e deslocações diárias a pé',
       correct: 'private',
       explanation:
-        'Correto ao proteger: rotinas, locais e horários físicos onde estás sozinho põem em risco a tua segurança física no mundo real.',
+        'Proteger (Privado): Rotinas e horários em que estás sozinho expõem a tua localização física e colocam em risco a tua segurança no mundo real.',
     },
     {
-      id: 'item-book',
-      label: 'Um livro ou jogo que recomendas aos amigos',
-      hint: 'Recomendações e sugestões construtivas',
+      id: 'item-school-project',
+      label: 'Um desenho, história ou projeto criado por ti para a aula de TIC',
+      hint: 'Trabalho de autor escolar',
       correct: 'public',
       explanation:
-        'Partilha segura: sugestões culturais e de jogos são exemplos de partilha positiva e enriquecedora.',
+        'Partilhar publicamente: Trabalhos criativos e projetos escolares podem ser partilhados de forma construtiva na comunidade escolar e no portefólio digital.',
     },
   ];
 
   // -------------------------------------------------------------
   // 4. DIGITAL FOOTPRINT SIMULATOR STATE
   // -------------------------------------------------------------
-  const [footprintChoices, setFootprintChoices] = useState<Record<string, 'risco' | 'positivo'>>({});
+  const [footprintChoices, setFootprintChoices] = useState<Record<string, 'positivo' | 'moderado' | 'alto'>>({});
   const [footprintScore, setFootprintScore] = useState<number | null>(null);
   const [footprintFeedback, setFootprintFeedback] = useState<{
     score: number;
     title: string;
     description: string;
   } | null>(null);
-  const footprintScenarios = [
+  const footprintScenarios: {
+    id: string;
+    title: string;
+    description: string;
+    correct: 'positivo' | 'moderado' | 'alto';
+    riskLevelText: string;
+    explanation: string;
+  }[] = [
     {
       id: 'fp-1',
-      title: 'Fotografia com farda e localização',
+      title: 'Vídeo no recreio com farda e localização GPS em direto',
       description:
-        'Publicar nas redes sociais uma fotografia de grupo em frente à escola com a farda visível e localização GPS ativada.',
-      correct: 'risco',
+        'Publicar nas redes sociais um vídeo no recreio escolar, com o logótipo da escola visível, identificando os colegas e ativando a transmissão de localização GPS em tempo real.',
+      correct: 'alto',
+      riskLevelText: 'Alto Risco / Prejudicial',
       explanation:
-        'Risco para a Pegada: Revela a localização física e as rotinas escolares dos alunos para qualquer pessoa.',
+        'Alto Risco: Revela a localização física de menores em direto, rotinas escolares e expõe colegas sem consentimento, criando um registo digital prejudicial permanente.',
     },
     {
       id: 'fp-2',
-      title: 'Comentário impulsivo num jogo',
+      title: 'Fotografia das férias com matrícula do carro em segundo plano',
       description:
-        'Escrever um comentário rude e insultuoso num fórum público de videojogos depois de perder uma partida.',
-      correct: 'risco',
+        'Partilhar uma fotografia casual com a família onde, ao fundo da imagem, é perfeitamente legível a matrícula do carro e a placa com o nome da rua.',
+      correct: 'moderado',
+      riskLevelText: 'Risco Moderado (Atenção ao Detalhe)',
       explanation:
-        'Risco para a Pegada: As palavras ficam registadas nos servidores e podem ser consultadas no futuro por amigos ou professores.',
+        'Risco Moderado: Embora a intenção seja positiva, detalhes de fundo involuntários expõem bens e moradas. Exige atenção e reflexão prévia para cortar ou desfocar a informação antes de publicar.',
     },
     {
       id: 'fp-3',
-      title: 'Artigo educativo sobre reciclagem',
+      title: 'Artigo educativo no blogue escolar sobre segurança online',
       description:
-        'Partilhar no blogue da turma um projeto escolar sobre reciclagem e ambiente, assinado apenas com o primeiro nome.',
+        'Escrever e publicar no blogue da turma um artigo construtivo com conselhos de cidadania digital e prevenção de cyberbullying, assinado apenas com o primeiro nome.',
       correct: 'positivo',
+      riskLevelText: 'Impacto Positivo e Construtivo',
       explanation:
-        'Pegada Positiva: Demonstra competências digitais, cooperação e criação de valor com respeito pela privacidade.',
+        'Impacto Positivo: Demonstra competências digitais, cooperação, sentido cívico e respeito pela privacidade, construindo uma excelente reputação digital.',
     },
   ];
 
@@ -215,28 +239,46 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   } | null>(null);
   const wellbeingHabits = [
     {
-      id: 'wb-1',
-      label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos para 6 metros de distância',
+      id: 'wb-posture',
+      label: 'Costas direitas apoiadas na cadeira, pés no chão e ecrã ao nível dos olhos',
+      category: 'Ergonomia & Postura',
       correct: 'saudavel',
-      explanation: 'Descansa a musculatura ocular e previne a fadiga visual digital.',
+      explanation: 'Hábito Saudável: Uma postura correta previne dores lombares, tensão no pescoço e fadiga muscular.',
     },
     {
-      id: 'wb-2',
-      label: 'Ficar na cama com o telemóvel no escuro a ver vídeos até de madrugada',
+      id: 'wb-lighting',
+      label: 'Utilizar o computador num quarto às escuras com o brilho do ecrã no máximo',
+      category: 'Iluminação & Visão',
       correct: 'risco',
-      explanation: 'A luz azul inibe a produção de melatonina, prejudicando o sono e a concentração escolar.',
+      explanation: 'Hábito Prejudicial: O contraste extremo no escuro força excessivamente a visão, causando dores de cabeça e cansaço ocular.',
     },
     {
-      id: 'wb-3',
-      label: 'Fazer pausas ativas para levantar, alongar e beber água',
+      id: 'wb-distance',
+      label: 'Manter o ecrã à distância de 50 a 70 cm (comprimento de um braço esticado)',
+      category: 'Distância do Ecrã',
       correct: 'saudavel',
-      explanation: 'Melhora a circulação, alivia as costas e renova a energia mental.',
+      explanation: 'Hábito Saudável: Mantém a distância de visualização ideal para proteger a saúde dos olhos.',
     },
     {
-      id: 'wb-4',
-      label: 'Silenciar notificações de redes sociais e jogos durante o horário de estudo',
+      id: 'wb-wrists',
+      label: 'Apoiar os pulsos confortavelmente na mesa e braços a 90° ao utilizar o teclado',
+      category: 'Ergonomia dos Membros',
       correct: 'saudavel',
-      explanation: 'Evita a interrupção contínua da atenção e melhora os resultados escolares.',
+      explanation: 'Hábito Saudável: Alinha as articulações e previne lesões por esforço repetitivo nos pulsos e mãos.',
+    },
+    {
+      id: 'wb-202020',
+      label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos para 6 metros de distância',
+      category: 'Descanso dos Olhos',
+      correct: 'saudavel',
+      explanation: 'Hábito Saudável: Relaxa a musculatura de focagem dos olhos e previne a fadiga visual digital.',
+    },
+    {
+      id: 'wb-bed',
+      label: 'Levar o telemóvel para a cama e ficar a ver vídeos no escuro até de madrugada',
+      category: 'Sono & Descanso',
+      correct: 'risco',
+      explanation: 'Hábito Prejudicial: A luz azul dos ecrãs bloqueia a melatonina, prejudicando o sono, a memória e a energia escolar.',
     },
   ];
 
@@ -273,29 +315,60 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   const evaluatePassword = () => {
     let score = 0;
     const len = pwdInput.length;
-    if (len >= 8) score += 20;
-    if (len >= 12) score += 20;
-    if (/[A-Z]/.test(pwdInput) && /[a-z]/.test(pwdInput)) score += 20;
-    if (/[0-9]/.test(pwdInput)) score += 20;
-    if (/[^A-Za-z0-9]/.test(pwdInput)) score += 20;
 
-    const common = ['123', 'password', 'escola', 'alex', 'teste', 'qwerty', '12345', 'admin', 'pass'];
-    if (common.some((c) => pwdInput.toLowerCase().includes(c))) {
-      score = Math.max(10, score - 35);
+    // 1. Length evaluation (primary factor)
+    if (len >= 14) score += 40;
+    else if (len >= 12) score += 35;
+    else if (len >= 8) score += 20;
+    else if (len > 0) score += 5;
+
+    // 2. Predictability checks (repetitive patterns, keyboard walks)
+    const lower = pwdInput.toLowerCase();
+    const predictableWalks = ['123', '234', '345', '456', '789', 'abc', 'bcd', 'cde', 'qwerty', 'asdf', 'zxcv', 'aaaa', '1111', '0000'];
+    const hasPredictableWalk = predictableWalks.some((walk) => lower.includes(walk));
+    if (!hasPredictableWalk && len >= 8) {
+      score += 20;
     }
 
-    let title = 'Palavra-passe Fraca';
-    let description =
-      'Esta palavra-passe é curta ou fácil de prever por programas automáticos. Aumenta o comprimento (mínimo 12 caracteres) e combina letras maiúsculas, minúsculas, números e símbolos.';
+    // 3. Personal data checks (names, years, school words)
+    const personalKeywords = ['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', 'benfica', 'sporting', 'porto', '2024', '2025', '2026', '2014', '2013', '2012', '2011', 'password', 'passe', 'admin'];
+    const hasPersonalData = personalKeywords.some((kw) => lower.includes(kw));
+    if (!hasPersonalData && len >= 8) {
+      score += 20;
+    }
 
-    if (score > 75) {
-      title = 'Palavra-passe Muito Forte!';
+    // 4. Character variety (secondary factor)
+    let varietyCount = 0;
+    if (/[a-z]/.test(pwdInput)) varietyCount++;
+    if (/[A-Z]/.test(pwdInput)) varietyCount++;
+    if (/[0-9]/.test(pwdInput)) varietyCount++;
+    if (/[^A-Za-z0-9]/.test(pwdInput)) varietyCount++;
+
+    if (varietyCount >= 3) score += 20;
+    else if (varietyCount >= 2) score += 10;
+
+    // Penalties for obvious weaknesses
+    if (hasPredictableWalk || hasPersonalData) {
+      score = Math.max(15, score - 25);
+    }
+    if (len < 8) {
+      score = Math.min(30, score);
+    }
+
+    score = Math.min(100, Math.max(0, score));
+
+    let title = 'Palavra-passe Vulnerável / Curta';
+    let description =
+      'Esta palavra-passe é curta ou utiliza padrões fáceis de adivinhar. Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.';
+
+    if (score >= 80) {
+      title = 'Palavra-passe Segura e Robusta!';
       description =
-        'Excelente combinação! O bom comprimento associado a diferentes tipos de caracteres torna a tua palavra-passe muito resistente a tentativas de adivinhação.';
+        'Excelente! Comprimento adequado, imprevisível e sem dados pessoais óbvios.\n\n“Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.” Lembra-te de não a reutilizar noutras contas nem a partilhar com ninguém.';
     } else if (score >= 50) {
-      title = 'Palavra-passe Média';
+      title = 'Palavra-passe Razoável (Pode Melhorar)';
       description =
-        'Um bom começo, mas ainda pode ser melhorada. Adiciona mais caracteres ou inclui símbolos especiais (#, $, !, _) para reforçar a segurança.';
+        'Bom progresso! Para ficar verdadeiramente segura, aumenta o comprimento para 12+ caracteres e certifica-te de que não usas nomes, datas ou sequências previsíveis.\n\n“Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.”';
     }
 
     setHasTestedPwd(true);
@@ -314,7 +387,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     setPhishingScore(currentScore);
     setPhishingFeedback({
       score: currentScore,
-      title: isCurrentCorrect ? '✓ Decisão Correta!' : '⚠️ Atenção aos Detalhes de Segurança!',
+      title: isCurrentCorrect ? '✓ Decisão Pericial Correta!' : '⚠️ Atenção aos Sinais de Alerta!',
       description: phishingScenarios[phishingStep].explanation,
     });
 
@@ -341,15 +414,15 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
     let title = 'Classificação em Análise';
     let description =
-      'Alguns dados confidenciais foram marcados como públicos. Protege sempre a tua morada, contactos e rotinas para garantir a tua segurança digital e física.';
+      'Revê a tua classificação. Lembra-te: dados que põem em risco a tua segurança física devem ser sempre protegidos (privados), enquanto fotografias com outras pessoas exigem pensar antes de partilhar e autorização.';
     if (score === 100) {
-      title = 'Classificação de Privacidade Perfeita!';
+      title = 'Classificação de Privacidade Exemplar!';
       description =
-        'Excelente discernimento! Manténs os teus dados confidenciais protegidos e sabes que tipo de informação pode ser partilhada em segurança com amigos e comunidade.';
+        'Discernimento perfeito! Sabes exatamente quando proteger dados confidenciais, quando ponderar o contexto de partilha de imagens e que projetos podes divulgar em segurança.';
     } else if (score >= 60) {
-      title = 'Boa Noção de Privacidade';
+      title = 'Bom Sentido de Privacidade';
       description =
-        'Conseguiste identificar a maioria dos riscos! Revê os dados sensíveis como número de telefone e horários da escola para alcançar nota máxima.';
+        'Conseguiste identificar os principais dados! Tem atenção redobrada a dados de rotinas físicas e imagens com colegas que exigem reflexão contextual.';
     }
 
     setPrivacyFeedback({ score, title, description });
@@ -365,17 +438,17 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     const score = Math.round((correctCount / footprintScenarios.length) * 100);
     setFootprintScore(score);
 
-    let title = 'Análise de Impacto Concluída';
+    let title = 'Análise da Pegada Digital';
     let description =
-      'Lembra-te que publicações com uniformes escolares, comentários agressivos ou fotos identificáveis deixam marcas permanentes na tua pegada digital.';
+      'Lembra-te que a pegada digital inclui tanto os registos que criamos voluntariamente como os detalhes involuntários em fotos ou vídeos.';
     if (score === 100) {
-      title = 'Consciência Digital Exemplar!';
+      title = 'Avaliação Crítica Exemplar!';
       description =
-        'Compreendeste perfeitamente como cada publicação constrói ou compromete a tua reputação online para o futuro. Continua com essa atitude consciente!';
+        'Excelente discernimento dos diferentes graus de impacto: soubeste distinguir o alto risco da exposição física em direto, o risco moderado dos detalhes em segundo plano e o impacto construtivo de artigos escolares.';
     } else if (score >= 66) {
       title = 'Bom Sentido Crítico';
       description =
-        'Identificaste a maior parte dos impactos. Tem atenção redobrada à partilha de dados escolares e comentários impulsivos em fóruns públicos.';
+        'Compreendeste bem os impactos. Lembra-te de analisar os pequenos detalhes que podem estar visíveis no fundo de fotografias casuais.';
     }
 
     setFootprintFeedback({ score, title, description });
@@ -391,17 +464,17 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     const score = Math.round((correctCount / wellbeingHabits.length) * 100);
     setWellbeingScore(score);
 
-    let title = 'Perfil de Bem-estar Digital';
+    let title = 'Índice de Bem-estar e Ergonomia';
     let description =
-      'O uso de ecrãs antes de dormir e o excesso de notificações podem causar insónias e falta de concentração. Experimenta aplicar limites no telemóvel e fazer pausas regulares!';
+      'A postura corporal, a distância do ecrã e a iluminação correta são tão importantes quanto o tempo de ecrã para evitar dores e cansaço visual.';
     if (score === 100) {
-      title = 'Equilíbrio Digital Notável!';
+      title = 'Equilíbrio e Ergonomia Exemplares!';
       description =
-        'Demonstras hábitos muito saudáveis: pausas ativas (regra 20-20-20), estudo focado sem distrações e descanso adequado longe dos ecrãs à noite!';
-    } else if (score >= 50) {
-      title = 'Bom Caminho para o Equilíbrio';
+        'Fantástico! Dominas as regras essenciais de ergonomia (costas direitas, ecrã a 50-70 cm, braços a 90°), descanso ocular (regra 20-20-20) e proteção do sono!';
+    } else if (score >= 60) {
+      title = 'Bom Sentido Ergonómico';
       description =
-        'Estás consciente dos principais fatores de bem-estar. Lembra-te de descansar a visão regularmente e evitar ecrãs na cama antes de dormir.';
+        'Identificaste a maioria dos hábitos saudáveis! Revê a iluminação do quarto e a distância correta do ecrã para garantir nota máxima.';
     }
 
     setWellbeingFeedback({ score, title, description });
@@ -552,7 +625,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
               </div>
 
-              {/* Checklist em Tempo Real */}
+              {/* Checklist de Robustez e Imprevisibilidade */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
@@ -564,37 +637,47 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>12+ Caracteres</span>
+                  <span>Comprimento (12+ car.)</span>
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
-                    /[A-Z]/.test(pwdInput) && /[a-z]/.test(pwdInput)
+                    pwdInput.length >= 8 &&
+                    !['123', '234', '345', '456', '789', 'abc', 'bcd', 'qwerty', 'asdf', 'aaaa', '1111'].some((w) =>
+                      pwdInput.toLowerCase().includes(w)
+                    )
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Maiúsculas + Minúsculas</span>
+                  <span>Sem Sequências Óbvias</span>
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
-                    /[0-9]/.test(pwdInput)
+                    pwdInput.length >= 8 &&
+                    !['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', '2024', '2025', '2026', 'password', 'admin'].some(
+                      (kw) => pwdInput.toLowerCase().includes(kw)
+                    )
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Números (0-9)</span>
+                  <span>Sem Dados Pessoais</span>
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
-                    /[^A-Za-z0-9]/.test(pwdInput)
+                    (/[a-z]/.test(pwdInput) ? 1 : 0) +
+                      (/[A-Z]/.test(pwdInput) ? 1 : 0) +
+                      (/[0-9]/.test(pwdInput) ? 1 : 0) +
+                      (/[^A-Za-z0-9]/.test(pwdInput) ? 1 : 0) >=
+                    3
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Símbolos (#, $, !)</span>
+                  <span>Variedade de Tipos</span>
                 </div>
               </div>
 
@@ -887,7 +970,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Classifica os dados entre Públicos e Confidenciais
+                Classifica: Partilhar Publicamente / Pensar Antes / Proteger (Privado)
               </span>
             </div>
 
@@ -895,21 +978,21 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {privacyItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
+                  className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
                 >
-                  <div className="space-y-0.5">
+                  <div className="space-y-0.5 max-w-lg">
                     <span className="text-xs sm:text-sm font-bold text-slate-800">
                       {item.label}
                     </span>
                     <p className="text-[11px] text-slate-500">{item.hint}</p>
                     {privacyChoices[item.id] && (
-                      <p className="text-[11px] text-slate-600 italic">
+                      <p className="text-[11px] text-slate-600 italic mt-1">
                         💡 {item.explanation}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                     <button
                       onClick={() =>
                         setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'public' }))
@@ -920,7 +1003,19 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      Público / Partilhar
+                      Público
+                    </button>
+                    <button
+                      onClick={() =>
+                        setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'context' }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        privacyChoices[item.id] === 'context'
+                          ? 'bg-amber-600 text-white shadow-xs'
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Pensar Antes
                     </button>
                     <button
                       onClick={() =>
@@ -932,7 +1027,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      Privado / Proteger
+                      Proteger (Privado)
                     </button>
                   </div>
                 </div>
@@ -1048,7 +1143,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Analisa 3 publicações e classifica o seu impacto
+                Avalia o grau de impacto: Positivo / Risco Moderado / Alto Risco
               </span>
             </div>
 
@@ -1058,9 +1153,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   key={scen.id}
                   className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2.5"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <h5 className="text-xs font-black text-slate-900">{scen.title}</h5>
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <h5 className="text-xs sm:text-sm font-black text-slate-900">{scen.title}</h5>
+                    <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                       <button
                         onClick={() =>
                           setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'positivo' }))
@@ -1071,19 +1166,31 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
-                        Pegada Positiva
+                        Impacto Positivo
                       </button>
                       <button
                         onClick={() =>
-                          setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'risco' }))
+                          setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'moderado' }))
                         }
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          footprintChoices[scen.id] === 'risco'
+                          footprintChoices[scen.id] === 'moderado'
+                            ? 'bg-amber-600 text-white shadow-xs'
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        Risco Moderado
+                      </button>
+                      <button
+                        onClick={() =>
+                          setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'alto' }))
+                        }
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          footprintChoices[scen.id] === 'alto'
                             ? 'bg-rose-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
-                        Risco para a Pegada
+                        Alto Risco
                       </button>
                     </div>
                   </div>
@@ -1091,7 +1198,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     {scen.description}
                   </p>
                   {footprintChoices[scen.id] && (
-                    <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200/60">
+                    <p className="text-[11px] text-slate-600 italic pt-1 border-t border-slate-200/60">
                       💡 {scen.explanation}
                     </p>
                   )}
@@ -1220,11 +1327,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-rose-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Hábitos Saudáveis
+                  2. Experimenta: Simulador de Ergonomia e Hábitos Saudáveis
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Avalia os teus hábitos de tempo de ecrã
+                Avalia a ergonomia (postura, distância, luz) e os hábitos de ecrã
               </span>
             </div>
 
@@ -1234,10 +1341,17 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   key={h.id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
                 >
-                  <div className="space-y-1">
-                    <span className="text-xs sm:text-sm font-bold text-slate-800">{h.label}</span>
+                  <div className="space-y-1 max-w-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-rose-100/80 text-rose-800">
+                        {h.category}
+                      </span>
+                    </div>
+                    <span className="text-xs sm:text-sm font-bold text-slate-800 block">
+                      {h.label}
+                    </span>
                     {wellbeingChoices[h.id] && (
-                      <p className="text-[11px] text-slate-500 italic">💡 {h.explanation}</p>
+                      <p className="text-[11px] text-slate-600 italic">💡 {h.explanation}</p>
                     )}
                   </div>
 
