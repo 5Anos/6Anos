@@ -62,12 +62,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     try {
       const cleanEmail = email.trim();
       if (isRegister) {
-        if (cleanEmail.toLowerCase() === 'imaginebycarla2023@gmail.com') {
-          setError('Este email pertence à Professora Carla. Alterna para a aba "Iniciar Sessão" para aceder à Área da Professora.');
-          setLoading(false);
-          return;
-        }
-
         await register({
           name: name.trim(),
           email: cleanEmail,

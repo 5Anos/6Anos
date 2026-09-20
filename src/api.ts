@@ -1,27 +1,11 @@
-const TOKEN_KEY = 'missao_tic_token';
-
-export function getStoredToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setStoredToken(token: string | null) {
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-  }
-}
+// API client relying strictly on HttpOnly session cookies.
+// No tokens are stored in or read from localStorage or sessionStorage.
 
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = getStoredToken();
   const headers = new Headers(options.headers || {});
 
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
-  }
-
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const response = await fetch(endpoint, {
@@ -56,11 +40,7 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 }
 
 export async function downloadFile(url: string, defaultFilename: string) {
-  const token = getStoredToken();
   const headers = new Headers();
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
   const response = await fetch(url, { headers, credentials: 'include' });
   if (!response.ok) {
     let msg = `Erro ${response.status}: ${response.statusText}`;

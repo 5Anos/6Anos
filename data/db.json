@@ -3,7 +3,7 @@
     {
       "id": "teacher-carla",
       "name": "Carla Silva",
-      "email": "imaginebycarla2023@gmail.com",
+      "email": "professor@escola.pt",
       "passwordHash": "134bded6dda2e918fcafa4bb91b168437a356c52e55bbeaa2bd0f83c92bd487aaa7fa97e1730d53f1872be6ea90e532702124b4eb1120128c1b949e453a4bb36",
       "passwordSalt": "08a2c23742b229bced1a70c1d586102d",
       "nickname": "Prof_Carla_TIC",
@@ -77,6 +77,24 @@
       "name": "6.º B",
       "code": "6B-2024",
       "createdAt": "2026-09-16T12:55:05.222Z"
+    },
+    {
+      "id": "class-6c",
+      "name": "6.º C",
+      "code": "",
+      "createdAt": "2026-09-20T15:33:33.270Z"
+    },
+    {
+      "id": "class-6d",
+      "name": "6.º D",
+      "code": "",
+      "createdAt": "2026-09-20T15:33:34.475Z"
+    },
+    {
+      "id": "class-6e",
+      "name": "6.º E",
+      "code": "",
+      "createdAt": "2026-09-20T15:33:35.773Z"
     }
   ],
   "sessions": [
@@ -170,5 +188,6 @@
       },
       "createdAt": "2026-09-16T12:55:28.269Z"
     }
-  ]
+  ],
+  "grandeMissaoProgress": []
 }

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AuthUser } from '../types';
-import { apiRequest, setStoredToken } from '../api';
+import { apiRequest } from '../api';
 import { Locale } from '../i18n';
 
 interface AuthContextType {
@@ -55,7 +55,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       method: 'POST',
       body: JSON.stringify({ email, password: pass }),
     });
-    if (res && res.token) setStoredToken(res.token);
     if (res && res.user) {
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
@@ -68,7 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       method: 'POST',
       body: JSON.stringify(data),
     });
-    if (res && res.token) setStoredToken(res.token);
     if (res && res.user) {
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
@@ -84,7 +82,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // ignore network errors on logout
     }
-    setStoredToken(null);
     setUser(null);
     setBadges([]);
     setClassroom(null);
