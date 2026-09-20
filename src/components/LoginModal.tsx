@@ -275,14 +275,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-blue-600" />
-                    Email (Aluno ou Professora):
+                    Email ou Nickname (Aluno ou Professora):
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="aluno@escola.edu.pt ou professor@escola.edu.pt"
+                    placeholder="ex: imaginebycarla2023@gmail.com ou Prof_Carla"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
                   />
                 </div>

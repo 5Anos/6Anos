@@ -3,9 +3,9 @@
     {
       "id": "teacher-carla",
       "name": "Carla Silva",
-      "email": "professor@escola.pt",
-      "passwordHash": "134bded6dda2e918fcafa4bb91b168437a356c52e55bbeaa2bd0f83c92bd487aaa7fa97e1730d53f1872be6ea90e532702124b4eb1120128c1b949e453a4bb36",
-      "passwordSalt": "08a2c23742b229bced1a70c1d586102d",
+      "email": "imaginebycarla2023@gmail.com",
+      "passwordHash": "5cc8259baf7f7a9d4438a82421fc6b51ed35123384238ef60cc3bb10bfe43657f63da1bd120bea98eb5a5561297f7168f6d7120cf4e397fe67726c9f96f5ae90",
+      "passwordSalt": "f98c37b208bd1785b45b8016719a5198",
       "nickname": "Prof_Carla_TIC",
       "avatar": "teacher-1",
       "role": "teacher",
@@ -14,7 +14,7 @@
       "xp": 0,
       "blocked": false,
       "createdAt": "2026-09-16T12:55:05.291Z",
-      "updatedAt": "2026-09-16T12:55:05.291Z"
+      "updatedAt": "2026-09-20T18:22:43.284Z"
     },
     {
       "id": "student-alex",
@@ -63,6 +63,23 @@
       "blocked": false,
       "createdAt": "2026-09-16T12:55:05.432Z",
       "updatedAt": "2026-09-16T12:55:05.432Z"
+    },
+    {
+      "id": "student-9535a11c-39e8-462a-9cd1-4f3595c3f9ed",
+      "name": "sdDSgfdgz",
+      "email": "ecarlaoffffliveira@gmail.com",
+      "passwordHash": "5cc8259baf7f7a9d4438a82421fc6b51ed35123384238ef60cc3bb10bfe43657f63da1bd120bea98eb5a5561297f7168f6d7120cf4e397fe67726c9f96f5ae90",
+      "passwordSalt": "f98c37b208bd1785b45b8016719a5198",
+      "nickname": "Dragao_Audaz_192",
+      "avatar": "{\"skin\":\"skin-1\",\"hair\":\"short-tousled\",\"hairColor\":\"#3F2305\",\"eyes\":\"happy\",\"expression\":\"smile\",\"glasses\":\"none\",\"hat\":\"none\",\"clothing\":\"hoodie\",\"clothingColor\":\"#2563EB\",\"background\":\"blue-tech\"}",
+      "role": "student",
+      "classId": "class-6a",
+      "locale": "pt",
+      "xp": 0,
+      "blocked": false,
+      "createdAt": "2026-09-20T18:13:50.593Z",
+      "updatedAt": "2026-09-20T18:22:43.616Z",
+      "lastLoginAt": "2026-09-20T18:13:50.593Z"
     }
   ],
   "classes": [
@@ -109,6 +126,12 @@
       "userId": "teacher-carla",
       "createdAt": "2026-09-16T12:55:25.483Z",
       "expiresAt": "2026-09-23T12:55:25.483Z"
+    },
+    {
+      "id": "5c1446d2-42ad-4b07-9dbc-f5fe907d34a5",
+      "userId": "student-9535a11c-39e8-462a-9cd1-4f3595c3f9ed",
+      "createdAt": "2026-09-20T18:13:51.306Z",
+      "expiresAt": "2026-09-27T18:13:51.306Z"
     }
   ],
   "activityProgress": [
@@ -172,6 +195,12 @@
       "userId": "student-alex",
       "badgeId": "guardiao-digital",
       "awardedAt": "2026-09-16T12:55:05.353Z"
+    },
+    {
+      "id": "b-a73feb66-ae6d-4aea-a916-27ec175b5577",
+      "userId": "student-9535a11c-39e8-462a-9cd1-4f3595c3f9ed",
+      "badgeId": "primeiros-passos",
+      "awardedAt": "2026-09-20T18:13:50.942Z"
     }
   ],
   "dailyTipClaims": [],

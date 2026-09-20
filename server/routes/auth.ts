@@ -165,12 +165,30 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email e palavra-passe são obrigatórios.' });
+    const { email, identifier, nickname, username, password } = req.body;
+    const loginInput = (email || identifier || nickname || username || '').trim();
+    if (!loginInput || !password) {
+      return res.status(400).json({ error: 'Email/Nickname e palavra-passe são obrigatórios.' });
     }
 
-    const user = await getUserByEmail(email);
+    let user = await getUserByEmail(loginInput);
+    if (!user) {
+      user = await getUserByNickname(loginInput);
+    }
+    if (!user) {
+      const lower = loginInput.toLowerCase();
+      if (
+        lower === 'professor@escola.pt' ||
+        lower === 'imaginebycarla2023@gmail.com' ||
+        lower === 'prof_carla' ||
+        lower === 'prof_carla_tic' ||
+        lower === 'professor' ||
+        lower === 'professora'
+      ) {
+        user = await getUserById('teacher-carla');
+      }
+    }
+
     if (!user) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }

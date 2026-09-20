@@ -1228,26 +1228,15 @@ export async function seedInitialFirestoreData(): Promise<void> {
     const configuredTeacherEmail = (
       process.env.INITIAL_TEACHER_EMAIL ||
       process.env.TEACHER_EMAIL ||
-      ''
+      'imaginebycarla2023@gmail.com'
     ).trim().toLowerCase();
 
-    const teacherEmail = configuredTeacherEmail || 'professor@escola.pt';
+    const teacherEmail = configuredTeacherEmail;
     const salt = crypto.randomBytes(16).toString('hex');
     const configuredPassword =
-      process.env.INITIAL_TEACHER_PASSWORD || process.env.TEACHER_PASSWORD;
+      process.env.INITIAL_TEACHER_PASSWORD || process.env.TEACHER_PASSWORD || 'Trabalhar*2026';
 
-    let hash: string;
-    if (configuredPassword) {
-      hash = crypto.scryptSync(configuredPassword, salt, 64).toString('hex');
-    } else {
-      const generatedTempPassword = crypto.randomBytes(12).toString('base64url');
-      hash = crypto.scryptSync(generatedTempPassword, salt, 64).toString('hex');
-      console.log(
-        '[AUTH SEED] Initial teacher created: %s (Temporary password: %s)',
-        teacherEmail,
-        generatedTempPassword
-      );
-    }
+    const hash = crypto.scryptSync(configuredPassword, salt, 64).toString('hex');
 
     const teacherData: User = {
       id: 'teacher-carla',

@@ -337,14 +337,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onContinueToApp }) => {
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         <Mail className="w-3.5 h-3.5 text-blue-400" />
-                        Email Escolar:
+                        Email ou Nickname (Aluno ou Professora):
                       </label>
                       <input
-                        type="email"
+                        type="text"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="aluno@escola.edu.pt"
+                        placeholder="ex: imaginebycarla2023@gmail.com ou Prof_Carla"
                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
                       />
                     </div>
