@@ -166,8 +166,8 @@ export const DAILY_TIPS = [
   },
   {
     id: 'tip-5',
-    pt: 'Descansa os olhos a cada 20 minutos de ecrã: olha para um ponto distante durante 20 segundos.',
-    en: 'Rest your eyes every 20 minutes of screen time: look at a distant point for 20 seconds.',
+    pt: 'Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
+    en: 'Taking regular breaks helps rest your eyes and reduces screen fatigue.',
   },
 ];
 
@@ -256,20 +256,20 @@ export const WORLDS_DATA: WorldContent[] = [
         paragraphs: [
           'A tecnologia faz parte do nosso dia a dia: usamos computadores, telemóveis, tablets e consolas para aprender, comunicar e divertir-nos.',
           'Para mantermos o nosso corpo saudável enquanto usamos a tecnologia, a ergonomia e a postura são fundamentais: manter as costas direitas e apoiadas na cadeira, os pés no chão e os braços alinhados com a mesa.',
-          'O ecrã deve ficar à distância de um braço esticado (cerca de 50 a 70 cm), ao nível ou ligeiramente abaixo dos olhos, num espaço com boa iluminação e sem reflexos.',
-          'Aplica a regra dos 20-20-20: a cada 20 minutos de ecrã, olha durante 20 segundos para um ponto a pelo menos 6 metros de distância para relaxar a musculatura dos olhos.',
+          'Não fiques demasiado perto do ecrã e ajusta a posição para conseguires ver confortavelmente num espaço com boa iluminação e sem reflexos.',
+          'Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
           'Faz pausas ativas para levantar, esticar e mexer o corpo. À noite, evita ecrãs no escuro antes de dormir para garantir um sono reparador.',
           'Usar tecnologia de forma saudável significa encontrar um equilíbrio entre tempo online, movimento, descanso e atividades com os outros.',
         ],
         bulletPoints: [
           'postura correta (costas direitas e apoiadas);',
-          'distância adequada do ecrã (50 a 70 cm);',
+          'Não fiques demasiado perto do ecrã e ajusta a posição para conseguires ver confortavelmente;',
           'boa iluminação sem reflexos diretos;',
           'posição confortável dos braços e pulsos na mesa;',
-          'pausas ativas e descanso dos olhos (regra 20-20-20);',
+          'Fazer pausas ajuda os olhos a descansar;',
           'desligar ecrãs antes de dormir.',
         ],
-        takeaway: 'Lembra-te: postura correta, distância do ecrã, pausas ativas, descanso dos olhos e tempo sem ecrãs.',
+        takeaway: 'Lembra-te: postura correta, distância confortável do ecrã, pausas ativas, descanso dos olhos e tempo sem ecrãs.',
       },
     ],
     simulators: [

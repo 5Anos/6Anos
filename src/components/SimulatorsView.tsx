@@ -106,41 +106,64 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   // 1. Password Simulator Evaluation
   const evaluatePassword = () => {
     let score = 0;
-    if (pwdInput.length >= 8) score += 20;
-    if (pwdInput.length >= 12) score += 20;
-    if (/[a-z]/.test(pwdInput) && /[A-Z]/.test(pwdInput)) score += 20;
-    if (/[0-9]/.test(pwdInput)) score += 20;
-    if (/[^A-Za-z0-9]/.test(pwdInput)) score += 20;
 
-    const common = ['123', 'password', 'palavrapasse', 'escola', 'teste', 'qwerty', '123456', 'portugal', 'futebol'];
-    if (common.some((c) => pwdInput.toLowerCase().includes(c))) {
-      score = Math.max(10, score - 35);
+    // COMPRIMENTO
+    if (pwdInput.length >= 8) {
+      score += 40;
+    } else if (pwdInput.length >= 6) {
+      score += 30;
+    } else if (pwdInput.length >= 4) {
+      score += 20;
+    } else {
+      score += 10;
     }
 
+    // IMPREVISIBILIDADE
+    const common = ['123', 'password', 'palavrapasse', 'escola', 'teste', 'qwerty', '123456', 'portugal', 'futebol', 'abc', '111', '000', 'admin'];
+    const hasSequences = common.some((c) => pwdInput.toLowerCase().includes(c));
+    if (!hasSequences && pwdInput.length >= 8) {
+      score += 30;
+    }
+
+    // DADOS PESSOAIS
     const obviousNames = ['alex', 'tiago', 'leonor', 'marta', 'diogo', 'joao', 'maria', 'ana', 'pedro', 'lucas', 'matilde', 'tomas', 'beatriz', 'francisco', 'afonso', 'goncalo', 'rodrigo', 'martim', 'santiago'];
-    if (obviousNames.some((n) => pwdInput.toLowerCase().includes(n))) {
-      score = Math.max(10, score - 30);
+    const hasObviousNames = obviousNames.some((n) => pwdInput.toLowerCase().includes(n));
+    const hasDates = /(19\d\d|20\d\d)/.test(pwdInput);
+    if (!hasObviousNames && !hasDates && pwdInput.length >= 8) {
+      score += 20;
     }
 
-    if (/(19\d\d|20\d\d)/.test(pwdInput)) {
-      score = Math.max(10, score - 25);
+    // VARIEDADE DE CARACTERES
+    let typeCount = 0;
+    if (/[a-zA-Z]/.test(pwdInput)) typeCount++;
+    if (/[0-9]/.test(pwdInput)) typeCount++;
+    if (/[^a-zA-Z0-9]/.test(pwdInput)) typeCount++;
+    if (typeCount >= 2) {
+      score += 10;
     }
+
+    // Total clamped between 0 and 100
+    score = Math.min(100, Math.max(0, score));
 
     let title = '';
     let description = '';
 
-    if (score < 50) {
+    if (score === 100) {
+      title = 'Palavra-passe muito segura!';
+      description =
+        'Excelente! A tua palavra-passe é suficientemente longa, difícil de adivinhar e não apresenta dados pessoais óbvios. Usa palavras-passe diferentes nas tuas contas e nunca as partilhes.';
+    } else if (score >= 80) {
+      title = 'Palavra-passe Segura (Boa Proteção)';
+      description =
+        'Muito bom! A tua palavra-passe tem boa proteção. Para alcançar a pontuação máxima (100 pontos), certifica-te de que tem pelo menos 8 caracteres, sem sequências nem dados pessoais óbvios e com variedade de caracteres.';
+    } else if (score >= 50) {
+      title = 'Palavra-passe Razoável (Pode Melhorar)';
+      description =
+        'A tua palavra-passe tem alguns pontos positivos, mas ainda pode ser melhorada. Aumenta o comprimento (8+ caracteres), evita nomes/datas e combina diferentes tipos de caracteres.';
+    } else {
       title = 'Ainda pode ser melhorada.';
       description =
-        'Esta palavra-passe é fácil de adivinhar porque é curta ou utiliza informação previsível. Experimenta torná-la mais longa e evita nomes, datas ou palavras muito comuns.';
-    } else if (score <= 75) {
-      title = 'Está a ficar melhor!';
-      description =
-        'Já tens algumas características de uma palavra-passe mais segura. Experimenta aumentar o comprimento e evitar qualquer informação pessoal ou previsível.';
-    } else {
-      title = 'Boa escolha!';
-      description =
-        'A tua palavra-passe de teste é longa e combina diferentes tipos de caracteres, sem utilizar informação pessoal óbvia. Lembra-te: na vida real, não partilhes as tuas palavras-passe e evita reutilizar a mesma em várias contas.';
+        'Esta palavra-passe é fácil de adivinhar porque é curta ou utiliza informação previsível. Experimenta torná-la mais longa (8+ caracteres) e evita nomes, datas ou palavras muito comuns.';
     }
 
     setHasTestedPwd(true);
@@ -521,14 +544,14 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
-                  pwdInput.length >= 12
+                  pwdInput.length >= 8
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                    : pwdInput.length >= 8
+                    : pwdInput.length >= 6
                     ? 'bg-amber-50 border-amber-200 text-amber-800'
                     : 'bg-slate-50 border-slate-200 text-slate-500'
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4" /> 12+ Caracteres
+                <CheckCircle2 className="w-4 h-4" /> 8+ Caracteres
               </div>
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
