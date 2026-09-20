@@ -61,9 +61,7 @@ export async function getSessionFromRequest(req: Request): Promise<Session | nul
       sessionId = authHeader.substring(7);
     }
   }
-  if (!sessionId && typeof req.query?.token === 'string') {
-    sessionId = req.query.token;
-  }
+  // Explicitly do NOT accept session tokens from URL query parameters (req.query.token)
   if (!sessionId) return null;
 
   return await getFirestoreSession(sessionId);
@@ -103,6 +101,16 @@ export function requireTeacher(req: AuthRequest, res: Response, next: NextFuncti
   }
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ error: 'Acesso reservado ao professor' });
+  }
+  next();
+}
+
+export function requireStudent(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Não autenticado' });
+  }
+  if (req.user.role !== 'student') {
+    return res.status(403).json({ error: 'Acesso reservado aos alunos' });
   }
   next();
 }

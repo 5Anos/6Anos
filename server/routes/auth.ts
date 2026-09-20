@@ -201,42 +201,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Quick Switch (for demo/testing between student and teacher)
-router.post('/quick-switch', async (req, res) => {
-  try {
-    const { role } = req.body;
-    let targetUser: User | null = null;
-
-    if (role === 'teacher') {
-      targetUser = await getUserByEmail('imaginebycarla2023@gmail.com');
-    } else {
-      targetUser = await getUserByNickname('Panda_Feliz_701');
-      if (!targetUser) {
-        targetUser = await getUserById('student-alex');
-      }
-      if (!targetUser) {
-        const all = await getAllUsers();
-        targetUser = all.find((u) => u.role === 'student') || null;
-      }
-    }
-
-    if (!targetUser) {
-      return res.status(404).json({ error: 'Utilizador de demonstração não encontrado.' });
-    }
-
-    const session = await createSession(targetUser.id);
-    setSessionCookie(res, session.id);
-
-    return res.json({
-      user: sanitizeUser(targetUser),
-      token: session.id,
-    });
-  } catch (err) {
-    console.error('Error in /quick-switch:', err);
-    return res.status(500).json({ error: 'Erro ao alternar utilizador.' });
-  }
-});
-
 // Logout
 router.post('/logout', async (req: AuthRequest, res) => {
   try {

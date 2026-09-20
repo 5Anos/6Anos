@@ -19,11 +19,6 @@ import {
   Users,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
-import {
-  clientDeleteClassStudents,
-  clientResetClassStudentsProgress,
-  clientResetAllStudentsProgress,
-} from '../../services/clientFirestore';
 
 // =================================================================
 // 1. ASSESSMENTS TAB (Avaliações Finais dos 5 Mundos)
@@ -491,13 +486,9 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
   const handleDeleteClassStudents = async () => {
     if (!selectedClassId) return;
     try {
-      try {
-        await apiRequest(`/api/teacher/classes/${selectedClassId}/students`, {
-          method: 'DELETE',
-        });
-      } catch (apiErr) {
-        await clientDeleteClassStudents(selectedClassId);
-      }
+      await apiRequest(`/api/teacher/classes/${selectedClassId}/students`, {
+        method: 'DELETE',
+      });
       alert('Alunos da turma eliminados com sucesso.');
       setShowClassDeleteModal(false);
       onRefresh();
@@ -509,13 +500,9 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
   const handleResetClassProgress = async () => {
     if (!selectedClassId) return;
     try {
-      try {
-        await apiRequest(`/api/teacher/classes/${selectedClassId}/reset-progress`, {
-          method: 'POST',
-        });
-      } catch (apiErr) {
-        await clientResetClassStudentsProgress(selectedClassId);
-      }
+      await apiRequest(`/api/teacher/classes/${selectedClassId}/reset-progress`, {
+        method: 'POST',
+      });
       alert('Progresso pedagógico da turma reiniciado com sucesso.');
       setShowClassResetModal(false);
       onRefresh();
@@ -530,13 +517,9 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
       return;
     }
     try {
-      try {
-        await apiRequest('/api/teacher/platform/reset-all-students-progress', {
-          method: 'POST',
-        });
-      } catch (apiErr) {
-        await clientResetAllStudentsProgress();
-      }
+      await apiRequest('/api/teacher/platform/reset-all-students-progress', {
+        method: 'POST',
+      });
       alert('Plataforma preparada com sucesso para o Novo Ano Letivo!');
       setShowGlobalResetModal(false);
       onRefresh();

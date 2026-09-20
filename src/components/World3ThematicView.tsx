@@ -18,7 +18,6 @@ import {
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { clientSaveActivityProgress } from '../services/clientFirestore';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
 
 interface World3ThematicViewProps {
@@ -204,32 +203,20 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   // -------------------------------------------------------------
   const reportCompletion = async (simId: string, activityTitle: string, score: number) => {
     try {
-      try {
-        const res = await apiRequest('/api/pedagogical/activities/complete', {
-          method: 'POST',
-          body: JSON.stringify({
-            activityId: simId,
-            worldId: 3,
-            score,
-          }),
-        });
-        setCompletedFeedback({
-          score: res.score,
-          xpGain: res.xpGain,
-          newBest: res.newBest,
-          activityTitle,
-        });
-      } catch {
-        if (user) {
-          const clientRes = await clientSaveActivityProgress(user.id, simId, score);
-          setCompletedFeedback({
-            score,
-            xpGain: clientRes.xpGain,
-            newBest: clientRes.newBest,
-            activityTitle,
-          });
-        }
-      }
+      const res = await apiRequest('/api/pedagogical/activities/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          activityId: simId,
+          worldId: 3,
+          score,
+        }),
+      });
+      setCompletedFeedback({
+        score: res.score,
+        xpGain: res.xpGain,
+        newBest: res.newBest,
+        activityTitle,
+      });
       await refreshUser();
       await onRefreshWorld();
     } catch (err: any) {

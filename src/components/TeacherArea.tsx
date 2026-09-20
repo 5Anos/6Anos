@@ -28,15 +28,6 @@ import {
 } from 'lucide-react';
 import { apiRequest, downloadFile } from '../api';
 import { useAuth } from '../context/AuthContext';
-import {
-  clientGetTeacherDashboardData,
-  clientTeacherToggleBlock,
-  clientTeacherResetPassword,
-  clientDeleteUser,
-  clientBulkDeleteUsers,
-  clientBulkMoveClass,
-  clientBulkBlockUsers,
-} from '../services/clientFirestore';
 import { TeacherStudentsTab } from './teacher/TeacherStudentsTab';
 import { StudentDossierModal } from './teacher/StudentDossierModal';
 import { TeacherPautasTab } from './teacher/TeacherPautasTab';
@@ -146,27 +137,8 @@ export const TeacherArea: React.FC = () => {
       if (badgeRes.status === 'fulfilled') setBadgesData(badgeRes.value);
       if (auditRes.status === 'fulfilled') setAuditLogs(auditRes.value.auditLogs || []);
 
-      // If key items failed, try client fallback for them
-      if (studentsRes.status === 'rejected' || statsRes.status === 'rejected') {
-        const directData = await clientGetTeacherDashboardData(selectedClass);
-        if (statsRes.status === 'rejected') setDashboardStats(directData.dashboardStats);
-        if (studentsRes.status === 'rejected') setStudents(directData.students || []);
-        if (classesRes.status === 'rejected') setClasses(directData.classes || []);
-      }
     } catch (err: any) {
-      console.warn('Backend API request returned error, falling back to direct Firestore:', err?.message);
-      try {
-        const directData = await clientGetTeacherDashboardData(selectedClass);
-        setDashboardStats(directData.dashboardStats);
-        setStudents(directData.students || []);
-        setClasses(directData.classes || []);
-        setMissions(directData.missions || []);
-        setAssessmentsData(directData.assessments || []);
-        setActivitiesData(directData.activities || []);
-        setAuditLogs(directData.auditLogs || []);
-      } catch (clientErr) {
-        console.error('Failed to load teacher dashboard data from client Firestore:', clientErr);
-      }
+      console.error('Backend API request returned error:', err?.message);
     } finally {
       setLoading(false);
     }
@@ -214,14 +186,10 @@ export const TeacherArea: React.FC = () => {
 
   const handleBulkMoveClass = async (studentIds: string[], targetClassId: string) => {
     try {
-      try {
-        await apiRequest('/api/teacher/bulk/move-class', {
-          method: 'POST',
-          body: JSON.stringify({ studentIds, targetClassId }),
-        });
-      } catch (apiErr) {
-        await clientBulkMoveClass(studentIds, targetClassId);
-      }
+      await apiRequest('/api/teacher/bulk/move-class', {
+        method: 'POST',
+        body: JSON.stringify({ studentIds, targetClassId }),
+      });
       showToast('Alunos transferidos com sucesso.');
       await loadAllData();
     } catch (err: any) {
@@ -231,14 +199,10 @@ export const TeacherArea: React.FC = () => {
 
   const handleBulkBlock = async (studentIds: string[]) => {
     try {
-      try {
-        await apiRequest('/api/teacher/bulk/block', {
-          method: 'POST',
-          body: JSON.stringify({ studentIds }),
-        });
-      } catch (apiErr) {
-        await clientBulkBlockUsers(studentIds, true);
-      }
+      await apiRequest('/api/teacher/bulk/block', {
+        method: 'POST',
+        body: JSON.stringify({ studentIds }),
+      });
       showToast(`${studentIds.length} alunos bloqueados.`);
       await loadAllData();
     } catch (err: any) {
@@ -248,14 +212,10 @@ export const TeacherArea: React.FC = () => {
 
   const handleBulkUnblock = async (studentIds: string[]) => {
     try {
-      try {
-        await apiRequest('/api/teacher/bulk/unblock', {
-          method: 'POST',
-          body: JSON.stringify({ studentIds }),
-        });
-      } catch (apiErr) {
-        await clientBulkBlockUsers(studentIds, false);
-      }
+      await apiRequest('/api/teacher/bulk/unblock', {
+        method: 'POST',
+        body: JSON.stringify({ studentIds }),
+      });
       showToast(`${studentIds.length} alunos desbloqueados.`);
       await loadAllData();
     } catch (err: any) {
@@ -274,13 +234,9 @@ export const TeacherArea: React.FC = () => {
       return;
     }
     try {
-      try {
-        await apiRequest(`/api/teacher/students/${studentId}`, {
-          method: 'DELETE',
-        });
-      } catch (apiErr) {
-        await clientDeleteUser(studentId);
-      }
+      await apiRequest(`/api/teacher/students/${studentId}`, {
+        method: 'DELETE',
+      });
       showToast(`Conta de "${name}" eliminada com sucesso.`);
       await loadAllData();
     } catch (err: any) {
@@ -297,14 +253,10 @@ export const TeacherArea: React.FC = () => {
       return;
     }
     try {
-      try {
-        await apiRequest('/api/teacher/bulk/delete', {
-          method: 'POST',
-          body: JSON.stringify({ studentIds }),
-        });
-      } catch (apiErr) {
-        await clientBulkDeleteUsers(studentIds);
-      }
+      await apiRequest('/api/teacher/bulk/delete', {
+        method: 'POST',
+        body: JSON.stringify({ studentIds }),
+      });
       showToast(`${studentIds.length} aluno(s) eliminado(s) com sucesso.`);
       await loadAllData();
     } catch (err: any) {

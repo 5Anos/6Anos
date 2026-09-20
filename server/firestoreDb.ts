@@ -754,11 +754,17 @@ export async function saveGrandeMissaoProgress(p: GrandeMissaoProgress): Promise
 // -------------------------------------------------------------
 export async function addAuditLog(log: Omit<AuditLog, 'id' | 'createdAt'>): Promise<AuditLog> {
   const db = getFirestore();
-  const fullLog: AuditLog = {
+  const fullLog: any = {
     ...log,
     id: `audit-${crypto.randomUUID()}`,
     createdAt: new Date().toISOString(),
   };
+  // Remove any undefined keys to comply with Firestore
+  Object.keys(fullLog).forEach((key) => {
+    if (fullLog[key] === undefined) {
+      delete fullLog[key];
+    }
+  });
   await setDoc(doc(db, 'auditLogs', fullLog.id), fullLog);
   return fullLog;
 }

@@ -12,7 +12,6 @@ import {
 import { AssessmentQuestion, AssessmentSubmissionResult } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { clientGetAssessment, clientSubmitAssessment } from '../services/clientFirestore';
 import { t } from '../i18n';
 
 interface AssessmentModalProps {
@@ -44,18 +43,9 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
   const fetchQuestions = async () => {
     try {
       const res = await apiRequest(`/api/pedagogical/assessments/${worldId}`);
-      if (res && res.questions && res.questions.length > 0) {
+      if (res && res.questions) {
         setQuestions(res.questions);
-        setLoading(false);
-        return;
       }
-    } catch {
-      // Fallback
-    }
-
-    try {
-      const clientRes = await clientGetAssessment(worldId);
-      setQuestions(clientRes.questions || []);
     } catch (err: any) {
       setError(err.message || 'Erro ao carregar avaliação.');
     } finally {
@@ -80,21 +70,14 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
     setSubmitting(true);
     setError(null);
     try {
-      try {
-        const res: AssessmentSubmissionResult = await apiRequest(
-          `/api/pedagogical/assessments/${worldId}`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ answers: selectedAnswers }),
-          }
-        );
-        setResult(res);
-      } catch {
-        if (user) {
-          const clientRes = await clientSubmitAssessment(user.id, worldId, selectedAnswers);
-          setResult(clientRes as any);
+      const res: AssessmentSubmissionResult = await apiRequest(
+        `/api/pedagogical/assessments/${worldId}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ answers: selectedAnswers }),
         }
-      }
+      );
+      setResult(res);
       await refreshUser();
       if (onCompleted) onCompleted();
     } catch (err: any) {

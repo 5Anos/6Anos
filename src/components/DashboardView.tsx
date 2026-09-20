@@ -11,13 +11,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { WorldSummary, RankingStudent, DailyTipData, WeeklyChallengeData } from '../types';
 import { apiRequest } from '../api';
-import {
-  clientGetWorlds,
-  clientGetClassRanking,
-  clientGetDailyTip,
-  clientClaimDailyTip,
-  clientGetWeeklyChallenge,
-} from '../services/clientFirestore';
 import { t } from '../i18n';
 import {
   Island1Artwork,
@@ -86,25 +79,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       setRanking(rankingRes.ranking || []);
       setDailyTip(tipRes);
       setWeeklyChallenge(challengeRes);
-      setLoading(false);
-      return;
-    } catch {
-      // Fallback to client Firestore
-    }
-
-    try {
-      const [clientWorlds, clientRanking, clientTip, clientChal] = await Promise.all([
-        clientGetWorlds(user?.id, user?.role),
-        clientGetClassRanking(user?.classId || 'class-6a', user?.id),
-        clientGetDailyTip(user?.id),
-        clientGetWeeklyChallenge(user?.id),
-      ]);
-      setWorlds(clientWorlds.worlds || []);
-      setRanking(clientRanking.ranking || []);
-      setDailyTip(clientTip as any);
-      setWeeklyChallenge(clientChal as any);
     } catch (err) {
-      console.error('Error loading dashboard data via client Firestore:', err);
+      console.error('Error loading dashboard data:', err);
     } finally {
       setLoading(false);
     }
@@ -118,15 +94,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     if (!dailyTip || dailyTip.alreadyClaimed || claimingTip) return;
     setClaimingTip(true);
     try {
-      try {
-        const res = await apiRequest('/api/pedagogical/daily-tip/claim', { method: 'POST' });
-        setTipSuccessMsg(res.message);
-      } catch {
-        if (user) {
-          const clientRes = await clientClaimDailyTip(user.id);
-          setTipSuccessMsg(clientRes.message);
-        }
-      }
+      const res = await apiRequest('/api/pedagogical/daily-tip/claim', { method: 'POST' });
+      setTipSuccessMsg(res.message);
       setDailyTip({ ...dailyTip, alreadyClaimed: true });
       await refreshUser();
       setTimeout(() => setTipSuccessMsg(null), 4000);

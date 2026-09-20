@@ -1,14 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AuthUser } from '../types';
-import { apiRequest, setStoredToken, getStoredToken } from '../api';
+import { apiRequest, setStoredToken } from '../api';
 import { Locale } from '../i18n';
-import {
-  clientRegisterStudent,
-  clientLogin,
-  clientGetMe,
-  clientUpdateProfile,
-  seedTeacherIfMissing,
-} from '../services/clientFirestore';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -20,7 +13,6 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   register: (data: any) => Promise<string>;
   logout: () => Promise<void>;
-  quickSwitch: (role: 'student' | 'teacher') => Promise<void>;
   updateProfile: (data: Partial<AuthUser>) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -36,7 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchCurrentUser = async () => {
     try {
-      // 1. Try server API
       const res = await apiRequest('/api/auth/me');
       if (res && res.user) {
         setUser(res.user);
@@ -47,23 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return;
       }
+      setUser(null);
     } catch {
-      // 2. Fallback to client Firestore directly
-      try {
-        const token = getStoredToken();
-        const clientRes = await clientGetMe(token);
-        if (clientRes && clientRes.user) {
-          setUser(clientRes.user);
-          setBadges(clientRes.badges || []);
-          setClassroom(clientRes.classroom || null);
-          if (clientRes.user?.locale) {
-            setLocaleState(clientRes.user.locale);
-          }
-          return;
-        }
-      } catch (clientErr) {
-        console.warn('Client Firestore fallback check:', clientErr);
-      }
       setUser(null);
     } finally {
       setLoading(false);
@@ -72,117 +48,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     fetchCurrentUser();
-    seedTeacherIfMissing().catch(() => {});
   }, []);
 
   const login = async (email: string, pass: string) => {
-    try {
-      const res = await apiRequest('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password: pass }),
-      });
-      if (res && res.token) setStoredToken(res.token);
-      if (res && res.user) {
-        setUser(res.user);
-        if (res.user?.locale) setLocaleState(res.user.locale);
-        await refreshUser();
-        return;
-      }
-    } catch (err: any) {
-      console.warn('Server login attempt returned error, trying direct Firestore login:', err?.message);
-      // If error is 405 (Method Not Allowed) or server unreachable, fallback to client Firestore
-      if (
-        err?.message?.includes('405') ||
-        err?.message?.includes('Failed to fetch') ||
-        err?.message?.includes('404')
-      ) {
-        const directRes = await clientLogin(email, pass);
-        if (directRes.token) setStoredToken(directRes.token);
-        setUser(directRes.user);
-        if (directRes.user?.locale) setLocaleState(directRes.user.locale);
-        return;
-      }
-      // Re-throw user-facing credential error
-      throw err;
+    const res = await apiRequest('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password: pass }),
+    });
+    if (res && res.token) setStoredToken(res.token);
+    if (res && res.user) {
+      setUser(res.user);
+      if (res.user?.locale) setLocaleState(res.user.locale);
+      await refreshUser();
     }
   };
 
   const register = async (data: any) => {
-    try {
-      const res = await apiRequest('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      if (res && res.token) setStoredToken(res.token);
-      if (res && res.user) {
-        setUser(res.user);
-        if (res.user?.locale) setLocaleState(res.user.locale);
-        await refreshUser();
-        return res.message || 'Conta criada com sucesso!';
-      }
-      return 'Conta criada com sucesso!';
-    } catch (err: any) {
-      console.warn('Server register attempt returned error, trying direct Firestore register:', err?.message);
-      // If error is 405 (Method Not Allowed) or server unreachable, fallback to client Firestore
-      if (
-        err?.message?.includes('405') ||
-        err?.message?.includes('Failed to fetch') ||
-        err?.message?.includes('404')
-      ) {
-        const directRes = await clientRegisterStudent(data);
-        if (directRes.token) setStoredToken(directRes.token);
-        setUser(directRes.user);
-        if (directRes.user?.locale) setLocaleState(directRes.user.locale);
-        return directRes.message;
-      }
-      // Re-throw user-facing error
-      throw err;
+    const res = await apiRequest('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res && res.token) setStoredToken(res.token);
+    if (res && res.user) {
+      setUser(res.user);
+      if (res.user?.locale) setLocaleState(res.user.locale);
+      await refreshUser();
+      return res.message || 'Conta criada com sucesso!';
     }
+    return 'Conta criada com sucesso!';
   };
 
   const logout = async () => {
     try {
       await apiRequest('/api/auth/logout', { method: 'POST' });
-    } catch {}
+    } catch {
+      // ignore network errors on logout
+    }
     setStoredToken(null);
     setUser(null);
-  };
-
-  const quickSwitch = async (role: 'student' | 'teacher') => {
-    try {
-      const res = await apiRequest('/api/auth/quick-switch', {
-        method: 'POST',
-        body: JSON.stringify({ role }),
-      });
-      if (res.token) setStoredToken(res.token);
-      setUser(res.user);
-      if (res.user?.locale) setLocaleState(res.user.locale);
-      await refreshUser();
-    } catch {
-      if (role === 'teacher') {
-        await login('imaginebycarla2023@gmail.com', 'carlamo');
-      }
-    }
+    setBadges([]);
+    setClassroom(null);
   };
 
   const updateProfile = async (data: Partial<AuthUser>) => {
-    try {
-      const res = await apiRequest('/api/auth/profile', {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+    const res = await apiRequest('/api/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (res && res.user) {
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
-    } catch {
-      if (user) {
-        try {
-          const updatedUser = await clientUpdateProfile(user.id, data);
-          setUser(updatedUser);
-          if (updatedUser.locale) setLocaleState(updatedUser.locale);
-        } catch {
-          setUser({ ...user, ...data });
-        }
-      }
     }
   };
 
@@ -193,20 +108,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(res.user);
         setBadges(res.badges || []);
         setClassroom(res.classroom || null);
-        return;
       }
-    } catch {
-      try {
-        const token = getStoredToken();
-        const clientRes = await clientGetMe(token);
-        if (clientRes && clientRes.user) {
-          setUser(clientRes.user);
-          setBadges(clientRes.badges || []);
-          setClassroom(clientRes.classroom || null);
-        }
-      } catch (e) {
-        console.error('Failed to refresh user', e);
-      }
+    } catch (e) {
+      console.error('Failed to refresh user', e);
     }
   };
 
@@ -229,7 +133,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
-        quickSwitch,
         updateProfile,
         refreshUser,
       }}

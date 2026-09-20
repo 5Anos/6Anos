@@ -288,7 +288,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="aluno@escola.edu.pt ou imaginebycarla2023@gmail.com"
+                    placeholder="aluno@escola.edu.pt ou professor@escola.edu.pt"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
                   />
                 </div>

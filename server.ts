@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import { createServer as createViteServer } from 'vite';
-import { authMiddleware, initSeedAccounts } from './server/auth';
+import { authMiddleware, initSeedAccounts, requireTeacher } from './server/auth';
 import { getFirestoreStats, testFirestoreConnection } from './server/firestoreDb';
 import authRoutes from './server/routes/auth';
 import pedagogicalRoutes from './server/routes/pedagogical';
@@ -25,7 +25,8 @@ async function startServer() {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
-  app.get('/api/system/db-status', async (req, res) => {
+  // Protected system route - only authenticated teachers can inspect database stats
+  app.get('/api/system/db-status', requireTeacher, async (req, res) => {
     try {
       const stats = await getFirestoreStats();
       res.json(stats);

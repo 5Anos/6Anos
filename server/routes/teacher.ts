@@ -65,16 +65,14 @@ async function logTeacherAction(
   targetUserName?: string,
   metadata?: Record<string, any>
 ) {
-  const log: AuditLog = {
-    id: `audit-${crypto.randomUUID()}`,
+  const log: any = {
     actorUserId: req.user!.id,
     actorName: req.user!.name,
     action,
-    targetUserId,
-    targetUserName,
-    metadata,
-    createdAt: new Date().toISOString(),
   };
+  if (targetUserId) log.targetUserId = targetUserId;
+  if (targetUserName) log.targetUserName = targetUserName;
+  if (metadata) log.metadata = metadata;
   await addAuditLog(log);
 }
 

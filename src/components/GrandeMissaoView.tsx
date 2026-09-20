@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { clientCompleteGrandeMissao, clientGetWorlds, clientGetGrandeMissao } from '../services/clientFirestore';
 import { GrandeMissaoMap } from './grandeMissao/GrandeMissaoMap';
 import { Zone1ServerCentral } from './grandeMissao/Zone1ServerCentral';
 import { Zone2NewsArchive } from './grandeMissao/Zone2NewsArchive';
@@ -50,10 +49,10 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
     const checkLockAndProgress = async () => {
       try {
         if (user.role !== 'teacher') {
-          const res = await clientGetWorlds(user.id, user.role);
+          const res = await apiRequest('/api/pedagogical/worlds');
           const worlds = res.worlds || [];
           const allCompletedWith75 =
-            worlds.length >= 5 && worlds.every((w) => (w.average || 0) > 75);
+            worlds.length >= 5 && worlds.every((w: any) => (w.average || 0) > 75);
           if (!allCompletedWith75) {
             setIsLocked(true);
           }
@@ -63,7 +62,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
 
         // Check if Grande Missão is already completed in backend
         try {
-          const gmData = await clientGetGrandeMissao(user.id);
+          const gmData = await apiRequest('/api/pedagogical/grande-missao');
           if (gmData.completed || gmData.progress?.status === 'completed') {
             setIsCompleted(true);
             setCompletedZones([1, 2, 3, 4, 5, 6]);
@@ -134,19 +133,14 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
     setIsSavingFinal(true);
     try {
       let xpResult = 150;
-      try {
-        const res = await apiRequest('/api/pedagogical/grande-missao/complete', {
-          method: 'POST',
-          body: JSON.stringify({
-            codes: unlockedCodes,
-            decision: finalDecision,
-          }),
-        });
-        xpResult = res.xpGain || 150;
-      } catch {
-        // Fallback to client firestore
-        await clientCompleteGrandeMissao(user.id);
-      }
+      const res = await apiRequest('/api/pedagogical/grande-missao/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          codes: unlockedCodes,
+          decision: finalDecision,
+        }),
+      });
+      xpResult = res.xpGain || 150;
 
       setXpWon(xpResult);
       const nextCompleted = [1, 2, 3, 4, 5, 6];

@@ -2,49 +2,124 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper: Valid Document ID
     function isValidId(id) {
-      return id is string && id.size() > 0 && id.size() <= 128;
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // Default deny catch-all for any undefined paths
+    // Default deny catch-all for any unspecified paths
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // 1. Users collection
+    // 1. Users collection: strictly validated user model
     match /users/{userId} {
+      function isValidUser(data) {
+        return data.keys().hasAll(['id', 'name', 'email', 'passwordHash', 'passwordSalt', 'nickname', 'role', 'classId', 'xp', 'blocked', 'createdAt', 'updatedAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.name is string && data.name.size() > 0 && data.name.size() <= 128
+          && data.email is string && data.email.size() > 0 && data.email.size() <= 256
+          && data.passwordHash is string && data.passwordHash.size() > 0 && data.passwordHash.size() <= 256
+          && data.passwordSalt is string && data.passwordSalt.size() > 0 && data.passwordSalt.size() <= 128
+          && data.nickname is string && data.nickname.size() > 0 && data.nickname.size() <= 64
+          && data.role in ['student', 'teacher']
+          && data.classId is string && data.classId.size() <= 64
+          && data.xp is number && data.xp >= 0
+          && data.blocked is bool
+          && data.createdAt is string
+          && data.updatedAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(userId);
+      allow create, update: if isValidId(userId) && isValidUser(request.resource.data);
+      allow delete: if isValidId(userId);
     }
 
     // 2. Classes collection
     match /classes/{classId} {
+      function isValidClass(data) {
+        return data.keys().hasAll(['id', 'name', 'code', 'createdAt'])
+          && data.id is string && data.id.size() <= 64
+          && data.name is string && data.name.size() > 0 && data.name.size() <= 64
+          && data.code is string && data.code.size() <= 32
+          && data.createdAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(classId);
+      allow create, update: if isValidId(classId) && isValidClass(request.resource.data);
+      allow delete: if isValidId(classId);
     }
 
-    // 3. Sessions collection
+    // 3. Sessions collection: server-authenticated session tokens
     match /sessions/{sessionId} {
+      function isValidSession(data) {
+        return data.keys().hasAll(['id', 'userId', 'createdAt', 'expiresAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.createdAt is string
+          && data.expiresAt is string;
+      }
+
       allow read: if true;
-      allow write, delete: if isValidId(sessionId);
+      allow create, update: if isValidId(sessionId) && isValidSession(request.resource.data);
+      allow delete: if isValidId(sessionId);
     }
 
-    // 4. Activity Progress collection
+    // 4. Activity Progress collection: scores and attempts per student
     match /activityProgress/{progressId} {
+      function isValidProgress(data) {
+        return data.keys().hasAll(['id', 'userId', 'activityId', 'worldId', 'bestScore', 'attempts', 'completed', 'lastAttemptAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.activityId is string && data.activityId.size() <= 128
+          && data.worldId is number && data.worldId >= 1 && data.worldId <= 5
+          && data.bestScore is number && data.bestScore >= 0 && data.bestScore <= 100
+          && data.attempts is number && data.attempts >= 0
+          && data.completed is bool
+          && data.lastAttemptAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(progressId);
+      allow create, update: if isValidId(progressId) && isValidProgress(request.resource.data);
+      allow delete: if isValidId(progressId);
     }
 
-    // 5. Assessment Attempts collection
+    // 5. Assessment Attempts collection: final quiz submissions
     match /assessmentAttempts/{attemptId} {
+      function isValidAttempt(data) {
+        return data.keys().hasAll(['id', 'userId', 'assessmentId', 'worldId', 'score', 'percentage', 'createdAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.assessmentId is string && data.assessmentId.size() <= 128
+          && data.worldId is number && data.worldId >= 1 && data.worldId <= 5
+          && data.score is number && data.score >= 0
+          && data.percentage is number && data.percentage >= 0 && data.percentage <= 100
+          && data.createdAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(attemptId);
+      allow create: if isValidId(attemptId) && isValidAttempt(request.resource.data);
+      allow delete: if isValidId(attemptId);
     }
 
-    // 6. Mission Submissions collection
+    // 6. Mission Submissions collection: creative mission responses
     match /missionSubmissions/{submissionId} {
+      function isValidSubmission(data) {
+        return data.keys().hasAll(['id', 'userId', 'missionId', 'worldId', 'title', 'submission', 'score', 'status', 'submittedAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.missionId is string && data.missionId.size() <= 128
+          && data.worldId is number && data.worldId >= 1 && data.worldId <= 5
+          && data.title is string && data.title.size() <= 200
+          && data.submission is string && data.submission.size() <= 10000
+          && data.score is number && data.score >= 0 && data.score <= 100
+          && data.status in ['pending', 'graded']
+          && data.submittedAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(submissionId);
+      allow create, update: if isValidId(submissionId) && isValidSubmission(request.resource.data);
+      allow delete: if isValidId(submissionId);
     }
 
     // 6b. Missions collection
@@ -53,47 +128,112 @@ service cloud.firestore {
       allow write: if isValidId(missionId);
     }
 
-    // 7. XP Transactions collection
+    // 7. XP Transactions collection: immutable transaction ledger
     match /xpTransactions/{transactionId} {
+      function isValidTransaction(data) {
+        return data.keys().hasAll(['id', 'userId', 'sourceType', 'sourceId', 'previousBest', 'newBest', 'xpGain', 'createdAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.sourceType is string && data.sourceType.size() <= 64
+          && data.sourceId is string && data.sourceId.size() <= 128
+          && data.previousBest is number
+          && data.newBest is number
+          && data.xpGain is number && data.xpGain >= 0
+          && data.createdAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(transactionId);
+      allow create: if isValidId(transactionId) && isValidTransaction(request.resource.data);
+      allow update, delete: if false; // Immutable ledger
     }
 
     // 8. Badges collection
     match /badges/{badgeId} {
+      function isValidBadge(data) {
+        return data.keys().hasAll(['id', 'userId', 'badgeId', 'awardedAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.badgeId is string && data.badgeId.size() <= 128
+          && data.awardedAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(badgeId);
+      allow create: if isValidId(badgeId) && isValidBadge(request.resource.data);
+      allow update: if false;
+      allow delete: if isValidId(badgeId);
     }
 
     // 8b. userBadges collection (alias)
     match /userBadges/{badgeId} {
       allow read: if true;
-      allow write: if isValidId(badgeId);
+      allow create: if isValidId(badgeId);
+      allow update: if false;
+      allow delete: if isValidId(badgeId);
     }
 
     // 9. Daily Tip Claims collection
     match /dailyTipClaims/{claimId} {
+      function isValidClaim(data) {
+        return data.keys().hasAll(['id', 'userId', 'tipDate', 'claimedAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.tipDate is string && data.tipDate.size() <= 32
+          && data.claimedAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(claimId);
+      allow create: if isValidId(claimId) && isValidClaim(request.resource.data);
+      allow update: if false;
+      allow delete: if isValidId(claimId);
     }
 
     // 10. Weekly Challenges collection
     match /weeklyChallenges/{challengeId} {
+      function isValidChallenge(data) {
+        return data.keys().hasAll(['id', 'userId', 'challengeId', 'status', 'score', 'completedAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.challengeId is string && data.challengeId.size() <= 128
+          && data.status == 'completed'
+          && data.score is number && data.score >= 0 && data.score <= 100
+          && data.completedAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(challengeId);
+      allow create, update: if isValidId(challengeId) && isValidChallenge(request.resource.data);
+      allow delete: if isValidId(challengeId);
     }
 
     // 11. Grande Missao Progress collection
     match /grandeMissaoProgress/{userId} {
+      function isValidGrandeMissao(data) {
+        return data.keys().hasAll(['id', 'userId', 'currentStage', 'status', 'updatedAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.userId is string && data.userId.size() <= 128
+          && data.currentStage is number && data.currentStage >= 1 && data.currentStage <= 6
+          && data.status in ['not_started', 'in_progress', 'completed']
+          && data.updatedAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(userId);
+      allow create, update: if isValidId(userId) && isValidGrandeMissao(request.resource.data);
+      allow delete: if isValidId(userId);
     }
 
-    // 12. Audit Logs collection
+    // 12. Audit Logs collection: immutable teacher and security logs
     match /auditLogs/{logId} {
+      function isValidAuditLog(data) {
+        return data.keys().hasAll(['id', 'actorUserId', 'actorName', 'action', 'createdAt'])
+          && data.id is string && data.id.size() <= 128
+          && data.actorUserId is string && data.actorUserId.size() <= 128
+          && data.actorName is string && data.actorName.size() <= 128
+          && data.action is string && data.action.size() <= 256
+          && data.createdAt is string;
+      }
+
       allow read: if true;
-      allow write: if isValidId(logId);
+      allow create: if isValidId(logId) && isValidAuditLog(request.resource.data);
+      allow update, delete: if false; // Immutable audit log
     }
   }
 }
-

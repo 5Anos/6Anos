@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { clientSaveActivityProgress, clientGetWorlds } from '../services/clientFirestore';
 
 interface SimulatorsViewProps {
   worldId?: number;
@@ -42,9 +41,9 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
 
   React.useEffect(() => {
     if (user && worldId > 1 && user.role !== 'teacher') {
-      clientGetWorlds(user.id, user.role)
-        .then((res) => {
-          const w = res.worlds?.find((world) => world.id === worldId);
+      apiRequest('/api/pedagogical/worlds')
+        .then((res: any) => {
+          const w = res.worlds?.find((world: any) => world.id === worldId);
           if (w && !w.isUnlocked) {
             setWorldLocked(true);
           }
@@ -82,30 +81,19 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   // Complete simulator API caller
   const reportCompletion = async (simId: string, wId: number, score: number) => {
     try {
-      try {
-        const res = await apiRequest('/api/pedagogical/activities/complete', {
-          method: 'POST',
-          body: JSON.stringify({
-            activityId: simId,
-            worldId: wId,
-            score,
-          }),
-        });
-        setCompletedFeedback({
-          score: res.score,
-          xpGain: res.xpGain,
-          newBest: res.newBest,
-        });
-      } catch {
-        if (user) {
-          const clientRes = await clientSaveActivityProgress(user.id, simId, score);
-          setCompletedFeedback({
-            score,
-            xpGain: clientRes.xpGain,
-            newBest: clientRes.newBest,
-          });
-        }
-      }
+      const res = await apiRequest('/api/pedagogical/activities/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          activityId: simId,
+          worldId: wId,
+          score,
+        }),
+      });
+      setCompletedFeedback({
+        score: res.score,
+        xpGain: res.xpGain,
+        newBest: res.newBest,
+      });
       await refreshUser();
     } catch (err: any) {
       console.error('Failed to report simulator completion', err);

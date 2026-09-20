@@ -565,9 +565,12 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
 });
 
 // POST submit Weekly Challenge
-router.post('/weekly-challenge', requireAuth, async (req: AuthRequest, res) => {
+router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, async (req: AuthRequest, res) => {
   try {
-    const { optionIndex } = req.body;
+    let { optionIndex, isPhishing } = req.body;
+    if (typeof optionIndex !== 'number' && typeof isPhishing === 'boolean') {
+      optionIndex = isPhishing ? 1 : 0;
+    }
     if (typeof optionIndex !== 'number' || !WEEKLY_CHALLENGE.options[optionIndex]) {
       return res.status(400).json({ error: 'Opção inválida.' });
     }

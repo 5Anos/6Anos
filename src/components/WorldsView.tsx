@@ -41,7 +41,6 @@ import { World2ThematicView } from './World2ThematicView';
 import { World3ThematicView } from './World3ThematicView';
 import { World4ThematicView } from './World4ThematicView';
 import { World5ThematicView } from './World5ThematicView';
-import { clientGetWorlds } from '../services/clientFirestore';
 
 interface WorldsViewProps {
   initialWorldId?: number;
@@ -74,20 +73,11 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   const loadWorlds = async () => {
     try {
       const res = await apiRequest('/api/pedagogical/worlds');
-      if (res && res.worlds && res.worlds.length > 0) {
+      if (res && res.worlds) {
         setWorlds(res.worlds);
-        setLoading(false);
-        return;
       }
-    } catch {
-      // Static host fallback
-    }
-
-    try {
-      const clientRes = await clientGetWorlds(user?.id, user?.role);
-      setWorlds(clientRes.worlds || []);
     } catch (err) {
-      console.error('Failed to load worlds from client fallback', err);
+      console.error('Failed to load worlds:', err);
     } finally {
       setLoading(false);
     }

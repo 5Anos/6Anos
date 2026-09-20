@@ -22,15 +22,6 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../../api';
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
-import {
-  clientGetStudentDossier,
-  clientDeleteUser,
-  clientResetStudentProgress,
-  clientTeacherToggleBlock,
-  clientTeacherResetPassword,
-  getClientDb,
-} from '../../services/clientFirestore';
-import { doc, updateDoc } from 'firebase/firestore';
 
 interface StudentDossierModalProps {
   studentId: string;
@@ -79,16 +70,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
       setEditNickname(res.student?.nickname || '');
       setEditClassId(res.student?.classId || '');
     } catch (err: any) {
-      console.warn('API error loading dossier, falling back to direct Firestore:', err?.message);
-      try {
-        const directRes = await clientGetStudentDossier(studentId);
-        setDossier(directRes);
-        setEditNickname(directRes.student?.nickname || '');
-        setEditClassId(directRes.student?.classId || '');
-      } catch (clientErr: any) {
-        console.error('Failed to load dossier from direct Firestore:', clientErr);
-        setLoadError(clientErr?.message || err?.message || 'Erro ao carregar a ficha pedagógica.');
-      }
+      setLoadError(err?.message || 'Erro ao carregar a ficha pedagógica.');
     } finally {
       setLoading(false);
     }
@@ -98,22 +80,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
     e.preventDefault();
     try {
       setSavingEdit(true);
-      try {
-        await apiRequest(`/api/teacher/students/${studentId}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            nickname: editNickname,
-            classId: editClassId,
-          }),
-        });
-      } catch (apiErr) {
-        const db = getClientDb();
-        await updateDoc(doc(db, 'users', studentId), {
+      await apiRequest(`/api/teacher/students/${studentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
           nickname: editNickname,
           classId: editClassId,
-          updatedAt: new Date().toISOString(),
-        });
-      }
+        }),
+      });
       setActionMessage({ type: 'success', text: 'Dados do aluno atualizados com sucesso.' });
       await loadDossier();
       onRefresh();
@@ -132,17 +105,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
     }
     try {
       setResettingPwd(true);
-      try {
-        await apiRequest(`/api/teacher/students/${studentId}/reset-password`, {
-          method: 'POST',
-          body: JSON.stringify({
-            newPassword,
-            requireChangeOnNextLogin: requireChange,
-          }),
-        });
-      } catch (apiErr) {
-        await clientTeacherResetPassword(studentId, newPassword);
-      }
+      await apiRequest(`/api/teacher/students/${studentId}/reset-password`, {
+        method: 'POST',
+        body: JSON.stringify({
+          newPassword,
+          requireChangeOnNextLogin: requireChange,
+        }),
+      });
       setActionMessage({ type: 'success', text: 'Palavra-passe redefinida com sucesso!' });
       setNewPassword('');
       await loadDossier();
@@ -155,17 +124,10 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
   const handleToggleBlock = async () => {
     try {
-      let isBlocked = false;
-      try {
-        const res = await apiRequest(`/api/teacher/students/${studentId}/toggle-block`, {
-          method: 'POST',
-        });
-        isBlocked = res.blocked;
-      } catch (apiErr) {
-        const currentBlocked = dossier?.student?.blocked || false;
-        await clientTeacherToggleBlock(studentId, currentBlocked);
-        isBlocked = !currentBlocked;
-      }
+      const res = await apiRequest(`/api/teacher/students/${studentId}/toggle-block`, {
+        method: 'POST',
+      });
+      const isBlocked = res.blocked;
       setActionMessage({
         type: 'success',
         text: isBlocked ? 'Aluno bloqueado.' : 'Aluno desbloqueado.',
@@ -179,13 +141,9 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
   const handleResetProgress = async () => {
     try {
-      try {
-        await apiRequest(`/api/teacher/students/${studentId}/reset-progress`, {
-          method: 'POST',
-        });
-      } catch (apiErr) {
-        await clientResetStudentProgress(studentId);
-      }
+      await apiRequest(`/api/teacher/students/${studentId}/reset-progress`, {
+        method: 'POST',
+      });
       setActionMessage({
         type: 'success',
         text: 'Progresso pedagógico do aluno reiniciado para o estado base (100 XP).',
@@ -204,13 +162,9 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
       return;
     }
     try {
-      try {
-        await apiRequest(`/api/teacher/students/${studentId}`, {
-          method: 'DELETE',
-        });
-      } catch (apiErr) {
-        await clientDeleteUser(studentId);
-      }
+      await apiRequest(`/api/teacher/students/${studentId}`, {
+        method: 'DELETE',
+      });
       onRefresh();
       onClose();
     } catch (err: any) {
