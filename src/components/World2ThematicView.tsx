@@ -49,37 +49,107 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   // -------------------------------------------------------------
   // 1. KEYWORDS SIMULATOR STATE
   // -------------------------------------------------------------
-  const [selectedSearchQuery, setSelectedSearchQuery] = useState<string | null>(null);
+  const [activeSearchScenarioIndex, setActiveSearchScenarioIndex] = useState(0);
+  const [selectedSearchQueries, setSelectedSearchQueries] = useState<Record<number, string>>({});
   const [keywordFeedback, setKeywordFeedback] = useState<{
     score: number;
     title: string;
     description: string;
   } | null>(null);
 
-  const searchQueries = [
+  const searchScenarios = [
     {
-      id: 'query-a',
-      query: 'animais',
-      label: 'Pesquisa A',
-      score: 40,
-      title: 'Demasiado vaga.',
-      description: 'A pesquisa pode devolver muitos resultados que não estão relacionados com o que procuras.',
+      id: 'scen-animais',
+      theme: 'Trabalho de Ciências: Animais em risco',
+      prompt: 'O professor pediu para identificares animais em perigo de extinção em Portugal para um trabalho de grupo. Qual destas pesquisas te dá os resultados mais diretos?',
+      queries: [
+        {
+          id: 'q1-a',
+          query: 'animais',
+          label: 'Pesquisa A',
+          score: 30,
+          title: 'Demasiado vaga.',
+          description: 'Apresenta milhões de páginas gerais sobre animais de todo o mundo, sem responder à pergunta.',
+        },
+        {
+          id: 'q1-b',
+          query: 'animais em perigo',
+          label: 'Pesquisa B',
+          score: 65,
+          title: 'Já é mais específica, mas ainda muito ampla.',
+          description: 'Devolve espécies de outros continentes sem focar a fauna protegida em território português.',
+        },
+        {
+          id: 'q1-c',
+          query: 'animais em perigo de extinção em Portugal',
+          label: 'Pesquisa C',
+          score: 100,
+          title: 'Excelente escolha de palavras-chave!',
+          description: 'Indica claramente o tema e o contexto geográfico, ajudando a encontrar informação relevante sem perder tempo.',
+        },
+      ],
     },
     {
-      id: 'query-b',
-      query: 'animais em perigo',
-      label: 'Pesquisa B',
-      score: 65,
-      title: 'Já é mais específica.',
-      description: 'Ainda assim, pode apresentar resultados de vários países e muitos tipos de animais.',
+      id: 'scen-jogos',
+      theme: 'Dicas de TIC: Segurança em videojogos online',
+      prompt: 'Queres encontrar orientações para proteger a tua conta de videojogos online contra roubos. Qual destas pesquisas é a mais adequada?',
+      queries: [
+        {
+          id: 'q2-a',
+          query: 'jogos',
+          label: 'Pesquisa A',
+          score: 25,
+          title: 'Demasiado vaga.',
+          description: 'Vai mostrar lojas de jogos e vídeos de jogabilidade em vez de regras de segurança.',
+        },
+        {
+          id: 'q2-b',
+          query: 'como proteger conta de videojogos autenticação dois fatores',
+          label: 'Pesquisa B',
+          score: 100,
+          title: 'Excelente pesquisa com termos precisos!',
+          description: 'Utiliza termos técnicos corretos (proteger conta, autenticação) que levam a guias de segurança oficiais.',
+        },
+        {
+          id: 'q2-c',
+          query: 'coisas para não ser roubado na internet',
+          label: 'Pesquisa C',
+          score: 55,
+          title: 'Compreensível, mas pouco técnica.',
+          description: 'Pode trazer fóruns informais com sugestões pouco seguras em vez de manuais oficiais.',
+        },
+      ],
     },
     {
-      id: 'query-c',
-      query: 'animais em perigo de extinção em Portugal',
-      label: 'Pesquisa C',
-      score: 100,
-      title: 'Mais adequada.',
-      description: 'As palavras-chave indicam o tema e o contexto geográfico, ajudando a encontrar resultados mais relevantes.',
+      id: 'scen-espaco',
+      theme: 'Trabalho de Estudo do Meio: Sistema Solar',
+      prompt: 'Precisas de saber a distância média entre a Terra e a Lua para um projeto escolar. Que pesquisa deves fazer?',
+      queries: [
+        {
+          id: 'q3-a',
+          query: 'distancia media da Terra a Lua em quilometros',
+          label: 'Pesquisa A',
+          score: 100,
+          title: 'Pesquisa perfeita!',
+          description: 'Especifica o objeto (Terra e Lua), a grandeza (distância média) e a unidade de medida desejada.',
+        },
+        {
+          id: 'q3-b',
+          query: 'lua',
+          label: 'Pesquisa B',
+          score: 30,
+          title: 'Demasiado vaga.',
+          description: 'Pesquisar apenas "lua" traz fases da lua, imagens e poesias sem o dado numérico que procuras.',
+        },
+        {
+          id: 'q3-c',
+          query: 'o espaco e as estrelas',
+          label: 'Pesquisa C',
+          score: 30,
+          title: 'Fora do assunto.',
+          description: 'Abrange todo o universo em vez de focar o sistema Terra-Lua.',
+        },
+      ],
     },
   ];
 
@@ -93,27 +163,39 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const authorScenarios = [
     {
       id: 'auth-1',
-      origin: 'Instituto público / página institucional',
-      author: 'Equipa técnica identificada',
-      snippet: 'Este documento apresenta dados sobre espécies protegidas e indica as fontes utilizadas para recolher a informação.',
+      origin: 'Instituto de Conservação da Natureza e das Florestas (ICNF)',
+      author: 'Equipa de Biólogos e Investigadores Oficiais',
+      snippet: 'Relatório técnico oficial com inventário das populações de Lince-Ibérico em Portugal, com metodologia de amostragem e dados verificáveis no terreno.',
+      clues: 'Pistas: Entidade pública oficial, equipa técnica especializada, dados recolhidos com metodologia científica clara.',
       correct: 'credibilidade' as const,
-      feedback: 'O autor ou entidade estão identificados e são apresentadas fontes que permitem verificar a informação.',
+      feedback: 'Muito bem! A autoria é transparente, pertence a uma instituição especializada e apresenta relatórios com dados e explicações que apoiam a informação.',
     },
     {
       id: 'auth-2',
-      origin: 'Blogue pessoal',
-      author: 'João Silva',
-      snippet: 'Na minha opinião, esta espécie está a desaparecer porque as pessoas já não gostam dela.',
+      origin: 'Blogue Pessoal "O Meu Cantinho dos Animais"',
+      author: 'Tiago (aluno de 12 anos)',
+      snippet: 'Na minha opinião pessoal, o lince-ibérico já não está em perigo nenhum porque vi uma foto bonita na internet ontem.',
+      clues: 'Pistas: O autor está identificado com nome, mas apresenta apenas uma opinião pessoal baseada numa foto solta, sem dados nem fontes.',
       correct: 'verificacao' as const,
-      feedback: 'O autor está identificado, mas a afirmação apresenta uma explicação pessoal sem indicar evidências. Identificar o autor não é suficiente para provar que a informação é verdadeira.',
+      feedback: 'Excelente observação! Ter um autor com nome identificado não é suficiente. Uma opinião pessoal sem dados ou evidências precisa de ser verificada.',
     },
     {
       id: 'auth-3',
-      origin: 'Site de uma organização comercial',
-      author: 'Equipa da empresa',
-      snippet: 'O nosso produto é cientificamente comprovado como o melhor para resolver este problema.',
+      origin: 'Loja Online de Rações & Acessórios',
+      author: 'Departamento Comercial da Marca',
+      snippet: 'O nosso suplemento alimentar é cientificamente o melhor do mundo e cura todas as doenças dos animais domésticos.',
+      clues: 'Pistas: O texto foi criado com objetivo comercial para vender um produto, recorrendo a adjetivos exagerados ("o melhor do mundo") sem estudos clínicos independentes.',
       correct: 'verificacao' as const,
-      feedback: 'A página tem um objetivo comercial. Isso não significa automaticamente que a informação seja falsa, mas é importante procurar evidências independentes antes de aceitar a afirmação.',
+      feedback: 'Correto! Páginas comerciais têm interesse em vender. Isso exige procurar confirmação independente junto de médicos veterinários ou instituições científicas.',
+    },
+    {
+      id: 'auth-4',
+      origin: 'Canal Anónimo de Vídeos Curtos',
+      author: 'Perfil sem nome ("@segredos_revelados_99")',
+      snippet: 'Cientistas descobriram uma criatura gigante no fundo do rio Tejo mas o governo não quer que saibas! Vê o vídeo antes que apaguem!',
+      clues: 'Pistas: Autor anónimo, título em tom de conspiração/urgência ("não quer que saibas"), sem qualquer referência a instituições científicas.',
+      correct: 'verificacao' as const,
+      feedback: 'Exato! Perfis anónimos que usam urgência e conspiração tentam obter cliques. Deves sempre verificar quem publicou e procurar fontes credíveis.',
     },
   ];
 
@@ -127,33 +209,43 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const dateScenarios = [
     {
       id: 'date-1',
-      title: 'Calendário escolar',
-      info: 'Publicado em 2021/2022',
-      question: 'Queres saber as datas do calendário escolar deste ano. Esta informação é suficiente?',
-      optSim: 'Sim, é suficiente',
-      optNao: 'Não, é necessário procurar informação atual',
+      title: 'Calendário das Férias Escolares',
+      info: 'Notícia publicada em outubro de 2021 com o horário do 2.º período.',
+      question: 'Queres confirmar quando começam as férias da Páscoa deste ano letivo. Esta informação antiga serve?',
+      optSim: 'Sim, as datas são sempre iguais',
+      optNao: 'Não, preciso do calendário do ano letivo atual',
       correct: 'nao' as const,
-      feedback: 'O calendário escolar pode mudar de ano para ano. Para uma pergunta atual, precisas de informação correspondente ao ano letivo atual.',
+      feedback: 'Correto! Os calendários escolares e horários mudam todos os anos. Para uma pergunta atual, precisas de dados do ano letivo em curso.',
     },
     {
       id: 'date-2',
-      title: 'História da Internet',
-      info: 'Artigo publicado em 2018 sobre acontecimentos da década de 1990.',
-      question: 'O facto de o artigo ser antigo significa que não pode ser útil?',
-      optSim: 'Sim, é inútil',
-      optNao: 'Não, continua útil para acontecimentos históricos',
+      title: 'História: A Chegada à Lua em 1969',
+      info: 'Enciclopédia digital com artigo revisto em 2015 sobre a missão Apollo 11.',
+      question: 'O facto de o artigo ter sido escrito em 2015 torna a informação sobre 1969 inválida?',
+      optSim: 'Sim, tudo o que tem mais de 2 anos é inútil',
+      optNao: 'Não, acontecimentos históricos consolidados continuam válidos',
       correct: 'nao' as const,
-      feedback: 'Uma fonte antiga pode ser útil quando estudamos acontecimentos históricos. A importância da data depende da pergunta que estamos a tentar responder.',
+      feedback: 'Muito bem! Acontecimentos históricos não mudam de data. Uma informação não é inútil só por ter alguns anos; a adequação da data depende da tua pergunta.',
     },
     {
       id: 'date-3',
-      title: 'Notícia sobre um acontecimento recente',
-      info: 'Artigo publicado há vários anos, mas partilhado hoje como se fosse uma notícia atual.',
-      question: 'Deves tratá-lo como uma notícia atual?',
-      optSim: 'Sim, é atual',
-      optNao: 'Não, é antiga fora de contexto',
+      title: 'Notícia de Chuva Intensa com Inundações',
+      info: 'Fotografia de cheias de 2016 partilhada hoje numa rede social com a frase: “Aconteceu há 10 minutos na nossa cidade!”.',
+      question: 'Deves aceitar esta publicação como um alerta do que está a acontecer neste momento?',
+      optSim: 'Sim, a foto é real logo está a acontecer agora',
+      optNao: 'Não, é uma foto antiga partilhada fora do contexto temporal',
       correct: 'nao' as const,
-      feedback: 'A data ajuda a perceber o contexto. Uma notícia antiga não deve ser apresentada como se tivesse acontecido agora.',
+      feedback: 'Exato! A fotografia pode ser real, mas está a ser usada fora do contexto original. Notícias antigas recicladas criam falsos alarmes.',
+    },
+    {
+      id: 'date-4',
+      title: 'Boato Recente Publicado Há 5 Minutos',
+      info: 'Mensagem publicada há 5 minutos num grupo: "Amanhã os testes foram cancelados em todo o país!".',
+      question: 'Por ser uma publicação publicada há apenas 5 minutos (muito recente), é automaticamente verdadeira?',
+      optSim: 'Sim, tudo o que é muito recente é verdade',
+      optNao: 'Não, ser recente não garante veracidade; é preciso confirmar',
+      correct: 'nao' as const,
+      feedback: 'Excelente espírito crítico! A data recente NÃO prova a verdade da notícia. Uma informação pode ser acabada de publicar e ser completamente falsa. É sempre preciso verificar!',
     },
   ];
 
@@ -185,74 +277,74 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const compareQuestions = [
     {
       id: 'cmp-1',
-      facet: '1. Quem publicou e origem da publicação',
-      question: 'Ao comparar a origem das duas fontes, o que verificas?',
+      facet: '1. Origem e Transparência',
+      question: 'Ao comparar a origem das duas fontes, o que concluis?',
       options: [
-        { id: 'a', text: 'A Fonte A tem origem institucional transparente com conselho editorial; a Fonte B é uma página pessoal anónima sem revisão.', isCorrect: true },
-        { id: 'b', text: 'Ambas são exatamente iguais porque estão disponíveis na Internet.', isCorrect: false },
-        { id: 'c', text: 'A Fonte B é melhor porque tem um nome mais divertido e moderno.', isCorrect: false },
+        { id: 'a', text: 'A Fonte A tem origem editorial com conselho científico; a Fonte B é um blogue anónimo sem verificação.', isCorrect: true },
+        { id: 'b', text: 'As duas fontes são iguais porque estão ambas na Internet.', isCorrect: false },
+        { id: 'c', text: 'A Fonte B é melhor porque tem um título com exclamações e emojis.', isCorrect: false },
       ],
-      explanation: 'A origem institucional com conselho editorial (Fonte A) oferece muito maior transparência do que um blogue anónimo.',
+      explanation: 'A transparência da entidade responsável (Fonte A) dá garantias de verificação editorial que um blogue anónimo (Fonte B) não tem.',
     },
     {
       id: 'cmp-2',
-      facet: '2. Identificação e credenciais do autor',
-      question: 'Ao analisar a autoria das duas publicações, que diferença notas?',
+      facet: '2. Autoria e Responsabilidade',
+      question: 'Ao analisar quem escreveu os textos, que pista encontras?',
       options: [
-        { id: 'a', text: 'Nenhuma fonte tem autor identificado.', isCorrect: false },
-        { id: 'b', text: 'A Fonte A identifica um investigador com nome e especialidade; a Fonte B usa um pseudónimo anónimo sem responsabilidade.', isCorrect: true },
-        { id: 'c', text: 'O pseudónimo da Fonte B garante que é um especialista secreto de inteligência artificial.', isCorrect: false },
+        { id: 'a', text: 'Nenhuma tem autor.', isCorrect: false },
+        { id: 'b', text: 'A Fonte A identifica um investigador com área de especialidade; a Fonte B esconde-se num pseudónimo fictício.', isCorrect: true },
+        { id: 'c', text: 'Usar um pseudónimo inventado garante que o autor é um especialista secreto.', isCorrect: false },
       ],
-      explanation: 'Saber quem assina o texto permite verificar se a pessoa tem experiência no tema e assume responsabilidade pelo que publica.',
+      explanation: 'Saber quem assina o texto permite verificar se a pessoa tem conhecimentos na área e assume a responsabilidade pelo que escreve.',
     },
     {
       id: 'cmp-3',
-      facet: '3. Data de publicação e cronologia',
-      question: 'Observando as datas (12 de Outubro vs 19 de Outubro), o que aconteceu?',
+      facet: '3. Cronologia e Relação entre Fontes',
+      question: 'Observando as datas (12 de Outubro vs 19 de Outubro), qual é a relação entre as duas?',
       options: [
-        { id: 'a', text: 'A Fonte A é a publicação original; a Fonte B surgiu uma semana depois distorcendo e exagerando os factos.', isCorrect: true },
-        { id: 'b', text: 'A Fonte B foi escrita primeiro e a Fonte A copiou-a.', isCorrect: false },
-        { id: 'c', text: 'A data não tem qualquer relevância na credibilidade da informação.', isCorrect: false },
+        { id: 'a', text: 'A Fonte A fez o estudo original; a Fonte B apareceu uma semana depois distorcendo o estudo original com exageros.', isCorrect: true },
+        { id: 'b', text: 'A Fonte B inventou o estudo e a Fonte A apenas copiou.', isCorrect: false },
+        { id: 'c', text: 'As duas fontes foram escritas por pessoas que trabalharam juntas.', isCorrect: false },
       ],
-      explanation: 'Verificar a cronologia ajuda a perceber quem produziu a informação original e quem a republicou com alterações sensacionalistas.',
+      explanation: 'Muitas publicações sensacionalistas pegam em notícias científicas reais e distorcem os factos dias depois para conseguir partilhas.',
     },
     {
       id: 'cmp-4',
-      facet: '4. Evidências apresentadas',
-      question: 'Que evidências são fornecidas para apoiar as afirmações?',
+      facet: '4. Independência e Provas Apresentadas',
+      question: 'Se dois sites dizem a mesma coisa, mas um apenas copiou o outro, isso prova a verdade?',
       options: [
-        { id: 'a', text: 'A Fonte B apresenta provas mais fortes porque garante 100% de sucesso.', isCorrect: false },
-        { id: 'b', text: 'A Fonte A apresenta dados de um estudo de 3 meses com 120 alunos e relatório aberto; a Fonte B não apresenta provas.', isCorrect: true },
-        { id: 'c', text: 'Nenhuma das duas precisa de apresentar evidências para acreditarmos nelas.', isCorrect: false },
+        { id: 'a', text: 'Sim, se dois sites dizem o mesmo é garantido que é verdade absoluta.', isCorrect: false },
+        { id: 'b', text: 'Não. Se um site apenas copiou o outro, continuas a ter apenas uma fonte original; é preciso procurar fontes independentes e provas reais.', isCorrect: true },
+        { id: 'c', text: 'Quantos mais sites copiarem o mesmo texto, menos provas são necessárias.', isCorrect: false },
       ],
-      explanation: 'Afirmações sem provas, relatórios ou dados metodológicos verificáveis não têm validade científica ou jornalística.',
+      explanation: 'Copiar ou republicar o mesmo texto não cria uma nova prova. Duas páginas que repetem a mesma cópia não são fontes independentes.',
     },
     {
       id: 'cmp-5',
-      facet: '5. Confronto de informação: coincidências e contradições',
-      question: 'Ao comparar o conteúdo das duas fontes sobre o mesmo acontecimento:',
+      facet: '5. Distinção de Factos vs Exageros',
+      question: 'Ao comparar o conteúdo concreto das duas publicações sobre os robôs:',
       options: [
-        { id: 'a', text: 'Dizem exatamente a mesma coisa sem qualquer diferença.', isCorrect: false },
-        { id: 'b', text: 'Abordam o mesmo tema geral (robôs na escola), mas a Fonte B inventa prazos imediatos, custos falsos (20€ vs 1.500€) e promessas irrealistas.', isCorrect: true },
-        { id: 'c', text: 'A Fonte A mente sobre o custo porque 20 euros é muito mais barato.', isCorrect: false },
+        { id: 'a', text: 'A Fonte A descreve um teste de apoio ao estudo em 2 salas; a Fonte B exagera dizendo que vão substituir professores por 20€.', isCorrect: true },
+        { id: 'b', text: 'Ambas dizem exatamente o mesmo preço e o mesmo prazo.', isCorrect: false },
+        { id: 'c', text: 'A Fonte B tem razão porque é mais fácil substituir professores.', isCorrect: false },
       ],
-      explanation: 'A desinformação muitas vezes parte de um facto real e deforma os números, os custos e o alcance para gerar cliques fáceis.',
+      explanation: 'O boato pegou numa notícia real sobre apoio ao estudo e transformou-a num disparate sensacionalista.',
     },
     {
       id: 'cmp-6',
-      facet: '6. Informação a confirmar com urgência antes de partilhar',
-      question: 'Qual destas afirmações precisas de confirmar com urgência antes de partilhar com os teus colegas?',
+      facet: '6. Regra Operacional do Detetive',
+      question: 'Antes de partilhares a notícia da Fonte B num grupo de colegas, qual é a atitude correta?',
       options: [
-        { id: 'a', text: 'Que existem escolas em Coimbra.', isCorrect: false },
-        { id: 'b', text: 'A afirmação sensacionalista da Fonte B de que os robôs vão substituir todos os professores já no próximo mês por 20 €.', isCorrect: true },
-        { id: 'c', text: 'Que um projeto de investigação durou 3 meses.', isCorrect: false },
+        { id: 'a', text: 'Partilhar com aviso de URGENTE.', isCorrect: false },
+        { id: 'b', text: 'Não partilhar; verificar a informação numa fonte oficial e avisar os colegas que se trata de uma afirmação sem provas.', isCorrect: true },
+        { id: 'c', text: 'Acreditar porque os robôs são giros.', isCorrect: false },
       ],
-      explanation: 'Afirmações alarmistas, promessas milagrosas e prazos imediatos devem ser sempre travadas e confirmadas em fontes oficiais.',
+      explanation: 'Regra de ouro: Para, Verifica e Compara. Não espalhes boatos ou informações não confirmadas.',
     },
   ];
 
   // -------------------------------------------------------------
-  // 5. NEWS DETECTIVE STATE
+  // 5. NEWS DETECTIVE (DISTINÇÃO: FACTO, OPINIÃO, NOTÍCIA, ENGANADORA)
   // -------------------------------------------------------------
   const [newsDetectiveAudit, setNewsDetectiveAudit] = useState({
     checkedAuthor: false,
@@ -260,8 +352,36 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     checkedEvidence: false,
     checkedOtherSources: false,
   });
+  const [classifiedStatements, setClassifiedStatements] = useState<Record<string, 'facto' | 'opiniao' | 'noticia' | 'enganadora'>>({});
   const [newsDecision, setNewsDecision] = useState<'verificar' | 'partilhar' | null>(null);
   const [newsScore, setNewsScore] = useState<number | null>(null);
+
+  const statementItems = [
+    {
+      id: 'st-1',
+      text: '“O lince-ibérico é um mamífero carnívoro que habita a Península Ibérica.”',
+      correct: 'facto' as const,
+      explanation: 'FACTO: É uma afirmação científica objetiva que pode ser comprovada.',
+    },
+    {
+      id: 'st-2',
+      text: '“Acho que as aulas de Ciências Naturais são as mais divertidas de todo o 6.º ano.”',
+      correct: 'opiniao' as const,
+      explanation: 'OPINIÃO: Exprime o gosto ou ponto de vista pessoal de quem fala.',
+    },
+    {
+      id: 'st-3',
+      text: '“Ontem à tarde, os alunos do 6.º B participaram na plantação de 50 árvores no parque da cidade.”',
+      correct: 'noticia' as const,
+      explanation: 'NOTÍCIA: Relato informativo sobre um acontecimento real recente.',
+    },
+    {
+      id: 'st-4',
+      text: '“Foto de cheias de há 10 anos partilhada hoje com o texto: Inundação misteriosa destrói todas as escolas hoje!”',
+      correct: 'enganadora' as const,
+      explanation: 'INFORMAÇÃO ENGANADORA: Utiliza imagens reais fora do contexto temporal para alarmar as pessoas.',
+    },
+  ];
 
   // -------------------------------------------------------------
   // PROGRESS & SCORE REPORTING
@@ -293,16 +413,31 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   };
 
   // 1. Submit Keywords
-  const handleKeywordSelect = (qId: string) => {
-    setSelectedSearchQuery(qId);
-    const item = searchQueries.find((q) => q.id === qId);
+  const handleKeywordSelect = (scenarioIndex: number, qId: string) => {
+    const updated = { ...selectedSearchQueries, [scenarioIndex]: qId };
+    setSelectedSearchQueries(updated);
+
+    const currentScenario = searchScenarios[scenarioIndex];
+    const item = currentScenario.queries.find((q) => q.id === qId);
     if (!item) return;
+
     setKeywordFeedback({
       score: item.score,
       title: item.title,
       description: item.description,
     });
-    reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', { queryId: qId }, item.score);
+
+    // Calculate total score across answered scenarios
+    const scores = Object.entries(updated).map(([sIdx, queryId]) => {
+      const scen = searchScenarios[Number(sIdx)];
+      const matched = scen?.queries.find((q) => q.id === queryId);
+      return matched ? matched.score : 0;
+    });
+    const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / searchScenarios.length);
+
+    if (Object.keys(updated).length === searchScenarios.length) {
+      reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', { answers: updated }, avgScore);
+    }
   };
 
   // 2. Submit Authors
@@ -343,18 +478,28 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', { answers: sourceCompareAnswers }, score);
   };
 
-  // 5. Submit News Detective
+  // 5. Submit News Detective & Classification
   const handleNewsDecision = (decision: 'verificar' | 'partilhar') => {
     setNewsDecision(decision);
     const checksCount = Object.values(newsDetectiveAudit).filter(Boolean).length;
+    let statementsCorrect = 0;
+    statementItems.forEach((st) => {
+      if (classifiedStatements[st.id] === st.correct) statementsCorrect++;
+    });
+
     let finalScore = 0;
     if (decision === 'verificar') {
-      finalScore = Math.min(100, checksCount * 15 + 40);
+      finalScore = Math.min(100, Math.round((checksCount / 4) * 40 + (statementsCorrect / statementItems.length) * 60));
     } else {
-      finalScore = 30;
+      finalScore = 25;
     }
     setNewsScore(finalScore);
-    reportCompletion('sim-news-detective', 'DETETIVE DE NOTÍCIAS', { decision, audit: newsDetectiveAudit }, finalScore);
+    reportCompletion(
+      'sim-news-detective',
+      'DETETIVE DE NOTÍCIAS',
+      { decision, audit: newsDetectiveAudit, classifiedStatements },
+      finalScore
+    );
   };
 
   // Helpers
@@ -455,7 +600,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             <TopicIllustrationCard topicId="w2-t1" />
           </div>
 
-          {/* 🎮 2. EXPERIMENTA */}
+          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE */}
           <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-blue-700">
@@ -465,68 +610,154 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Escolhe a melhor pesquisa
+                3 Situações Reais de Estudo
               </span>
             </div>
 
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs sm:text-sm text-blue-950 font-medium">
-              O teu professor pediu-te para descobrir quais são alguns dos animais em perigo de extinção em Portugal. Qual destas pesquisas te ajuda melhor a encontrar informação sobre esse assunto?
-            </div>
-
-            <div className="space-y-3">
-              {searchQueries.map((sq) => {
-                const isSelected = selectedSearchQuery === sq.id;
+            {/* Scenario Selector Pills */}
+            <div className="flex flex-wrap gap-2">
+              {searchScenarios.map((scen, sIdx) => {
+                const isCurrent = activeSearchScenarioIndex === sIdx;
+                const isAnswered = selectedSearchQueries[sIdx] !== undefined;
                 return (
-                  <div
-                    key={sq.id}
-                    onClick={() => handleKeywordSelect(sq.id)}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                      isSelected
-                        ? sq.score === 100
-                          ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30'
-                          : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30'
-                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                  <button
+                    key={scen.id}
+                    onClick={() => {
+                      setActiveSearchScenarioIndex(sIdx);
+                      const chosen = selectedSearchQueries[sIdx];
+                      if (chosen) {
+                        const qObj = scen.queries.find((q) => q.id === chosen);
+                        if (qObj) {
+                          setKeywordFeedback({
+                            score: qObj.score,
+                            title: qObj.title,
+                            description: qObj.description,
+                          });
+                        }
+                      } else {
+                        setKeywordFeedback(null);
+                      }
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                      isCurrent
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : isAnswered
+                        ? 'bg-blue-50 text-blue-800 border border-blue-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-xs font-black text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
-                          {sq.label}
-                        </span>
-                        <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
-                          "{sq.query}"
-                        </span>
-                      </div>
-                      <span className="text-xs font-semibold text-slate-500">
-                        {isSelected ? 'Opção selecionada' : 'Clica para testar esta pesquisa'}
-                      </span>
-                    </div>
-                  </div>
+                    <span>Situação {sIdx + 1}</span>
+                    {isAnswered && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 inline" />}
+                  </button>
                 );
               })}
             </div>
 
-            {keywordFeedback && (
-              <div
-                className={`p-4 rounded-2xl border text-xs font-medium space-y-1 ${
-                  keywordFeedback.score === 100
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                    : 'bg-amber-50 border-amber-200 text-amber-950'
-                }`}
-              >
-                <div className="flex items-center gap-2 font-black">
-                  {keywordFeedback.score === 100 ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+            {/* Active Scenario Card */}
+            {(() => {
+              const currentScenario = searchScenarios[activeSearchScenarioIndex];
+              const selectedQId = selectedSearchQueries[activeSearchScenarioIndex];
+
+              return (
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl space-y-1">
+                    <span className="text-[10px] font-black uppercase text-blue-700 tracking-wider block">
+                      {currentScenario.theme}
+                    </span>
+                    <p className="text-xs sm:text-sm text-blue-950 font-medium">
+                      {currentScenario.prompt}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {currentScenario.queries.map((sq) => {
+                      const isSelected = selectedQId === sq.id;
+                      return (
+                        <div
+                          key={sq.id}
+                          onClick={() => handleKeywordSelect(activeSearchScenarioIndex, sq.id)}
+                          className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                            isSelected
+                              ? sq.score === 100
+                                ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30'
+                                : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30'
+                              : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-xs font-black text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
+                                {sq.label}
+                              </span>
+                              <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
+                                "{sq.query}"
+                              </span>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-500">
+                              {isSelected ? 'Opção selecionada' : 'Clica para testar esta pesquisa'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {keywordFeedback && (
+                    <div
+                      className={`p-4 rounded-2xl border text-xs font-medium space-y-1 ${
+                        keywordFeedback.score === 100
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                          : 'bg-amber-50 border-amber-200 text-amber-950'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 font-black">
+                        {keywordFeedback.score === 100 ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        )}
+                        <span>
+                          {keywordFeedback.title} (Pontuação: {keywordFeedback.score}/100)
+                        </span>
+                      </div>
+                      <p>{keywordFeedback.description}</p>
+                    </div>
                   )}
-                  <span>
-                    {keywordFeedback.title} (Pontuação: {keywordFeedback.score}/100)
-                  </span>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs font-bold text-slate-500">
+                      Situações concluídas: {Object.keys(selectedSearchQueries).length} de {searchScenarios.length}
+                    </span>
+                    {activeSearchScenarioIndex < searchScenarios.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextIdx = activeSearchScenarioIndex + 1;
+                          setActiveSearchScenarioIndex(nextIdx);
+                          const chosen = selectedSearchQueries[nextIdx];
+                          if (chosen) {
+                            const qObj = searchScenarios[nextIdx].queries.find((q) => q.id === chosen);
+                            if (qObj) {
+                              setKeywordFeedback({
+                                score: qObj.score,
+                                title: qObj.title,
+                                description: qObj.description,
+                              });
+                            }
+                          } else {
+                            setKeywordFeedback(null);
+                          }
+                        }}
+                        className="text-xs font-black text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Próxima Situação</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p>{keywordFeedback.description}</p>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* 🎯 Progresso */}
@@ -612,7 +843,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Analisa as 3 situações
+                Analisa as 4 situações observando as pistas
               </span>
             </div>
 
@@ -636,7 +867,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         onClick={() =>
                           setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'credibilidade' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           authorChoices[scen.id] === 'credibilidade'
                             ? 'bg-emerald-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -648,7 +879,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         onClick={() =>
                           setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'verificacao' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           authorChoices[scen.id] === 'verificacao'
                             ? 'bg-amber-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -660,6 +891,10 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   </div>
 
                   <p className="text-xs text-slate-700 font-medium">"{scen.snippet}"</p>
+
+                  <div className="p-2.5 bg-blue-50/60 border border-blue-100 rounded-xl text-[11px] text-blue-900 font-medium">
+                    {scen.clues}
+                  </div>
 
                   {authorSubmitted && (
                     <div
@@ -685,15 +920,20 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               <button
                 onClick={handleAuthorSubmit}
                 disabled={Object.keys(authorChoices).length < authorScenarios.length}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 Validar Avaliação de Autores
               </button>
             </div>
 
             {authorScore !== null && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Pontuação da Auditoria: {authorScore}/100. Saber quem criou a informação é uma pista importante, mas não é a única coisa que devemos verificar. Procura sempre saber quem criou e verifica se existem outras evidências que a apoiem.
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium space-y-1">
+                <p className="font-black text-blue-900">
+                  Pontuação da Auditoria: {authorScore}/100
+                </p>
+                <p>
+                  Saber quem criou a informação é uma pista importante, mas não é a única coisa que devemos verificar. Procura sempre saber quem criou e verifica se existem dados e evidências que a apoiem.
+                </p>
               </div>
             )}
           </div>
@@ -1236,138 +1476,217 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-blue-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: DETETIVE DE NOTÍCIAS
+                  2. Experimenta: DETETIVE DE NOTÍCIAS & CLASSIFICAÇÃO DE INFORMAÇÃO
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Auditoria de Publicação Viral
+                Treino Prático do Detetive
               </span>
             </div>
 
-            <div className="text-xs sm:text-sm text-slate-600 font-medium">
-              Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura evidências e compara outras fontes.
-            </div>
-
-            {/* Publicação Viral */}
-            <div className="p-5 rounded-2xl border border-rose-200 bg-rose-50/50 space-y-2.5">
-              <div className="flex items-center gap-2 text-rose-700 text-xs font-bold">
-                <ShieldAlert className="w-4 h-4" />
-                <span>Publicação viral muito partilhada nas redes sociais</span>
-              </div>
-              <h4 className="text-sm sm:text-base font-black text-slate-900">
-                "Descoberta extraordinária na serra revoluciona a ciência mundial! As autoridades tentaram esconder este segredo!"
-              </h4>
-              <p className="text-xs text-slate-600">
-                Publicação com milhares de partilhas nas redes sociais, imagem desfocada com cores artificiais, sem indicação de autor cientista, sem data original e sem links para relatórios ou instituições.
-              </p>
-            </div>
-
-            {/* Checklist de Auditoria */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-700 block">
-                Passos de Investigação do Detetive: (Marca o que verificaste)
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
-                  <input
-                    type="checkbox"
-                    checked={newsDetectiveAudit.checkedAuthor}
-                    onChange={(e) =>
-                      setNewsDetectiveAudit((prev) => ({
-                        ...prev,
-                        checkedAuthor: e.target.checked,
-                      }))
-                    }
-                    className="w-4 h-4 text-blue-600 rounded-md"
-                  />
-                  <span>1. Verifiquei quem publicou</span>
-                </label>
-                <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
-                  <input
-                    type="checkbox"
-                    checked={newsDetectiveAudit.checkedDate}
-                    onChange={(e) =>
-                      setNewsDetectiveAudit((prev) => ({
-                        ...prev,
-                        checkedDate: e.target.checked,
-                      }))
-                    }
-                    className="w-4 h-4 text-blue-600 rounded-md"
-                  />
-                  <span>2. Verifiquei a data</span>
-                </label>
-                <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
-                  <input
-                    type="checkbox"
-                    checked={newsDetectiveAudit.checkedEvidence}
-                    onChange={(e) =>
-                      setNewsDetectiveAudit((prev) => ({
-                        ...prev,
-                        checkedEvidence: e.target.checked,
-                      }))
-                    }
-                    className="w-4 h-4 text-blue-600 rounded-md"
-                  />
-                  <span>3. Procurei evidências</span>
-                </label>
-                <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
-                  <input
-                    type="checkbox"
-                    checked={newsDetectiveAudit.checkedOtherSources}
-                    onChange={(e) =>
-                      setNewsDetectiveAudit((prev) => ({
-                        ...prev,
-                        checkedOtherSources: e.target.checked,
-                      }))
-                    }
-                    className="w-4 h-4 text-blue-600 rounded-md"
-                  />
-                  <span>4. Comparei com outras fontes</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Decisão Final */}
-            <div className="space-y-2 pt-2">
-              <span className="text-xs font-bold text-slate-700 block">
-                Agora decide: partilhar ou continuar a verificar?
-              </span>
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  onClick={() => handleNewsDecision('verificar')}
-                  className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Continuar a verificar</span>
-                </button>
-                <button
-                  onClick={() => handleNewsDecision('partilhar')}
-                  className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
-                >
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>Partilhar</span>
-                </button>
-              </div>
-            </div>
-
-            {newsScore !== null && (
-              <div
-                className={`p-4 rounded-2xl border text-xs font-medium ${
-                  newsDecision === 'verificar'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                    : 'bg-rose-50 border-rose-200 text-rose-950'
-                }`}
-              >
-                <p className="font-bold mb-1">
-                  Resultado do Detetive de Notícias: {newsScore}/100
-                </p>
-                <p>
-                  {newsDecision === 'verificar'
-                    ? 'Excelente atitude de Detetive Digital! Não partilhaste um boato sem antes confirmar as provas e comparar fontes. O teu lema é: Para, Verifica, Compara. Só depois decide!'
-                    : 'Atenção! Ainda não tens informação suficiente nem fontes confirmadas para partilhar com segurança. Partilhar sem verificar apenas espalha boatos e desinformação.'}
+            {/* Atividade A: Classificar Afirmações */}
+            <div className="space-y-4 p-5 rounded-2xl border border-blue-100 bg-blue-50/40">
+              <div className="border-b border-blue-200/60 pb-2">
+                <h5 className="text-xs sm:text-sm font-black text-blue-950 uppercase tracking-wide">
+                  Parte A: Classifica cada afirmação no tipo correto
+                </h5>
+                <p className="text-xs text-blue-900">
+                  Identifica se é um Facto com dados, uma Opinião pessoal, uma Notícia com base ou uma Informação enganadora:
                 </p>
               </div>
-            )}
+
+              <div className="space-y-3">
+                {statementItems.map((item) => {
+                  const currentChoice = classifiedStatements[item.id];
+                  const isCorrect = currentChoice === item.correct;
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-3.5 rounded-xl border border-slate-200 bg-white space-y-2.5 shadow-xs"
+                    >
+                      <p className="text-xs sm:text-sm font-bold text-slate-900">
+                        {item.text}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { id: 'facto' as const, label: 'Facto com dados' },
+                          { id: 'opiniao' as const, label: 'Opinião' },
+                          { id: 'noticia' as const, label: 'Notícia com base' },
+                          { id: 'enganadora' as const, label: 'Informação enganadora' },
+                        ].map((cat) => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() =>
+                              setClassifiedStatements((prev) => ({
+                                ...prev,
+                                [item.id]: cat.id,
+                              }))
+                            }
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              currentChoice === cat.id
+                                ? 'bg-blue-600 text-white shadow-xs'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {currentChoice && (
+                        <div
+                          className={`p-2.5 rounded-lg text-xs font-medium ${
+                            isCorrect
+                              ? 'bg-emerald-50 text-emerald-950 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-950 border border-amber-200'
+                          }`}
+                        >
+                          <span className="font-bold">
+                            {isCorrect ? '✓ Correto!' : 'ℹ️ Análise do Detetive:'}{' '}
+                          </span>
+                          {item.explanation}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Atividade B: Auditoria de Publicação Viral */}
+            <div className="space-y-4">
+              <div className="border-b border-slate-200 pb-2">
+                <h5 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
+                  Parte B: Auditoria de Publicação Viral
+                </h5>
+                <p className="text-xs text-slate-600">
+                  Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura evidências e compara outras fontes.
+                </p>
+              </div>
+
+              {/* Publicação Viral */}
+              <div className="p-5 rounded-2xl border border-rose-200 bg-rose-50/50 space-y-2.5">
+                <div className="flex items-center gap-2 text-rose-700 text-xs font-bold">
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>Publicação viral muito partilhada nas redes sociais</span>
+                </div>
+                <h4 className="text-sm sm:text-base font-black text-slate-900">
+                  "Descoberta extraordinária na serra revoluciona a ciência mundial! As autoridades tentaram esconder este segredo!"
+                </h4>
+                <p className="text-xs text-slate-600">
+                  Publicação com milhares de partilhas nas redes sociais, imagem desfocada com cores artificiais, sem indicação de autor cientista, sem data original e sem links para relatórios ou instituições.
+                </p>
+              </div>
+
+              {/* Checklist de Auditoria */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-700 block">
+                  Passos de Investigação do Detetive: (Marca o que verificaste)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={newsDetectiveAudit.checkedAuthor}
+                      onChange={(e) =>
+                        setNewsDetectiveAudit((prev) => ({
+                          ...prev,
+                          checkedAuthor: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4 text-blue-600 rounded-md"
+                    />
+                    <span>1. Verifiquei quem publicou</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={newsDetectiveAudit.checkedDate}
+                      onChange={(e) =>
+                        setNewsDetectiveAudit((prev) => ({
+                          ...prev,
+                          checkedDate: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4 text-blue-600 rounded-md"
+                    />
+                    <span>2. Verifiquei a data</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={newsDetectiveAudit.checkedEvidence}
+                      onChange={(e) =>
+                        setNewsDetectiveAudit((prev) => ({
+                          ...prev,
+                          checkedEvidence: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4 text-blue-600 rounded-md"
+                    />
+                    <span>3. Procurei evidências</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={newsDetectiveAudit.checkedOtherSources}
+                      onChange={(e) =>
+                        setNewsDetectiveAudit((prev) => ({
+                          ...prev,
+                          checkedOtherSources: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4 text-blue-600 rounded-md"
+                    />
+                    <span>4. Comparei com outras fontes</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Decisão Final */}
+              <div className="space-y-2 pt-2">
+                <span className="text-xs font-bold text-slate-700 block">
+                  Agora decide: partilhar ou continuar a verificar?
+                </span>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <button
+                    onClick={() => handleNewsDecision('verificar')}
+                    className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Continuar a verificar</span>
+                  </button>
+                  <button
+                    onClick={() => handleNewsDecision('partilhar')}
+                    className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>Partilhar</span>
+                  </button>
+                </div>
+              </div>
+
+              {newsScore !== null && (
+                <div
+                  className={`p-4 rounded-2xl border text-xs font-medium ${
+                    newsDecision === 'verificar'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                      : 'bg-rose-50 border-rose-200 text-rose-950'
+                  }`}
+                >
+                  <p className="font-bold mb-1">
+                    Resultado do Detetive de Notícias: {newsScore}/100
+                  </p>
+                  <p>
+                    {newsDecision === 'verificar'
+                      ? 'Excelente atitude de Detetive Digital! Não partilhaste um boato sem antes confirmar as provas e comparar fontes. O teu lema é: Para, Verifica, Compara. Só depois decide!'
+                      : 'Atenção! Ainda não tens informação suficiente nem fontes confirmadas para partilhar com segurança. Partilhar sem verificar apenas espalha boatos e desinformação.'}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 🎯 Conclusão / Avaliação */}

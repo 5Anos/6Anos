@@ -47,30 +47,30 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   } | null>(null);
 
   // -------------------------------------------------------------
-  // 1. COMUNICACAO DIGITAL SIMULATOR STATE
+  // 1. COMUNICAÇÃO DIGITAL SIMULATOR STATE
   // -------------------------------------------------------------
   const [selectedMessageTone, setSelectedMessageTone] = useState<string | null>(null);
   const [messageScore, setMessageScore] = useState<number | null>(null);
   const messageOptions = [
     {
-      id: 'aggressive',
-      text: 'FAZ ISSO AGORA JA ESTOU FARTO DE ESPERAR PELO TEU TRABALHO',
-      tone: 'Agressivo / Gritos (CAPS LOCK)',
-      feedback: 'Usar maiúsculas e ameaças cria conflitos imediatos no grupo e desmotiva os colegas.',
-      score: 30,
+      id: 'opt-impaciente',
+      text: 'Diogo, despacha-te com o resumo porque estamos todos à tua espera e o prazo é hoje.',
+      tone: 'Mensagem Impaciente e Acusatória',
+      feedback: 'Esta mensagem culpa o colega e cria tensão no grupo, sem definir um horário concreto nem perguntar se precisa de ajuda.',
+      score: 40,
     },
     {
-      id: 'cold',
-      text: 'tanto faz...',
-      tone: 'Frio e Ambíguo',
-      feedback: 'Uma resposta fria e reticente pode parecer desprezo ou falta de interesse pelo projeto comum.',
-      score: 50,
+      id: 'opt-vaga',
+      text: 'Não te esqueças de mandar o que falta para o trabalho.',
+      tone: 'Mensagem Vaga e Pouco Concreta',
+      feedback: 'Esta mensagem não indica que parte do trabalho é necessária, qual é a hora limite nem se o colega tem dúvidas.',
+      score: 55,
     },
     {
-      id: 'polite',
-      text: 'Olá! Consegues enviar a tua parte do resumo até às 17h para podermos juntar tudo com calma? Se precisares de ajuda, avisa. Obrigado!',
-      tone: 'Claro, Empático e Educado (Recomendado)',
-      feedback: 'Perfeito! Estabelece um prazo claro, oferece entreajuda e utiliza palavras de cortesia.',
+      id: 'opt-clara-respeitosa',
+      text: 'Olá, Diogo! Consegues enviar a tua parte do resumo até às 17h para podermos juntar os textos com calma? Se precisares de ajuda com alguma dúvida, avisa. Obrigado!',
+      tone: 'Clara, Respeitosa e com Pedido Concreto (Recomendada)',
+      feedback: 'Excelente! É educada, define um horário limite claro, explica para que serve e oferece ajuda em caso de dificuldade.',
       score: 100,
     },
   ];
@@ -83,90 +83,181 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const netiquetteScenarios = [
     {
       id: 'net-1',
-      action: 'Enviar dezenas de stickers e mensagens em maiúsculas às 23h num grupo escolar.',
-      correct: 'incorreto',
-      explanation: 'Mensagens em horas tardias e spam violam o descanso e a tranquilidade dos colegas.',
+      action: 'Num grupo de trabalho, um colega tem uma ideia diferente da tua e tu explicas com calma a tua proposta, ouvindo também a opinião dele.',
+      correct: 'correto',
+      explanation: 'Podemos ter opiniões diferentes e debater ideias mantendo sempre a educação e o respeito mútuo.',
     },
     {
       id: 'net-2',
-      action: 'Discordar educadamente de uma ideia e explicar o próprio ponto de vista sem ofender ninguém.',
-      correct: 'correto',
-      explanation: 'A diversidade de opiniões com respeito mútuo é o pilar da convivência online.',
+      action: 'Criar um grupo ou partilhar mensagens para gozar, excluir ou humilhar um colega da turma.',
+      correct: 'incorreto',
+      explanation: 'Excluir, gozar ou humilhar colegas viola as regras de respeito e convivência na Internet.',
     },
     {
       id: 'net-3',
-      action: 'Tirar uma captura de ecrã (screenshot) de uma mensagem privada de um colega e publicá-la num grupo público.',
+      action: 'Escrever frases inteiras em MAIÚSCULAS para exigir que os colegas respondam imediatamente.',
       correct: 'incorreto',
-      explanation: 'Partilhar conversas privadas sem consentimento viola a confiança e a privacidade da pessoa.',
+      explanation: 'Na Internet, escrever em maiúsculas parece que estamos a gritar e pode criar conflitos desnecessários.',
+    },
+    {
+      id: 'net-4',
+      action: 'Fazer uma captura de ecrã (screenshot) de uma mensagem privada de um colega e publicá-la num grupo público sem a sua autorização.',
+      correct: 'incorreto',
+      explanation: 'Partilhar conversas privadas de outras pessoas sem autorização viola a privacidade e a confiança.',
     },
   ];
 
   // -------------------------------------------------------------
-  // 3. COLABORACAO SIMULATOR STATE
+  // 3. COLABORAÇÃO & EQUIPA SIMULATOR STATE
   // -------------------------------------------------------------
   const [collabChoices, setCollabChoices] = useState<Record<string, string>>({});
   const [collabScore, setCollabScore] = useState<number | null>(null);
   const collabScenarios = [
     {
       id: 'col-1',
-      situation: 'Um colega do teu grupo não sabe como formatar a tabela no documento partilhado.',
+      situation: 'Faltam 2 dias para a entrega do trabalho e um colega ainda não enviou a sua parte.',
       options: [
-        { id: 'opt-a', label: 'Fazer uma chamada curta ou explicar passo a passo como se faz para ele aprender.', correct: true },
-        { id: 'opt-b', label: 'Dizer que ele não serve para o grupo e tirá-lo do trabalho.', correct: false },
+        { id: 'opt-a1', label: 'Enviar-lhe uma mensagem simpática a perguntar se precisa de ajuda e a relembrar o prazo combinado.', correct: true },
+        { id: 'opt-a2', label: 'Fazer a parte dele sem dizer nada e pedir ao professor para lhe dar nota zero.', correct: false },
       ],
     },
     {
       id: 'col-2',
-      situation: 'Faltam 2 dias para a entrega e ainda falta concluir a introdução.',
+      situation: 'Duas pessoas do grupo querem organizar a apresentação de maneiras diferentes.',
       options: [
-        { id: 'opt-c', label: 'Dividir o parágrafo em duas partes e combinar uma hora para rever juntos.', correct: true },
-        { id: 'opt-d', label: 'Esperar que o professor adie a data de entrega sem dizer nada.', correct: false },
+        { id: 'opt-b1', label: 'Cada um explica a sua ideia com calma, ouvem-se e combinam uma estrutura que agrade aos dois.', correct: true },
+        { id: 'opt-b2', label: 'Discutir no chat até um deles desistir e apagar as suas propostas.', correct: false },
+      ],
+    },
+    {
+      id: 'col-3',
+      situation: 'Um elemento da equipa tem dificuldade em utilizar a ferramenta de edição partilhada.',
+      options: [
+        { id: 'opt-c1', label: 'Explicar com paciência os passos na ferramenta para ele aprender a fazer e participar.', correct: true },
+        { id: 'opt-c2', label: 'Dizer que ele atrasa o grupo e retirar-lhe o acesso ao documento.', correct: false },
+      ],
+    },
+    {
+      id: 'col-4',
+      situation: 'Um colega quer fazer o trabalho quase todo sozinho para despachar mais depressa.',
+      options: [
+        { id: 'opt-d1', label: 'Lembrar que o trabalho é de equipa, dividir as tarefas com justiça e reverem tudo juntos.', correct: true },
+        { id: 'opt-d2', label: 'Deixar o colega fazer tudo sozinho e não participar no trabalho.', correct: false },
       ],
     },
   ];
 
   // -------------------------------------------------------------
-  // 4. DIREITOS DE AUTOR STATE
+  // 4. DIREITOS DE AUTOR SIMULATOR STATE
   // -------------------------------------------------------------
   const [copyrightChoices, setCopyrightChoices] = useState<Record<string, 'permitido' | 'proibido'>>({});
   const [copyrightScore, setCopyrightScore] = useState<number | null>(null);
   const copyrightScenarios = [
     {
       id: 'cpr-1',
-      case: 'Descarregar uma música recente do Spotify e usá-la num anúncio comercial da empresa dos teus pais sem pagar licença.',
+      case: 'A Inês encontrou uma música na Internet e quer usá-la como fundo num vídeo escolar só porque a encontrou online.',
       correct: 'proibido',
-      explanation: 'Músicas comerciais com copyright exigem pagamento e autorização dos artistas.',
+      explanation: 'Estar na Internet não significa que seja livre para copiar. É preciso verificar se podemos utilizar o conteúdo e quais são as regras.',
     },
     {
       id: 'cpr-2',
-      case: 'Utilizar uma fotografia com licença de Domínio Público no trabalho de TIC e citar a fonte da imagem.',
+      case: 'O Afonso utilizou uma foto de um banco de imagens gratuito que autoriza o uso em trabalhos escolares e indicou o autor na legenda.',
       correct: 'permitido',
-      explanation: 'O Domínio Público permite utilização gratuita, sendo sempre boa prática citar o autor.',
+      explanation: 'Utilizou uma imagem com permissão e cumpriu a regra de indicar quem criou a foto.',
     },
     {
       id: 'cpr-3',
-      case: 'Copiar o desenho de um ilustrador do Instagram, apagar a assinatura dele e colocar o teu nome.',
+      case: 'O Diogo copiou uma ilustração de um artista da Internet, apagou a assinatura e colocou na capa como se fosse um desenho dele.',
       correct: 'proibido',
-      explanation: 'Apagar a assinatura do autor é violação grave de direitos morais e plágio.',
+      explanation: 'Apresentar a criação de outra pessoa como nossa viola os direitos de autor e é plágio.',
+    },
+    {
+      id: 'cpr-4',
+      case: 'O Martim tirou uma fotografia a um colega no recreio e publicou-a num blogue público sem a autorização do colega.',
+      correct: 'proibido',
+      explanation: 'Nunca devemos publicar fotografias de colegas sem a sua autorização expressa.',
     },
   ];
 
   // -------------------------------------------------------------
-  // 5. PLAGIO E AUTORIA STATE
+  // 5. PLÁGIO E AUTORIA SIMULATOR STATE
   // -------------------------------------------------------------
   const [plagiarismOption, setPlagiarismOption] = useState<string | null>(null);
   const [plagiarismScore, setPlagiarismScore] = useState<number | null>(null);
+  const plagiarismCases = [
+    {
+      id: 'copia_sem_credito',
+      title: 'Opção A: Copiar o texto diretamente sem aspas nem indicação',
+      text: '"Os fundos marinhos da costa portuguesa contêm recifes de coral com mais de mil anos de idade." (Colado sem aspas e assinado apenas com o nome do aluno).',
+      isCorrect: false,
+      feedback: 'Incorreto (Plágio). Copiar o texto de outra pessoa e assinar com o nosso nome não transforma o trabalho em nosso.',
+    },
+    {
+      id: 'palavras_proprias',
+      title: 'Opção B: Explicar por palavras próprias e indicar a fonte',
+      text: 'Segundo a pesquisa do biólogo Dr. Tiago Ramos, existem recifes de coral muito antigos nos fundos marinhos portugueses. [Fonte: Revista Oceano Vivo]',
+      isCorrect: true,
+      feedback: 'Correto! Explicaste a ideia pelas tuas próprias palavras e indicaste com clareza quem fez a descoberta e a fonte.',
+    },
+    {
+      id: 'citacao_com_aspas',
+      title: 'Opção C: Usar o texto com aspas e indicar o autor',
+      text: 'Como afirmou o biólogo Dr. Tiago Ramos: "Os fundos marinhos da costa portuguesa contêm recifes de coral com mais de mil anos de idade." [Fonte: Revista Oceano Vivo]',
+      isCorrect: true,
+      feedback: 'Correto! Quando utilizamos as palavras exatas de outra pessoa, devemos colocar entre aspas e indicar o autor e a fonte.',
+    },
+  ];
 
   // -------------------------------------------------------------
-  // 6. CREATIVE COMMONS STATE
+  // 6. CREATIVE COMMONS SIMULATOR STATE (SITUAÇÕES PRÁTICAS)
   // -------------------------------------------------------------
-  const [ccMatched, setCcMatched] = useState<Record<string, string>>({});
+  const [ccChoices, setCcChoices] = useState<Record<string, string>>({});
   const [ccScore, setCcScore] = useState<number | null>(null);
-  const ccLicenses = [
-    { code: 'BY', name: 'Atribuição', meaning: 'Obrigatório dar crédito ao autor original' },
-    { code: 'NC', name: 'Não Comercial', meaning: 'Não pode ser usado para obter lucro financeiro' },
-    { code: 'ND', name: 'Sem Derivações', meaning: 'O trabalho não pode ser alterado ou remisturado' },
-    { code: 'SA', name: 'Partilha nos Mesmos Termos', meaning: 'O novo trabalho deve ter a mesma licença' },
+  const ccPracticalScenarios = [
+    {
+      id: 'cc-by',
+      rule: 'CC BY (Indicar quem criou)',
+      question: 'Queres usar uma ilustração num trabalho escolar e a licença indica CC BY. O que deves fazer?',
+      options: [
+        { id: 'by-1', label: 'Indicar com clareza quem criou a ilustração.', correct: true },
+        { id: 'by-2', label: 'Pagar 10 euros ao autor antes de abrir a imagem.', correct: false },
+        { id: 'by-3', label: 'Apagar a assinatura do autor para ninguém reparar.', correct: false },
+      ],
+      explanation: 'A regra BY (Atribuição) obriga a identificar e dar crédito a quem criou a obra.',
+    },
+    {
+      id: 'cc-nc',
+      rule: 'CC NC (Não comercial)',
+      question: 'Encontraste uma música com a indicação NC. Podes usá-la num trabalho escolar apresentado na aula?',
+      options: [
+        { id: 'nc-1', label: 'Sim, porque é para fins escolares e não para ganhar dinheiro.', correct: true },
+        { id: 'nc-2', label: 'Não, porque a regra NC proíbe qualquer tipo de apresentação.', correct: false },
+        { id: 'nc-3', label: 'Apenas se cobrares uma entrada aos colegas para ver o trabalho.', correct: false },
+      ],
+      explanation: 'A regra NC (Não Comercial) permite o uso educativo e pessoal, proibindo apenas obter lucro financeiro.',
+    },
+    {
+      id: 'cc-nd',
+      rule: 'CC ND (Não alterar)',
+      question: 'Uma fotografia tem a regra ND. O grupo pode recortar a imagem e mudar as cores de fundo?',
+      options: [
+        { id: 'nd-1', label: 'Não, a regra ND não permite alterar nem transformar o conteúdo original.', correct: true },
+        { id: 'nd-2', label: 'Sim, desde que a fotografia seja colocada na capa.', correct: false },
+        { id: 'nd-3', label: 'Sim, se ninguém disser nada ao professor.', correct: false },
+      ],
+      explanation: 'A regra ND (Sem Derivações) determina que a criação deve ser partilhada tal como o autor a fez, sem modificações.',
+    },
+    {
+      id: 'cc-sa',
+      rule: 'CC SA (Partilhar com a mesma licença)',
+      question: 'Um desenho tem a indicação SA. Se adaptares o desenho e o partilhares, que licença deves manter?',
+      options: [
+        { id: 'sa-1', label: 'Deves partilhar a nova versão mantendo a mesma licença Creative Commons.', correct: true },
+        { id: 'sa-2', label: 'Podes proibir todas as outras pessoas de verem o desenho.', correct: false },
+        { id: 'sa-3', label: 'Podes fingir que o desenho original foi inventado por ti.', correct: false },
+      ],
+      explanation: 'A regra SA (ShareAlike) garante que as versões adaptadas continuam com as mesmas condições de partilha livre.',
+    },
   ];
 
   // -------------------------------------------------------------
@@ -181,21 +272,21 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
   const handleAvatarSubmit = () => {
     if (!avatarHandle.trim()) {
-      setAvatarFeedback('Por favor insere um nome de utilizador criativo (handle) para o teu avatar!');
+      setAvatarFeedback('Por favor insere um nome criativo para o teu avatar!');
       return;
     }
     const containsPhoneOrEmail = /\d{9}/.test(avatarHandle) || /@/.test(avatarHandle);
     if (containsPhoneOrEmail) {
-      setAvatarFeedback('⚠️ Cuidado! Não coloques o teu número de telemóvel ou e-mail no nome do teu avatar. Protege a tua privacidade!');
+      setAvatarFeedback('⚠️ Cuidado! Não coloques o teu número de telemóvel nem o teu e-mail no nome do avatar. Protege a tua privacidade!');
       return;
     }
     if (!avatarPrivacyChecked) {
-      setAvatarFeedback('⚠️ Por favor marca a opção de privacidade para confirmar que a tua identidade real está protegida.');
+      setAvatarFeedback('⚠️ Por favor marca a opção de confirmação para garantir que a tua criação é original e protege a tua privacidade.');
       return;
     }
     const score = 100;
     setAvatarScore(score);
-    setAvatarFeedback('🎉 Excelente! Criaste o teu Avatar Digital com sucesso sem expor a tua imagem real ou dados pessoais!');
+    setAvatarFeedback('🎉 Excelente! Criaste a tua identidade visual de Criador Digital com originalidade, protegendo a tua privacidade!');
     reportCompletion('sim-avatar-challenge', 'Avatar Challenge', { avatarHandle, avatarPrivacyChecked, avatarStyle, avatarColor }, score);
   };
 
@@ -270,20 +361,21 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
   const handlePlagiarismSelect = (optId: string) => {
     setPlagiarismOption(optId);
-    const score = optId === 'correct' ? 100 : 30;
+    const item = plagiarismCases.find((c) => c.id === optId);
+    const score = item && item.isCorrect ? 100 : 35;
     setPlagiarismScore(score);
     reportCompletion('sim-plagio-citacao', 'Simulador de Citação & Reconhecimento', { optionId: optId }, score);
   };
 
   const handleCcSubmit = () => {
-    let count = 0;
-    if (ccMatched['BY'] === 'crédito') count++;
-    if (ccMatched['NC'] === 'lucro') count++;
-    if (ccMatched['ND'] === 'alterado') count++;
-    if (ccMatched['SA'] === 'mesma') count++;
-    const score = Math.round((count / 4) * 100);
+    let correct = 0;
+    ccPracticalScenarios.forEach((scen) => {
+      const selected = scen.options.find((o) => o.id === ccChoices[scen.id]);
+      if (selected && selected.correct) correct++;
+    });
+    const score = Math.round((correct / ccPracticalScenarios.length) * 100);
     setCcScore(score);
-    reportCompletion('sim-creative-commons', 'Simulador de Licenças Creative Commons', { answers: ccMatched }, score);
+    reportCompletion('sim-creative-commons', 'Simulador de Licenças Creative Commons', { answers: ccChoices }, score);
   };
 
   // Helper
@@ -299,23 +391,21 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const topic6 = world.topics.find((t) => t.id === 'w3-t6');
 
   return (
-    <div className="space-y-6">
-      {/* Global Completed Feedback Banner */}
+    <div className="space-y-8">
+      {/* 🚀 BANNER DE SUCESSO DE ATIVIDADE CONCLUÍDA */}
       {completedFeedback && (
-        <div className="p-4 bg-purple-50 border border-purple-200 rounded-3xl flex items-center justify-between text-purple-950 shadow-xs animate-in fade-in">
+        <div className="p-4 bg-purple-100 border border-purple-300 rounded-2xl flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
-            <Award className="w-7 h-7 text-purple-600 shrink-0" />
+            <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black">
+              ✓
+            </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 block">
-                Atividade Registada com Sucesso: {completedFeedback.activityTitle}
-              </span>
-              <p className="text-sm font-black">
-                Pontuação Obtida: {completedFeedback.score}/100{' '}
-                {completedFeedback.xpGain > 0 && (
-                  <span className="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md ml-1">
-                    +{completedFeedback.xpGain} XP Ganho!
-                  </span>
-                )}
+              <p className="text-xs font-black text-purple-900 uppercase">
+                Atividade Concluída: {completedFeedback.activityTitle}
+              </p>
+              <p className="text-xs text-purple-800">
+                Pontuação: <strong>{completedFeedback.score}%</strong> | Ganhaste{' '}
+                <strong>+{completedFeedback.xpGain} XP</strong>!
               </p>
             </div>
           </div>
@@ -359,12 +449,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-purple-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: TOM, EMPATIA E CLAREZA NA ESCRITA DIGITAL
+                1. APRENDE: CLAREZA E RESPEITO NA COMUNICAÇÃO ONLINE
               </h4>
             </div>
 
@@ -395,13 +485,13 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Ajuste de tom e pontuação
+                Clareza e respeito na escrita
               </span>
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Precisas de pedir a um colega de grupo que envie o resumo para o trabalho de TIC.
-              Qual destas mensagens representa uma comunicação digital eficaz e empática?
+              O teu grupo está a preparar um trabalho de TIC e precisas de pedir ao Diogo a parte dele do resumo.
+              Qual destas mensagens é clara, respeitosa, adequada à situação e contém um pedido concreto?
             </p>
 
             <div className="space-y-3">
@@ -437,7 +527,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             {messageScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Regra de Ouro: Como a pessoa do outro lado não vê os teus olhos nem ouve a tua voz, a clareza e as palavras gentis evitam 99% dos conflitos online!
+                Regra de Ouro: Como a outra pessoa não ouve a tua voz nem vê a tua expressão, reler a mensagem e garantir que é clara e respeitosa evita mal-entendidos e resolve problemas com rapidez!
               </div>
             )}
           </div>
@@ -489,12 +579,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-purple-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: AS REGRAS DE CONVIVÊNCIA DIGITAL
+                1. APRENDE: BOAS MANEIRAS NA INTERNET
               </h4>
             </div>
 
@@ -532,7 +622,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Avalia a conduta nos grupos digitais
+                Avalia comportamentos online
               </span>
             </div>
 
@@ -589,12 +679,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             {netiquetteScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Pontuação da Netiqueta: {netiquetteScore}/100. Um bom Criador Digital cultiva espaços digitais saudáveis e respeitosos!
+                Pontuação da Netiqueta: {netiquetteScore}/100. Um bom Criador Digital constrói um ambiente digital acolhedor e respeitoso para todos!
               </div>
             )}
           </div>
 
-          {/* 🎨 3. DESAFIO ESPECIAL: SIMULADOR DE AVATAR (IDENTIDADE DIGITAL) */}
+          {/* 🎨 3. DESAFIO ESPECIAL: AVATAR CHALLENGE (IDENTIDADE DIGITAL) */}
           <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
@@ -616,7 +706,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-              Para proteger a tua privacidade em plataformas da escola ou da Internet, deves utilizar um <strong>Avatar Digital</strong> em vez de publicar fotografias reais do teu rosto ou divulgar dados pessoais. Personaliza o teu avatar e escolhe um identificador seguro!
+              Como <strong>Criador Digital</strong>, deves criar uma identidade visual única e original para as plataformas escolares, sem copiar o trabalho de outros e sem expor dados pessoais ou fotografias reais do teu rosto.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl">
@@ -637,7 +727,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                       onClick={() => setAvatarStyle('robo')}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${avatarStyle === 'robo' ? 'bg-purple-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}`}
                     >
-                      🤖 Robô Ciber
+                      🤖 Robô Criador
                     </button>
                     <button
                       type="button"
@@ -651,7 +741,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                       onClick={() => setAvatarStyle('ilustrado')}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${avatarStyle === 'ilustrado' ? 'bg-purple-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}`}
                     >
-                      🎨 Criativo
+                      🎨 Ilustrado
                     </button>
                   </div>
                 </div>
@@ -674,13 +764,13 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-black text-slate-700 uppercase mb-1">
-                    Nome / Handle do Avatar (Sem nome real nem contactos)
+                    Nome / Handle do Avatar (Sem nome completo nem contactos)
                   </label>
                   <input
                     type="text"
                     value={avatarHandle}
                     onChange={(e) => setAvatarHandle(e.target.value)}
-                    placeholder="Ex: PixelNinja_TIC"
+                    placeholder="Ex: CriadorEco_6A"
                     className="w-full text-xs font-bold p-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
@@ -694,7 +784,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                     className="w-4 h-4 text-purple-600 rounded-md focus:ring-purple-500 cursor-pointer"
                   />
                   <label htmlFor="avatarPrivacy" className="text-xs text-slate-700 font-semibold cursor-pointer">
-                    Confirmo que não utilizei imagens reais do meu rosto nem dados pessoais.
+                    Confirmo que esta é uma criação original, sem copiar imagens alheias e sem partilhar fotos reais ou dados pessoais.
                   </label>
                 </div>
               </div>
@@ -763,12 +853,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-purple-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: COOPERAÇÃO, DIVISÃO DE TAREFAS E PRAZOS
+                1. APRENDE: ORGANIZAÇÃO, ENTREAJUDA E RESPEITO EM EQUIPA
               </h4>
             </div>
 
@@ -806,7 +896,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Tomada de decisão em projetos de grupo
+                Resolução de situações de grupo
               </span>
             </div>
 
@@ -851,7 +941,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             {collabScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Desempenho de Liderança e Cooperação: {collabScore}/100. Trabalhar em equipa significa valorizar o esforço de todos e chegar juntos à meta!
+                Desempenho em Equipa: {collabScore}/100. Uma boa equipa ouve todas as opiniões, divide o esforço com equilíbrio e ajuda quem precisa!
               </div>
             )}
           </div>
@@ -903,12 +993,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-purple-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: PROPRIEDADE INTELECTUAL E PROTEÇÃO DAS CRIAÇÕES
+                1. APRENDE: REGRAS E PERMISSÕES PARA USAR CONTEÚDOS
               </h4>
             </div>
 
@@ -939,7 +1029,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                O que posso ou não posso usar?
+                O que podemos ou não utilizar
               </span>
             </div>
 
@@ -961,7 +1051,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      Permitido Legalmente
+                      Permitido (Correto)
                     </button>
                     <button
                       onClick={() =>
@@ -973,7 +1063,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                           : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      Viola Direitos de Autor
+                      Não Permitido (Viola Regras)
                     </button>
                   </div>
                   {copyrightChoices[scen.id] && (
@@ -996,7 +1086,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             {copyrightScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Auditoria de Copyright: {copyrightScore}/100. Estar disponível na web não significa que seja de utilização livre!
+                Avaliação de Permissões: {copyrightScore}/100. Lembra-te: estar na Internet não significa que seja livre para copiar!
               </div>
             )}
           </div>
@@ -1048,12 +1138,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center gap-2.5 text-purple-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O QUE É PLÁGIO E COMO CITAR CORRETAMENTE
+                1. APRENDE: O QUE É PLÁGIO E COMO INDICAR AUTORES
               </h4>
             </div>
 
@@ -1091,62 +1181,59 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Aprende a transformar cópia em citação rigorosa
+                Aprende a indicar autores e fontes
               </span>
             </div>
 
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
               <span className="text-[10px] font-black uppercase text-purple-600 block">
-                Texto Original Encontrado no Artigo do Biólogo Dr. Tiago Ramos:
+                Texto Original no Artigo do Biólogo Dr. Tiago Ramos:
               </span>
               <p className="text-xs text-slate-800 italic font-medium">
-                "Os fundos marinhos da costa portuguesa contêm recifes de coral de água fria com mais de mil anos de idade."
+                "Os fundos marinhos da costa portuguesa contêm recifes de coral com mais de mil anos de idade."
               </p>
             </div>
 
             <p className="text-xs sm:text-sm font-bold text-slate-800">
-              Qual das opções abaixo deves colocar no teu trabalho de grupo para valorizar o autor sem cometer plágio?
+              Qual das opções abaixo podes colocar no teu trabalho de grupo para respeitar o autor sem cometer plágio?
             </p>
 
             <div className="space-y-3">
-              <div
-                onClick={() => handlePlagiarismSelect('wrong')}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  plagiarismOption === 'wrong'
-                    ? 'bg-rose-50 border-rose-300 ring-2 ring-rose-200'
-                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-black text-rose-700">Opção A: Copiar e Colar Direto</span>
-                  <span className="text-[11px] font-bold text-slate-500">Incorreto (Plágio)</span>
+              {plagiarismCases.map((c) => (
+                <div
+                  key={c.id}
+                  onClick={() => handlePlagiarismSelect(c.id)}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                    plagiarismOption === c.id
+                      ? c.isCorrect
+                        ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200'
+                        : 'bg-rose-50 border-rose-300 ring-2 ring-rose-200'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs font-black ${c.isCorrect ? 'text-emerald-800' : 'text-rose-800'}`}>
+                      {c.title}
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-500">
+                      {c.isCorrect ? 'Válido' : 'Plágio'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-700">
+                    {c.text}
+                  </p>
+                  {plagiarismOption === c.id && (
+                    <p className="mt-2 text-xs font-bold text-slate-800">
+                      💡 {c.feedback}
+                    </p>
+                  )}
                 </div>
-                <p className="text-xs text-slate-700">
-                  "Os fundos marinhos da costa portuguesa contêm recifes de coral de água fria com mais de mil anos de idade." (Sem aspas, sem citar quem descobriu).
-                </p>
-              </div>
-
-              <div
-                onClick={() => handlePlagiarismSelect('correct')}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  plagiarismOption === 'correct'
-                    ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200'
-                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-black text-emerald-700">Opção B: Citação Atribuída e Resumo</span>
-                  <span className="text-[11px] font-bold text-slate-500">Correto (Académico)</span>
-                </div>
-                <p className="text-xs text-slate-700">
-                  De acordo com a investigação do biólogo Dr. Tiago Ramos (2025), os recifes de coral profundo na costa de Portugal podem ultrapassar um milénio de existência. [Fonte: Revista Oceano Vivo].
-                </p>
-              </div>
+              ))}
             </div>
 
             {plagiarismScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Excelente! Citar fontes não diminui o teu trabalho — pelo contrário: mostra que pesquisaste fontes de qualidade e que és honesto intelectualmente!
+                Indicar as fontes e os autores não diminui o teu trabalho: pelo contrário, mostra que pesquisaste bem e respeitas quem criou o conteúdo!
               </div>
             )}
           </div>
@@ -1198,19 +1285,15 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
+          {/* 📖 1. APRENDE */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <BookOpen className="w-5 h-5" />
                 <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                  1. APRENDE: LICENÇAS ABERTAS E REGRAS DE PARTILHA
+                  1. APRENDE: REGRAS DAS LICENÇAS CREATIVE COMMONS
                 </h4>
               </div>
-              <span className="text-xs font-bold text-white bg-slate-900 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Conceito Curricular Explicado</span>
-              </span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
@@ -1236,7 +1319,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 🎮 2. EXPERIMENTA */}
+          {/* 🎮 2. EXPERIMENTA (SITUAÇÕES PRÁTICAS) */}
           <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
@@ -1246,36 +1329,41 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Decifra os símbolos oficiais
+                Aplicações práticas em trabalhos escolares
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {ccLicenses.map((lic) => (
-                <div key={lic.code} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+            <div className="space-y-4">
+              {ccPracticalScenarios.map((scen) => (
+                <div key={scen.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-1 bg-purple-100 text-purple-800 font-mono font-black text-xs rounded-lg">
-                      CC {lic.code}
+                      {scen.rule}
                     </span>
-                    <span className="text-xs font-bold text-slate-700">{lic.name}</span>
                   </div>
-                  <p className="text-xs text-slate-600">{lic.meaning}</p>
-                  <div className="pt-2">
-                    <select
-                      value={ccMatched[lic.code] || ''}
-                      onChange={(e) =>
-                        setCcMatched((prev) => ({ ...prev, [lic.code]: e.target.value }))
-                      }
-                      className="w-full text-xs font-bold p-2 bg-white border border-slate-200 rounded-xl"
-                    >
-                      <option value="">Seleciona o significado prático...</option>
-                      {lic.code === 'BY' && <option value="crédito">Reconhecer e nomear sempre o autor original</option>}
-                      {lic.code === 'NC' && <option value="lucro">Nunca vender nem lucrar com o conteúdo</option>}
-                      {lic.code === 'ND' && <option value="alterado">Não modificar nem criar versões derivadas</option>}
-                      {lic.code === 'SA' && <option value="mesma">Partilhar a tua versão com a mesma licença</option>}
-                      <option value="errado">Usar sem regras livremente</option>
-                    </select>
+                  <p className="text-xs sm:text-sm font-bold text-slate-900">{scen.question}</p>
+                  <div className="space-y-2">
+                    {scen.options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() =>
+                          setCcChoices((prev) => ({ ...prev, [scen.id]: opt.id }))
+                        }
+                        className={`w-full text-left p-3 rounded-xl text-xs font-semibold transition-all border ${
+                          ccChoices[scen.id] === opt.id
+                            ? 'bg-purple-50 border-purple-300 text-purple-950 font-bold ring-2 ring-purple-200'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
                   </div>
+                  {ccChoices[scen.id] && (
+                    <p className="text-[11px] text-slate-500 italic pt-1 border-t border-slate-200/60">
+                      💡 {scen.explanation}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -1291,7 +1379,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
             {ccScore !== null && (
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
-                Resultado do Simulador: {ccScore}/100. As licenças Creative Commons são essenciais para criar e partilhar conteúdos respeitando a comunidade de autores!
+                Resultado do Simulador: {ccScore}/100. As licenças Creative Commons facilitam a partilha de conteúdos e ajudam a saber com clareza o que é permitido fazer!
               </div>
             )}
           </div>
@@ -1326,7 +1414,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               Avaliação Final de 10 Perguntas
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Mostra que dominas a netiqueta, colaboração e respeito pelos direitos de autor para desbloquear o Mundo 4!
+              Mostra que dominas a comunicação online, a netiqueta, o trabalho em equipa e o respeito pelos direitos de autor!
             </p>
           </div>
 
