@@ -21,6 +21,10 @@ export function getApiBaseUrl(): string {
       return winUrl.replace(/\/+$/, '');
     }
   }
+  // Automatic production fallback when running on GitHub Pages
+  if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('github.io')) {
+    return 'https://sixanos.onrender.com';
+  }
   return '';
 }
 
