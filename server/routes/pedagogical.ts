@@ -431,9 +431,13 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
     const previousBest = prevAttempts.length > 0 ? Math.max(...prevAttempts.map((a) => a.percentage)) : 0;
     const newBest = Math.max(previousBest, percentage);
     const bestMention = getQualitativeMention(newBest);
+    const firstScore = isFirstAttempt ? percentage : (firstAttempt?.percentage ?? percentage);
+    const firstMention = isFirstAttempt ? mention : (firstAttempt?.mention || getQualitativeMention(firstScore));
+    const latestScore = percentage;
+    const latestMention = mention;
     const xpGain = 0; // O quiz de avaliação final não acrescenta XPs
 
-    // Save complete attempt in database
+    // Save complete attempt in database with official persistent fields
     const attempt: AssessmentAttempt = {
       id: `attempt-${crypto.randomUUID()}`,
       userId,
@@ -447,6 +451,13 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
       mention,
       isFirstAttempt,
       attemptNumber,
+      firstScore,
+      firstMention,
+      bestScore: newBest,
+      bestMention,
+      latestScore,
+      latestMention,
+      attempts: attemptNumber,
       answers,
       createdAt: new Date().toISOString(),
     };
@@ -532,26 +543,38 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
     const evaluatedScore = evaluation.score;
 
     let prog = await getActivityProgress(userId, activityId);
-    const previousBest = prog ? prog.bestScore : 0;
+    const isFirst = !prog || prog.attempts === 0;
+    const previousBest = prog ? (Number(prog.bestScore) || 0) : 0;
+    const firstScore = isFirst ? evaluatedScore : (prog.firstScore ?? previousBest);
     const newBest = Math.max(previousBest, evaluatedScore);
+    const latestScore = evaluatedScore;
+    const attempts = (prog ? prog.attempts : 0) + 1;
     const xpGain = newBest - previousBest;
+    const previousAwardedXp = prog ? (Number(prog.awardedXp) || 0) : 0;
+    const awardedXp = previousAwardedXp + Math.max(0, xpGain);
 
     if (!prog) {
       prog = {
-        id: `prog-${crypto.randomUUID()}`,
+        id: `${userId}_${activityId}`,
         userId,
         activityId,
         worldId,
+        firstScore,
         bestScore: newBest,
+        latestScore,
         attempts: 1,
+        awardedXp,
         completed: true,
         firstCompletedAt: new Date().toISOString(),
         lastAttemptAt: new Date().toISOString(),
       };
     } else {
-      prog.attempts += 1;
-      prog.completed = true;
+      prog.firstScore = firstScore;
       prog.bestScore = newBest;
+      prog.latestScore = latestScore;
+      prog.attempts = attempts;
+      prog.awardedXp = awardedXp;
+      prog.completed = true;
       prog.lastAttemptAt = new Date().toISOString();
     }
 
@@ -817,6 +840,35 @@ router.get('/grande-missao', requireAuth, async (req: AuthRequest, res) => {
   } catch (err) {
     console.error('Error in /grande-missao:', err);
     return res.status(500).json({ error: 'Erro ao carregar Grande Missão.' });
+  }
+});
+
+// POST save intermediate stage progress for Grande Missão in Firestore
+router.post('/grande-missao/stage', requireStudent, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const { completedZones, unlockedCodes } = req.body;
+    if (!Array.isArray(completedZones)) {
+      return res.status(400).json({ error: 'completedZones deve ser um array.' });
+    }
+
+    const progress = await getGrandeMissaoProgress(userId);
+    const mergedStages = Array.from(new Set([...(progress.completedStages || []), ...completedZones]));
+    const mergedAnswers = { ...(progress.stageAnswers || {}), ...(unlockedCodes || {}) };
+
+    progress.completedStages = mergedStages;
+    progress.stageAnswers = mergedAnswers;
+    if (progress.status !== 'completed') {
+      progress.status = mergedStages.length > 0 ? 'in_progress' : 'not_started';
+    }
+    progress.currentStage = Math.min(6, Math.max(...mergedStages, 1));
+    progress.updatedAt = new Date().toISOString();
+
+    await saveGrandeMissaoProgress(progress);
+    return res.json({ success: true, progress });
+  } catch (err) {
+    console.error('Error in /grande-missao/stage:', err);
+    return res.status(500).json({ error: 'Erro ao guardar progresso da Grande Missão no Firestore.' });
   }
 });
 

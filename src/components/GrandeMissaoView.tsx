@@ -62,7 +62,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           setIsLocked(false);
         }
 
-        // Check if Grande Missão is already completed in backend
+        // Check if Grande Missão is already completed in Firestore or load in-progress stages
         try {
           const gmData = await apiRequest('/api/pedagogical/grande-missao');
           if (gmData.completed || gmData.progress?.status === 'completed') {
@@ -76,26 +76,17 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
               5: '#AI-ETHICS-PASS',
               6: '#NUCLEO-UNLOCKED-2040',
             });
-          }
-        } catch {}
-
-        // Load local progress for ongoing session
-        try {
-          const localKey = `missao_tic_gm_${user.id}`;
-          const saved = localStorage.getItem(localKey);
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed.completedZones && Array.isArray(parsed.completedZones)) {
-              setCompletedZones((prev) => Array.from(new Set([...prev, ...parsed.completedZones])));
+          } else if (gmData.progress) {
+            if (Array.isArray(gmData.progress.completedStages) && gmData.progress.completedStages.length > 0) {
+              setCompletedZones(gmData.progress.completedStages);
             }
-            if (parsed.unlockedCodes) {
-              setUnlockedCodes((prev) => ({ ...prev, ...parsed.unlockedCodes }));
-            }
-            if (parsed.isCompleted) {
-              setIsCompleted(true);
+            if (gmData.progress.stageAnswers && typeof gmData.progress.stageAnswers === 'object') {
+              setUnlockedCodes(gmData.progress.stageAnswers);
             }
           }
-        } catch {}
+        } catch (gmErr) {
+          console.error('Error loading Grande Missão from Firestore:', gmErr);
+        }
       } catch (err) {
         console.error('Error checking grande missao progress', err);
       } finally {
@@ -106,28 +97,23 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
     checkLockAndProgress();
   }, [user?.id, user?.role]);
 
-  // Save intermediate local progress
-  const saveLocalProgress = (newCompleted: number[], newCodes: Record<number, string>, finished = false) => {
-    if (!user) return;
-    try {
-      const localKey = `missao_tic_gm_${user.id}`;
-      localStorage.setItem(
-        localKey,
-        JSON.stringify({
-          completedZones: newCompleted,
-          unlockedCodes: newCodes,
-          isCompleted: finished,
-        })
-      );
-    } catch {}
-  };
-
-  const handleZoneCompleted = (zoneId: number, code: string) => {
+  const handleZoneCompleted = async (zoneId: number, code: string) => {
     const nextCompleted = Array.from(new Set([...completedZones, zoneId]));
     const nextCodes = { ...unlockedCodes, [zoneId]: code };
     setCompletedZones(nextCompleted);
     setUnlockedCodes(nextCodes);
-    saveLocalProgress(nextCompleted, nextCodes, false);
+
+    try {
+      await apiRequest('/api/pedagogical/grande-missao/stage', {
+        method: 'POST',
+        body: JSON.stringify({
+          completedZones: nextCompleted,
+          unlockedCodes: nextCodes,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to save stage progress to Firestore:', err);
+    }
   };
 
   const handleFinishAll = async (finalDecision: string) => {
@@ -149,11 +135,11 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
       setCompletedZones(nextCompleted);
       setIsCompleted(true);
       setShowCelebration(true);
-      saveLocalProgress(nextCompleted, unlockedCodes, true);
       setActiveZoneId(null);
       await refreshUser();
     } catch (err) {
       console.error('Failed to complete grande missao', err);
+      alert('Não foi possível guardar a conclusão no servidor. Verifique a ligação.');
     } finally {
       setIsSavingFinal(false);
     }

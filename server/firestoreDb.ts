@@ -15,13 +15,10 @@ import {
   where,
   getDocs,
   runTransaction,
-  limit,
-  orderBy,
-  getDocFromServer,
   setLogLevel,
 } from 'firebase/firestore';
 
-// Silence verbose internal Firebase SDK warnings (including benign gRPC idle stream disconnects)
+// Silence verbose internal Firebase SDK debug logs
 try {
   setLogLevel('silent');
 } catch {}
@@ -66,8 +63,11 @@ export interface ActivityProgress {
   userId: string;
   activityId: string;
   worldId: number;
+  firstScore?: number;
   bestScore: number;
+  latestScore?: number;
   attempts: number;
+  awardedXp?: number;
   completed: boolean;
   firstCompletedAt?: string;
   lastAttemptAt: string;
@@ -86,6 +86,13 @@ export interface AssessmentAttempt {
   mention?: string;
   isFirstAttempt?: boolean;
   attemptNumber?: number;
+  firstScore?: number;
+  firstMention?: string;
+  bestScore?: number;
+  bestMention?: string;
+  latestScore?: number;
+  latestMention?: string;
+  attempts?: number;
   answers: Record<string, number>;
   createdAt: string;
 }
@@ -180,57 +187,7 @@ let firebaseApp: FirebaseApp | null = null;
 let firestoreDb: Firestore | null = null;
 let configData: any = null;
 
-// Persistent local database fallback to ensure backend stability
-const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
-
-function getLocalDb(): Record<string, any[]> {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const parsed = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-      parsed.users = parsed.users || [];
-      parsed.classes = parsed.classes || [];
-      parsed.sessions = parsed.sessions || [];
-      parsed.activityProgress = parsed.activityProgress || [];
-      parsed.assessmentAttempts = parsed.assessmentAttempts || [];
-      parsed.missionSubmissions = parsed.missionSubmissions || [];
-      parsed.xpTransactions = parsed.xpTransactions || [];
-      parsed.badges = parsed.badges || [];
-      parsed.dailyTipClaims = parsed.dailyTipClaims || [];
-      parsed.weeklyChallenges = parsed.weeklyChallenges || [];
-      parsed.grandeMissaoProgress = parsed.grandeMissaoProgress || [];
-      parsed.auditLogs = parsed.auditLogs || [];
-      return parsed;
-    }
-  } catch (err) {
-    console.error('Error reading local db:', err);
-  }
-  return {
-    users: [],
-    classes: [],
-    sessions: [],
-    activityProgress: [],
-    assessmentAttempts: [],
-    missionSubmissions: [],
-    xpTransactions: [],
-    badges: [],
-    dailyTipClaims: [],
-    weeklyChallenges: [],
-    grandeMissaoProgress: [],
-    auditLogs: [],
-  };
-}
-
-function writeLocalDb(db: Record<string, any[]>): void {
-  try {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Error saving local db:', err);
-  }
-}
-
-// Load config and initialize Firebase client
+// Pure Firebase Firestore Client initialization
 export function getFirestore(): Firestore {
   if (firestoreDb) return firestoreDb;
 
@@ -262,12 +219,13 @@ export function getFirestore(): Firestore {
   return firestoreDb;
 }
 
-// Check connection to Firestore
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
     const db = getFirestore();
-    return !!db;
+    const testDoc = await getDoc(doc(db, '_health_check', 'ping'));
+    return true;
   } catch (err) {
+    console.error('Firestore connection check failed:', err);
     return false;
   }
 }
@@ -276,289 +234,154 @@ export async function testFirestoreConnection(): Promise<boolean> {
 // 1. USERS
 // -------------------------------------------------------------
 export async function getUserById(id: string): Promise<User | null> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'users', id));
-    if (snap.exists()) return snap.data() as User;
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.users.find((u) => u.id === id) as User) || null;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'users', id));
+  if (snap.exists()) return snap.data() as User;
+  return null;
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const cleanEmail = email.trim().toLowerCase();
-
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'users'), where('email', '==', cleanEmail));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs[0].data() as User;
-  } catch {}
-
-  // Check initial teacher email if set via environment variable
-  const configuredTeacherEmail = (
-    process.env.INITIAL_TEACHER_EMAIL ||
-    process.env.TEACHER_EMAIL ||
-    ''
-  ).trim().toLowerCase();
-
-  if (configuredTeacherEmail && cleanEmail === configuredTeacherEmail) {
-    try {
-      const teacherDoc = await getUserById('teacher-carla');
-      if (teacherDoc) return teacherDoc;
-    } catch {}
-  }
-
-  const allUsers = await getAllUsers();
-  const match = allUsers.find(
-    (u) => u.email && u.email.trim().toLowerCase() === cleanEmail
-  );
-  return match || null;
+  const db = getFirestore();
+  const q = query(collection(db, 'users'), where('email', '==', cleanEmail));
+  const snap = await getDocs(q);
+  if (!snap.empty) return snap.docs[0].data() as User;
+  return null;
 }
 
 export async function getUserByNickname(nickname: string): Promise<User | null> {
-  const cleanNick = nickname.trim().toLowerCase();
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'users'), where('nickname', '==', nickname.trim()));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs[0].data() as User;
-  } catch {}
-
-  const allUsers = await getAllUsers();
-  const match = allUsers.find(
-    (u) => u.nickname && u.nickname.trim().toLowerCase() === cleanNick
-  );
-  return match || null;
+  const db = getFirestore();
+  const q = query(collection(db, 'users'), where('nickname', '==', nickname.trim()));
+  const snap = await getDocs(q);
+  if (!snap.empty) return snap.docs[0].data() as User;
+  return null;
 }
 
 export async function getAllUsers(): Promise<User[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'users'));
-    if (!snap.empty) {
-      return snap.docs.map((d) => d.data() as User);
-    }
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.users as User[]) || [];
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'users'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as User);
 }
 
 export async function saveUser(user: User): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.users.findIndex((u) => u.id === user.id);
-  if (idx >= 0) local.users[idx] = user;
-  else local.users.push(user);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'users', user.id), user);
-  } catch {}
+  const db = getFirestore();
+  await setDoc(doc(db, 'users', user.id), user);
 }
 
 export async function updateUser(id: string, updates: Partial<User>): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.users.findIndex((u) => u.id === id);
-  if (idx >= 0) {
-    local.users[idx] = {
-      ...local.users[idx],
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    };
-    writeLocalDb(local);
-  }
-
-  try {
-    const db = getFirestore();
-    const ref = doc(db, 'users', id);
-    await updateDoc(ref, {
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    });
-  } catch {}
+  const db = getFirestore();
+  const ref = doc(db, 'users', id);
+  await updateDoc(ref, {
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 export async function deleteUser(userId: string): Promise<void> {
-  const local = getLocalDb();
-  local.users = local.users.filter((u) => u.id !== userId);
-  local.activityProgress = local.activityProgress.filter((p) => p.userId !== userId);
-  local.assessmentAttempts = local.assessmentAttempts.filter((a) => a.userId !== userId);
-  local.missionSubmissions = local.missionSubmissions.filter((m) => m.userId !== userId);
-  local.xpTransactions = local.xpTransactions.filter((x) => x.userId !== userId);
-  local.badges = local.badges.filter((b) => b.userId !== userId);
-  local.dailyTipClaims = local.dailyTipClaims.filter((c) => c.userId !== userId);
-  local.weeklyChallenges = local.weeklyChallenges.filter((w) => w.userId !== userId);
-  local.sessions = local.sessions.filter((s) => s.userId !== userId);
-  local.grandeMissaoProgress = local.grandeMissaoProgress.filter((g) => g.userId !== userId);
-  writeLocalDb(local);
+  const db = getFirestore();
+  await deleteDoc(doc(db, 'users', userId));
 
-  try {
-    const db = getFirestore();
-    await deleteDoc(doc(db, 'users', userId));
-    const [progSnap, assessSnap, misSnap, xpSnap, badgeSnap, dtSnap, wcSnap, sessSnap] = await Promise.all([
-      getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'badges'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'dailyTipClaims'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'sessions'), where('userId', '==', userId))),
-    ]);
+  const [progSnap, assessSnap, misSnap, xpSnap, badgeSnap, dtSnap, wcSnap, sessSnap] = await Promise.all([
+    getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'badges'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'dailyTipClaims'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'sessions'), where('userId', '==', userId))),
+  ]);
 
-    const deletions = [
-      ...progSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...assessSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...misSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...xpSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...badgeSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...dtSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...wcSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...sessSnap.docs.map((d) => deleteDoc(d.ref)),
-      deleteDoc(doc(db, 'grandeMissaoProgress', userId)),
-    ];
-    await Promise.all(deletions);
-  } catch {}
+  const deletions = [
+    ...progSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...assessSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...misSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...xpSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...badgeSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...dtSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...wcSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...sessSnap.docs.map((d) => deleteDoc(d.ref)),
+    deleteDoc(doc(db, 'grandeMissaoProgress', userId)),
+  ];
+  await Promise.all(deletions);
 }
 
 export async function resetStudentProgressInFirestore(userId: string): Promise<void> {
-  const local = getLocalDb();
-  const uIdx = local.users.findIndex((u) => u.id === userId);
-  if (uIdx >= 0) {
-    local.users[uIdx].xp = 100;
-  }
-  local.activityProgress = local.activityProgress.filter((p) => p.userId !== userId);
-  local.assessmentAttempts = local.assessmentAttempts.filter((a) => a.userId !== userId);
-  local.missionSubmissions = local.missionSubmissions.filter((m) => m.userId !== userId);
-  local.xpTransactions = local.xpTransactions.filter((x) => x.userId !== userId);
-  local.dailyTipClaims = local.dailyTipClaims.filter((c) => c.userId !== userId);
-  local.weeklyChallenges = local.weeklyChallenges.filter((w) => w.userId !== userId);
-  local.grandeMissaoProgress = local.grandeMissaoProgress.filter((g) => g.userId !== userId);
-  local.badges = local.badges.filter((b) => b.userId !== userId || b.badgeId === 'primeiros-passos');
+  const db = getFirestore();
+  await updateUser(userId, { xp: 100 });
 
-  if (!local.badges.some((b) => b.userId === userId && b.badgeId === 'primeiros-passos')) {
-    local.badges.push({
-      id: `b-${crypto.randomUUID()}`,
-      userId,
-      badgeId: 'primeiros-passos',
-      awardedAt: new Date().toISOString(),
-    });
-  }
-  writeLocalDb(local);
+  const [progSnap, assessSnap, misSnap, xpSnap, badgeSnap, dtSnap, wcSnap] = await Promise.all([
+    getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'badges'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'dailyTipClaims'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', userId))),
+  ]);
 
-  try {
-    const db = getFirestore();
-    await updateUser(userId, { xp: 100 });
-    const [progSnap, assessSnap, misSnap, xpSnap, badgeSnap, dtSnap, wcSnap] = await Promise.all([
-      getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'badges'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'dailyTipClaims'), where('userId', '==', userId))),
-      getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', userId))),
-    ]);
+  const deletions = [
+    ...progSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...assessSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...misSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...xpSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...dtSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...wcSnap.docs.map((d) => deleteDoc(d.ref)),
+    deleteDoc(doc(db, 'grandeMissaoProgress', userId)),
+  ];
 
-    const deletions = [
-      ...progSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...assessSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...misSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...xpSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...dtSnap.docs.map((d) => deleteDoc(d.ref)),
-      ...wcSnap.docs.map((d) => deleteDoc(d.ref)),
-      deleteDoc(doc(db, 'grandeMissaoProgress', userId)),
-    ];
-
-    for (const bDoc of badgeSnap.docs) {
-      const badge = bDoc.data() as UserBadge;
-      if (badge.badgeId !== 'primeiros-passos') {
-        deletions.push(deleteDoc(bDoc.ref));
-      }
+  for (const bDoc of badgeSnap.docs) {
+    const badge = bDoc.data() as UserBadge;
+    if (badge.badgeId !== 'primeiros-passos') {
+      deletions.push(deleteDoc(bDoc.ref));
     }
-    await Promise.all(deletions);
-    await awardBadge(userId, 'primeiros-passos');
-  } catch {}
+  }
+  await Promise.all(deletions);
+  await awardBadge(userId, 'primeiros-passos');
 }
 
 // -------------------------------------------------------------
 // 2. CLASSES
 // -------------------------------------------------------------
 export async function getAllClasses(): Promise<ClassRoom[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'classes'));
-    if (!snap.empty) {
-      return snap.docs.map((d) => d.data() as ClassRoom);
-    }
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.classes as ClassRoom[]) || [];
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'classes'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as ClassRoom);
 }
 
 export async function getClassById(id: string): Promise<ClassRoom | null> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'classes', id));
-    if (snap.exists()) return snap.data() as ClassRoom;
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.classes.find((c) => c.id === id) as ClassRoom) || null;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'classes', id));
+  if (snap.exists()) return snap.data() as ClassRoom;
+  return null;
 }
 
 export async function getClassByCode(code: string): Promise<ClassRoom | null> {
   const cleanCode = code.trim().toLowerCase();
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'classes'), where('code', '==', code.trim()));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs[0].data() as ClassRoom;
-  } catch {}
+  const db = getFirestore();
+  const q = query(collection(db, 'classes'), where('code', '==', code.trim()));
+  const snap = await getDocs(q);
+  if (!snap.empty) return snap.docs[0].data() as ClassRoom;
 
   const classes = await getAllClasses();
   return classes.find((c) => c.code && c.code.toLowerCase() === cleanCode) || null;
 }
 
 export async function saveClass(c: ClassRoom): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.classes.findIndex((x) => x.id === c.id);
-  if (idx >= 0) local.classes[idx] = c;
-  else local.classes.push(c);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'classes', c.id), c);
-  } catch {}
+  const db = getFirestore();
+  await setDoc(doc(db, 'classes', c.id), c);
 }
 
 export async function updateClass(id: string, updates: Partial<ClassRoom>): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.classes.findIndex((x) => x.id === id);
-  if (idx >= 0) {
-    local.classes[idx] = { ...local.classes[idx], ...updates };
-    writeLocalDb(local);
-  }
-
-  try {
-    const db = getFirestore();
-    await updateDoc(doc(db, 'classes', id), updates);
-  } catch {}
+  const db = getFirestore();
+  await updateDoc(doc(db, 'classes', id), updates);
 }
 
 export async function deleteClass(id: string): Promise<void> {
-  const local = getLocalDb();
-  local.classes = local.classes.filter((c) => c.id !== id);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await deleteDoc(doc(db, 'classes', id));
-  } catch {}
+  const db = getFirestore();
+  await deleteDoc(doc(db, 'classes', id));
 }
 
 export async function deleteClassStudents(classId: string): Promise<number> {
@@ -590,33 +413,17 @@ export async function createSession(userId: string): Promise<Session> {
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   };
 
-  const local = getLocalDb();
-  local.sessions.push(session);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'sessions', session.id), session);
-  } catch {}
-
+  const db = getFirestore();
+  await setDoc(doc(db, 'sessions', session.id), session);
   return session;
 }
 
 export async function getSession(id: string): Promise<Session | null> {
-  let session: Session | null = null;
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'sessions', id));
-    if (snap.exists()) session = snap.data() as Session;
-  } catch {}
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'sessions', id));
+  if (!snap.exists()) return null;
 
-  if (!session) {
-    const local = getLocalDb();
-    session = (local.sessions.find((s) => s.id === id) as Session) || null;
-  }
-
-  if (!session) return null;
-
+  const session = snap.data() as Session;
   if (new Date(session.expiresAt) < new Date()) {
     await deleteSession(id);
     return null;
@@ -625,105 +432,62 @@ export async function getSession(id: string): Promise<Session | null> {
 }
 
 export async function deleteSession(id: string): Promise<void> {
-  const local = getLocalDb();
-  local.sessions = local.sessions.filter((s) => s.id !== id);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await deleteDoc(doc(db, 'sessions', id));
-  } catch {}
+  const db = getFirestore();
+  await deleteDoc(doc(db, 'sessions', id));
 }
 
 // -------------------------------------------------------------
 // 4. ACTIVITY PROGRESS
 // -------------------------------------------------------------
 export async function getActivityProgress(userId: string, activityId: string): Promise<ActivityProgress | null> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'activityProgress', `${userId}_${activityId}`));
-    if (snap.exists()) return snap.data() as ActivityProgress;
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.activityProgress.find((p) => p.userId === userId && p.activityId === activityId) as ActivityProgress) || null;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'activityProgress', `${userId}_${activityId}`));
+  if (snap.exists()) return snap.data() as ActivityProgress;
+  return null;
 }
 
 export async function getUserActivityProgress(userId: string): Promise<ActivityProgress[]> {
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'activityProgress'), where('userId', '==', userId));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs.map((d) => d.data() as ActivityProgress);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.activityProgress.filter((p) => p.userId === userId) as ActivityProgress[]) || [];
+  const db = getFirestore();
+  const q = query(collection(db, 'activityProgress'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as ActivityProgress);
 }
 
 export async function getAllActivityProgress(): Promise<ActivityProgress[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'activityProgress'));
-    if (!snap.empty) return snap.docs.map((d) => d.data() as ActivityProgress);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.activityProgress as ActivityProgress[]) || [];
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'activityProgress'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as ActivityProgress);
 }
 
 export async function saveActivityProgress(progress: ActivityProgress): Promise<void> {
-  const local = getLocalDb();
+  const db = getFirestore();
   const docId = `${progress.userId}_${progress.activityId}`;
   progress.id = docId;
-  const idx = local.activityProgress.findIndex((p) => p.userId === progress.userId && p.activityId === progress.activityId);
-  if (idx >= 0) local.activityProgress[idx] = progress;
-  else local.activityProgress.push(progress);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'activityProgress', docId), progress);
-  } catch {}
+  await setDoc(doc(db, 'activityProgress', docId), progress);
 }
 
 // -------------------------------------------------------------
 // 5. ASSESSMENT ATTEMPTS
 // -------------------------------------------------------------
 export async function getAssessmentAttempts(userId: string, worldId?: number): Promise<AssessmentAttempt[]> {
-  try {
-    const db = getFirestore();
-    let q = query(collection(db, 'assessmentAttempts'));
-    if (userId !== 'all') {
-      q = query(q, where('userId', '==', userId));
-    }
-    if (worldId !== undefined) {
-      q = query(q, where('worldId', '==', worldId));
-    }
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs.map((d) => d.data() as AssessmentAttempt);
-  } catch {}
-
-  const local = getLocalDb();
-  let list = local.assessmentAttempts as AssessmentAttempt[];
+  const db = getFirestore();
+  let q = query(collection(db, 'assessmentAttempts'));
   if (userId !== 'all') {
-    list = list.filter((a) => a.userId === userId);
+    q = query(q, where('userId', '==', userId));
   }
   if (worldId !== undefined) {
-    list = list.filter((a) => a.worldId === worldId);
+    q = query(q, where('worldId', '==', worldId));
   }
-  return list;
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as AssessmentAttempt);
 }
 
 export async function saveAssessmentAttempt(attempt: AssessmentAttempt): Promise<void> {
-  const local = getLocalDb();
-  local.assessmentAttempts.push(attempt);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'assessmentAttempts', attempt.id), attempt);
-  } catch {}
+  const db = getFirestore();
+  await setDoc(doc(db, 'assessmentAttempts', attempt.id), attempt);
 }
 
 // -------------------------------------------------------------
@@ -735,68 +499,49 @@ export async function getMissionSubmissions(filter?: {
   classId?: string;
   worldId?: number;
 }): Promise<MissionSubmission[]> {
-  try {
-    const db = getFirestore();
-    let q = query(collection(db, 'missionSubmissions'));
-    if (filter?.userId) q = query(q, where('userId', '==', filter.userId));
-    if (filter?.status) q = query(q, where('status', '==', filter.status));
-    if (filter?.worldId) q = query(q, where('worldId', '==', filter.worldId));
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      let list = snap.docs.map((d) => d.data() as MissionSubmission);
-      if (filter?.classId && filter.classId !== 'all') {
-        list = list.filter((m) => m.classId === filter.classId);
-      }
-      return list;
-    }
-  } catch {}
-
-  const local = getLocalDb();
-  let list = local.missionSubmissions as MissionSubmission[];
-  if (filter?.userId) list = list.filter((m) => m.userId === filter.userId);
-  if (filter?.status) list = list.filter((m) => m.status === filter.status);
-  if (filter?.worldId) list = list.filter((m) => m.worldId === filter.worldId);
-  if (filter?.classId && filter.classId !== 'all') list = list.filter((m) => m.classId === filter.classId);
+  const db = getFirestore();
+  let q = query(collection(db, 'missionSubmissions'));
+  if (filter?.userId) q = query(q, where('userId', '==', filter.userId));
+  if (filter?.status) q = query(q, where('status', '==', filter.status));
+  if (filter?.worldId) q = query(q, where('worldId', '==', filter.worldId));
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  let list = snap.docs.map((d) => d.data() as MissionSubmission);
+  if (filter?.classId && filter.classId !== 'all') {
+    list = list.filter((m) => m.classId === filter.classId);
+  }
   return list;
 }
 
 export async function getMissionSubmissionById(id: string): Promise<MissionSubmission | null> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'missionSubmissions', id));
-    if (snap.exists()) return snap.data() as MissionSubmission;
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.missionSubmissions.find((m) => m.id === id) as MissionSubmission) || null;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'missionSubmissions', id));
+  if (snap.exists()) return snap.data() as MissionSubmission;
+  return null;
 }
 
 export async function saveMissionSubmission(sub: MissionSubmission): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.missionSubmissions.findIndex((m) => m.id === sub.id);
-  if (idx >= 0) local.missionSubmissions[idx] = sub;
-  else local.missionSubmissions.push(sub);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'missionSubmissions', sub.id), sub);
-  } catch {}
+  const db = getFirestore();
+  await setDoc(doc(db, 'missionSubmissions', sub.id), sub);
 }
 
 // -------------------------------------------------------------
 // 7. XP TRANSACTIONS & CONCURRENCY-SAFE ATOMIC XP INCREMENT
 // -------------------------------------------------------------
 export async function getUserXPTransactions(userId: string): Promise<XPTransaction[]> {
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'xpTransactions'), where('userId', '==', userId));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs.map((d) => d.data() as XPTransaction);
-  } catch {}
+  const db = getFirestore();
+  const q = query(collection(db, 'xpTransactions'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as XPTransaction);
+}
 
-  const local = getLocalDb();
-  return (local.xpTransactions.filter((x) => x.userId === userId) as XPTransaction[]) || [];
+export async function getAllXPTransactions(): Promise<XPTransaction[]> {
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'xpTransactions'));
+  if (snap.empty) return [];
+  const list = snap.docs.map((d) => d.data() as XPTransaction);
+  return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function atomicAwardXP(
@@ -809,24 +554,26 @@ export async function atomicAwardXP(
     newBest: number;
   }
 ): Promise<{ newTotalXP: number; transactionId: string } | null> {
-  // If no positive XP gain, do not create redundant transactions
   if (xpGain <= 0) {
-    const local = getLocalDb();
-    const existingUser = local.users.find((u) => u.id === userId);
-    return existingUser ? { newTotalXP: existingUser.xp, transactionId: '' } : null;
+    const user = await getUserById(userId);
+    return user ? { newTotalXP: user.xp, transactionId: '' } : null;
   }
 
-  const local = getLocalDb();
+  const db = getFirestore();
 
-  // Enforce duplicate XP prevention on single-claim milestones
+  // Enforce duplicate XP prevention on single-claim milestones in Firestore
   if (['grande_missao', 'weekly_challenge', 'daily_tip'].includes(txData.sourceType)) {
-    const existingTx = local.xpTransactions.find(
-      (x) => x.userId === userId && x.sourceType === txData.sourceType && x.sourceId === txData.sourceId
+    const existingQ = query(
+      collection(db, 'xpTransactions'),
+      where('userId', '==', userId),
+      where('sourceType', '==', txData.sourceType),
+      where('sourceId', '==', txData.sourceId)
     );
-    if (existingTx) {
+    const existingSnap = await getDocs(existingQ);
+    if (!existingSnap.empty) {
       console.warn(`[atomicAwardXP] Blocked duplicate XP transaction for user ${userId}, type: ${txData.sourceType}, sourceId: ${txData.sourceId}`);
-      const user = local.users.find((u) => u.id === userId);
-      return user ? { newTotalXP: user.xp, transactionId: existingTx.id } : null;
+      const user = await getUserById(userId);
+      return user ? { newTotalXP: user.xp, transactionId: existingSnap.docs[0].id } : null;
     }
   }
 
@@ -841,30 +588,20 @@ export async function atomicAwardXP(
     xpGain,
     createdAt: new Date().toISOString(),
   };
-  const uIdx = local.users.findIndex((u) => u.id === userId);
-  let newTotalXP = xpGain;
-  if (uIdx >= 0) {
-    local.users[uIdx].xp = (Number(local.users[uIdx].xp) || 0) + xpGain;
-    local.users[uIdx].updatedAt = new Date().toISOString();
-    newTotalXP = local.users[uIdx].xp;
-  }
-  local.xpTransactions.push(newTx);
-  writeLocalDb(local);
 
-  try {
-    const db = getFirestore();
-    const userRef = doc(db, 'users', userId);
-    const txRef = doc(db, 'xpTransactions', txId);
-    await runTransaction(db, async (transaction) => {
-      const userSnap = await transaction.get(userRef);
-      if (userSnap.exists()) {
-        const u = userSnap.data() as User;
-        const total = (Number(u.xp) || 0) + xpGain;
-        transaction.update(userRef, { xp: total, updatedAt: new Date().toISOString() });
-      }
-      transaction.set(txRef, newTx);
-    });
-  } catch {}
+  const userRef = doc(db, 'users', userId);
+  const txRef = doc(db, 'xpTransactions', txId);
+
+  let newTotalXP = xpGain;
+  await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+    if (userSnap.exists()) {
+      const u = userSnap.data() as User;
+      newTotalXP = (Number(u.xp) || 0) + xpGain;
+      transaction.update(userRef, { xp: newTotalXP, updatedAt: new Date().toISOString() });
+    }
+    transaction.set(txRef, newTx);
+  });
 
   return { newTotalXP, transactionId: txId };
 }
@@ -873,37 +610,31 @@ export async function atomicAwardXP(
 // 8. BADGES
 // -------------------------------------------------------------
 export async function getUserBadges(userId: string): Promise<UserBadge[]> {
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'badges'), where('userId', '==', userId));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs.map((d) => d.data() as UserBadge);
-  } catch {}
+  const db = getFirestore();
+  const q = query(collection(db, 'badges'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as UserBadge);
+}
 
-  const local = getLocalDb();
-  return (local.badges.filter((b) => b.userId === userId) as UserBadge[]) || [];
+export async function getAllBadges(): Promise<UserBadge[]> {
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'badges'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as UserBadge);
 }
 
 export async function hasUserBadge(userId: string, badgeId: string): Promise<boolean> {
-  const local = getLocalDb();
-  if (local.badges.some((b) => b.userId === userId && b.badgeId === badgeId)) {
-    return true;
-  }
-
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'badges', `${userId}_${badgeId}`));
-    return snap.exists();
-  } catch {}
-
-  return false;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'badges', `${userId}_${badgeId}`));
+  return snap.exists();
 }
 
 export async function awardBadge(userId: string, badgeId: string): Promise<boolean> {
-  const local = getLocalDb();
-  if (local.badges.some((b) => b.userId === userId && b.badgeId === badgeId)) {
-    return false;
-  }
+  const db = getFirestore();
+  const badgeDocRef = doc(db, 'badges', `${userId}_${badgeId}`);
+  const snap = await getDoc(badgeDocRef);
+  if (snap.exists()) return false;
 
   const badge: UserBadge = {
     id: `b-${crypto.randomUUID()}`,
@@ -911,15 +642,7 @@ export async function awardBadge(userId: string, badgeId: string): Promise<boole
     badgeId,
     awardedAt: new Date().toISOString(),
   };
-  local.badges.push(badge);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    const badgeDoc = doc(db, 'badges', `${userId}_${badgeId}`);
-    await setDoc(badgeDoc, badge);
-  } catch {}
-
+  await setDoc(badgeDocRef, badge);
   return true;
 }
 
@@ -927,20 +650,32 @@ export async function awardBadge(userId: string, badgeId: string): Promise<boole
 // 9. DAILY TIP CLAIMS
 // -------------------------------------------------------------
 export async function getDailyTipClaim(userId: string, tipDate: string): Promise<DailyTipClaim | null> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'dailyTipClaims', `${userId}_${tipDate}`));
-    if (snap.exists()) return snap.data() as DailyTipClaim;
-  } catch {}
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'dailyTipClaims', `${userId}_${tipDate}`));
+  if (snap.exists()) return snap.data() as DailyTipClaim;
+  return null;
+}
 
-  const local = getLocalDb();
-  return (local.dailyTipClaims.find((c) => c.userId === userId && c.tipDate === tipDate) as DailyTipClaim) || null;
+export async function getAllDailyTipClaims(): Promise<DailyTipClaim[]> {
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'dailyTipClaims'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as DailyTipClaim);
+}
+
+export async function getUserDailyTipClaims(userId: string): Promise<DailyTipClaim[]> {
+  const db = getFirestore();
+  const q = query(collection(db, 'dailyTipClaims'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as DailyTipClaim);
 }
 
 export async function claimDailyTipAtomic(userId: string, tipDate: string): Promise<{ success: boolean; xpAwarded: number }> {
-  const local = getLocalDb();
-  const existing = local.dailyTipClaims.find((c) => c.userId === userId && c.tipDate === tipDate);
-  if (existing) {
+  const db = getFirestore();
+  const claimRef = doc(db, 'dailyTipClaims', `${userId}_${tipDate}`);
+  const snap = await getDoc(claimRef);
+  if (snap.exists()) {
     return { success: false, xpAwarded: 0 };
   }
 
@@ -950,7 +685,6 @@ export async function claimDailyTipAtomic(userId: string, tipDate: string): Prom
     tipDate,
     claimedAt: new Date().toISOString(),
   };
-  local.dailyTipClaims.push(claim);
 
   const txId = `xp-${crypto.randomUUID()}`;
   const tx: XPTransaction = {
@@ -963,112 +697,61 @@ export async function claimDailyTipAtomic(userId: string, tipDate: string): Prom
     xpGain: 10,
     createdAt: new Date().toISOString(),
   };
-  local.xpTransactions.push(tx);
 
-  const uIdx = local.users.findIndex((u) => u.id === userId);
-  if (uIdx >= 0) {
-    local.users[uIdx].xp = (Number(local.users[uIdx].xp) || 0) + 10;
-    local.users[uIdx].updatedAt = new Date().toISOString();
-  }
-  writeLocalDb(local);
+  const userRef = doc(db, 'users', userId);
+  const txRef = doc(db, 'xpTransactions', txId);
 
-  try {
-    const db = getFirestore();
-    const claimRef = doc(db, 'dailyTipClaims', `${userId}_${tipDate}`);
-    const txRef = doc(db, 'xpTransactions', txId);
-    await setDoc(claimRef, claim);
-    await setDoc(txRef, tx);
-  } catch {}
+  await runTransaction(db, async (transaction) => {
+    const uSnap = await transaction.get(userRef);
+    if (uSnap.exists()) {
+      const u = uSnap.data() as User;
+      const newXp = (Number(u.xp) || 0) + 10;
+      transaction.update(userRef, { xp: newXp, updatedAt: new Date().toISOString() });
+    }
+    transaction.set(claimRef, claim);
+    transaction.set(txRef, tx);
+  });
 
   return { success: true, xpAwarded: 10 };
-}
-
-export async function getAllDailyTipClaims(): Promise<DailyTipClaim[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'dailyTipClaims'));
-    if (!snap.empty) return snap.docs.map((d) => d.data() as DailyTipClaim);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.dailyTipClaims as DailyTipClaim[]) || [];
-}
-
-export async function getUserDailyTipClaims(userId: string): Promise<DailyTipClaim[]> {
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'dailyTipClaims'), where('userId', '==', userId));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs.map((d) => d.data() as DailyTipClaim);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.dailyTipClaims.filter((c) => c.userId === userId) as DailyTipClaim[]) || [];
 }
 
 // -------------------------------------------------------------
 // 10. WEEKLY CHALLENGE
 // -------------------------------------------------------------
 export async function getWeeklyChallengeProgress(userId: string, challengeId: string): Promise<WeeklyChallengeProgress | null> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'weeklyChallenges', `${userId}_${challengeId}`));
-    if (snap.exists()) return snap.data() as WeeklyChallengeProgress;
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.weeklyChallenges.find((w) => w.userId === userId && w.challengeId === challengeId) as WeeklyChallengeProgress) || null;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'weeklyChallenges', `${userId}_${challengeId}`));
+  if (snap.exists()) return snap.data() as WeeklyChallengeProgress;
+  return null;
 }
 
 export async function getUserWeeklyChallenges(userId: string): Promise<WeeklyChallengeProgress[]> {
-  try {
-    const db = getFirestore();
-    const q = query(collection(db, 'weeklyChallenges'), where('userId', '==', userId));
-    const snap = await getDocs(q);
-    if (!snap.empty) return snap.docs.map((d) => d.data() as WeeklyChallengeProgress);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.weeklyChallenges.filter((w) => w.userId === userId) as WeeklyChallengeProgress[]) || [];
+  const db = getFirestore();
+  const q = query(collection(db, 'weeklyChallenges'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as WeeklyChallengeProgress);
 }
 
 export async function getAllWeeklyChallenges(): Promise<WeeklyChallengeProgress[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'weeklyChallenges'));
-    if (!snap.empty) return snap.docs.map((d) => d.data() as WeeklyChallengeProgress);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.weeklyChallenges as WeeklyChallengeProgress[]) || [];
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'weeklyChallenges'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as WeeklyChallengeProgress);
 }
 
 export async function saveWeeklyChallengeProgress(p: WeeklyChallengeProgress): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.weeklyChallenges.findIndex((w) => w.userId === p.userId && w.challengeId === p.challengeId);
-  if (idx >= 0) local.weeklyChallenges[idx] = p;
-  else local.weeklyChallenges.push(p);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'weeklyChallenges', `${p.userId}_${p.challengeId}`), p);
-  } catch {}
+  const db = getFirestore();
+  await setDoc(doc(db, 'weeklyChallenges', `${p.userId}_${p.challengeId}`), p);
 }
 
 // -------------------------------------------------------------
 // 11. GRANDE MISSAO FINAL
 // -------------------------------------------------------------
 export async function getGrandeMissaoProgress(userId: string): Promise<GrandeMissaoProgress> {
-  try {
-    const db = getFirestore();
-    const snap = await getDoc(doc(db, 'grandeMissaoProgress', userId));
-    if (snap.exists()) return snap.data() as GrandeMissaoProgress;
-  } catch {}
-
-  const local = getLocalDb();
-  const found = local.grandeMissaoProgress.find((g) => g.userId === userId);
-  if (found) return found as GrandeMissaoProgress;
+  const db = getFirestore();
+  const snap = await getDoc(doc(db, 'grandeMissaoProgress', userId));
+  if (snap.exists()) return snap.data() as GrandeMissaoProgress;
 
   return {
     id: userId,
@@ -1082,54 +765,16 @@ export async function getGrandeMissaoProgress(userId: string): Promise<GrandeMis
 }
 
 export async function getAllGrandeMissaoProgress(): Promise<GrandeMissaoProgress[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'grandeMissaoProgress'));
-    if (!snap.empty) return snap.docs.map((d) => d.data() as GrandeMissaoProgress);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.grandeMissaoProgress as GrandeMissaoProgress[]) || [];
-}
-
-export async function getAllBadges(): Promise<UserBadge[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'badges'));
-    if (!snap.empty) return snap.docs.map((d) => d.data() as UserBadge);
-  } catch {}
-
-  const local = getLocalDb();
-  return (local.badges as UserBadge[]) || [];
-}
-
-export async function getAllXPTransactions(): Promise<XPTransaction[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'xpTransactions'));
-    if (!snap.empty) {
-      const list = snap.docs.map((d) => d.data() as XPTransaction);
-      return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-  } catch {}
-
-  const local = getLocalDb();
-  const list = local.xpTransactions as XPTransaction[];
-  return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'grandeMissaoProgress'));
+  if (snap.empty) return [];
+  return snap.docs.map((d) => d.data() as GrandeMissaoProgress);
 }
 
 export async function saveGrandeMissaoProgress(p: GrandeMissaoProgress): Promise<void> {
-  const local = getLocalDb();
-  const idx = local.grandeMissaoProgress.findIndex((g) => g.userId === p.userId);
+  const db = getFirestore();
   const data = { ...p, id: p.userId, updatedAt: new Date().toISOString() };
-  if (idx >= 0) local.grandeMissaoProgress[idx] = data;
-  else local.grandeMissaoProgress.push(data);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'grandeMissaoProgress', p.userId), data);
-  } catch {}
+  await setDoc(doc(db, 'grandeMissaoProgress', p.userId), data);
 }
 
 // -------------------------------------------------------------
@@ -1146,30 +791,16 @@ export async function addAuditLog(log: Omit<AuditLog, 'id' | 'createdAt'>): Prom
     if (fullLog[key] === undefined) delete fullLog[key];
   });
 
-  const local = getLocalDb();
-  local.auditLogs.push(fullLog);
-  writeLocalDb(local);
-
-  try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'auditLogs', fullLog.id), fullLog);
-  } catch {}
-
+  const db = getFirestore();
+  await setDoc(doc(db, 'auditLogs', fullLog.id), fullLog);
   return fullLog;
 }
 
 export async function getAuditLogs(): Promise<AuditLog[]> {
-  try {
-    const db = getFirestore();
-    const snap = await getDocs(collection(db, 'auditLogs'));
-    if (!snap.empty) {
-      const logs = snap.docs.map((d) => d.data() as AuditLog);
-      return logs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-  } catch {}
-
-  const local = getLocalDb();
-  const logs = local.auditLogs as AuditLog[];
+  const db = getFirestore();
+  const snap = await getDocs(collection(db, 'auditLogs'));
+  if (snap.empty) return [];
+  const logs = snap.docs.map((d) => d.data() as AuditLog);
   return logs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -1177,7 +808,17 @@ export async function getAuditLogs(): Promise<AuditLog[]> {
 // STATS FOR TEACHER DASHBOARD & SYSTEM STATUS
 // -------------------------------------------------------------
 export async function getFirestoreStats() {
-  const local = getLocalDb();
+  const db = getFirestore();
+  const [users, classes, activityProgress, assessmentAttempts, missionSubmissions, xpTransactions, badges, auditLogs] = await Promise.all([
+    getDocs(collection(db, 'users')),
+    getDocs(collection(db, 'classes')),
+    getDocs(collection(db, 'activityProgress')),
+    getDocs(collection(db, 'assessmentAttempts')),
+    getDocs(collection(db, 'missionSubmissions')),
+    getDocs(collection(db, 'xpTransactions')),
+    getDocs(collection(db, 'badges')),
+    getDocs(collection(db, 'auditLogs')),
+  ]);
 
   return {
     engine: 'Google Cloud Firebase Firestore (Persistent Cloud DB)',
@@ -1186,20 +827,20 @@ export async function getFirestoreStats() {
     isPersistent: true,
     isCloud: true,
     tables: {
-      users: local.users.length,
-      classes: local.classes.length,
-      activityProgress: local.activityProgress.length,
-      assessmentAttempts: local.assessmentAttempts.length,
-      missionSubmissions: local.missionSubmissions.length,
-      xpTransactions: local.xpTransactions.length,
-      badges: local.badges.length,
-      auditLogs: local.auditLogs.length,
+      users: users.size,
+      classes: classes.size,
+      activityProgress: activityProgress.size,
+      assessmentAttempts: assessmentAttempts.size,
+      missionSubmissions: missionSubmissions.size,
+      xpTransactions: xpTransactions.size,
+      badges: badges.size,
+      auditLogs: auditLogs.size,
     },
   };
 }
 
 // -------------------------------------------------------------
-// INITIAL SEED DATA
+// INITIAL SEED DATA DIRECTLY IN FIRESTORE
 // -------------------------------------------------------------
 export async function seedInitialFirestoreData(): Promise<void> {
   // 1. Classes (6.º A to 6.º E)

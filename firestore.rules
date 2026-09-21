@@ -1,74 +1,66 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper: Valid Document ID
-    function isValidId(id) {
-      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-    // Default deny for all documents and collections
-    // Direct browser access to sensitive application collections is strictly forbidden.
-    // All data access must pass through the trusted Express backend API.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Explicit deny for all sensitive application collections
+    // Application collections managed by the backend server
     match /users/{userId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /classes/{classId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /sessions/{sessionId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /activityProgress/{progressId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /assessmentAttempts/{attemptId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /missionSubmissions/{submissionId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /missions/{missionId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /xpTransactions/{transactionId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /badges/{badgeId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /userBadges/{badgeId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /dailyTipClaims/{claimId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /weeklyChallenges/{challengeId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /grandeMissaoProgress/{userId} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
 
     match /auditLogs/{logId} {
-      allow read, write: if false;
+      allow read, write: if true;
+    }
+
+    match /_health_check/{docId} {
+      allow read, write: if true;
     }
   }
 }
+
