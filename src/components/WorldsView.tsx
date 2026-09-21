@@ -64,6 +64,8 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   // Assessment modal trigger
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
 
+  const isTeacher = user?.role === 'teacher';
+
   useEffect(() => {
     if (user?.id) {
       loadWorlds();
@@ -71,6 +73,16 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       setLoading(false);
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    if (!isTeacher && worlds.length > 0) {
+      const selected = worlds.find((w) => w.id === selectedWorldId);
+      if (selected && !selected.isUnlocked && selected.id !== 1) {
+        setSelectedWorldId(1);
+        setActiveTab('w1-t1');
+      }
+    }
+  }, [worlds, selectedWorldId, isTeacher]);
 
   const loadWorlds = async () => {
     try {
@@ -137,8 +149,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       </div>
     );
   }
-
-  const isTeacher = user?.role === 'teacher';
 
   const isSimCompleted = (simId: string) => {
     if (simId === 'assessment') {
@@ -300,16 +310,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   const nextLockedWorld = !isTeacher
     ? worlds.find((w) => !w.isUnlocked && w.id > 1)
     : null;
-
-  useEffect(() => {
-    if (!isTeacher && worlds.length > 0) {
-      const selected = worlds.find((w) => w.id === selectedWorldId);
-      if (selected && !selected.isUnlocked && selected.id !== 1) {
-        setSelectedWorldId(1);
-        setActiveTab('w1-t1');
-      }
-    }
-  }, [worlds, selectedWorldId, isTeacher]);
 
   const currentTabs = getCurrentWorldTabs();
 
