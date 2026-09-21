@@ -47,21 +47,28 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
     }
   };
 
+  const isChallengeCompleted = !!(weeklyChallenge?.alreadyCompleted || weeklyChallenge?.challenge?.completed);
+
   const handleWeeklySubmit = async (option: string) => {
-    if (!weeklyChallenge || weeklyChallenge.alreadyCompleted || submitting) return;
+    if (!weeklyChallenge || isChallengeCompleted || submitting) return;
     setSelectedAnswer(option);
     setSubmitting(true);
+    setFeedback(null);
     try {
       const isPhishing = option === 'phishing';
       const res = await apiRequest('/api/pedagogical/weekly-challenge', {
         method: 'POST',
-        body: JSON.stringify({ isPhishing }),
+        body: JSON.stringify({ isPhishing, option, optionIndex: isPhishing ? 1 : 0 }),
       });
-      setFeedback(res.feedback || res.message);
-      await loadData();
-      await refreshUser();
+      if (res) {
+        setFeedback(res.feedback || res.message);
+        if (res.isCorrect) {
+          await loadData();
+          await refreshUser();
+        }
+      }
     } catch (err: any) {
-      alert(err.message);
+      setFeedback(err.message || 'Ocorreu um erro ao submeter a resposta.');
     } finally {
       setSubmitting(false);
     }
@@ -108,7 +115,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
           <span className="text-[10px] font-black uppercase text-amber-800 block">Recompensa</span>
           <span className="text-3xl font-black text-amber-600">+30 XP</span>
           <div className="text-[11px] font-bold text-slate-500 mt-1">
-            {weeklyChallenge?.alreadyCompleted ? 'Completado ✓' : 'Disponível (1x por semana)'}
+            {isChallengeCompleted ? 'Completado ✓' : 'Disponível (1x por semana)'}
           </div>
         </div>
       </div>
@@ -138,7 +145,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
         </div>
 
         {/* Action Decision */}
-        {weeklyChallenge?.alreadyCompleted ? (
+        {isChallengeCompleted ? (
           <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-950 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>Já resolveste com sucesso o desafio desta semana (+30 XP adicionados ao teu perfil)!</span>

@@ -128,7 +128,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="bg-[#FEF08A] text-[#78350F] font-black text-xs px-2.5 py-0.5 rounded-md">
-                      +50 XP
+                      +30 XP
                     </span>
                     <span className="text-xs font-bold text-[#854D0E] flex items-center gap-1 bg-[#FEF9C3] px-2 py-0.5 rounded-md border border-[#FDE047]">
                       <Signal className="w-3.5 h-3.5 text-[#CA8A04]" /> Médio

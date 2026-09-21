@@ -128,9 +128,9 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return res as any;
   }
 
-  if (pathname === '/api/pedagogical/weekly-challenge') {
+  if (pathname === '/api/pedagogical/weekly-challenge' || pathname === '/api/pedagogical/weekly-challenge/submit') {
     if (method === 'POST') {
-      const res = await clientSubmitWeeklyChallenge(body.solution);
+      const res = await clientSubmitWeeklyChallenge(body);
       return res as any;
     } else {
       const res = await clientGetWeeklyChallenge();

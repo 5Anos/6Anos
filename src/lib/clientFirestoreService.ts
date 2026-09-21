@@ -811,49 +811,137 @@ export async function clientGetWeeklyChallenge() {
     completed = cDoc.exists();
   }
 
+  const sanitizedOptions = WEEKLY_CHALLENGE.options.map((o, idx) => ({
+    id: String(idx),
+    text: o.text,
+  }));
+
   return {
     challenge: {
       ...WEEKLY_CHALLENGE,
+      options: sanitizedOptions,
+      xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
       completed,
     },
+    alreadyCompleted: completed,
   };
 }
 
-export async function clientSubmitWeeklyChallenge(solution: any) {
+export async function clientSubmitWeeklyChallenge(payload: any) {
   const userId = getActiveClientUserId();
   if (!userId) throw new Error('Não autenticado');
+
+  let optionIndex = -1;
+  if (typeof payload === 'object' && payload !== null) {
+    if (typeof payload.optionIndex === 'number') {
+      optionIndex = payload.optionIndex;
+    } else if (payload.isPhishing === true || payload.option === 'phishing' || payload.solution === 'phishing') {
+      optionIndex = 1;
+    } else if (payload.isPhishing === false || payload.option === 'safe' || payload.solution === 'safe') {
+      optionIndex = 0;
+    } else if (typeof payload.solution === 'number') {
+      optionIndex = payload.solution;
+    }
+  } else if (typeof payload === 'string') {
+    optionIndex = payload === 'phishing' ? 1 : 0;
+  } else if (typeof payload === 'boolean') {
+    optionIndex = payload ? 1 : 0;
+  } else if (typeof payload === 'number') {
+    optionIndex = payload;
+  }
+
+  if (optionIndex < 0 || !WEEKLY_CHALLENGE.options[optionIndex]) {
+    optionIndex = 0;
+  }
+
+  const selected = WEEKLY_CHALLENGE.options[optionIndex];
+
+  if (!selected.isCorrect) {
+    return {
+      success: false,
+      isCorrect: false,
+      feedback: selected.explanation,
+      message: selected.explanation,
+    };
+  }
 
   const db = getClientFirestore();
   const userSnap = await getDoc(doc(db, 'users', userId));
   const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
   if (isTeacher) {
-    return { success: true, xpReward: 0, totalXp: 0 };
+    return {
+      success: true,
+      isCorrect: true,
+      feedback: selected.explanation,
+      message: selected.explanation,
+      xpGain: 0,
+      totalXp: 0,
+    };
   }
 
   const challengeId = `${userId}_${WEEKLY_CHALLENGE.id}`;
   const now = new Date().toISOString();
+  const cDoc = await getDoc(doc(db, 'weeklyChallenges', challengeId));
+  const alreadyCompleted = cDoc.exists();
 
-  await setDoc(doc(db, 'weeklyChallenges', challengeId), {
-    id: challengeId,
-    userId,
-    challengeId: WEEKLY_CHALLENGE.id,
-    solution,
-    completed: true,
-    completedAt: now,
-  });
+  const safeSolution =
+    typeof payload?.solution !== 'undefined'
+      ? String(payload.solution)
+      : payload?.isPhishing !== undefined
+      ? (payload.isPhishing ? 'phishing' : 'safe')
+      : String(optionIndex);
 
-  const xpReward = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE; // 30 XP
-  const userRef = doc(db, 'users', userId);
-  await runTransaction(db, async (txn) => {
-    const snap = await txn.get(userRef);
-    if (snap.exists()) {
-      const curXp = (snap.data() as ClientUser).xp || 0;
-      txn.update(userRef, { xp: curXp + xpReward, updatedAt: now });
-    }
-  });
+  if (!alreadyCompleted) {
+    await setDoc(doc(db, 'weeklyChallenges', challengeId), {
+      id: challengeId,
+      userId,
+      challengeId: WEEKLY_CHALLENGE.id,
+      solution: safeSolution,
+      optionIndex,
+      completed: true,
+      completedAt: now,
+    });
 
-  const updatedUser = (await getDoc(userRef)).data() as ClientUser;
-  return { success: true, xpReward, totalXp: updatedUser.xp };
+    const xpReward = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE; // 30 XP
+    const userRef = doc(db, 'users', userId);
+    await runTransaction(db, async (txn) => {
+      const snap = await txn.get(userRef);
+      if (snap.exists()) {
+        const curXp = (snap.data() as ClientUser).xp || 0;
+        txn.update(userRef, { xp: curXp + xpReward, updatedAt: now });
+      }
+    });
+
+    const txId = `xp-${crypto.randomUUID()}`;
+    await setDoc(doc(db, 'xpTransactions', txId), {
+      id: txId,
+      userId,
+      amount: xpReward,
+      reason: 'Desafio Semanal',
+      sourceType: 'weekly_challenge',
+      sourceId: WEEKLY_CHALLENGE.id,
+      previousBest: 0,
+      newBest: 100,
+      xpGain: xpReward,
+      createdAt: now,
+    }).catch(() => {});
+
+    await clientCheckBadges(userId);
+  }
+
+  const updatedUser = (await getDoc(doc(db, 'users', userId))).data() as ClientUser;
+  const xpReward = alreadyCompleted ? 0 : PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE;
+
+  return {
+    success: true,
+    isCorrect: true,
+    feedback: selected.explanation,
+    message: alreadyCompleted
+      ? 'Já resolveste com sucesso o desafio desta semana!'
+      : `+${xpReward} XP ganhos no Desafio da Semana!`,
+    xpGain: xpReward,
+    totalXp: updatedUser?.xp || 0,
+  };
 }
 
 export async function clientGetGrandeMissao() {

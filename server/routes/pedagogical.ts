@@ -819,7 +819,10 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
       completed: progress?.status === 'completed',
     };
 
-    return res.json({ challenge: sanitized });
+    return res.json({
+      challenge: sanitized,
+      alreadyCompleted: progress?.status === 'completed',
+    });
   } catch (err) {
     console.error('Error in /weekly-challenge:', err);
     return res.status(500).json({ error: 'Erro ao carregar desafio da semana.' });
@@ -829,9 +832,17 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
 // POST submit Weekly Challenge (Student + Teacher testing mode)
 router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, async (req: AuthRequest, res) => {
   try {
-    let { optionIndex, isPhishing } = req.body;
-    if (typeof optionIndex !== 'number' && typeof isPhishing === 'boolean') {
-      optionIndex = isPhishing ? 1 : 0;
+    let { optionIndex, isPhishing, option, solution } = req.body;
+    if (typeof optionIndex !== 'number') {
+      if (typeof isPhishing === 'boolean') {
+        optionIndex = isPhishing ? 1 : 0;
+      } else if (option === 'phishing' || solution === 'phishing') {
+        optionIndex = 1;
+      } else if (option === 'safe' || solution === 'safe') {
+        optionIndex = 0;
+      } else if (typeof solution === 'number') {
+        optionIndex = solution;
+      }
     }
     if (typeof optionIndex !== 'number' || !WEEKLY_CHALLENGE.options[optionIndex]) {
       return res.status(400).json({ error: 'Opção inválida.' });
