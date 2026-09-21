@@ -1,5 +1,18 @@
 // API client communicating strictly with the server backend and Firebase Firestore.
-// No localStorage or browser-based fallback storage for pedagogical data.
+// Official persistent storage is Firebase Firestore.
+import { clientDispatch } from './lib/clientDispatcher';
+
+export function isStaticHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  const hostname = window.location.hostname;
+  return (
+    hostname.endsWith('github.io') ||
+    hostname.includes('pages.dev') ||
+    hostname.includes('netlify.app') ||
+    hostname.includes('vercel.app') ||
+    window.location.protocol === 'file:'
+  );
+}
 
 /**
  * Resolves the backend base URL dynamically.
@@ -43,6 +56,16 @@ export function buildApiUrl(endpoint: string): string {
 }
 
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  // If running on GitHub Pages or static host without backend URL, dispatch directly to Firebase Firestore
+  if (isStaticHost() && !getApiBaseUrl()) {
+    try {
+      return await clientDispatch<T>(endpoint, options);
+    } catch (clientErr: any) {
+      console.error(`[Client Firestore Error] ${endpoint}:`, clientErr);
+      throw clientErr;
+    }
+  }
+
   const url = buildApiUrl(endpoint);
   const headers = new Headers(options.headers || {});
 
@@ -66,8 +89,22 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
       credentials: 'include',
     });
   } catch (netErr: any) {
-    console.error(`[API Network Error] ${endpoint}:`, netErr);
-    throw new Error('Não foi possível guardar os dados. Verifique a ligação ao servidor.');
+    console.warn(`[API Network Error] ${endpoint}, attempting direct Firebase Firestore access:`, netErr);
+    try {
+      return await clientDispatch<T>(endpoint, options);
+    } catch (fallbackErr: any) {
+      throw new Error(fallbackErr.message || 'Não foi possível guardar os dados. Verifique a ligação.');
+    }
+  }
+
+  // If server returns 405 (Method Not Allowed - static hosting like GitHub Pages) or 404
+  if (response.status === 405 || response.status === 404) {
+    console.warn(`[API HTTP ${response.status}] ${endpoint}, executing directly against Firebase Firestore...`);
+    try {
+      return await clientDispatch<T>(endpoint, options);
+    } catch (fallbackErr: any) {
+      throw new Error(fallbackErr.message || `Erro ${response.status}: ${response.statusText}`);
+    }
   }
 
   if (!response.ok) {
