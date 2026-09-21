@@ -436,7 +436,7 @@ export async function executeClientRequest(endpoint: string, options: RequestIni
 
     const scorePercentage = Math.round((correctCount / Math.max(1, rawQuestions.length)) * 100);
     const passed = scorePercentage >= 70;
-    const xpReward = passed ? (scorePercentage === 100 ? 150 : 100) : 30;
+    const xpReward = 0; // O quiz de avaliação final não acrescenta XPs
 
     const attempt = {
       id: 'att-' + Date.now(),
@@ -462,7 +462,7 @@ export async function executeClientRequest(endpoint: string, options: RequestIni
       correctCount,
       totalQuestions: rawQuestions.length,
       feedback,
-      xpEarned: xpReward,
+      xpEarned: 0,
       newTotalXp: xpResult.newXp,
       newLevel: xpResult.level,
       newBadges: xpResult.awardedBadges,

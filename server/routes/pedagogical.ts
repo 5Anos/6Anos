@@ -392,7 +392,7 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
     const prevAttempts = await getAssessmentAttempts(userId, worldId);
     const previousBest = prevAttempts.length > 0 ? Math.max(...prevAttempts.map((a) => a.percentage)) : 0;
     const newBest = Math.max(previousBest, percentage);
-    const xpGain = newBest - previousBest;
+    const xpGain = 0; // O quiz de avaliação final não acrescenta XPs
 
     // Save complete attempt in database
     const attempt: AssessmentAttempt = {
@@ -410,18 +410,7 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
     };
     await saveAssessmentAttempt(attempt);
 
-    let totalXp = req.user!.xp;
-    if (xpGain > 0) {
-      const result = await atomicAwardXP(userId, xpGain, {
-        sourceType: 'assessment',
-        sourceId: assess.id,
-        previousBest,
-        newBest,
-      });
-      if (result) {
-        totalXp = result.newTotalXP;
-      }
-    }
+    const totalXp = req.user!.xp;
 
     await evaluateBadges(userId);
 
@@ -433,7 +422,7 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
       passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
       previousBest,
       newBest,
-      xpGain,
+      xpGain: 0,
       totalXp,
       resultsFeedback,
     });

@@ -154,6 +154,7 @@ router.post('/register', async (req, res) => {
 
     return res.status(201).json({
       user: sanitizeUser(newUser),
+      token: session.id,
       message: 'Conta criada com sucesso! Ganhaste +100 XP e a badge Primeiros Passos!',
     });
   } catch (err: any) {
@@ -210,6 +211,7 @@ router.post('/login', async (req, res) => {
 
     return res.json({
       user: sanitizeUser(user),
+      token: session.id,
     });
   } catch (err) {
     console.error('Error in /login:', err);

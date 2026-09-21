@@ -68,6 +68,14 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
     headers.set('Content-Type', 'application/json');
   }
 
+  // Include Bearer authorization token if saved in localStorage (guarantees cross-device & cross-browser access)
+  if (typeof window !== 'undefined' && !headers.has('Authorization')) {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+  }
+
   try {
     const response = await fetch(url, {
       ...options,

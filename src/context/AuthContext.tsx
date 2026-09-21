@@ -56,6 +56,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password: pass }),
     });
     if (res && res.user) {
+      if (res.token && typeof window !== 'undefined') {
+        localStorage.setItem('auth_token', res.token);
+      }
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
       await refreshUser();
@@ -68,6 +71,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(data),
     });
     if (res && res.user) {
+      if (res.token && typeof window !== 'undefined') {
+        localStorage.setItem('auth_token', res.token);
+      }
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
       await refreshUser();
@@ -81,6 +87,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await apiRequest('/api/auth/logout', { method: 'POST' });
     } catch {
       // ignore network errors on logout
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
     }
     setUser(null);
     setBadges([]);
