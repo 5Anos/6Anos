@@ -9,6 +9,7 @@ import {
   calculateLevel,
 } from '../data/catalog';
 import { AuthUser, BadgeItem, WorldSummary, AssessmentQuestion } from '../types';
+import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 
 export interface ClientClass {
   id: string;
@@ -409,7 +410,32 @@ export async function executeClientRequest(endpoint: string, options: RequestIni
       text: q.text,
       options: q.options,
     }));
-    return { questions };
+
+    const allAttempts = getItem<any[]>(KEY_ATTEMPTS, []);
+    const userAttempts = currentUser ? allAttempts.filter((a) => a.userId === currentUser.id && a.worldId === worldId) : [];
+    const sortedAttempts = [...userAttempts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const isFirstAttempt = sortedAttempts.length === 0;
+    const firstAttempt = isFirstAttempt ? null : sortedAttempts[0];
+    const bestAttempt = sortedAttempts.length > 0 ? sortedAttempts.reduce((max, a) => (a.scorePercentage > max.scorePercentage ? a : max), sortedAttempts[0]) : null;
+    const lastAttempt = sortedAttempts.length > 0 ? sortedAttempts[sortedAttempts.length - 1] : null;
+
+    return {
+      id: `assess-${worldId}`,
+      worldId,
+      title: FINAL_ASSESSMENTS[worldId]?.title || `Avaliação Mundo ${worldId}`,
+      questionCount: questions.length,
+      questions,
+      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      attemptsCount: userAttempts.length,
+      isFirstAttempt,
+      attemptNumber: userAttempts.length + 1,
+      officialPercentage: firstAttempt ? firstAttempt.scorePercentage : null,
+      officialMention: firstAttempt ? (firstAttempt.mention || getQualitativeMention(firstAttempt.scorePercentage)) : null,
+      bestPercentage: bestAttempt ? bestAttempt.scorePercentage : null,
+      bestMention: bestAttempt ? (bestAttempt.mention || getQualitativeMention(bestAttempt.scorePercentage)) : null,
+      lastPercentage: lastAttempt ? lastAttempt.scorePercentage : null,
+      lastMention: lastAttempt ? (lastAttempt.mention || getQualitativeMention(lastAttempt.scorePercentage)) : null,
+    };
   }
 
   if ((path === 'pedagogical/assessments/submit' || path.startsWith('pedagogical/assessments/')) && method === 'POST') {
@@ -435,21 +461,48 @@ export async function executeClientRequest(endpoint: string, options: RequestIni
     });
 
     const scorePercentage = Math.round((correctCount / Math.max(1, rawQuestions.length)) * 100);
-    const passed = scorePercentage >= 70;
+    const mention = getQualitativeMention(scorePercentage);
+    const passed = scorePercentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
     const xpReward = 0; // O quiz de avaliação final não acrescenta XPs
+
+    const attempts = getItem<any[]>(KEY_ATTEMPTS, []);
+    const prevAttempts = attempts.filter((a) => a.userId === currentUser.id && a.worldId === worldId);
+    const isFirstAttempt = prevAttempts.length === 0;
+    const attemptNumber = prevAttempts.length + 1;
+
+    const sortedPrev = [...prevAttempts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const firstAttempt = isFirstAttempt ? null : sortedPrev[0];
+    const lastPrevAttempt = isFirstAttempt ? null : sortedPrev[sortedPrev.length - 1];
+    const officialPercentage = isFirstAttempt ? scorePercentage : firstAttempt!.scorePercentage;
+    const officialMention = isFirstAttempt ? mention : (firstAttempt!.mention || getQualitativeMention(firstAttempt!.scorePercentage));
+
+    const evolution = lastPrevAttempt
+      ? scorePercentage > lastPrevAttempt.scorePercentage
+        ? 'improved'
+        : scorePercentage === lastPrevAttempt.scorePercentage
+        ? 'maintained'
+        : 'regressed'
+      : undefined;
+
+    const previousBest = prevAttempts.length > 0 ? Math.max(...prevAttempts.map((a) => a.scorePercentage || a.percentage || 0)) : 0;
+    const newBest = Math.max(previousBest, scorePercentage);
+    const bestMention = getQualitativeMention(newBest);
 
     const attempt = {
       id: 'att-' + Date.now(),
       userId: currentUser.id,
       worldId,
       scorePercentage,
+      percentage: scorePercentage,
       correctCount,
       totalQuestions: rawQuestions.length,
       passed,
+      mention,
+      isFirstAttempt,
+      attemptNumber,
       createdAt: new Date().toISOString(),
     };
 
-    const attempts = getItem<any[]>(KEY_ATTEMPTS, []);
     attempts.push(attempt);
     setItem(KEY_ATTEMPTS, attempts);
 
@@ -457,12 +510,27 @@ export async function executeClientRequest(endpoint: string, options: RequestIni
     if (passed) awardBadge(currentUser.id, `world_${worldId}_master`);
 
     return {
+      percentage: scorePercentage,
       scorePercentage,
+      mention,
       passed,
+      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
       correctCount,
       totalQuestions: rawQuestions.length,
+      isFirstAttempt,
+      attemptNumber,
+      officialPercentage,
+      officialMention,
+      previousBest,
+      newBest,
+      bestMention,
+      evolution,
+      lastPrevAttemptPercentage: lastPrevAttempt ? lastPrevAttempt.scorePercentage : null,
       feedback,
+      resultsFeedback: feedback,
       xpEarned: 0,
+      xpGain: 0,
+      totalXp: xpResult.newXp,
       newTotalXp: xpResult.newXp,
       newLevel: xpResult.level,
       newBadges: xpResult.awardedBadges,

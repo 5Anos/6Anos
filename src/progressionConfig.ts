@@ -29,3 +29,23 @@ export const PROGRESSION_CONFIG = {
 export function isWorldPassed(score: number): boolean {
   return score >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 }
+
+export type QualitativeMention = 'Muito Fraco' | 'Não Satisfaz' | 'Satisfaz' | 'Bom' | 'Muito Bom';
+
+/**
+ * Escala Curricular Oficial de Menções Qualitativas:
+ * 0–19%   → Muito Fraco
+ * 20–49%  → Não Satisfaz
+ * 50–69%  → Satisfaz
+ * 70–89%  → Bom
+ * 90–100% → Muito Bom
+ */
+export function getQualitativeMention(percentage: number): QualitativeMention {
+  const rounded = Math.round(percentage);
+  if (rounded >= 90) return 'Muito Bom';
+  if (rounded >= 70) return 'Bom';
+  if (rounded >= 50) return 'Satisfaz';
+  if (rounded >= 20) return 'Não Satisfaz';
+  return 'Muito Fraco';
+}
+

@@ -37,7 +37,7 @@ import {
   calculateLevel,
   BADGES_CATALOG,
 } from '../catalog';
-import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 import { evaluateActivity } from '../activityEvaluator';
 
 const router = Router();
@@ -327,7 +327,8 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
     const assess = FINAL_ASSESSMENTS[worldId];
     if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
 
-    const stats = await computeWorldStats(req.user!.id, worldId, req.user?.role);
+    const userId = req.user!.id;
+    const stats = await computeWorldStats(userId, worldId, req.user?.role);
     if (!stats.isUnlocked && req.user?.role !== 'teacher') {
       return res.status(403).json({ error: 'Mundo bloqueado.' });
     }
@@ -339,6 +340,13 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
       options: q.options,
     }));
 
+    const prevAttempts = await getAssessmentAttempts(userId, worldId);
+    const sortedPrev = [...prevAttempts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const isFirstAttempt = sortedPrev.length === 0;
+    const firstAttempt = isFirstAttempt ? null : sortedPrev[0];
+    const bestAttempt = sortedPrev.length > 0 ? sortedPrev.reduce((max, a) => a.percentage > max.percentage ? a : max, sortedPrev[0]) : null;
+    const lastAttempt = sortedPrev.length > 0 ? sortedPrev[sortedPrev.length - 1] : null;
+
     return res.json({
       id: assess.id,
       worldId: assess.worldId,
@@ -346,6 +354,15 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
       questionCount: sanitizedQuestions.length,
       questions: sanitizedQuestions,
       passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      attemptsCount: prevAttempts.length,
+      isFirstAttempt,
+      attemptNumber: prevAttempts.length + 1,
+      officialPercentage: firstAttempt ? firstAttempt.percentage : null,
+      officialMention: firstAttempt ? (firstAttempt.mention || getQualitativeMention(firstAttempt.percentage)) : null,
+      bestPercentage: bestAttempt ? bestAttempt.percentage : null,
+      bestMention: bestAttempt ? (bestAttempt.mention || getQualitativeMention(bestAttempt.percentage)) : null,
+      lastPercentage: lastAttempt ? lastAttempt.percentage : null,
+      lastMention: lastAttempt ? (lastAttempt.mention || getQualitativeMention(lastAttempt.percentage)) : null,
     });
   } catch (err) {
     console.error('Error in /assessments/:worldId:', err);
@@ -386,12 +403,34 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
       };
     });
 
+    // 1. Cálculo da pontuação com arredondamento para o número inteiro mais próximo
     const percentage = Math.round((correctCount / assess.questions.length) * 100);
+    // 2. Atribuição da menção qualitativa oficial
+    const mention = getQualitativeMention(percentage);
     const passed = percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
+    // Verificar histórico de tentativas
     const prevAttempts = await getAssessmentAttempts(userId, worldId);
+    const isFirstAttempt = prevAttempts.length === 0;
+    const attemptNumber = prevAttempts.length + 1;
+
+    const sortedPrev = [...prevAttempts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const firstAttempt = isFirstAttempt ? null : sortedPrev[0];
+    const lastPrevAttempt = isFirstAttempt ? null : sortedPrev[sortedPrev.length - 1];
+    const officialPercentage = isFirstAttempt ? percentage : firstAttempt!.percentage;
+    const officialMention = isFirstAttempt ? mention : (firstAttempt!.mention || getQualitativeMention(firstAttempt!.percentage));
+
+    const evolution = lastPrevAttempt
+      ? percentage > lastPrevAttempt.percentage
+        ? 'improved'
+        : percentage === lastPrevAttempt.percentage
+        ? 'maintained'
+        : 'regressed'
+      : undefined;
+
     const previousBest = prevAttempts.length > 0 ? Math.max(...prevAttempts.map((a) => a.percentage)) : 0;
     const newBest = Math.max(previousBest, percentage);
+    const bestMention = getQualitativeMention(newBest);
     const xpGain = 0; // O quiz de avaliação final não acrescenta XPs
 
     // Save complete attempt in database
@@ -405,6 +444,9 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
       totalQuestions: assess.questions.length,
       correctCount,
       passed,
+      mention,
+      isFirstAttempt,
+      attemptNumber,
       answers,
       createdAt: new Date().toISOString(),
     };
@@ -416,12 +458,20 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
 
     return res.json({
       percentage,
+      mention,
       correctCount,
       totalQuestions: assess.questions.length,
       passed,
       passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      isFirstAttempt,
+      attemptNumber,
+      officialPercentage,
+      officialMention,
       previousBest,
       newBest,
+      bestMention,
+      evolution,
+      lastPrevAttemptPercentage: lastPrevAttempt ? lastPrevAttempt.percentage : null,
       xpGain: 0,
       totalXp,
       resultsFeedback,

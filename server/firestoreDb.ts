@@ -83,6 +83,9 @@ export interface AssessmentAttempt {
   totalQuestions?: number;
   correctCount?: number;
   passed?: boolean;
+  mention?: string;
+  isFirstAttempt?: boolean;
+  attemptNumber?: number;
   answers: Record<string, number>;
   createdAt: string;
 }

@@ -100,11 +100,18 @@ export interface AssessmentResultFeedback {
 
 export interface AssessmentSubmissionResult {
   percentage: number;
+  mention: string;
   correctCount: number;
   totalQuestions: number;
   passed: boolean;
+  isFirstAttempt: boolean;
+  attemptNumber: number;
+  officialPercentage?: number;
+  officialMention?: string;
   previousBest: number;
   newBest: number;
+  bestMention?: string;
+  evolution?: 'improved' | 'maintained' | 'regressed';
   xpGain: number;
   totalXp: number;
   resultsFeedback: AssessmentResultFeedback[];

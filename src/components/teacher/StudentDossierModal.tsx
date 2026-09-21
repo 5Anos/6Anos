@@ -542,33 +542,89 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                     {/* Assessments */}
                     <div className="space-y-2">
                       <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Avaliação Final do Mundo
+                        Avaliação Oficial & Treinos
                       </div>
 
-                      {/* Final Assessment */}
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="font-semibold text-slate-900">
-                            Avaliação Final do Mundo {w.worldId} (8 Questões)
-                          </div>
-                          <span
-                            className={`px-2 py-0.5 rounded font-mono font-bold text-xs ${
-                              w.assessments.length > 0 && w.assessments[0].percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : w.assessments.length > 0
-                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                : 'bg-slate-100 text-slate-400 border border-slate-200'
-                            }`}
-                          >
-                            {w.assessments.length > 0
-                              ? `${w.assessments[0].percentage}%`
-                              : 'Não Realizada'}
-                          </span>
-                        </div>
-                        {w.assessments.length > 0 && (
-                          <div className="text-[11px] text-slate-500">
-                            {w.assessments.length} tentativas efetuadas • Última em{' '}
-                            {new Date(w.assessments[0].createdAt).toLocaleString('pt-PT')}
+                      {/* Final Assessment Card */}
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs space-y-3">
+                        {w.assessments && w.assessments.length > 0 ? (
+                          <>
+                            {/* Official Assessment Summary */}
+                            {(() => {
+                              const sorted = [...w.assessments].sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                              const official = sorted[0];
+                              const best = [...w.assessments].sort((a: any, b: any) => b.percentage - a.percentage)[0];
+
+                              return (
+                                <div className="space-y-2.5">
+                                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                                    <div>
+                                      <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wide">
+                                        1.ª Tentativa (Avaliação Oficial)
+                                      </span>
+                                      <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="font-mono font-black text-sm text-slate-900">
+                                          {official.percentage}%
+                                        </span>
+                                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                          {official.mention || '—'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-right text-[10px] text-slate-400">
+                                      {new Date(official.createdAt).toLocaleDateString('pt-PT')}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center justify-between text-[11px]">
+                                    <span className="text-slate-600">Melhor Treino:</span>
+                                    <div className="flex items-center gap-1.5 font-bold">
+                                      <span className="font-mono text-slate-900">{best.percentage}%</span>
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                                        {best.mention || '—'}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200">
+                                    <span>Total de Tentativas:</span>
+                                    <span className="font-bold text-slate-700">{w.assessments.length}</span>
+                                  </div>
+
+                                  {/* List of attempts */}
+                                  {w.assessments.length > 1 && (
+                                    <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
+                                      <div className="text-[10px] font-bold text-slate-500 uppercase">
+                                        Histórico de Tentativas:
+                                      </div>
+                                      <div className="max-h-24 overflow-y-auto space-y-1 pr-1">
+                                        {sorted.map((att: any, idx: number) => (
+                                          <div
+                                            key={att.id || idx}
+                                            className="flex items-center justify-between text-[10px] bg-white px-2 py-1 rounded-lg border border-slate-100"
+                                          >
+                                            <span className="text-slate-600">
+                                              #{idx + 1} {idx === 0 ? '(Oficial)' : '(Treino)'}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                              <span className="font-mono font-bold text-slate-800">{att.percentage}%</span>
+                                              <span className="text-slate-500">{att.mention}</span>
+                                              <span className="text-slate-400">
+                                                {new Date(att.createdAt).toLocaleDateString('pt-PT')}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </>
+                        ) : (
+                          <div className="text-center py-2 text-slate-400 font-medium">
+                            Nenhuma avaliação realizada neste mundo.
                           </div>
                         )}
                       </div>

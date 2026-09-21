@@ -51,7 +51,7 @@ import {
   BADGES_CATALOG,
 } from '../catalog';
 import { computeWorldStats } from './pedagogical';
-import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 
 const router = Router();
 
@@ -342,13 +342,61 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                 submittedAt: mission.submittedAt,
               }
             : null,
-          assessments: worldAssessments.map((a) => ({
-            id: a.id,
-            score: a.score,
-            percentage: a.percentage,
-            createdAt: a.createdAt,
-            answersCount: Object.keys(a.answers || {}).length,
-          })),
+          assessments: [...worldAssessments]
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+            .map((a, idx) => ({
+              id: a.id,
+              attemptNumber: a.attemptNumber || idx + 1,
+              isOfficial: idx === 0,
+              score: a.score,
+              percentage: a.percentage,
+              mention: a.mention || getQualitativeMention(a.percentage),
+              createdAt: a.createdAt,
+              answersCount: Object.keys(a.answers || {}).length,
+            })),
+          assessmentSummary: (() => {
+            const sortedAttempts = [...worldAssessments].sort(
+              (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+            const firstAttempt = sortedAttempts.length > 0 ? sortedAttempts[0] : null;
+            const bestAttempt =
+              sortedAttempts.length > 0
+                ? sortedAttempts.reduce((max, a) => (a.percentage > max.percentage ? a : max), sortedAttempts[0])
+                : null;
+            const lastAttempt = sortedAttempts.length > 0 ? sortedAttempts[sortedAttempts.length - 1] : null;
+
+            return {
+              hasAttempted: sortedAttempts.length > 0,
+              attemptsCount: sortedAttempts.length,
+              official: firstAttempt
+                ? {
+                    score: firstAttempt.score,
+                    percentage: firstAttempt.percentage,
+                    mention: firstAttempt.mention || getQualitativeMention(firstAttempt.percentage),
+                    createdAt: firstAttempt.createdAt,
+                    passed: firstAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                  }
+                : null,
+              best: bestAttempt
+                ? {
+                    score: bestAttempt.score,
+                    percentage: bestAttempt.percentage,
+                    mention: bestAttempt.mention || getQualitativeMention(bestAttempt.percentage),
+                    createdAt: bestAttempt.createdAt,
+                    passed: bestAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                  }
+                : null,
+              last: lastAttempt
+                ? {
+                    score: lastAttempt.score,
+                    percentage: lastAttempt.percentage,
+                    mention: lastAttempt.mention || getQualitativeMention(lastAttempt.percentage),
+                    createdAt: lastAttempt.createdAt,
+                    passed: lastAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                  }
+                : null,
+            };
+          })(),
         };
       })
     );
@@ -1023,22 +1071,37 @@ router.get('/assessments-summary', async (req: AuthRequest, res) => {
 
       const studentResults = students.map((s) => {
         const studentAttempts = worldAttempts.filter((a) => a.userId === s.id);
+        const sortedAttempts = [...studentAttempts].sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        const firstAttempt = sortedAttempts.length > 0 ? sortedAttempts[0] : null;
         const bestAttempt =
-          studentAttempts.length > 0
-            ? studentAttempts.reduce((max, a) => (a.percentage > max.percentage ? a : max))
+          sortedAttempts.length > 0
+            ? sortedAttempts.reduce((max, a) => (a.percentage > max.percentage ? a : max), sortedAttempts[0])
             : null;
+        const lastAttempt = sortedAttempts.length > 0 ? sortedAttempts[sortedAttempts.length - 1] : null;
         const classroom = classes.find((c) => c.id === s.classId);
 
         return {
           studentId: s.id,
           studentName: s.name,
           studentNickname: s.nickname,
+          classId: s.classId,
           className: classroom ? classroom.name : 'Sem Turma',
           hasAttempted: studentAttempts.length > 0,
           attemptsCount: studentAttempts.length,
+          // 1. Avaliação Oficial (1.ª tentativa)
+          officialPercentage: firstAttempt ? firstAttempt.percentage : null,
+          officialMention: firstAttempt ? (firstAttempt.mention || getQualitativeMention(firstAttempt.percentage)) : null,
+          // 2. Melhor Resultado
           bestPercentage: bestAttempt ? bestAttempt.percentage : null,
+          bestMention: bestAttempt ? (bestAttempt.mention || getQualitativeMention(bestAttempt.percentage)) : null,
+          // 3. Último Resultado
+          lastPercentage: lastAttempt ? lastAttempt.percentage : null,
+          lastMention: lastAttempt ? (lastAttempt.mention || getQualitativeMention(lastAttempt.percentage)) : null,
           passed: bestAttempt ? bestAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD : false,
-          lastAttemptAt: bestAttempt ? bestAttempt.createdAt : null,
+          firstAttemptAt: firstAttempt ? firstAttempt.createdAt : null,
+          lastAttemptAt: lastAttempt ? lastAttempt.createdAt : null,
         };
       });
 
@@ -1581,13 +1644,16 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
     const assessRows = allAssessments.map((a) => {
       const student = allUsers.find((u) => u.id === a.userId);
       const classroom = student ? classes.find((c) => c.id === student.classId) : null;
+      const mention = a.mention || getQualitativeMention(a.percentage);
       return {
         'Aluno': student ? student.name : 'Aluno',
         'Nickname': student ? student.nickname : '',
         'Turma': classroom ? classroom.name : '',
         'Mundo': a.worldId,
+        'Tipo': a.isFirstAttempt ? 'Avaliação Oficial (1.ª Tentativa)' : `Treino (Tentativa nº ${a.attemptNumber || '—'})`,
         'Pontuação (Questões)': a.score,
         'Percentagem (%)': a.percentage,
+        'Menção Qualitativa': mention,
         'Aprovado (>=75%)': a.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'Sim' : 'Não',
         'Data': new Date(a.createdAt).toLocaleString('pt-PT'),
       };

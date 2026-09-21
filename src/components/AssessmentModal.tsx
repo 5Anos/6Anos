@@ -8,6 +8,10 @@ import {
   Award,
   X,
   Sparkles,
+  TrendingUp,
+  Minus,
+  TrendingDown,
+  RotateCcw,
 } from 'lucide-react';
 import { AssessmentQuestion, AssessmentSubmissionResult } from '../types';
 import { apiRequest } from '../api';
@@ -36,6 +40,15 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<AssessmentSubmissionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [meta, setMeta] = useState<{
+    attemptsCount: number;
+    isFirstAttempt: boolean;
+    attemptNumber: number;
+    officialPercentage: number | null;
+    officialMention: string | null;
+    bestPercentage: number | null;
+    bestMention: string | null;
+  } | null>(null);
 
   useEffect(() => {
     fetchQuestions();
@@ -46,6 +59,15 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
       const res = await apiRequest(`/api/pedagogical/assessments/${worldId}`);
       if (res && res.questions) {
         setQuestions(res.questions);
+        setMeta({
+          attemptsCount: res.attemptsCount || 0,
+          isFirstAttempt: res.isFirstAttempt ?? (res.attemptsCount === 0),
+          attemptNumber: res.attemptNumber || (res.attemptsCount ? res.attemptsCount + 1 : 1),
+          officialPercentage: res.officialPercentage ?? null,
+          officialMention: res.officialMention ?? null,
+          bestPercentage: res.bestPercentage ?? null,
+          bestMention: res.bestMention ?? null,
+        });
       }
     } catch (err: any) {
       setError(err.message || 'Erro ao carregar avaliação.');
@@ -88,6 +110,22 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
     }
   };
 
+  const getMentionBadgeColor = (mention: string) => {
+    switch (mention) {
+      case 'Muito Bom':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'Bom':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Satisfaz':
+        return 'bg-amber-100 text-amber-800 border-amber-300';
+      case 'Não Satisfaz':
+        return 'bg-orange-100 text-orange-800 border-orange-300';
+      case 'Muito Fraco':
+      default:
+        return 'bg-rose-100 text-rose-800 border-rose-300';
+    }
+  };
+
   const currentQ = questions[currentIdx];
 
   return (
@@ -96,9 +134,18 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">
-              {worldTitle}
-            </span>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">
+                {worldTitle}
+              </span>
+              {meta && !result && (
+                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 text-white">
+                  {meta.isFirstAttempt
+                    ? '1.ª Tentativa — Avaliação Oficial'
+                    : `Treino — Tentativa n.º ${meta.attemptNumber}`}
+                </span>
+              )}
+            </div>
             <h2 className="text-xl font-black">{t('final_assessment', locale)}</h2>
           </div>
           <button
@@ -125,7 +172,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
             <div className="space-y-6">
               <div
                 className={`p-6 rounded-3xl border text-center ${
-                  result.passed
+                  result.mention === 'Muito Bom' || result.mention === 'Bom' || result.mention === 'Satisfaz'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                     : 'bg-amber-50 border-amber-200 text-amber-950'
                 }`}
@@ -137,23 +184,61 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                     <AlertCircle className="w-10 h-10 text-amber-600" />
                   )}
                 </div>
-                <h3 className="text-2xl font-black">
-                  {result.percentage}% de Acertos
-                </h3>
-                <p className="text-sm font-medium mt-1">
-                  {result.passed
-                    ? `Parabéns! Cumpriste o requisito curricular (>= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)!`
-                    : `Ainda não atingiste os ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%. Revê os conteúdos e tenta novamente para melhorar a tua pontuação!`}
-                </p>
-                {result.xpGain > 0 && (
-                  <div className="mt-3 inline-block bg-blue-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full shadow-xs">
-                    +{result.xpGain} XP Ganho! (Novo recorde: {result.newBest}%)
+
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                    {result.isFirstAttempt
+                      ? 'Resultado da Avaliação Oficial'
+                      : `Resultado da Tentativa de Treino n.º ${result.attemptNumber}`}
+                  </span>
+                  <div
+                    className={`inline-block px-5 py-2 rounded-2xl border text-xl font-black shadow-xs ${getMentionBadgeColor(
+                      result.mention
+                    )}`}
+                  >
+                    Menção: {result.mention}
+                  </div>
+                </div>
+
+                {/* Evolution note for training attempts */}
+                {!result.isFirstAttempt && result.evolution && (
+                  <div className="mt-4 p-3.5 rounded-2xl bg-white/80 border border-slate-200 text-xs text-slate-700 flex items-center justify-center gap-2 font-medium">
+                    {result.evolution === 'improved' && (
+                      <>
+                        <TrendingUp className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>
+                          <strong>Evolução:</strong> Melhoraste em relação à tentativa anterior! Parabéns pela dedicação.
+                        </span>
+                      </>
+                    )}
+                    {result.evolution === 'maintained' && (
+                      <>
+                        <Minus className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span>
+                          <strong>Evolução:</strong> Mantiveste o teu nível em relação à tentativa anterior. Continua a praticar!
+                        </span>
+                      </>
+                    )}
+                    {result.evolution === 'regressed' && (
+                      <>
+                        <TrendingDown className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>
+                          <strong>Evolução:</strong> Tenta rever os tópicos com atenção para recuperares o teu melhor desempenho.
+                        </span>
+                      </>
+                    )}
                   </div>
                 )}
+
+                <p className="text-xs font-medium text-slate-600 mt-3 max-w-lg mx-auto">
+                  {result.isFirstAttempt
+                    ? 'Esta primeira tentativa é a tua Avaliação Oficial. Podes continuar a treinar para consolidar as tuas aprendizagens sem alterar a avaliação inicial.'
+                    : `A tua Avaliação Oficial inicial mantém-se inalterada (${result.officialMention || 'registada'}). Esta sessão serviu para treinares e melhorares.`}
+                </p>
               </div>
 
               {/* Feedback per question */}
-              <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+              <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2">
                 <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
                   Revisão Pedagógica de Respostas:
                 </h4>
@@ -184,7 +269,20 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 ))}
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <button
+                  onClick={() => {
+                    setResult(null);
+                    setSelectedAnswers({});
+                    setCurrentIdx(0);
+                    fetchQuestions();
+                  }}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Treinar Novamente</span>
+                </button>
+
                 <button
                   onClick={onClose}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm px-6 py-2.5 rounded-xl shadow-xs transition-colors"

@@ -98,48 +98,74 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
 
           {/* Student list */}
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-semibold">
-                  <th className="py-3 px-4">Aluno</th>
-                  <th className="py-3 px-4">Turma</th>
-                  <th className="py-3 px-4 text-center">Tentativas</th>
-                  <th className="py-3 px-4 text-center">Melhor Nota</th>
-                  <th className="py-3 px-4 text-center">Estado</th>
-                  <th className="py-3 px-4 text-right">Última Realização</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredStudents.map((s: any) => (
-                  <tr key={s.studentId} className="hover:bg-slate-50/80">
-                    <td className="py-3 px-4 font-semibold text-slate-900">
-                      {s.studentName} <span className="text-xs text-slate-400 font-mono">@{s.studentNickname}</span>
-                    </td>
-                    <td className="py-3 px-4 text-xs text-slate-500">{s.className}</td>
-                    <td className="py-3 px-4 text-center font-mono text-xs text-slate-700">{s.attempts}</td>
-                    <td className="py-3 px-4 text-center font-mono font-bold text-xs text-slate-900">
-                      {s.bestPercentage > 0 ? `${s.bestPercentage}%` : '—'}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {s.passed ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3" /> Aprovado (&gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
-                        </span>
-                      ) : s.attempts > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                          <XCircle className="w-3 h-3" /> Insuficiente (&lt;{PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-400">Não Realizou</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-right text-xs text-slate-400">
-                      {s.lastAttemptAt ? new Date(s.lastAttemptAt).toLocaleDateString('pt-PT') : '—'}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-semibold">
+                    <th className="py-3 px-4">Aluno</th>
+                    <th className="py-3 px-4">Turma</th>
+                    <th className="py-3 px-4 text-center">Tentativas</th>
+                    <th className="py-3 px-4 text-center">Avaliação Oficial (1.ª Tent.)</th>
+                    <th className="py-3 px-4 text-center">Melhor Treino</th>
+                    <th className="py-3 px-4 text-center">Estado Curricular</th>
+                    <th className="py-3 px-4 text-right">Última Realização</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredStudents.map((s: any) => (
+                    <tr key={s.studentId} className="hover:bg-slate-50/80">
+                      <td className="py-3 px-4 font-semibold text-slate-900">
+                        {s.studentName} <span className="text-xs text-slate-400 font-mono">@{s.studentNickname}</span>
+                      </td>
+                      <td className="py-3 px-4 text-xs text-slate-500">{s.className}</td>
+                      <td className="py-3 px-4 text-center font-mono text-xs text-slate-700">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-bold">{s.attempts}</span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {s.officialPercentage !== null ? (
+                          <div className="inline-flex flex-col items-center">
+                            <span className="font-mono font-bold text-xs text-slate-900">{s.officialPercentage}%</span>
+                            <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                              {s.officialMention || '—'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-medium">Por realizar</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {s.bestPercentage > 0 ? (
+                          <div className="inline-flex flex-col items-center">
+                            <span className="font-mono font-bold text-xs text-slate-900">{s.bestPercentage}%</span>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              {s.bestMention || '—'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {s.passed ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3" /> Aprovado
+                          </span>
+                        ) : s.attempts > 0 ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                            <XCircle className="w-3 h-3" /> Insuficiente (&lt;{PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-medium">Não Realizou</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-right text-xs text-slate-500">
+                        {s.lastAttemptAt ? new Date(s.lastAttemptAt).toLocaleDateString('pt-PT') : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
