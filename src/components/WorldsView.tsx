@@ -36,6 +36,7 @@ import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { WORLDS_DATA } from '../data/catalog';
 import { AssessmentModal } from './AssessmentModal';
 import { WorldMissionCard } from './WorldMissionCard';
 import { World1ThematicView } from './World1ThematicView';
@@ -88,7 +89,15 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     try {
       const res = await apiRequest('/api/pedagogical/worlds');
       if (res && res.worlds) {
-        setWorlds(res.worlds);
+        if (isTeacher) {
+          const teacherWorlds = res.worlds.map((w: any) => ({
+            ...w,
+            isUnlocked: true,
+          }));
+          setWorlds(teacherWorlds);
+        } else {
+          setWorlds(res.worlds);
+        }
       }
     } catch (err) {
       console.error('Failed to load worlds:', err);
@@ -304,7 +313,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   // Progression gating:
   // Visible worlds: Teacher sees all. Student sees unlocked worlds.
   const visibleWorlds = isTeacher
-    ? worlds
+    ? (worlds.length > 0 ? worlds.map(w => ({ ...w, isUnlocked: true })) : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any)))
     : worlds.filter((w) => w.id === 1 || Boolean(w.isUnlocked));
 
   const nextLockedWorld = !isTeacher
@@ -315,6 +324,20 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Teacher Test Mode Banner */}
+      {isTeacher && (
+        <div id="teacher-test-banner" className="bg-indigo-50/80 border border-indigo-200/90 rounded-2xl px-5 py-3 flex items-center justify-between gap-3 text-xs text-indigo-900 shadow-xs">
+          <div className="flex items-center gap-3">
+            <span className="bg-indigo-600 text-white font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider shrink-0">
+              Modo Docente / Teste
+            </span>
+            <span className="font-semibold">
+              Todos os 5 Mundos, simuladores e quizzes estão desbloqueados para experimentação e validação pedagógica. Não existe acumulação de pontos nem XP no perfil de professor.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Worlds Header Selector Bar */}
       <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-xs overflow-x-auto">
         <div className="flex items-center gap-3 min-w-max">

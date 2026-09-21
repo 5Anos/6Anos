@@ -74,27 +74,37 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
               </p>
             </div>
 
-            {/* Level Capsule matching exact mockup: Nível 3 - Guardião Digital [====] 320 / 500 XP */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl px-3.5 py-1.5 flex items-center gap-3 w-72 sm:w-96 shadow-xs">
-              <span className="text-xs font-black text-slate-800 shrink-0">
-                Nível {nextLevel.current.level}
-                <span className="font-normal text-slate-500 ml-1">
-                  – {nextLevel.current.name}
+            {/* Level Capsule or Teacher Mode Badge */}
+            {user?.role === 'teacher' ? (
+              <div id="header-teacher-pill" className="bg-indigo-50 border border-indigo-200/90 rounded-2xl px-3.5 py-1.5 flex items-center gap-2.5 shadow-xs w-fit">
+                <GraduationCap className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span className="text-xs font-bold text-indigo-900">
+                  Conta Docente <span className="font-normal text-indigo-600">· Modo de Teste (Sem acumulação de pontos)</span>
                 </span>
-              </span>
-
-              {/* Progress bar */}
-              <div className="flex-1 bg-slate-200/90 rounded-full h-2.5 overflow-hidden relative">
-                <div
-                  className="bg-blue-500 h-full rounded-full transition-all duration-700"
-                  style={{ width: `${nextLevel.percentage}%` }}
-                />
               </div>
+            ) : (
+              /* Level Capsule matching exact mockup: Nível 3 - Guardião Digital [====] 320 / 500 XP */
+              <div className="bg-slate-50 border border-slate-200/90 rounded-2xl px-3.5 py-1.5 flex items-center gap-3 w-72 sm:w-96 shadow-xs">
+                <span className="text-xs font-black text-slate-800 shrink-0">
+                  Nível {nextLevel.current.level}
+                  <span className="font-normal text-slate-500 ml-1">
+                    – {nextLevel.current.name}
+                  </span>
+                </span>
 
-              <span className="text-[11px] font-bold text-slate-600 shrink-0">
-                {userXp} / {nextLevel.nextMin} XP
-              </span>
-            </div>
+                {/* Progress bar */}
+                <div className="flex-1 bg-slate-200/90 rounded-full h-2.5 overflow-hidden relative">
+                  <div
+                    className="bg-blue-500 h-full rounded-full transition-all duration-700"
+                    style={{ width: `${nextLevel.percentage}%` }}
+                  />
+                </div>
+
+                <span className="text-[11px] font-bold text-slate-600 shrink-0">
+                  {userXp} / {nextLevel.nextMin} XP
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

@@ -369,16 +369,17 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
   }
 });
 
-// POST submit assessment (Student ONLY, server-side grading, complete attempt record)
-router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, res) => {
+// POST submit assessment (Student + Teacher testing mode, server-side grading)
+router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) => {
   try {
     const worldId = parseInt(req.params.worldId, 10);
     const assess = FINAL_ASSESSMENTS[worldId];
     if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
 
     const userId = req.user!.id;
+    const isTeacher = req.user?.role === 'teacher';
     const stats = await computeWorldStats(userId, worldId, req.user?.role);
-    if (!stats.isUnlocked) {
+    if (!isTeacher && !stats.isUnlocked) {
       return res.status(403).json({ error: 'Mundo bloqueado. Não é permitido submeter avaliações de Mundos bloqueados.' });
     }
 
@@ -407,6 +408,30 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
     // 2. Atribuição da menção qualitativa oficial
     const mention = getQualitativeMention(percentage);
     const passed = percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
+
+    // Se for professor, permite testar a plataforma sem acumulação de XP nem poluição de registos dos alunos
+    if (isTeacher) {
+      return res.json({
+        percentage,
+        mention,
+        correctCount,
+        totalQuestions: assess.questions.length,
+        passed,
+        passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+        isFirstAttempt: true,
+        attemptNumber: 1,
+        officialPercentage: percentage,
+        officialMention: mention,
+        previousBest: percentage,
+        newBest: percentage,
+        bestMention: mention,
+        evolution: undefined,
+        lastPrevAttemptPercentage: null,
+        xpGain: 0,
+        totalXp: 0,
+        resultsFeedback,
+      });
+    }
 
     // Verificar histórico de tentativas
     const prevAttempts = await getAssessmentAttempts(userId, worldId);
@@ -492,8 +517,8 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
   }
 });
 
-// POST submit activity / simulator completion (Student ONLY, authoritative evaluation)
-router.post('/activities/complete', requireStudent, async (req: AuthRequest, res) => {
+// POST submit activity / simulator completion (Student + Teacher testing mode, authoritative evaluation)
+router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) => {
   try {
     const { activityId, worldId, answers, payload, completedAction, score: clientScore } = req.body;
     if (!activityId || !worldId) {
@@ -501,6 +526,7 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
     }
 
     const userId = req.user!.id;
+    const isTeacher = req.user?.role === 'teacher';
     const world = WORLDS_DATA.find((w) => w.id === worldId);
     if (!world) return res.status(404).json({ error: 'Mundo inexistente' });
 
@@ -511,7 +537,7 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
     }
 
     const stats = await computeWorldStats(userId, worldId, req.user?.role);
-    if (!stats.isUnlocked) {
+    if (!isTeacher && !stats.isUnlocked) {
       return res.status(403).json({ error: 'Mundo bloqueado.' });
     }
 
@@ -532,7 +558,7 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
         previousBest,
         newBest: previousBest,
         xpGain: 0,
-        totalXp: req.user!.xp,
+        totalXp: isTeacher ? 0 : req.user!.xp,
         score: 0,
         isValidated: false,
         feedback: evaluation.feedback || 'Submissão incompleta ou não validada pelo motor pedagógico.',
@@ -540,6 +566,20 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
     }
 
     const evaluatedScore = evaluation.score;
+
+    // Se for professor, permite testar o simulador com validação real mas sem acumulação de XP nem pontuação de aluno
+    if (isTeacher) {
+      return res.json({
+        activityId,
+        previousBest: 0,
+        newBest: evaluatedScore,
+        xpGain: 0,
+        totalXp: 0,
+        score: evaluatedScore,
+        isValidated: true,
+        feedback: evaluation.feedback || 'Atividade testada com sucesso (Modo Teste do Professor).',
+      });
+    }
 
     let prog = await getActivityProgress(userId, activityId);
     const isFirst = !prog || prog.attempts === 0;
@@ -610,22 +650,39 @@ router.post('/activities/complete', requireStudent, async (req: AuthRequest, res
   }
 });
 
-// POST submit Real Mission (Student ONLY, normalized submission fields)
-router.post('/missions/:worldId', requireStudent, async (req: AuthRequest, res) => {
+// POST submit Real Mission (Student + Teacher testing mode)
+router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => {
   try {
     const worldId = parseInt(req.params.worldId, 10);
     const world = WORLDS_DATA.find((w) => w.id === worldId);
     if (!world) return res.status(404).json({ error: 'Mundo não encontrado' });
 
     const userId = req.user!.id;
+    const isTeacher = req.user?.role === 'teacher';
     const stats = await computeWorldStats(userId, worldId, req.user?.role);
-    if (!stats.isUnlocked) {
+    if (!isTeacher && !stats.isUnlocked) {
       return res.status(403).json({ error: 'Mundo bloqueado.' });
     }
 
     const text = (req.body.submission || req.body.submissionText || req.body.content || '').trim();
     if (!text || text.length < 20) {
       return res.status(400).json({ error: 'A submissão deve conter uma resposta detalhada (mínimo 20 caracteres).' });
+    }
+
+    if (isTeacher) {
+      return res.json({
+        submission: {
+          id: `mission-test-${Date.now()}`,
+          userId,
+          worldId,
+          status: 'submitted',
+          score: 100,
+          xpAwarded: 0,
+        },
+        xpGain: 0,
+        totalXp: 0,
+        message: 'Missão testada com sucesso (Modo Teste do Professor).',
+      });
     }
 
     const now = new Date().toISOString();
@@ -691,11 +748,21 @@ router.get('/daily-tip', async (req: AuthRequest, res) => {
   }
 });
 
-// POST claim Daily Tip (Student ONLY, exactly once per day)
-router.post('/daily-tip/claim', requireStudent, async (req: AuthRequest, res) => {
+// POST claim Daily Tip (Student + Teacher testing mode)
+router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
+    const isTeacher = req.user?.role === 'teacher';
     const today = new Date().toISOString().split('T')[0];
+
+    if (isTeacher) {
+      return res.json({
+        success: true,
+        xpGain: 0,
+        totalXp: 0,
+        message: 'Dica Diária testada com sucesso (Modo Teste do Professor).',
+      });
+    }
 
     const existingClaim = await getDailyTipClaim(userId, today);
     if (existingClaim) {
@@ -758,8 +825,8 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
   }
 });
 
-// POST submit Weekly Challenge (Student ONLY)
-router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireStudent, async (req: AuthRequest, res) => {
+// POST submit Weekly Challenge (Student + Teacher testing mode)
+router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, async (req: AuthRequest, res) => {
   try {
     let { optionIndex, isPhishing } = req.body;
     if (typeof optionIndex !== 'number' && typeof isPhishing === 'boolean') {
@@ -770,9 +837,9 @@ router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireStudent, a
     }
 
     const userId = req.user!.id;
-    const already = await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id);
-
+    const isTeacher = req.user?.role === 'teacher';
     const selected = WEEKLY_CHALLENGE.options[optionIndex];
+
     if (!selected.isCorrect) {
       return res.json({
         isCorrect: false,
@@ -780,6 +847,16 @@ router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireStudent, a
       });
     }
 
+    if (isTeacher) {
+      return res.json({
+        isCorrect: true,
+        feedback: selected.explanation,
+        xpGain: 0,
+        totalXp: 0,
+      });
+    }
+
+    const already = await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id);
     let xpGain = 0;
     let totalXp = req.user!.xp;
 
@@ -843,12 +920,24 @@ router.get('/grande-missao', requireAuth, async (req: AuthRequest, res) => {
 });
 
 // POST save intermediate stage progress for Grande Missão in Firestore
-router.post('/grande-missao/stage', requireStudent, async (req: AuthRequest, res) => {
+router.post('/grande-missao/stage', requireAuth, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
+    const isTeacher = req.user?.role === 'teacher';
     const { completedZones, unlockedCodes } = req.body;
     if (!Array.isArray(completedZones)) {
       return res.status(400).json({ error: 'completedZones deve ser um array.' });
+    }
+
+    if (isTeacher) {
+      return res.json({
+        success: true,
+        progress: {
+          currentStage: Math.min(6, Math.max(...completedZones, 1)),
+          completedStages: completedZones,
+          status: 'in_progress',
+        },
+      });
     }
 
     const progress = await getGrandeMissaoProgress(userId);
@@ -871,12 +960,22 @@ router.post('/grande-missao/stage', requireStudent, async (req: AuthRequest, res
   }
 });
 
-// POST complete Grande Missão (Student ONLY, enforces all 5 worlds passed with average > 70%)
-router.post('/grande-missao/complete', requireStudent, async (req: AuthRequest, res) => {
+// POST complete Grande Missão (Student + Teacher testing mode)
+router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
-    const progress = await getGrandeMissaoProgress(userId);
+    const isTeacher = req.user?.role === 'teacher';
 
+    if (isTeacher) {
+      return res.json({
+        success: true,
+        xpGain: 0,
+        totalXp: 0,
+        message: 'Grande Missão testada com sucesso (Modo Teste do Professor).',
+      });
+    }
+
+    const progress = await getGrandeMissaoProgress(userId);
     if (progress.status === 'completed') {
       return res.status(400).json({ error: 'Já concluíste a Grande Missão e recebeste a recompensa.' });
     }

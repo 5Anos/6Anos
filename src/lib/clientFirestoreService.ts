@@ -444,9 +444,9 @@ export async function clientGetWorlds() {
         subtitle: w.subtitle,
         icon: w.icon,
         color: w.color,
-        isUnlocked: stats.isUnlocked,
-        isWorldCompleted: stats.isWorldCompleted,
-        stats,
+        isUnlocked: userRole === 'teacher' ? true : stats.isUnlocked,
+        isWorldCompleted: userRole === 'teacher' ? true : stats.isWorldCompleted,
+        stats: userRole === 'teacher' ? { ...stats, isUnlocked: true } : stats,
       };
     })
   );
@@ -459,6 +459,21 @@ export async function clientCompleteActivity(activityId: string, score: number, 
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+
+  if (isTeacher) {
+    return {
+      success: true,
+      activityId,
+      score,
+      bestScore: score,
+      xpGain: 0,
+      totalXp: 0,
+      level: 1,
+    };
+  }
+
   const progDocId = `${userId}_${activityId}`;
   const progRef = doc(db, 'activityProgress', progDocId);
   const snap = await getDoc(progRef);
@@ -593,6 +608,23 @@ export async function clientSubmitAssessment(
   const percentage = Math.round((correctCount / totalQuestions) * 100);
   const passed = percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD; // STRICT > 70%
 
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+
+  if (isTeacher) {
+    return {
+      worldId,
+      score: correctCount,
+      totalQuestions,
+      percentage,
+      passed,
+      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      xpGain: 0,
+      totalXp: 0,
+      results: detailedResults,
+    };
+  }
+
   // Previous attempts
   const qAttempts = query(
     collection(db, 'assessmentAttempts'),
@@ -712,6 +744,12 @@ export async function clientClaimDailyTip() {
   const db = getClientFirestore();
   const today = new Date().toISOString().split('T')[0];
   const claimId = `${userId}_${today}`;
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+  if (isTeacher) {
+    return { success: true, xpReward: 0, totalXp: 0 };
+  }
+
   const claimRef = doc(db, 'dailyTipClaims', claimId);
 
   const exists = (await getDoc(claimRef)).exists();
@@ -761,6 +799,12 @@ export async function clientSubmitWeeklyChallenge(solution: any) {
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+  if (isTeacher) {
+    return { success: true, xpReward: 0, totalXp: 0 };
+  }
+
   const challengeId = `${userId}_${WEEKLY_CHALLENGE.id}`;
   const now = new Date().toISOString();
 
@@ -855,6 +899,12 @@ export async function clientCompleteGrandeMissao() {
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+  if (isTeacher) {
+    return { success: true, xpGain: 0 };
+  }
+
   const now = new Date().toISOString();
   await updateDoc(doc(db, 'grandeMissaoProgress', userId), {
     status: 'completed',
