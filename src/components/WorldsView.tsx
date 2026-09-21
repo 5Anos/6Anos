@@ -75,16 +75,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     }
   }, [user?.id]);
 
-  useEffect(() => {
-    if (!isTeacher && worlds.length > 0) {
-      const selected = worlds.find((w) => w.id === selectedWorldId);
-      if (selected && !selected.isUnlocked && selected.id !== 1) {
-        setSelectedWorldId(1);
-        setActiveTab('w1-t1');
-      }
-    }
-  }, [worlds, selectedWorldId, isTeacher]);
-
+  // Allow student to select and inspect worlds or see unlock criteria
   const loadWorlds = async () => {
     try {
       const res = await apiRequest('/api/pedagogical/worlds');
@@ -132,7 +123,11 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     );
   }
 
-  const currentWorld = worlds.find((w) => w.id === selectedWorldId) || worlds[0];
+  const currentWorld =
+    worlds.find((w) => w.id === selectedWorldId) ||
+    worlds[0] ||
+    (WORLDS_DATA.find((w) => w.id === selectedWorldId) as any) ||
+    (WORLDS_DATA[0] as any);
 
   const getWorldIcon = (wId: number) => {
     switch (wId) {
@@ -311,14 +306,10 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   };
 
   // Progression gating:
-  // Visible worlds: Teacher sees all. Student sees unlocked worlds.
+  // Visible worlds: All 5 worlds are in the selector. Teachers have all unlocked; students have Mundo 1 unlocked and progress sequentially (> 70%).
   const visibleWorlds = isTeacher
-    ? (worlds.length > 0 ? worlds.map(w => ({ ...w, isUnlocked: true })) : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any)))
-    : worlds.filter((w) => w.id === 1 || Boolean(w.isUnlocked));
-
-  const nextLockedWorld = !isTeacher
-    ? worlds.find((w) => !w.isUnlocked && w.id > 1)
-    : null;
+    ? (worlds.length > 0 ? worlds.map((w) => ({ ...w, isUnlocked: true })) : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any)))
+    : (worlds.length > 0 ? worlds : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: w.id === 1, average: 0 } as any)));
 
   const currentTabs = getCurrentWorldTabs();
 
@@ -389,27 +380,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
               </button>
             );
           })}
-
-          {/* Next locked world indicator for student */}
-          {nextLockedWorld && (
-            <div
-              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs bg-slate-50 text-slate-500 border border-dashed border-slate-300 select-none opacity-85"
-              title={`O Mundo ${nextLockedWorld.id} ficará visível e acessível quando a tua média global no Mundo ${nextLockedWorld.id - 1} for superior a 70%.`}
-            >
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-200/70 text-slate-500">
-                <Lock className="w-4 h-4 text-amber-600" />
-              </div>
-              <div className="text-left">
-                <div className="text-[10px] uppercase tracking-wider text-amber-700 font-black flex items-center gap-1">
-                  <span>Mundo {nextLockedWorld.id}</span>
-                  <span>🔒 Bloqueado</span>
-                </div>
-                <div className="text-xs font-bold text-slate-500">
-                  Requer média &gt; 70% no M{nextLockedWorld.id - 1}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -514,15 +484,24 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             </div>
 
             {/* Intro text from prompt */}
-            <div className="bg-white/80 border border-blue-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-700 space-y-1.5 leading-relaxed">
-              <p className="font-bold text-blue-900">{currentWorld.intro.greeting}</p>
-              {currentWorld.intro.description.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              <p className="font-extrabold text-blue-600 pt-1">
-                {currentWorld.intro.mission}
-              </p>
-            </div>
+            {(() => {
+              const catalogIntro = WORLDS_DATA.find((w) => w.id === currentWorld.id)?.intro;
+              const intro = currentWorld.intro || catalogIntro;
+              if (!intro) return null;
+              return (
+                <div className="bg-white/80 border border-blue-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-700 space-y-1.5 leading-relaxed">
+                  <p className="font-bold text-blue-900">{intro.greeting}</p>
+                  {intro.description?.map((p, idx) => (
+                    <p key={idx}>{p}</p>
+                  ))}
+                  {intro.mission && (
+                    <p className="font-extrabold text-blue-600 pt-1">
+                      {intro.mission}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Navigation Tabs */}
             <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-blue-100">

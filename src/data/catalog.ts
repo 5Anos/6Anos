@@ -55,13 +55,13 @@ export interface LevelInfo {
 
 export const LEVELS: LevelInfo[] = [
   { level: 1, name: 'Novato Digital', minXp: 0 },
-  { level: 2, name: 'Explorador Digital', minXp: 100 },
-  { level: 3, name: 'Guardião Digital', minXp: 250 },
-  { level: 4, name: 'Detetive Digital', minXp: 500 },
-  { level: 5, name: 'Criador Digital', minXp: 800 },
-  { level: 6, name: 'Engenheiro Digital', minXp: 1200 },
-  { level: 7, name: 'Explorador da IA', minXp: 1700 },
-  { level: 8, name: 'Mestre da Missão TIC', minXp: 2300 },
+  { level: 2, name: 'Explorador Digital', minXp: 200 },
+  { level: 3, name: 'Guardião Digital', minXp: 400 },
+  { level: 4, name: 'Detetive Digital', minXp: 700 },
+  { level: 5, name: 'Criador Digital', minXp: 1100 },
+  { level: 6, name: 'Engenheiro Digital', minXp: 1600 },
+  { level: 7, name: 'Explorador da IA', minXp: 2200 },
+  { level: 8, name: 'Mestre da Missão TIC', minXp: 2900 },
 ];
 
 export function calculateLevel(xp: number): LevelInfo {

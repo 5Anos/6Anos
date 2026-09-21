@@ -424,6 +424,27 @@ export async function clientGetWorlds() {
     }
   }
 
+  let userProgress: any[] = [];
+  let allMissions: any[] = [];
+  let allAssessments: any[] = [];
+
+  if (userId) {
+    try {
+      const [snapProg, snapMissions, snapAssess] = await Promise.all([
+        getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
+        getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
+        getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+      ]);
+      userProgress = snapProg.docs.map((d) => d.data());
+      allMissions = snapMissions.docs.map((d) => d.data());
+      allAssessments = snapAssess.docs.map((d) => d.data());
+    } catch (e) {
+      console.error('Error fetching student progress in clientGetWorlds:', e);
+    }
+  }
+
+  const isTeacher = userRole === 'teacher';
+
   const worldsWithStats = await Promise.all(
     WORLDS_DATA.map(async (w) => {
       const stats = userId
@@ -443,15 +464,37 @@ export async function clientGetWorlds() {
             isUnlocked: w.id === 1,
           };
 
+      const mission = allMissions.find((m) => m.worldId === w.id);
+      const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
+
       return {
-        id: w.id,
-        title: w.title,
-        subtitle: w.subtitle,
-        icon: w.icon,
-        color: w.color,
-        isUnlocked: userRole === 'teacher' ? true : stats.isUnlocked,
-        isWorldCompleted: userRole === 'teacher' ? true : stats.isWorldCompleted,
-        stats: userRole === 'teacher' ? { ...stats, isUnlocked: true } : stats,
+        ...w,
+        isUnlocked: isTeacher ? true : stats.isUnlocked,
+        isCompleted: isTeacher ? true : stats.isWorldCompleted,
+        allSimulatorsCompleted: isTeacher ? true : stats.allSimulatorsCompleted,
+        hasAssessmentPassed: isTeacher ? true : stats.hasAssessmentPassed,
+        average: isTeacher ? (stats.average > 0 ? stats.average : 100) : stats.average,
+        completedCount: stats.completedCount,
+        totalComponents: stats.totalComponents,
+        challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
+        missionProgress: mission
+          ? {
+              status: mission.status,
+              score: mission.score,
+              feedback: mission.feedback,
+              submissionText: mission.submissionText || mission.submission,
+            }
+          : null,
+        bestAssessmentPercentage: stats.bestAssessmentPercentage,
+        simulatorsProgress: w.simulators.map((s) => {
+          const prog = userProgress.find((p) => p.activityId === s.id);
+          return {
+            id: s.id,
+            completed: isTeacher ? true : (prog ? prog.completed : false),
+            score: prog ? prog.bestScore : (isTeacher ? 100 : 0),
+          };
+        }),
+        stats: isTeacher ? { ...stats, isUnlocked: true } : stats,
       };
     })
   );
