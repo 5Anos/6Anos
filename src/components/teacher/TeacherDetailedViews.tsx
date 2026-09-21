@@ -83,7 +83,7 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
               <div className="text-2xl font-bold text-slate-900 mt-1">{currentWorld.totalAttempted || 0}</div>
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-              <div className="text-xs text-slate-500 font-semibold">Aprovados (&gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%)</div>
+              <div className="text-xs text-slate-500 font-semibold">Aprovados (≥ 50%)</div>
               <div className="text-2xl font-bold text-emerald-700 mt-1">{currentWorld.totalPassed || 0}</div>
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
@@ -119,10 +119,12 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
                       </td>
                       <td className="py-3 px-4 text-xs text-slate-500">{s.className}</td>
                       <td className="py-3 px-4 text-center font-mono text-xs text-slate-700">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-bold">{s.attempts}</span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-bold">
+                          {s.attemptsCount ?? s.attempts ?? 0}
+                        </span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        {s.officialPercentage !== null ? (
+                        {s.officialPercentage !== null && s.officialPercentage !== undefined ? (
                           <div className="inline-flex flex-col items-center">
                             <span className="font-mono font-bold text-xs text-slate-900">{s.officialPercentage}%</span>
                             <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
@@ -134,7 +136,7 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
                         )}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        {s.bestPercentage > 0 ? (
+                        {s.bestPercentage !== null && s.bestPercentage !== undefined ? (
                           <div className="inline-flex flex-col items-center">
                             <span className="font-mono font-bold text-xs text-slate-900">{s.bestPercentage}%</span>
                             <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -148,11 +150,11 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
                       <td className="py-3 px-4 text-center">
                         {s.passed ? (
                           <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" /> Aprovado
+                            <CheckCircle2 className="w-3 h-3" /> Aprovado (≥ 50%)
                           </span>
-                        ) : s.attempts > 0 ? (
+                        ) : (s.attemptsCount ?? s.attempts ?? 0) > 0 ? (
                           <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                            <XCircle className="w-3 h-3" /> Insuficiente (&lt;{PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
+                            <XCircle className="w-3 h-3" /> Não Satisfaz (&lt; 50%)
                           </span>
                         ) : (
                           <span className="text-xs text-slate-400 font-medium">Não Realizou</span>

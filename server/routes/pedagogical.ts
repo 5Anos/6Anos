@@ -352,7 +352,7 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
       title: assess.title,
       questionCount: sanitizedQuestions.length,
       questions: sanitizedQuestions,
-      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      passingThreshold: PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
       attemptsCount: prevAttempts.length,
       isFirstAttempt,
       attemptNumber: prevAttempts.length + 1,
@@ -407,7 +407,8 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
     const percentage = Math.round((correctCount / assess.questions.length) * 100);
     // 2. Atribuição da menção qualitativa oficial
     const mention = getQualitativeMention(percentage);
-    const passed = percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    // 3. Regra de aprovação coerente: percentagem >= 50
+    const passed = percentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD;
 
     // Se for professor, permite testar a plataforma sem acumulação de XP nem poluição de registos dos alunos
     if (isTeacher) {
@@ -417,7 +418,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
         correctCount,
         totalQuestions: assess.questions.length,
         passed,
-        passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+        passingThreshold: PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
         isFirstAttempt: true,
         attemptNumber: 1,
         officialPercentage: percentage,
@@ -497,7 +498,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       correctCount,
       totalQuestions: assess.questions.length,
       passed,
-      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      passingThreshold: PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
       isFirstAttempt,
       attemptNumber,
       officialPercentage,

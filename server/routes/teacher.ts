@@ -374,7 +374,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                     percentage: firstAttempt.percentage,
                     mention: firstAttempt.mention || getQualitativeMention(firstAttempt.percentage),
                     createdAt: firstAttempt.createdAt,
-                    passed: firstAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                    passed: firstAttempt.percentage >= 50,
                   }
                 : null,
               best: bestAttempt
@@ -383,7 +383,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                     percentage: bestAttempt.percentage,
                     mention: bestAttempt.mention || getQualitativeMention(bestAttempt.percentage),
                     createdAt: bestAttempt.createdAt,
-                    passed: bestAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                    passed: bestAttempt.percentage >= 50,
                   }
                 : null,
               last: lastAttempt
@@ -392,7 +392,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                     percentage: lastAttempt.percentage,
                     mention: lastAttempt.mention || getQualitativeMention(lastAttempt.percentage),
                     createdAt: lastAttempt.createdAt,
-                    passed: lastAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                    passed: lastAttempt.percentage >= 50,
                   }
                 : null,
             };
@@ -1099,7 +1099,7 @@ router.get('/assessments-summary', async (req: AuthRequest, res) => {
           // 3. Último Resultado
           lastPercentage: lastAttempt ? lastAttempt.percentage : null,
           lastMention: lastAttempt ? (lastAttempt.mention || getQualitativeMention(lastAttempt.percentage)) : null,
-          passed: bestAttempt ? bestAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD : false,
+          passed: firstAttempt ? firstAttempt.percentage >= 50 : false,
           firstAttemptAt: firstAttempt ? firstAttempt.createdAt : null,
           lastAttemptAt: lastAttempt ? lastAttempt.createdAt : null,
         };

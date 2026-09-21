@@ -21,7 +21,7 @@ import {
   calculateLevel,
   BADGES_CATALOG,
 } from '../data/catalog';
-import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 
 export interface ClientUser {
   id: string;
@@ -169,6 +169,11 @@ export async function clientLogin(identifier: string, password: string) {
     lastLoginAt: now,
   }).catch(() => {});
 
+  if (userDoc.role === 'student' && (!userDoc.xp || userDoc.xp < 100)) {
+    userDoc.xp = 100;
+    await updateDoc(doc(db, 'users', userDoc.id), { xp: 100, updatedAt: now }).catch(() => {});
+  }
+
   userDoc.lastLoginAt = now;
   setActiveClientUserId(userDoc.id);
 
@@ -233,7 +238,7 @@ export async function clientRegister(params: {
     role: 'student',
     classId: classId || 'class-6a',
     locale: locale === 'en' ? 'en' : 'pt',
-    xp: 0,
+    xp: 100, // 100 base welcome XP
     blocked: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -486,8 +491,9 @@ export async function clientCompleteActivity(activityId: string, score: number, 
     attempts = data.attempts || 0;
   }
 
-  const newBest = Math.max(previousBest, score);
-  const completed = score >= 50;
+  const clampedScore = Math.max(0, Math.min(100, Math.round(score)));
+  const newBest = Math.max(previousBest, clampedScore);
+  const completed = clampedScore >= 50;
   const now = new Date().toISOString();
 
   await setDoc(
@@ -497,7 +503,7 @@ export async function clientCompleteActivity(activityId: string, score: number, 
       userId,
       activityId,
       completed,
-      score,
+      score: clampedScore,
       bestScore: newBest,
       attempts: attempts + 1,
       durationSeconds: durationSeconds || 60,
@@ -506,13 +512,9 @@ export async function clientCompleteActivity(activityId: string, score: number, 
     { merge: true }
   );
 
-  // Calculate XP gain
-  let xpGain = 0;
-  if (newBest > previousBest) {
-    const delta = newBest - previousBest;
-    xpGain = Math.round((delta / 100) * 40);
-  }
-  if (xpGain < 10 && completed) xpGain = 15;
+  // Calculate XP gain strictly as delta of best score (max 100 XP per simulator)
+  // E.g.: 80% on first try -> +80 XP. 70% or 80% on repeat -> 0 XP. 100% on repeat -> +20 XP.
+  const xpGain = Math.max(0, newBest - previousBest);
 
   if (xpGain > 0) {
     const userRef = doc(db, 'users', userId);
@@ -606,7 +608,8 @@ export async function clientSubmitAssessment(
 
   const totalQuestions = assessment.questions.length;
   const percentage = Math.round((correctCount / totalQuestions) * 100);
-  const passed = percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD; // STRICT > 70%
+  const mention = getQualitativeMention(percentage);
+  const passed = percentage >= 50; // Curricular approval rule: >= 50%
 
   const userSnap = await getDoc(doc(db, 'users', userId));
   const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
@@ -617,8 +620,16 @@ export async function clientSubmitAssessment(
       score: correctCount,
       totalQuestions,
       percentage,
+      mention,
       passed,
-      passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+      passingThreshold: 50,
+      isFirstAttempt: true,
+      attemptNumber: 1,
+      officialPercentage: percentage,
+      officialMention: mention,
+      previousBest: percentage,
+      newBest: percentage,
+      bestMention: mention,
       xpGain: 0,
       totalXp: 0,
       results: detailedResults,
@@ -632,9 +643,21 @@ export async function clientSubmitAssessment(
     where('worldId', '==', worldId)
   );
   const snapAttempts = await getDocs(qAttempts);
+  const isFirstAttempt = snapAttempts.empty;
+  const attemptNumber = snapAttempts.size + 1;
+
+  const existingDocs = snapAttempts.docs.map((d) => d.data());
+  const sortedExisting = existingDocs.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  const firstAttemptData = isFirstAttempt ? null : sortedExisting[0];
+
+  const officialPercentage = isFirstAttempt ? percentage : (firstAttemptData?.firstScore ?? firstAttemptData?.percentage ?? percentage);
+  const officialMention = isFirstAttempt ? mention : (firstAttemptData?.firstMention ?? firstAttemptData?.mention ?? getQualitativeMention(officialPercentage));
+
   const prevBest = snapAttempts.empty
     ? 0
     : Math.max(...snapAttempts.docs.map((d) => d.data().percentage || 0));
+  const newBest = Math.max(prevBest, percentage);
+  const bestMention = getQualitativeMention(newBest);
 
   const now = new Date().toISOString();
   const attemptId = `attempt-${crypto.randomUUID()}`;
@@ -645,33 +668,26 @@ export async function clientSubmitAssessment(
     worldId,
     score: correctCount,
     totalQuestions,
+    correctCount,
     percentage,
+    mention,
     passed,
+    isFirstAttempt,
+    attemptNumber,
+    firstScore: officialPercentage,
+    firstMention: officialMention,
+    bestScore: newBest,
+    bestMention,
+    latestScore: percentage,
+    latestMention: mention,
+    attempts: attemptNumber,
     answers,
     durationSeconds: durationSeconds || 120,
-    attemptNumber: snapAttempts.size + 1,
     createdAt: now,
   });
 
-  let xpGain = 0;
-  if (percentage > prevBest) {
-    xpGain = Math.round(((percentage - prevBest) / 100) * 80);
-  }
-  if (passed && prevBest <= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
-    xpGain += 50; // Bonus for first time passing > 70%
-  }
-  if (xpGain < 10) xpGain = 15;
-
-  if (xpGain > 0) {
-    const userRef = doc(db, 'users', userId);
-    await runTransaction(db, async (txn) => {
-      const uSnap = await txn.get(userRef);
-      if (uSnap.exists()) {
-        const curXp = (uSnap.data() as ClientUser).xp || 0;
-        txn.update(userRef, { xp: curXp + xpGain, updatedAt: now });
-      }
-    });
-  }
+  // Quizzes award 0 XP (purely pedagogical assessment)
+  const xpGain = 0;
 
   await clientCheckBadges(userId);
 
@@ -681,11 +697,20 @@ export async function clientSubmitAssessment(
   return {
     worldId,
     score: correctCount,
+    correctCount,
     totalQuestions,
     percentage,
+    mention,
     passed,
-    passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
-    xpGain,
+    passingThreshold: 50,
+    isFirstAttempt,
+    attemptNumber,
+    officialPercentage,
+    officialMention,
+    previousBest: prevBest,
+    newBest,
+    bestMention,
+    xpGain: 0,
     totalXp: updatedUser.xp,
     results: detailedResults,
   };
@@ -763,7 +788,7 @@ export async function clientClaimDailyTip() {
     claimedAt: now,
   });
 
-  const xpReward = 15;
+  const xpReward = PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP; // 20 XP
   const userRef = doc(db, 'users', userId);
   await runTransaction(db, async (txn) => {
     const snap = await txn.get(userRef);
@@ -817,7 +842,7 @@ export async function clientSubmitWeeklyChallenge(solution: any) {
     completedAt: now,
   });
 
-  const xpReward = WEEKLY_CHALLENGE.xpReward || 50;
+  const xpReward = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE; // 30 XP
   const userRef = doc(db, 'users', userId);
   await runTransaction(db, async (txn) => {
     const snap = await txn.get(userRef);

@@ -10,8 +10,11 @@
  */
 
 export const PROGRESSION_CONFIG = {
-  // Single authoritative competency threshold (in %)
+  // Single authoritative competency threshold for world average progression (in %)
   PASSING_THRESHOLD: 70,
+
+  // Curricular Quiz Approval threshold (>= 50%)
+  QUIZ_PASSING_THRESHOLD: 50,
 
   // Total worlds in the curricular program
   TOTAL_WORLDS: 5,
@@ -61,12 +64,13 @@ export const PROGRESSION_CONFIG = {
 
   // Standard Milestone XP Rewards
   XP_REWARDS: {
+    INITIAL_WELCOME: 100,
     GRANDE_MISSAO: 150,
-    WEEKLY_CHALLENGE: 50,
-    DAILY_TIP: 10,
+    WEEKLY_CHALLENGE: 30, // 30 XP semanal
+    DAILY_TIP: 20,         // 20 XP diário
     WORLD_MISSION_MAX: 100,
     SIMULATOR_MAX: 100,
-    ASSESSMENT_MAX: 100,
+    ASSESSMENT_MAX: 0,     // 0 XP para quizzes (avaliação pedagógica pura)
   },
 
   // Badge unlock rules

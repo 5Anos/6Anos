@@ -17,7 +17,7 @@ import { AssessmentQuestion, AssessmentSubmissionResult } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
-import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 
 interface AssessmentModalProps {
   worldId: number;
@@ -172,9 +172,9 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
             <div className="space-y-6">
               <div
                 className={`p-6 rounded-3xl border text-center ${
-                  result.mention === 'Muito Bom' || result.mention === 'Bom' || result.mention === 'Satisfaz'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                  result.passed
+                    ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+                    : 'bg-amber-50/70 border-amber-200 text-amber-950'
                 }`}
               >
                 <div className="inline-flex p-3 rounded-2xl bg-white shadow-xs mb-3">
@@ -185,12 +185,22 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   )}
                 </div>
 
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                    {result.isFirstAttempt
-                      ? 'Resultado da Avaliação Oficial'
-                      : `Resultado da Tentativa de Treino n.º ${result.attemptNumber}`}
-                  </span>
+                {/* Attempt Mode Badge */}
+                <div className="mb-3">
+                  {result.isFirstAttempt ? (
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-blue-600 text-white shadow-xs">
+                      <Award className="w-3.5 h-3.5" />
+                      Avaliação Oficial (1.ª Tentativa)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-800 text-white shadow-xs">
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Tentativa de Treino (Tentativa n.º {result.attemptNumber})
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col items-center gap-2 mb-4">
                   <div
                     className={`inline-block px-5 py-2 rounded-2xl border text-xl font-black shadow-xs ${getMentionBadgeColor(
                       result.mention
@@ -198,11 +208,94 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   >
                     Menção: {result.mention}
                   </div>
+                  <div className="text-xs font-semibold text-slate-600">
+                    {result.passed
+                      ? 'Parabéns! Quiz concluído com aprovação curricular (≥ 50%).'
+                      : 'Classificação inferior a 50%. Podes continuar a treinar para consolidar as matérias.'}
+                  </div>
                 </div>
+
+                {/* 4 Quantitative Metric Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
+                  <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Respostas Corretas</span>
+                    <span className="text-xl font-black text-slate-900 mt-0.5 block">
+                      {result.correctCount} / {result.totalQuestions}
+                    </span>
+                  </div>
+                  <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Percentagem</span>
+                    <span className="text-xl font-black text-slate-900 mt-0.5 font-mono block">
+                      {result.percentage}%
+                    </span>
+                  </div>
+                  <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Menção Oficial</span>
+                    <span className="text-sm font-black text-blue-700 mt-1 block truncate">
+                      {result.mention}
+                    </span>
+                  </div>
+                  <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Pontos (XP)</span>
+                    <span className="text-base font-black text-slate-500 mt-1 block">
+                      0 XP
+                    </span>
+                    <span className="text-[9px] font-semibold text-slate-400 block -mt-0.5">Avaliação pura</span>
+                  </div>
+                </div>
+
+                {/* Comparison for Training Attempts */}
+                {!result.isFirstAttempt && (
+                  <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 text-left space-y-3">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Comparação Curricular de Resultados:
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200">
+                        <span className="text-[10px] font-bold text-blue-800 uppercase block">
+                          Avaliação Oficial (1.ª Tent.)
+                        </span>
+                        <span className="text-lg font-black text-blue-900 font-mono block mt-0.5">
+                          {result.officialPercentage ?? '—'}%
+                        </span>
+                        <span className="text-xs font-extrabold text-blue-700 block">
+                          {result.officialMention || '—'}
+                        </span>
+                        <span className="text-[10px] text-blue-600 block mt-1">Registada na pauta</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                        <span className="text-[10px] font-bold text-emerald-800 uppercase block">
+                          Melhor Resultado (Treino)
+                        </span>
+                        <span className="text-lg font-black text-emerald-900 font-mono block mt-0.5">
+                          {result.newBest ?? result.previousBest ?? result.percentage}%
+                        </span>
+                        <span className="text-xs font-extrabold text-emerald-700 block">
+                          {result.bestMention || getQualitativeMention(result.newBest || result.percentage)}
+                        </span>
+                        <span className="text-[10px] text-emerald-600 block mt-1">Recorde pessoal</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                        <span className="text-[10px] font-bold text-slate-600 uppercase block">
+                          Tentativa Atual n.º {result.attemptNumber}
+                        </span>
+                        <span className="text-lg font-black text-slate-900 font-mono block mt-0.5">
+                          {result.percentage}%
+                        </span>
+                        <span className="text-xs font-extrabold text-slate-700 block">
+                          {result.mention}
+                        </span>
+                        <span className="text-[10px] text-slate-500 block mt-1">Sessão de treino</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Evolution note for training attempts */}
                 {!result.isFirstAttempt && result.evolution && (
-                  <div className="mt-4 p-3.5 rounded-2xl bg-white/80 border border-slate-200 text-xs text-slate-700 flex items-center justify-center gap-2 font-medium">
+                  <div className="mt-3 p-3 rounded-xl bg-white/80 border border-slate-200 text-xs text-slate-700 flex items-center justify-center gap-2 font-medium">
                     {result.evolution === 'improved' && (
                       <>
                         <TrendingUp className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -233,7 +326,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 <p className="text-xs font-medium text-slate-600 mt-3 max-w-lg mx-auto">
                   {result.isFirstAttempt
                     ? 'Esta primeira tentativa é a tua Avaliação Oficial. Podes continuar a treinar para consolidar as tuas aprendizagens sem alterar a avaliação inicial.'
-                    : `A tua Avaliação Oficial inicial mantém-se inalterada (${result.officialMention || 'registada'}). Esta sessão serviu para treinares e melhorares.`}
+                    : `A tua Avaliação Oficial inicial mantém-se inalterada (${result.officialMention || 'registada'}). Esta sessão serviu para treinares e melhorares sem inflacionar XP.`}
                 </p>
               </div>
 

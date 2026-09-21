@@ -230,7 +230,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
               {!dailyTip?.alreadyClaimed && <ArrowRight className="w-4 h-4" />}
             </button>
-            <span className="text-xs font-black text-emerald-700">+10 XP</span>
+            <span className="text-xs font-black text-emerald-700">+20 XP</span>
           </div>
         </div>
 

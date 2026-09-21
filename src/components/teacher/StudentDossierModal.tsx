@@ -586,6 +586,18 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                                     </div>
                                   </div>
 
+                                  {sorted.length > 1 && (
+                                    <div className="flex items-center justify-between text-[11px]">
+                                      <span className="text-slate-600">Última Tentativa:</span>
+                                      <div className="flex items-center gap-1.5 font-bold">
+                                        <span className="font-mono text-slate-900">{sorted[sorted.length - 1].percentage}%</span>
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-800">
+                                          {sorted[sorted.length - 1].mention || '—'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+
                                   <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200">
                                     <span>Total de Tentativas:</span>
                                     <span className="font-bold text-slate-700">{w.assessments.length}</span>

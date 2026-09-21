@@ -106,9 +106,9 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
 
         <div className="bg-white/90 rounded-3xl p-5 shadow-xs border border-amber-300/80 text-center min-w-[180px] shrink-0">
           <span className="text-[10px] font-black uppercase text-amber-800 block">Recompensa</span>
-          <span className="text-3xl font-black text-amber-600">+50 XP</span>
+          <span className="text-3xl font-black text-amber-600">+30 XP</span>
           <div className="text-[11px] font-bold text-slate-500 mt-1">
-            {weeklyChallenge?.alreadyCompleted ? 'Completado ✓' : 'Disponível'}
+            {weeklyChallenge?.alreadyCompleted ? 'Completado ✓' : 'Disponível (1x por semana)'}
           </div>
         </div>
       </div>
@@ -141,7 +141,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
         {weeklyChallenge?.alreadyCompleted ? (
           <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-950 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span>Já resolveste com sucesso o desafio desta semana (+50 XP adicionados ao teu perfil)!</span>
+            <span>Já resolveste com sucesso o desafio desta semana (+30 XP adicionados ao teu perfil)!</span>
           </div>
         ) : (
           <div className="space-y-4">
