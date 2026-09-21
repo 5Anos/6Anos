@@ -3,7 +3,7 @@
  * Centralized Progression Configuration & Rules
  *
  * Single Source of Truth for:
- * - Curricular competency thresholds (75%)
+ * - Curricular competency thresholds (> 70%)
  * - World unlocking prerequisites
  * - Required components per world
  * - XP rewards for milestones
@@ -11,7 +11,7 @@
 
 export const PROGRESSION_CONFIG = {
   // Single authoritative competency threshold (in %)
-  PASSING_THRESHOLD: 75,
+  PASSING_THRESHOLD: 70,
 
   // Total worlds in the curricular program
   TOTAL_WORLDS: 5,

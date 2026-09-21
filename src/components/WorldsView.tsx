@@ -138,11 +138,13 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     );
   }
 
+  const isTeacher = user?.role === 'teacher';
+
   const isSimCompleted = (simId: string) => {
     if (simId === 'assessment') {
       return (
         currentWorld.bestAssessmentPercentage !== null &&
-        currentWorld.bestAssessmentPercentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+        currentWorld.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD
       );
     }
     if (simId === 'mission') {
@@ -289,6 +291,26 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     }
   };
 
+  // Progression gating:
+  // Visible worlds: Teacher sees all. Student sees unlocked worlds.
+  const visibleWorlds = isTeacher
+    ? worlds
+    : worlds.filter((w) => w.id === 1 || Boolean(w.isUnlocked));
+
+  const nextLockedWorld = !isTeacher
+    ? worlds.find((w) => !w.isUnlocked && w.id > 1)
+    : null;
+
+  useEffect(() => {
+    if (!isTeacher && worlds.length > 0) {
+      const selected = worlds.find((w) => w.id === selectedWorldId);
+      if (selected && !selected.isUnlocked && selected.id !== 1) {
+        setSelectedWorldId(1);
+        setActiveTab('w1-t1');
+      }
+    }
+  }, [worlds, selectedWorldId, isTeacher]);
+
   const currentTabs = getCurrentWorldTabs();
 
   return (
@@ -296,9 +318,9 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       {/* Worlds Header Selector Bar */}
       <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-xs overflow-x-auto">
         <div className="flex items-center gap-3 min-w-max">
-          {worlds.map((world) => {
+          {visibleWorlds.map((world) => {
             const isSelected = world.id === selectedWorldId;
-            const isUnlocked = user?.role === 'teacher' || Boolean(world.isUnlocked);
+            const isUnlocked = isTeacher || Boolean(world.isUnlocked);
 
             return (
               <button
@@ -327,7 +349,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                 <div className="text-left">
                   <div className="text-[10px] uppercase tracking-wider opacity-80 flex items-center gap-1">
                     <span>Mundo {world.id}</span>
-                    {!isUnlocked && <span className="text-amber-600 font-black">🔒</span>}
                   </div>
                   <div className="text-xs font-black truncate max-w-[130px]">
                     {world.title.replace(`MUNDO ${world.id} — `, '')}
@@ -342,14 +363,30 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     {world.average}%
                   </span>
                 )}
-                {!isUnlocked && (
-                  <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">
-                    &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}% M{world.id - 1}
-                  </span>
-                )}
               </button>
             );
           })}
+
+          {/* Next locked world indicator for student */}
+          {nextLockedWorld && (
+            <div
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs bg-slate-50 text-slate-500 border border-dashed border-slate-300 select-none opacity-85"
+              title={`O Mundo ${nextLockedWorld.id} ficará visível e acessível quando a tua média global no Mundo ${nextLockedWorld.id - 1} for superior a 70%.`}
+            >
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-200/70 text-slate-500">
+                <Lock className="w-4 h-4 text-amber-600" />
+              </div>
+              <div className="text-left">
+                <div className="text-[10px] uppercase tracking-wider text-amber-700 font-black flex items-center gap-1">
+                  <span>Mundo {nextLockedWorld.id}</span>
+                  <span>🔒 Bloqueado</span>
+                </div>
+                <div className="text-xs font-bold text-slate-500">
+                  Requer média &gt; 70% no M{nextLockedWorld.id - 1}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -366,7 +403,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             {currentWorld.title} Bloqueado
           </h3>
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-            Para acederes e realizares as atividades do <strong>Mundo {currentWorld.id}</strong>, precisas de alcançar uma pontuação média de pelo menos <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> no <strong>Mundo {currentWorld.id - 1}</strong>.
+            Para acederes e realizares as atividades do <strong>Mundo {currentWorld.id}</strong>, precisas de alcançar uma média global superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> (dos simuladores e do quiz de avaliação) no <strong>Mundo {currentWorld.id - 1}</strong>.
           </p>
           <button
             onClick={() => {
@@ -380,6 +417,56 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
         </div>
       ) : (
         <>
+          {/* Progression Banner: Requirement to unlock the next world */}
+          {!isTeacher && currentWorld.id < 5 && (
+            <div
+              className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs ${
+                currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                  : 'bg-amber-50/90 border-amber-200 text-amber-950'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
+                  {currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD ? (
+                    <CheckCircle2 className="w-5 h-5" />
+                  ) : (
+                    <Lock className="w-5 h-5" />
+                  )}
+                </div>
+                <div>
+                  <div className="font-black text-sm">
+                    {currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                      ? `✓ Mundo ${currentWorld.id + 1} Desbloqueado!`
+                      : `Acesso ao Mundo ${currentWorld.id + 1} — Requer Média Global > 70%`}
+                  </div>
+                  <div className="text-xs opacity-90 mt-0.5">
+                    {currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                      ? `Excelente! A tua média global no Mundo ${currentWorld.id} é de ${currentWorld.average}% (> 70%). O Mundo ${currentWorld.id + 1} já se encontra acessível!`
+                      : `Para desbloquear e ver o Mundo ${currentWorld.id + 1}, a tua média global (dos simuladores e do quiz de avaliação) tem de ser superior a 70%. Média atual: ${currentWorld.average}%.`}
+                  </div>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center gap-2">
+                <span
+                  className={`px-3 py-1.5 rounded-xl font-black text-xs ${
+                    currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-amber-200/80 text-amber-950'
+                  }`}
+                >
+                  Média: {currentWorld.average}% / &gt; 70%
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* World Hero & Intro */}
           <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/50 border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">

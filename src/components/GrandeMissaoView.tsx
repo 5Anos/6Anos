@@ -52,10 +52,10 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
         if (user.role !== 'teacher') {
           const res = await apiRequest('/api/pedagogical/worlds');
           const worlds = res.worlds || [];
-          const allCompletedWith75 =
+          const allCompletedWith70 =
             worlds.length >= 5 &&
-            worlds.every((w: any) => w.completed || (w.average || 0) >= PROGRESSION_CONFIG.PASSING_THRESHOLD);
-          if (!allCompletedWith75) {
+            worlds.every((w: any) => w.completed || (w.average || 0) > PROGRESSION_CONFIG.PASSING_THRESHOLD);
+          if (!allCompletedWith70) {
             setIsLocked(true);
           }
         } else {
@@ -188,7 +188,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           Grande Missão Final Bloqueada
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          A Grande Missão Final (A ESCOLA DO FUTURO) só fica disponível quando alcançares uma pontuação média superior a <strong>75%</strong> em todos os 5 Mundos curriculares. Continua a praticar!
+          A Grande Missão Final (A ESCOLA DO FUTURO) só fica disponível quando alcançares uma pontuação média superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> em todos os 5 Mundos curriculares. Continua a praticar!
         </p>
         <button
           onClick={onBack}

@@ -18,6 +18,7 @@ import {
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
 
 interface World1ThematicViewProps {
@@ -703,7 +704,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {pwdFeedback && (
                 <div
                   className={`p-5 rounded-2xl border text-xs space-y-2 ${
-                    pwdFeedback.score > 75
+                    pwdFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                       : pwdFeedback.score >= 50
                       ? 'bg-amber-50 border-amber-200 text-amber-950'
@@ -1065,7 +1066,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             {privacyFeedback && (
               <div
                 className={`p-5 rounded-2xl border text-xs space-y-2 ${
-                  privacyFeedback.score > 75
+                  privacyFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                     : 'bg-amber-50 border-amber-200 text-amber-950'
                 }`}
@@ -1237,7 +1238,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             {footprintFeedback && (
               <div
                 className={`p-5 rounded-2xl border text-xs space-y-2 ${
-                  footprintFeedback.score > 75
+                  footprintFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-950'
                     : 'bg-amber-50 border-amber-200 text-amber-950'
                 }`}
@@ -1416,7 +1417,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             {wellbeingFeedback && (
               <div
                 className={`p-5 rounded-2xl border text-xs space-y-2 ${
-                  wellbeingFeedback.score > 75
+                  wellbeingFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
                     ? 'bg-rose-50 border-rose-200 text-rose-950'
                     : 'bg-amber-50 border-amber-200 text-amber-950'
                 }`}
@@ -1473,7 +1474,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
               Responde às 10 questões de escolha múltipla sobre Palavras-passe, Phishing, Privacidade,
-              Pegada Digital e Bem-estar. Para aprovação de excelência e desbloquear os mundos seguintes, precisas de pelo menos 75%.
+              Pegada Digital e Bem-estar. Para aprovação e desbloquear o Mundo 2, a tua média global (simuladores e avaliação) tem de ser superior a {PROGRESSION_CONFIG.PASSING_THRESHOLD}%.
             </p>
           </div>
 
@@ -1482,13 +1483,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <span className="text-xs font-bold text-slate-600">A tua Melhor Pontuação:</span>
               <span
                 className={`text-sm font-black px-3 py-1 rounded-lg ${
-                  world.bestAssessmentPercentage >= 75
+                  world.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-amber-100 text-amber-800'
                 }`}
               >
                 {world.bestAssessmentPercentage}%
-                {world.bestAssessmentPercentage >= 75 ? ' (Aprovado)' : ' (Pendente > 75%)'}
+                {world.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD ? ' (Aprovado)' : ` (Pendente > ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`}
               </span>
             </div>
           )}

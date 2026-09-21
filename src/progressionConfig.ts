@@ -5,7 +5,7 @@
 
 export const PROGRESSION_CONFIG = {
   // Authoritative passing/competency threshold (in %)
-  PASSING_THRESHOLD: 75,
+  PASSING_THRESHOLD: 70,
 
   // Total worlds
   TOTAL_WORLDS: 5,
@@ -27,7 +27,7 @@ export const PROGRESSION_CONFIG = {
 } as const;
 
 export function isWorldPassed(score: number): boolean {
-  return score >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+  return score > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 }
 
 export type QualitativeMention = 'Muito Fraco' | 'Não Satisfaz' | 'Satisfaz' | 'Bom' | 'Muito Bom';

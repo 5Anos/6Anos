@@ -1724,7 +1724,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
           </div>
 
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl max-w-md mx-auto text-xs text-blue-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloquear o Mundo 3: Média &gt; 75%</p>
+            <p>🏆 Requisito para desbloquear o Mundo 3: Média global &gt; 70%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null

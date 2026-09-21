@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface SimulatorsViewProps {
   worldId?: number;
@@ -410,7 +411,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
           Simulador Bloqueado
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Este simulador pertence ao <strong>Mundo {worldId}</strong>, que está bloqueado. Para o desbloquear, precisas de alcançar uma pontuação média superior a <strong>75%</strong> no <strong>Mundo {worldId - 1}</strong>.
+          Este simulador pertence ao <strong>Mundo {worldId}</strong>, que está bloqueado. Para o desbloquear, precisas de alcançar uma média global superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> no <strong>Mundo {worldId - 1}</strong>.
         </p>
         <button
           onClick={onBack}
@@ -585,7 +586,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             {pwdFeedback && (
               <div
                 className={`p-5 rounded-2xl border text-xs space-y-2 ${
-                  pwdFeedback.score > 75
+                  pwdFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                     : pwdFeedback.score >= 50
                     ? 'bg-amber-50 border-amber-200 text-amber-950'

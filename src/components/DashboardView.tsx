@@ -469,7 +469,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 1' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 1' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island2Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -513,7 +513,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
                           ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                          : avg > 75
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-sky-100 text-sky-800'
@@ -525,8 +525,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado (> 75% no M1)'
-                          : avg > 75
+                          ? 'Bloqueado (> 70% no M1)'
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -568,7 +568,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 2' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 2' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island3Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -612,7 +612,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
                           ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                          : avg > 75
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-purple-100 text-purple-800'
@@ -624,8 +624,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado (> 75% no M2)'
-                          : avg > 75
+                          ? 'Bloqueado (> 70% no M2)'
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -667,7 +667,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 3' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 3' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island4Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -711,7 +711,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
                           ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                          : avg > 75
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-amber-100 text-amber-800'
@@ -723,8 +723,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado (> 75% no M3)'
-                          : avg > 75
+                          ? 'Bloqueado (> 70% no M3)'
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -766,7 +766,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer > 75% no Mundo 4' : undefined}
+                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 4' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island5Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -810,7 +810,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
                           : !isUnlocked
                           ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                          : avg > 75
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-indigo-100 text-indigo-800'
@@ -822,8 +822,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user
                           ? 'Registo Obrigatório'
                           : !isUnlocked
-                          ? 'Bloqueado (> 75% no M4)'
-                          : avg > 75
+                          ? 'Bloqueado (> 70% no M4)'
+                          : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
@@ -837,7 +837,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Summit: Grande Missão Final - A ESCOLA DO FUTURO */}
             {(() => {
-              const all5Passed = user ? (user.role === 'teacher' || (worlds.length >= 5 && worlds.every((w) => w.average > 75))) : false;
+              const all5Passed = user ? (user.role === 'teacher' || (worlds.length >= 5 && worlds.every((w) => w.average > PROGRESSION_CONFIG.PASSING_THRESHOLD))) : false;
               const isGmCompleted = user
                 ? Boolean(
                     badges?.some(
@@ -864,7 +864,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     all5Passed ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver a Grande Missão' : !all5Passed ? 'Bloqueado — Requer os 5 Mundos com > 75%' : undefined}
+                  title={!user ? 'Registo obrigatório para ver a Grande Missão' : !all5Passed ? 'Bloqueado — Requer os 5 Mundos com média > 70%' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <SummitMountainArtwork className={`w-full h-full drop-shadow-md ${!all5Passed ? 'grayscale-75 opacity-75' : ''}`} />
@@ -1240,26 +1240,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </h3>
 
             <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
-              Para acederes a este mundo, precisas de atingir uma pontuação média superior a <strong>75%</strong> no <strong>{lockedModalInfo.requiredWorldName}</strong>.
+              Para acederes a este mundo, precisas de atingir uma média global (dos simuladores e do quiz de avaliação) superior a <strong>70%</strong> no <strong>{lockedModalInfo.requiredWorldName}</strong>.
             </p>
 
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 text-left">
               <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                 <span>O teu progresso no {lockedModalInfo.requiredWorldName.split('—')[0]}</span>
-                <span className={`font-black ${lockedModalInfo.prevAvg > 75 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                  {lockedModalInfo.prevAvg}% / 75%
+                <span className={`font-black ${lockedModalInfo.prevAvg > 70 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {lockedModalInfo.prevAvg}% / &gt; 70%
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    lockedModalInfo.prevAvg > 75 ? 'bg-emerald-500' : 'bg-amber-500'
+                    lockedModalInfo.prevAvg > 70 ? 'bg-emerald-500' : 'bg-amber-500'
                   }`}
-                  style={{ width: `${Math.min(100, (lockedModalInfo.prevAvg / 75) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (lockedModalInfo.prevAvg / 70) * 100)}%` }}
                 />
               </div>
               <p className="text-[11px] text-slate-500 mt-2">
-                💡 Dica: Conclui os simuladores práticos e a avaliação final desse mundo para subires a tua média!
+                💡 Dica: Conclui os simuladores práticos e o quiz de avaliação desse mundo para subires a tua média global!
               </p>
             </div>
 
@@ -1309,7 +1309,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </h3>
 
             <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
-              A <strong>Grande Missão Final (A ESCOLA DO FUTURO)</strong> é o cume da aprendizagem. Para a desbloqueares, tens de obter uma média superior a <strong>75%</strong> em todos os 5 Mundos curriculares!
+              A <strong>Grande Missão Final (A ESCOLA DO FUTURO)</strong> é o cume da aprendizagem. Para a desbloqueares, tens de obter uma média superior a <strong>70%</strong> em todos os 5 Mundos curriculares!
             </p>
 
             <button

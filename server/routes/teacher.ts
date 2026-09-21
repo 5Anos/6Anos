@@ -107,7 +107,7 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
             sumAvg += stats.average;
             count++;
           }
-          if (stats.isWorldCompleted || stats.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
+          if (stats.isWorldCompleted || stats.average > PROGRESSION_CONFIG.PASSING_THRESHOLD) {
             passedCount++;
           }
         }
@@ -374,7 +374,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                     percentage: firstAttempt.percentage,
                     mention: firstAttempt.mention || getQualitativeMention(firstAttempt.percentage),
                     createdAt: firstAttempt.createdAt,
-                    passed: firstAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                    passed: firstAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD,
                   }
                 : null,
               best: bestAttempt
@@ -383,7 +383,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                     percentage: bestAttempt.percentage,
                     mention: bestAttempt.mention || getQualitativeMention(bestAttempt.percentage),
                     createdAt: bestAttempt.createdAt,
-                    passed: bestAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                    passed: bestAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD,
                   }
                 : null,
               last: lastAttempt
@@ -392,7 +392,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
                     percentage: lastAttempt.percentage,
                     mention: lastAttempt.mention || getQualitativeMention(lastAttempt.percentage),
                     createdAt: lastAttempt.createdAt,
-                    passed: lastAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD,
+                    passed: lastAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD,
                   }
                 : null,
             };
@@ -1099,7 +1099,7 @@ router.get('/assessments-summary', async (req: AuthRequest, res) => {
           // 3. Último Resultado
           lastPercentage: lastAttempt ? lastAttempt.percentage : null,
           lastMention: lastAttempt ? (lastAttempt.mention || getQualitativeMention(lastAttempt.percentage)) : null,
-          passed: bestAttempt ? bestAttempt.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD : false,
+          passed: bestAttempt ? bestAttempt.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD : false,
           firstAttemptAt: firstAttempt ? firstAttempt.createdAt : null,
           lastAttemptAt: lastAttempt ? lastAttempt.createdAt : null,
         };
@@ -1524,10 +1524,10 @@ router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: R
 
       let unlockedCount = 1;
       const th = PROGRESSION_CONFIG.PASSING_THRESHOLD;
-      if (m1 >= th) unlockedCount = 2;
-      if (m1 >= th && m2 >= th) unlockedCount = 3;
-      if (m1 >= th && m2 >= th && m3 >= th) unlockedCount = 4;
-      if (m1 >= th && m2 >= th && m3 >= th && m4 >= th) unlockedCount = 5;
+      if (m1 > th) unlockedCount = 2;
+      if (m1 > th && m2 > th) unlockedCount = 3;
+      if (m1 > th && m2 > th && m3 > th) unlockedCount = 4;
+      if (m1 > th && m2 > th && m3 > th && m4 > th) unlockedCount = 5;
 
       const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
       const needsHelp = failedAttempts >= 2 || (m1 > 0 && m1 < 50) ? 'SIM' : 'NAO';
@@ -1614,10 +1614,10 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
 
       let unlockedCount = 1;
       const th = PROGRESSION_CONFIG.PASSING_THRESHOLD;
-      if (m1 >= th) unlockedCount = 2;
-      if (m1 >= th && m2 >= th) unlockedCount = 3;
-      if (m1 >= th && m2 >= th && m3 >= th) unlockedCount = 4;
-      if (m1 >= th && m2 >= th && m3 >= th && m4 >= th) unlockedCount = 5;
+      if (m1 > th) unlockedCount = 2;
+      if (m1 > th && m2 > th) unlockedCount = 3;
+      if (m1 > th && m2 > th && m3 > th) unlockedCount = 4;
+      if (m1 > th && m2 > th && m3 > th && m4 > th) unlockedCount = 5;
 
       pautaRows.push({
         'Nickname': s.nickname,
@@ -1654,7 +1654,7 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
         'Pontuação (Questões)': a.score,
         'Percentagem (%)': a.percentage,
         'Menção Qualitativa': mention,
-        'Aprovado (>=75%)': a.percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'Sim' : 'Não',
+        'Aprovado (>70%)': a.percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'Sim' : 'Não',
         'Data': new Date(a.createdAt).toLocaleString('pt-PT'),
       };
     });

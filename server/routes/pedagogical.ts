@@ -121,15 +121,14 @@ export async function computeWorldStats(
     scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
 
   // Curricular World Completion Rule:
-  // A world is completed ONLY when:
-  // - All required simulators are completed
-  // - The final assessment has been taken
-  // - The assessment score meets or exceeds the competency threshold (75%)
-  // - The world average across components meets or exceeds 75%
+  // O aluno conclui o mundo e desbloqueia o seguinte quando:
+  // - Todos os simuladores obrigatórios estão concluídos
+  // - O quiz de avaliação final foi realizado
+  // - A média global (dos simuladores e do quiz de avaliação) é superior a 70% (> 70%)
   const isWorldCompleted =
     allSimulatorsCompleted &&
-    hasAssessmentPassed &&
-    average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    hasAssessment &&
+    average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
   // Progression Unlocking Rule:
   // - Mundo 1 is always unlocked
@@ -292,7 +291,7 @@ router.get('/worlds/:worldId', requireAuth, async (req: AuthRequest, res) => {
 
     if (userRole !== 'teacher' && !stats.isUnlocked) {
       return res.status(403).json({
-        error: `Mundo ${worldId} bloqueado. Precisas de concluir todas as atividades e obter pelo menos ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% na Avaliação Final do Mundo anterior para o desbloquear.`,
+        error: `Mundo ${worldId} bloqueado. Precisas de concluir os simuladores e o quiz de avaliação do Mundo ${worldId - 1} com média global superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para o desbloquear.`,
       });
     }
 
@@ -407,7 +406,7 @@ router.post('/assessments/:worldId', requireStudent, async (req: AuthRequest, re
     const percentage = Math.round((correctCount / assess.questions.length) * 100);
     // 2. Atribuição da menção qualitativa oficial
     const mention = getQualitativeMention(percentage);
-    const passed = percentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    const passed = percentage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
     // Verificar histórico de tentativas
     const prevAttempts = await getAssessmentAttempts(userId, worldId);
@@ -872,7 +871,7 @@ router.post('/grande-missao/stage', requireStudent, async (req: AuthRequest, res
   }
 });
 
-// POST complete Grande Missão (Student ONLY, enforces all 5 worlds passed at 75%)
+// POST complete Grande Missão (Student ONLY, enforces all 5 worlds passed with average > 70%)
 router.post('/grande-missao/complete', requireStudent, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
@@ -886,7 +885,7 @@ router.post('/grande-missao/complete', requireStudent, async (req: AuthRequest, 
     const allCompleted = allStats.every((st) => st.isWorldCompleted);
     if (!allCompleted) {
       return res.status(403).json({
-        error: `A Grande Missão apenas pode ser concluída após aprovação em todos os 5 Mundos curriculares (todas as atividades concluídas e média >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%).`,
+        error: `A Grande Missão apenas pode ser concluída após aprovação em todos os 5 Mundos curriculares (todas as atividades concluídas e média global superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%).`,
       });
     }
 
