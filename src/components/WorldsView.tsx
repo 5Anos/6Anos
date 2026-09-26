@@ -38,7 +38,6 @@ import { t } from '../i18n';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { WORLDS_DATA } from '../data/catalog';
 import { AssessmentModal } from './AssessmentModal';
-import { WorldMissionCard } from './WorldMissionCard';
 import { World1ThematicView } from './World1ThematicView';
 import { World2ThematicView } from './World2ThematicView';
 import { World3ThematicView } from './World3ThematicView';
@@ -197,12 +196,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       icon: CheckCircle2,
       simId: 'assessment',
     },
-    {
-      id: 'missao',
-      label: 'Missão Prática',
-      icon: FileText,
-      simId: 'mission',
-    },
   ];
 
   const world2Tabs = [
@@ -216,12 +209,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       label: '6. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
-    },
-    {
-      id: 'missao',
-      label: 'Missão Prática',
-      icon: FileText,
-      simId: 'mission',
     },
   ];
 
@@ -238,12 +225,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       icon: CheckCircle2,
       simId: 'assessment',
     },
-    {
-      id: 'missao',
-      label: 'Missão Prática',
-      icon: FileText,
-      simId: 'mission',
-    },
   ];
 
   const world4Tabs = [
@@ -259,12 +240,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       icon: CheckCircle2,
       simId: 'assessment',
     },
-    {
-      id: 'missao',
-      label: 'Missão Prática',
-      icon: FileText,
-      simId: 'mission',
-    },
   ];
 
   const world5Tabs = [
@@ -279,12 +254,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       label: '7. Avaliação Final (10 Perguntas)',
       icon: CheckCircle2,
       simId: 'assessment',
-    },
-    {
-      id: 'missao',
-      label: 'Missão Prática',
-      icon: FileText,
-      simId: 'mission',
     },
   ];
 
@@ -537,65 +506,56 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           </div>
 
           {/* ========================================================= */}
-          {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC) OR MISSION */}
+          {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC)   */}
           {/* ========================================================= */}
-          {activeTab === 'missao' ? (
-            <WorldMissionCard
+          {currentWorld.id === 1 && (
+            <World1ThematicView
               world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
               onRefreshWorld={loadWorlds}
             />
-          ) : (
-            <>
-              {currentWorld.id === 1 && (
-                <World1ThematicView
-                  world={currentWorld}
-                  activeTopicId={activeTab}
-                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
-                  onOpenAssessment={() => setShowAssessmentModal(true)}
-                  onRefreshWorld={loadWorlds}
-                />
-              )}
+          )}
 
-              {currentWorld.id === 2 && (
-                <World2ThematicView
-                  world={currentWorld}
-                  activeTopicId={activeTab}
-                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
-                  onOpenAssessment={() => setShowAssessmentModal(true)}
-                  onRefreshWorld={loadWorlds}
-                />
-              )}
+          {currentWorld.id === 2 && (
+            <World2ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
 
-              {currentWorld.id === 3 && (
-                <World3ThematicView
-                  world={currentWorld}
-                  activeTopicId={activeTab}
-                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
-                  onOpenAssessment={() => setShowAssessmentModal(true)}
-                  onRefreshWorld={loadWorlds}
-                />
-              )}
+          {currentWorld.id === 3 && (
+            <World3ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
 
-              {currentWorld.id === 4 && (
-                <World4ThematicView
-                  world={currentWorld}
-                  activeTopicId={activeTab}
-                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
-                  onOpenAssessment={() => setShowAssessmentModal(true)}
-                  onRefreshWorld={loadWorlds}
-                />
-              )}
+          {currentWorld.id === 4 && (
+            <World4ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
+          )}
 
-              {currentWorld.id === 5 && (
-                <World5ThematicView
-                  world={currentWorld}
-                  activeTopicId={activeTab}
-                  onNavigateTopic={(topicId) => setActiveTab(topicId)}
-                  onOpenAssessment={() => setShowAssessmentModal(true)}
-                  onRefreshWorld={loadWorlds}
-                />
-              )}
-            </>
+          {currentWorld.id === 5 && (
+            <World5ThematicView
+              world={currentWorld}
+              activeTopicId={activeTab}
+              onNavigateTopic={(topicId) => setActiveTab(topicId)}
+              onOpenAssessment={() => setShowAssessmentModal(true)}
+              onRefreshWorld={loadWorlds}
+            />
           )}
         </>
       )}
