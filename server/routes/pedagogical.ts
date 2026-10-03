@@ -8,8 +8,10 @@ import {
   getActivityProgress,
   getUserActivityProgress,
   saveActivityProgress,
+  atomicRecordActivityProgress,
   getAssessmentAttempts,
   saveAssessmentAttempt,
+  atomicRecordAssessmentAttempt,
   getMissionSubmissions,
   saveMissionSubmission,
   getUserXPTransactions,
@@ -21,8 +23,11 @@ import {
   claimDailyTipAtomic,
   getWeeklyChallengeProgress,
   saveWeeklyChallengeProgress,
+  atomicRecordWeeklyChallenge,
   getGrandeMissaoProgress,
   saveGrandeMissaoProgress,
+  atomicRecordGrandeMissaoStage,
+  atomicCompleteGrandeMissao,
   getUserById,
   getAllUsers,
   getClassById,
@@ -498,7 +503,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
     const latestMention = mention;
     const xpGain = 0; // O quiz de avaliação final não acrescenta XPs
 
-    // Save complete attempt in database with official persistent fields
+    // Save complete attempt in database with atomic transaction
     const attempt: AssessmentAttempt = {
       id: `attempt-${crypto.randomUUID()}`,
       userId,
@@ -522,7 +527,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       answers,
       createdAt: new Date().toISOString(),
     };
-    await saveAssessmentAttempt(attempt);
+    await atomicRecordAssessmentAttempt(attempt);
 
     const totalXp = req.user!.xp;
 
@@ -618,65 +623,22 @@ router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) =
       });
     }
 
-    let prog = await getActivityProgress(userId, activityId);
-    const isFirst = !prog || prog.attempts === 0;
-    const previousBest = prog ? (Number(prog.bestScore) || 0) : 0;
-    const firstScore = isFirst ? evaluatedScore : (prog.firstScore ?? previousBest);
-    const newBest = Math.max(previousBest, evaluatedScore);
-    const latestScore = evaluatedScore;
-    const attempts = (prog ? prog.attempts : 0) + 1;
-    const xpGain = newBest - previousBest;
-    const previousAwardedXp = prog ? (Number(prog.awardedXp) || 0) : 0;
-    const awardedXp = previousAwardedXp + Math.max(0, xpGain);
-
-    if (!prog) {
-      prog = {
-        id: `${userId}_${activityId}`,
-        userId,
-        activityId,
-        worldId,
-        firstScore,
-        bestScore: newBest,
-        latestScore,
-        attempts: 1,
-        awardedXp,
-        completed: true,
-        firstCompletedAt: new Date().toISOString(),
-        lastAttemptAt: new Date().toISOString(),
-      };
-    } else {
-      prog.firstScore = firstScore;
-      prog.bestScore = newBest;
-      prog.latestScore = latestScore;
-      prog.attempts = attempts;
-      prog.awardedXp = awardedXp;
-      prog.completed = true;
-      prog.lastAttemptAt = new Date().toISOString();
-    }
-
-    await saveActivityProgress(prog);
-
-    let totalXp = req.user!.xp;
-    if (xpGain > 0) {
-      const result = await atomicAwardXP(userId, xpGain, {
-        sourceType: isChallenge ? 'challenge' : 'activity',
-        sourceId: activityId,
-        previousBest,
-        newBest,
-      });
-      if (result) {
-        totalXp = result.newTotalXP;
-      }
-    }
+    const result = await atomicRecordActivityProgress({
+      userId,
+      activityId,
+      worldId,
+      evaluatedScore,
+      isChallenge,
+    });
 
     await evaluateBadges(userId);
 
     return res.json({
       activityId,
-      previousBest,
-      newBest,
-      xpGain,
-      totalXp,
+      previousBest: result.previousBest,
+      newBest: result.newBest,
+      xpGain: result.xpGain,
+      totalXp: result.newTotalXP,
       score: evaluatedScore,
       isValidated: true,
       feedback: evaluation.feedback,
@@ -904,37 +866,26 @@ router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, asyn
       });
     }
 
-    const already = await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id);
-    let xpGain = 0;
-    let totalXp = req.user!.xp;
+    const safeSolution =
+      typeof solution !== 'undefined'
+        ? String(solution)
+        : String(optionIndex);
 
-    if (!already) {
-      await saveWeeklyChallengeProgress({
-        id: `wc-${crypto.randomUUID()}`,
-        userId,
-        challengeId: WEEKLY_CHALLENGE.id,
-        status: 'completed',
-        score: 100,
-        completedAt: new Date().toISOString(),
-      });
+    const result = await atomicRecordWeeklyChallenge({
+      userId,
+      challengeId: WEEKLY_CHALLENGE.id,
+      solution: safeSolution,
+      optionIndex,
+      xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
+    });
 
-      xpGain = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE;
-      const resAward = await atomicAwardXP(userId, xpGain, {
-        sourceType: 'weekly_challenge',
-        sourceId: WEEKLY_CHALLENGE.id,
-        previousBest: 0,
-        newBest: 100,
-      });
-      if (resAward) {
-        totalXp = resAward.newTotalXP;
-      }
-    }
+    await evaluateBadges(userId);
 
     return res.json({
       isCorrect: true,
       feedback: selected.explanation,
-      xpGain,
-      totalXp,
+      xpGain: result.xpGain,
+      totalXp: result.totalXp,
     });
   } catch (err) {
     console.error('Error in /weekly-challenge submit:', err);
@@ -988,20 +939,12 @@ router.post('/grande-missao/stage', requireAuth, async (req: AuthRequest, res) =
       });
     }
 
-    const progress = await getGrandeMissaoProgress(userId);
-    const mergedStages = Array.from(new Set([...(progress.completedStages || []), ...completedZones]));
-    const mergedAnswers = { ...(progress.stageAnswers || {}), ...(unlockedCodes || {}) };
-
-    progress.completedStages = mergedStages;
-    progress.stageAnswers = mergedAnswers;
-    if (progress.status !== 'completed') {
-      progress.status = mergedStages.length > 0 ? 'in_progress' : 'not_started';
-    }
-    progress.currentStage = Math.min(6, Math.max(...mergedStages, 1));
-    progress.updatedAt = new Date().toISOString();
-
-    await saveGrandeMissaoProgress(progress);
-    return res.json({ success: true, progress });
+    const result = await atomicRecordGrandeMissaoStage({
+      userId,
+      completedZones,
+      unlockedCodes: unlockedCodes || {},
+    });
+    return res.json({ success: true, progress: result.progress });
   } catch (err) {
     console.error('Error in /grande-missao/stage:', err);
     return res.status(500).json({ error: 'Erro ao guardar progresso da Grande Missão no Firestore.' });
@@ -1036,26 +979,18 @@ router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res
       });
     }
 
-    progress.status = 'completed';
-    progress.currentStage = 5;
-    progress.completedStages = [1, 2, 3, 4, 5];
-    progress.completedAt = new Date().toISOString();
-    await saveGrandeMissaoProgress(progress);
-
-    const xpGain = PROGRESSION_CONFIG.XP_REWARDS.GRANDE_MISSAO;
-    const resAward = await atomicAwardXP(userId, xpGain, {
-      sourceType: 'grande_missao',
-      sourceId: GRANDE_MISSAO.id,
-      previousBest: 0,
-      newBest: 150,
+    const result = await atomicCompleteGrandeMissao({
+      userId,
+      missionId: GRANDE_MISSAO.id,
+      xpReward: PROGRESSION_CONFIG.XP_REWARDS.GRANDE_MISSAO,
     });
 
     await evaluateBadges(userId);
 
     return res.json({
       success: true,
-      message: `Parabéns! Concluíste com distinção a Grande Missão A ESCOLA DO FUTURO! +${xpGain} XP atribuídos!`,
-      totalXp: resAward?.newTotalXP || req.user!.xp + xpGain,
+      message: `Parabéns! Concluíste com distinção a Grande Missão A ESCOLA DO FUTURO! +${result.xpGain} XP atribuídos!`,
+      totalXp: result.totalXp,
     });
   } catch (err) {
     console.error('Error in /grande-missao/complete:', err);

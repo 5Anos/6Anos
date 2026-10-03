@@ -17,6 +17,7 @@ import {
   clientGetGrandeMissao,
   clientSaveGrandeMissaoStage,
   clientCompleteGrandeMissao,
+  clientComputeWorldStats,
   getActiveClientUserId,
   sanitizeClientUser,
   ClientUser,
@@ -32,9 +33,17 @@ import {
   updateDoc,
   deleteDoc,
   setDoc,
+  runTransaction,
 } from 'firebase/firestore';
-import { WORLDS_DATA } from '../data/catalog';
+import { WORLDS_DATA, BADGES_CATALOG, calculateLevel } from '../data/catalog';
 import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
+import {
+  extractShortName,
+  generateKidUsername,
+  generateKidPassword,
+  normalizeTurmaTag,
+} from '../utils/kidCredentials';
+import { hashPasswordClient } from './clientAuthUtils';
 
 export async function clientDispatch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const method = (options.method || 'GET').toUpperCase();
@@ -311,6 +320,334 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return { logs: [] } as any;
   }
 
+  // 4. BATCH IMPORT OF STUDENTS
+  if (pathname === '/api/teacher/students/batch-import' && method === 'POST') {
+    const { students: rawStudents, defaultTurma, defaultClassId } = body;
+    if (!Array.isArray(rawStudents) || rawStudents.length === 0) {
+      throw new Error('Nenhum aluno fornecido para importação.');
+    }
+
+    const qAllUsers = query(collection(db, 'users'));
+    const userSnap = await getDocs(qAllUsers);
+    const allUsers = userSnap.docs.map((d) => d.data() as ClientUser);
+    const existingUsernames = new Set(allUsers.map((u) => (u.username || u.nickname || '').toLowerCase()));
+
+    const classesSnap = await getDocs(collection(db, 'classes'));
+    const classesMap = new Map<string, any>();
+    for (const cDoc of classesSnap.docs) {
+      const c = cDoc.data();
+      classesMap.set(c.id, c);
+      if (c.name) classesMap.set(c.name.toLowerCase(), c);
+    }
+
+    const createdStudents: any[] = [];
+    const now = new Date().toISOString();
+
+    for (let i = 0; i < rawStudents.length; i++) {
+      const item = rawStudents[i];
+      const fullName = (item.fullName || item.name || '').trim();
+      if (!fullName) continue;
+
+      const turmaName = item.turma || defaultTurma || '6.º A';
+      const studentNum =
+        typeof item.studentNumber === 'number'
+          ? item.studentNumber
+          : parseInt(item.studentNumber || item.number || item['N.º'] || item['Número'] || `${i + 1}`, 10) || i + 1;
+
+      // Ensure class exists
+      let classObj = classesMap.get(item.classId || defaultClassId || '') || classesMap.get(turmaName.toLowerCase());
+      if (!classObj) {
+        const newClassId = `class-${normalizeTurmaTag(turmaName)}`;
+        classObj = {
+          id: newClassId,
+          name: turmaName,
+          code: '',
+          createdAt: now,
+        };
+        await setDoc(doc(db, 'classes', newClassId), classObj);
+        classesMap.set(classObj.id, classObj);
+        classesMap.set(classObj.name.toLowerCase(), classObj);
+      }
+
+      const { displayName } = extractShortName(fullName);
+      const shortName = item.name && item.name.trim() ? item.name.trim() : displayName;
+      const username = item.customUsername || generateKidUsername(fullName, turmaName, existingUsernames);
+      existingUsernames.add(username.toLowerCase());
+
+      const initialPassword = item.customPassword || generateKidPassword();
+      const email = item.email || `${username}@escola.local`;
+
+      const { hash, salt } = await hashPasswordClient(initialPassword);
+      const studentId = `student-${crypto.randomUUID()}`;
+
+      const studentDoc: ClientUser = {
+        id: studentId,
+        name: shortName,
+        fullName,
+        turma: turmaName,
+        studentNumber: studentNum,
+        username,
+        email,
+        initialPassword,
+        passwordHash: hash,
+        passwordSalt: salt,
+        nickname: username,
+        avatar: 'avatar-boy-1',
+        role: 'student',
+        classId: classObj.id,
+        locale: 'pt',
+        xp: 100,
+        blocked: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      await setDoc(doc(db, 'users', studentId), studentDoc);
+
+      const bRef = doc(db, 'badges', `${studentId}_primeiros-passos`);
+      await setDoc(
+        bRef,
+        {
+          id: `${studentId}_primeiros-passos`,
+          userId: studentId,
+          badgeId: 'primeiros-passos',
+          awardedAt: now,
+        },
+        { merge: true }
+      ).catch(() => {});
+
+      createdStudents.push({
+        id: studentDoc.id,
+        fullName: studentDoc.fullName,
+        name: studentDoc.name,
+        turma: studentDoc.turma,
+        studentNumber: studentDoc.studentNumber,
+        username: studentDoc.username,
+        email: studentDoc.email,
+        initialPassword: studentDoc.initialPassword,
+        classId: studentDoc.classId,
+      });
+    }
+
+    return {
+      success: true,
+      message: `${createdStudents.length} alunos registados com credenciais geradas com sucesso!`,
+      importedCount: createdStudents.length,
+      students: createdStudents,
+    } as any;
+  }
+
+  // Single student creation
+  if (pathname === '/api/teacher/students' && method === 'POST') {
+    const { name, fullName, turma, studentNumber, customUsername, customPassword, classId } = body;
+    const finalFullName = (fullName || name || 'Aluno').trim();
+    const finalTurma = turma || '6.º A';
+    const finalClassId = classId || `class-${normalizeTurmaTag(finalTurma)}`;
+    const { displayName } = extractShortName(finalFullName);
+    const shortName = name && name.trim() ? name.trim() : displayName;
+
+    const qAllUsers = query(collection(db, 'users'));
+    const userSnap = await getDocs(qAllUsers);
+    const allUsers = userSnap.docs.map((d) => d.data() as ClientUser);
+    const existingUsernames = new Set(allUsers.map((u) => (u.username || u.nickname || '').toLowerCase()));
+
+    const username = customUsername || generateKidUsername(finalFullName, finalTurma, existingUsernames);
+    const initialPassword = customPassword || generateKidPassword();
+    const { hash, salt } = await hashPasswordClient(initialPassword);
+    const studentId = `student-${crypto.randomUUID()}`;
+    const now = new Date().toISOString();
+
+    const studentDoc: ClientUser = {
+      id: studentId,
+      name: shortName,
+      fullName: finalFullName,
+      turma: finalTurma,
+      studentNumber: Number(studentNumber) || 1,
+      username,
+      email: `${username}@escola.local`,
+      initialPassword,
+      passwordHash: hash,
+      passwordSalt: salt,
+      nickname: username,
+      avatar: 'avatar-boy-1',
+      role: 'student',
+      classId: finalClassId,
+      locale: 'pt',
+      xp: 100,
+      blocked: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await setDoc(doc(db, 'users', studentId), studentDoc);
+    return { success: true, student: studentDoc } as any;
+  }
+
+  // Create class
+  if (pathname === '/api/teacher/classes' && method === 'POST') {
+    const { name } = body;
+    const classId = `class-${normalizeTurmaTag(name || 'nova-turma')}-${Date.now().toString(36)}`;
+    const newClass = {
+      id: classId,
+      name: name || 'Nova Turma',
+      code: '',
+      createdAt: new Date().toISOString(),
+    };
+    await setDoc(doc(db, 'classes', classId), newClass);
+    return { success: true, classroom: newClass } as any;
+  }
+
+  // Class detail / update / delete
+  const classDetailMatch = pathname.match(/^\/api\/teacher\/classes\/([^\/]+)$/);
+  if (classDetailMatch) {
+    const cId = classDetailMatch[1];
+    if (method === 'GET') {
+      const cSnap = await getDoc(doc(db, 'classes', cId));
+      if (!cSnap.exists()) throw new Error('Turma não encontrada');
+      return { classroom: cSnap.data() } as any;
+    }
+    if (method === 'PUT') {
+      await updateDoc(doc(db, 'classes', cId), { ...body, updatedAt: new Date().toISOString() });
+      return { success: true } as any;
+    }
+    if (method === 'DELETE') {
+      await deleteDoc(doc(db, 'classes', cId));
+      return { success: true } as any;
+    }
+  }
+
+  // Class visibility
+  const classVisibilityMatch = pathname.match(/^\/api\/teacher\/classes\/([^\/]+)\/visibility$/);
+  if (classVisibilityMatch) {
+    const cId = classVisibilityMatch[1];
+    const cRef = doc(db, 'classes', cId);
+    if (method === 'GET') {
+      const cSnap = await getDoc(cRef);
+      const cData = cSnap.exists() ? cSnap.data() : {};
+      return { classId: cId, visibility: cData.visibility || {} } as any;
+    }
+    if (method === 'PUT') {
+      await setDoc(cRef, { visibility: body.visibility || body }, { merge: true });
+      return { success: true, visibility: body.visibility || body } as any;
+    }
+  }
+
+  // Delete all students of a class
+  const classStudentsMatch = pathname.match(/^\/api\/teacher\/classes\/([^\/]+)\/students$/);
+  if (classStudentsMatch && method === 'DELETE') {
+    const cId = classStudentsMatch[1];
+    const qStudents = query(collection(db, 'users'), where('classId', '==', cId), where('role', '==', 'student'));
+    const snap = await getDocs(qStudents);
+    for (const d of snap.docs) {
+      await deleteDoc(d.ref);
+    }
+    return { success: true, count: snap.size } as any;
+  }
+
+  // Reset class students progress
+  const classResetProgMatch = pathname.match(/^\/api\/teacher\/classes\/([^\/]+)\/reset-progress$/);
+  if (classResetProgMatch && method === 'POST') {
+    const cId = classResetProgMatch[1];
+    const qStudents = query(collection(db, 'users'), where('classId', '==', cId), where('role', '==', 'student'));
+    const snap = await getDocs(qStudents);
+    for (const sDoc of snap.docs) {
+      const sId = sDoc.id;
+      await updateDoc(sDoc.ref, { xp: 100, updatedAt: new Date().toISOString() });
+      const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
+      const snapProg = await getDocs(qProg);
+      for (const p of snapProg.docs) await deleteDoc(p.ref);
+      const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
+      const snapAssess = await getDocs(qAssess);
+      for (const a of snapAssess.docs) await deleteDoc(a.ref);
+      const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
+      const snapWc = await getDocs(qWc);
+      for (const w of snapWc.docs) await deleteDoc(w.ref);
+      await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+    }
+    return { success: true, count: snap.size, message: `Progresso reiniciado para ${snap.size} alunos.` } as any;
+  }
+
+  // Reset platform students progress
+  if (pathname === '/api/teacher/platform/reset-all-students-progress' && method === 'POST') {
+    const qStudents = query(collection(db, 'users'), where('role', '==', 'student'));
+    const snap = await getDocs(qStudents);
+    for (const sDoc of snap.docs) {
+      const sId = sDoc.id;
+      await updateDoc(sDoc.ref, { xp: 100, updatedAt: new Date().toISOString() });
+      const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
+      const snapProg = await getDocs(qProg);
+      for (const p of snapProg.docs) await deleteDoc(p.ref);
+      const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
+      const snapAssess = await getDocs(qAssess);
+      for (const a of snapAssess.docs) await deleteDoc(a.ref);
+      const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
+      const snapWc = await getDocs(qWc);
+      for (const w of snapWc.docs) await deleteDoc(w.ref);
+      await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+    }
+    return { success: true, count: snap.size, message: `Progresso global reiniciado para ${snap.size} alunos.` } as any;
+  }
+
+  // Grade mission
+  const missionGradeMatch = pathname.match(/^\/api\/teacher\/missions\/([^\/]+)\/grade$/);
+  if (missionGradeMatch && method === 'POST') {
+    const subId = missionGradeMatch[1];
+    const subRef = doc(db, 'missionSubmissions', subId);
+    const { score, feedback } = body;
+    const normalizedScore = Math.max(0, Math.min(100, Math.round(Number(score) || 0)));
+    const now = new Date().toISOString();
+
+    let resultingSub: any = null;
+    let xpGain = 0;
+
+    await runTransaction(db, async (txn) => {
+      const subSnap = await txn.get(subRef);
+      if (!subSnap.exists()) throw new Error('Submissão não encontrada');
+      const subData = subSnap.data();
+      const prevScore = Number(subData.score) || 0;
+      const newBest = Math.max(prevScore, normalizedScore);
+      xpGain = Math.max(0, newBest - prevScore);
+
+      resultingSub = {
+        ...subData,
+        score: normalizedScore,
+        feedback: feedback ? String(feedback).trim() : '',
+        status: 'graded',
+        gradedAt: now,
+        updatedAt: now,
+      };
+
+      txn.set(subRef, resultingSub, { merge: true });
+
+      if (xpGain > 0 && subData.userId) {
+        const uRef = doc(db, 'users', subData.userId);
+        const uSnap = await txn.get(uRef);
+        if (uSnap.exists()) {
+          const curXp = Number(uSnap.data().xp) || 0;
+          const newTotalXp = curXp + xpGain;
+          txn.update(uRef, { xp: newTotalXp, updatedAt: now });
+
+          const txId = `xp-${crypto.randomUUID()}`;
+          const txRef = doc(db, 'xpTransactions', txId);
+          txn.set(txRef, {
+            id: txId,
+            userId: subData.userId,
+            amount: xpGain,
+            reason: 'Correção de Missão Real',
+            sourceType: 'mission',
+            sourceId: subData.missionId || subId,
+            previousBest: prevScore,
+            newBest,
+            xpGain,
+            createdAt: now,
+          });
+        }
+      }
+    });
+
+    return { success: true, submission: resultingSub, xpGain } as any;
+  }
+
   // Teacher actions: toggle block, delete student, etc.
   const toggleBlockMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/toggle-block$/);
   if (toggleBlockMatch && method === 'POST') {
@@ -330,7 +667,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const sSnap = await getDoc(sRef);
     if (!sSnap.exists()) throw new Error('Aluno não encontrado');
     const newPassword = `sol${Math.floor(100 + Math.random() * 900)}`;
-    const { hash, salt } = await import('./clientAuthUtils').then((m) => m.hashPasswordClient(newPassword));
+    const { hash, salt } = await hashPasswordClient(newPassword);
     await updateDoc(sRef, {
       initialPassword: newPassword,
       passwordHash: hash,
@@ -340,27 +677,203 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return { success: true, newPassword } as any;
   }
 
+  const pwdResetMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/reset-password$/);
+  if (pwdResetMatch && method === 'POST') {
+    const sId = pwdResetMatch[1];
+    const sRef = doc(db, 'users', sId);
+    const { newPassword, requireChangeOnNextLogin } = body;
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error('A palavra-passe deve ter pelo menos 6 caracteres.');
+    }
+    const { hash, salt } = await hashPasswordClient(newPassword);
+    await updateDoc(sRef, {
+      initialPassword: newPassword,
+      passwordHash: hash,
+      passwordSalt: salt,
+      mustChangePassword: !!requireChangeOnNextLogin,
+      updatedAt: new Date().toISOString(),
+    });
+    return { success: true, message: 'Palavra-passe redefinida com sucesso!' } as any;
+  }
+
+  const resetStudentProgMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/reset-progress$/);
+  if (resetStudentProgMatch && method === 'POST') {
+    const sId = resetStudentProgMatch[1];
+    const sRef = doc(db, 'users', sId);
+    await updateDoc(sRef, { xp: 100, updatedAt: new Date().toISOString() });
+    const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
+    const snapProg = await getDocs(qProg);
+    for (const p of snapProg.docs) await deleteDoc(p.ref);
+    const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
+    const snapAssess = await getDocs(qAssess);
+    for (const a of snapAssess.docs) await deleteDoc(a.ref);
+    const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
+    const snapWc = await getDocs(qWc);
+    for (const w of snapWc.docs) await deleteDoc(w.ref);
+    await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+    return { success: true, message: 'Progresso do aluno reiniciado com sucesso.' } as any;
+  }
+
   const bonusXpMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/xp$/);
   if (bonusXpMatch && method === 'POST') {
     const sId = bonusXpMatch[1];
     const sRef = doc(db, 'users', sId);
-    const sSnap = await getDoc(sRef);
-    if (!sSnap.exists()) throw new Error('Aluno não encontrado');
-    const uData = sSnap.data();
     const amount = parseInt(String(body.xpAmount), 10) || 50;
-    const newTotal = (uData.xp || 0) + amount;
-    await updateDoc(sRef, {
-      xp: newTotal,
-      updatedAt: new Date().toISOString(),
+    const now = new Date().toISOString();
+    const txId = `xp-${crypto.randomUUID()}`;
+    const txRef = doc(db, 'xpTransactions', txId);
+    let finalTotal = 0;
+
+    await runTransaction(db, async (txn) => {
+      const sSnap = await txn.get(sRef);
+      if (!sSnap.exists()) throw new Error('Aluno não encontrado');
+      const uData = sSnap.data() as ClientUser;
+      const prevXp = Number(uData.xp) || 0;
+      finalTotal = prevXp + amount;
+
+      txn.update(sRef, {
+        xp: finalTotal,
+        updatedAt: now,
+      });
+
+      txn.set(txRef, {
+        id: txId,
+        userId: sId,
+        amount,
+        reason: body.reason || 'Bónus pedagógico atribuído pela Professora',
+        sourceType: 'bonus',
+        sourceId: `bonus-${Date.now()}`,
+        previousBest: prevXp,
+        newBest: finalTotal,
+        xpGain: amount,
+        createdAt: now,
+      });
     });
-    return { success: true, newTotalXP: newTotal, message: `+${amount} XP atribuídos!` } as any;
+
+    return { success: true, newTotalXP: finalTotal, message: `+${amount} XP atribuídos!` } as any;
   }
 
-  const deleteStudentMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)$/);
-  if (deleteStudentMatch && method === 'DELETE') {
-    const sId = deleteStudentMatch[1];
-    await deleteDoc(doc(db, 'users', sId));
-    return { success: true } as any;
+  // Student Dossier, Update, and Delete
+  const studentDossierMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)$/);
+  if (studentDossierMatch) {
+    const sId = studentDossierMatch[1];
+    const sRef = doc(db, 'users', sId);
+
+    if (method === 'GET') {
+      const sSnap = await getDoc(sRef);
+      if (!sSnap.exists()) throw new Error('Aluno não encontrado');
+      const student = sSnap.data() as ClientUser;
+
+      const [cSnap, progSnap, assessSnap, missionSnap, badgeSnap, txSnap] = await Promise.all([
+        student.classId ? getDoc(doc(db, 'classes', student.classId)) : Promise.resolve(null as any),
+        getDocs(query(collection(db, 'activityProgress'), where('userId', '==', sId))),
+        getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', sId))),
+        getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', sId))),
+        getDocs(query(collection(db, 'badges'), where('userId', '==', sId))),
+        getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', sId))),
+      ]);
+
+      const classroom = cSnap && cSnap.exists() ? cSnap.data() : null;
+      const badges = badgeSnap.docs.map((d) => d.data());
+      const xpHistory = txSnap.docs
+        .map((d) => d.data())
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      const worldDetails: Record<number, any> = {};
+      for (let w = 1; w <= 5; w++) {
+        const stats = await clientComputeWorldStats(sId, w, 'student');
+        worldDetails[w] = stats;
+      }
+
+      const levelInfo = calculateLevel(student.xp || 0);
+
+      const xpBreakdown = {
+        simulators: xpHistory
+          .filter((t: any) => t.sourceType === 'activity' || t.sourceType === 'simulator')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        challenges: xpHistory
+          .filter((t: any) => t.sourceType === 'challenge' || t.sourceType === 'weekly_challenge')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        grandeMissao: xpHistory
+          .filter((t: any) => t.sourceType === 'grande_missao')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        missions: xpHistory
+          .filter((t: any) => t.sourceType === 'mission')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        dailyTips: xpHistory
+          .filter((t: any) => t.sourceType === 'daily_tip')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        bonus: xpHistory
+          .filter((t: any) => t.sourceType === 'bonus')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        total: student.xp || 0,
+      };
+
+      const gmSnap = await getDoc(doc(db, 'grandeMissaoProgress', sId));
+      const grandeMissao = gmSnap.exists()
+        ? gmSnap.data()
+        : { currentStage: 1, completedStages: [], status: 'not_started' };
+
+      return {
+        student: {
+          id: student.id,
+          name: student.name,
+          fullName: student.fullName || student.name,
+          turma: student.turma || (classroom ? classroom.name : 'Sem Turma'),
+          studentNumber: student.studentNumber || 1,
+          username: student.username || student.nickname,
+          initialPassword: student.initialPassword || '',
+          email: student.email,
+          nickname: student.nickname,
+          avatar: student.avatar,
+          classId: student.classId,
+          className: classroom ? classroom.name : student.turma || 'Sem Turma',
+          locale: student.locale,
+          xp: student.xp,
+          level: levelInfo.level,
+          levelName: levelInfo.name,
+          blocked: student.blocked,
+          mustChangePassword: student.mustChangePassword || false,
+          createdAt: student.createdAt,
+          lastLoginAt: student.lastLoginAt,
+        },
+        worldDetails,
+        xpBreakdown,
+        badges: badges.map((b: any) => {
+          const cat = BADGES_CATALOG.find((bc) => bc.id === b.badgeId);
+          return {
+            id: b.id,
+            badgeId: b.badgeId,
+            name: cat ? cat.title : b.badgeId,
+            description: cat ? cat.description : '',
+            icon: cat ? cat.icon : 'Award',
+            awardedAt: b.awardedAt,
+          };
+        }),
+        xpHistory,
+        dailyTipsCount: xpHistory.filter((t: any) => t.sourceType === 'daily_tip').length,
+        weeklyChallengesCompleted: xpHistory.filter((t: any) => t.sourceType === 'weekly_challenge').length,
+        grandeMissao,
+      } as any;
+    }
+
+    if (method === 'PUT') {
+      const updates: any = { updatedAt: new Date().toISOString() };
+      if (body.nickname) updates.nickname = body.nickname;
+      if (body.name) updates.name = body.name;
+      if (body.fullName) updates.fullName = body.fullName;
+      if (body.classId) updates.classId = body.classId;
+      if (body.turma) updates.turma = body.turma;
+      if (body.studentNumber) updates.studentNumber = Number(body.studentNumber);
+      if (typeof body.blocked === 'boolean') updates.blocked = body.blocked;
+      await updateDoc(sRef, updates);
+      return { success: true } as any;
+    }
+
+    if (method === 'DELETE') {
+      await deleteDoc(sRef);
+      return { success: true } as any;
+    }
   }
 
   throw new Error(`Rota não encontrada no serviço local: ${pathname}`);

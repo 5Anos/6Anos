@@ -551,80 +551,85 @@ export async function clientCompleteActivity(activityId: string, score: number, 
 
   const progDocId = `${userId}_${activityId}`;
   const progRef = doc(db, 'activityProgress', progDocId);
-  const snap = await getDoc(progRef);
-
-  let previousBest = 0;
-  let attempts = 0;
-  if (snap.exists()) {
-    const data = snap.data();
-    previousBest = data.bestScore || 0;
-    attempts = data.attempts || 0;
-  }
-
+  const userRef = doc(db, 'users', userId);
   const clampedScore = Math.max(0, Math.min(100, Math.round(score)));
-  const newBest = Math.max(previousBest, clampedScore);
   const completed = clampedScore >= 50;
   const now = new Date().toISOString();
 
-  await setDoc(
-    progRef,
-    {
-      id: progDocId,
-      userId,
-      activityId,
-      completed,
-      score: clampedScore,
-      bestScore: newBest,
-      attempts: attempts + 1,
-      durationSeconds: durationSeconds || 60,
-      updatedAt: now,
-    },
-    { merge: true }
-  );
+  let previousBest = 0;
+  let newBest = clampedScore;
+  let xpGain = 0;
+  let finalUserXp = 0;
 
-  // Calculate XP gain strictly as delta of best score (max 100 XP per simulator)
-  // E.g.: 80% on first try -> +80 XP. 70% or 80% on repeat -> 0 XP. 100% on repeat -> +20 XP.
-  const xpGain = Math.max(0, newBest - previousBest);
+  await runTransaction(db, async (txn) => {
+    // 1. Mandatory reads first
+    const uSnap = await txn.get(userRef);
+    if (!uSnap.exists()) throw new Error('Utilizador não encontrado');
+    const uData = uSnap.data() as ClientUser;
+    const currentXp = Number(uData.xp) || 0;
 
-  if (xpGain > 0) {
-    const userRef = doc(db, 'users', userId);
-    await runTransaction(db, async (txn) => {
-      const uSnap = await txn.get(userRef);
-      if (uSnap.exists()) {
-        const currentXp = (uSnap.data() as ClientUser).xp || 0;
-        txn.update(userRef, { xp: currentXp + xpGain, updatedAt: now });
-      }
-    });
+    const progSnap = await txn.get(progRef);
+    let attempts = 0;
+    let existingCompleted = false;
+    if (progSnap.exists()) {
+      const data = progSnap.data();
+      previousBest = Number(data.bestScore) || 0;
+      attempts = Number(data.attempts) || 0;
+      existingCompleted = !!data.completed;
+    }
 
-    const txId = `xp-${crypto.randomUUID()}`;
-    await setDoc(doc(db, 'xpTransactions', txId), {
-      id: txId,
-      userId,
-      amount: xpGain,
-      reason: `Simulador: ${activityId}`,
-      sourceType: 'simulator',
-      sourceId: activityId,
-      previousBest,
-      newBest,
-      xpGain,
-      createdAt: now,
-    }).catch(() => {});
-  }
+    newBest = Math.max(previousBest, clampedScore);
+    xpGain = Math.max(0, newBest - previousBest);
+    finalUserXp = currentXp + xpGain;
+
+    // 2. Atomic Writes
+    txn.set(
+      progRef,
+      {
+        id: progDocId,
+        userId,
+        activityId,
+        completed: completed || existingCompleted,
+        score: clampedScore,
+        bestScore: newBest,
+        attempts: attempts + 1,
+        durationSeconds: durationSeconds || 60,
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+    if (xpGain > 0) {
+      txn.update(userRef, { xp: finalUserXp, updatedAt: now });
+
+      const txId = `xp-${crypto.randomUUID()}`;
+      const txRef = doc(db, 'xpTransactions', txId);
+      txn.set(txRef, {
+        id: txId,
+        userId,
+        amount: xpGain,
+        reason: `Simulador: ${activityId}`,
+        sourceType: 'simulator',
+        sourceId: activityId,
+        previousBest,
+        newBest,
+        xpGain,
+        createdAt: now,
+      });
+    }
+  });
 
   // Check badges
   await clientCheckBadges(userId);
 
-  const updatedUserSnap = await getDoc(doc(db, 'users', userId));
-  const updatedUser = updatedUserSnap.data() as ClientUser;
-
   return {
     success: true,
     activityId,
-    score,
+    score: clampedScore,
     bestScore: newBest,
     xpGain,
-    totalXp: updatedUser.xp,
-    level: calculateLevel(updatedUser.xp).level,
+    totalXp: finalUserXp,
+    level: calculateLevel(finalUserXp).level,
   };
 }
 
@@ -731,38 +736,46 @@ export async function clientSubmitAssessment(
 
   const now = new Date().toISOString();
   const attemptId = `attempt-${crypto.randomUUID()}`;
+  const attemptRef = doc(db, 'assessmentAttempts', attemptId);
+  const userRef = doc(db, 'users', userId);
 
-  await setDoc(doc(db, 'assessmentAttempts', attemptId), {
-    id: attemptId,
-    userId,
-    worldId,
-    score: correctCount,
-    totalQuestions,
-    correctCount,
-    percentage,
-    mention,
-    passed,
-    isFirstAttempt,
-    attemptNumber,
-    firstScore: officialPercentage,
-    firstMention: officialMention,
-    bestScore: newBest,
-    bestMention,
-    latestScore: percentage,
-    latestMention: mention,
-    attempts: attemptNumber,
-    answers,
-    durationSeconds: durationSeconds || 120,
-    createdAt: now,
+  let finalUserXp = 0;
+  await runTransaction(db, async (txn) => {
+    const uSnap = await txn.get(userRef);
+    if (!uSnap.exists()) throw new Error('Utilizador não encontrado');
+    finalUserXp = (uSnap.data() as ClientUser).xp || 0;
+
+    txn.set(attemptRef, {
+      id: attemptId,
+      userId,
+      worldId,
+      score: correctCount,
+      totalQuestions,
+      correctCount,
+      percentage,
+      mention,
+      passed,
+      isFirstAttempt,
+      attemptNumber,
+      firstScore: officialPercentage,
+      firstMention: officialMention,
+      bestScore: newBest,
+      bestMention,
+      latestScore: percentage,
+      latestMention: mention,
+      attempts: attemptNumber,
+      answers,
+      durationSeconds: durationSeconds || 120,
+      createdAt: now,
+    });
+
+    txn.update(userRef, { updatedAt: now });
   });
 
   // Quizzes award 0 XP (purely pedagogical assessment)
   const xpGain = 0;
 
   await clientCheckBadges(userId);
-
-  const updatedUserSnap = await getDoc(doc(db, 'users', userId));
-  const updatedUser = updatedUserSnap.data() as ClientUser;
 
   return {
     worldId,
@@ -781,7 +794,7 @@ export async function clientSubmitAssessment(
     newBest,
     bestMention,
     xpGain: 0,
-    totalXp: updatedUser.xp,
+    totalXp: finalUserXp,
     results: detailedResults,
   };
 }
@@ -846,30 +859,44 @@ export async function clientClaimDailyTip() {
   }
 
   const claimRef = doc(db, 'dailyTipClaims', claimId);
-
-  const exists = (await getDoc(claimRef)).exists();
-  if (exists) throw new Error('Dica já reclamada hoje!');
-
-  const now = new Date().toISOString();
-  await setDoc(claimRef, {
-    id: claimId,
-    userId,
-    tipDate: today,
-    claimedAt: now,
-  });
-
-  const xpReward = PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP; // 20 XP
   const userRef = doc(db, 'users', userId);
+  const xpReward = PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP; // 20 XP
+  const now = new Date().toISOString();
+  const txId = `xp-${crypto.randomUUID()}`;
+  const txRef = doc(db, 'xpTransactions', txId);
+
+  let finalXp = 0;
   await runTransaction(db, async (txn) => {
-    const snap = await txn.get(userRef);
-    if (snap.exists()) {
-      const curXp = (snap.data() as ClientUser).xp || 0;
-      txn.update(userRef, { xp: curXp + xpReward, updatedAt: now });
-    }
+    const claimSnap = await txn.get(claimRef);
+    if (claimSnap.exists()) throw new Error('Dica já reclamada hoje!');
+
+    const userDocSnap = await txn.get(userRef);
+    if (!userDocSnap.exists()) throw new Error('Utilizador não encontrado');
+    const curXp = (userDocSnap.data() as ClientUser).xp || 0;
+    finalXp = curXp + xpReward;
+
+    txn.set(claimRef, {
+      id: claimId,
+      userId,
+      tipDate: today,
+      claimedAt: now,
+    });
+    txn.update(userRef, { xp: finalXp, updatedAt: now });
+    txn.set(txRef, {
+      id: txId,
+      userId,
+      amount: xpReward,
+      reason: 'Dica do Dia',
+      sourceType: 'daily_tip',
+      sourceId: `tip-${today}`,
+      previousBest: 0,
+      newBest: 10,
+      xpGain: xpReward,
+      createdAt: now,
+    });
   });
 
-  const updatedUser = (await getDoc(userRef)).data() as ClientUser;
-  return { success: true, xpReward, totalXp: updatedUser.xp };
+  return { success: true, xpReward, totalXp: finalXp };
 }
 
 export async function clientGetWeeklyChallenge() {
@@ -950,9 +977,12 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
   }
 
   const challengeId = `${userId}_${WEEKLY_CHALLENGE.id}`;
+  const challengeRef = doc(db, 'weeklyChallenges', challengeId);
+  const userRef = doc(db, 'users', userId);
   const now = new Date().toISOString();
-  const cDoc = await getDoc(doc(db, 'weeklyChallenges', challengeId));
-  const alreadyCompleted = cDoc.exists();
+  const xpReward = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE; // 30 XP
+  const txId = `xp-${crypto.randomUUID()}`;
+  const txRef = doc(db, 'xpTransactions', txId);
 
   const safeSolution =
     typeof payload?.solution !== 'undefined'
@@ -961,8 +991,28 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
       ? (payload.isPhishing ? 'phishing' : 'safe')
       : String(optionIndex);
 
-  if (!alreadyCompleted) {
-    await setDoc(doc(db, 'weeklyChallenges', challengeId), {
+  let alreadyCompleted = false;
+  let finalUserXp = 0;
+  let earnedXp = 0;
+
+  await runTransaction(db, async (txn) => {
+    const userDocSnap = await txn.get(userRef);
+    if (!userDocSnap.exists()) throw new Error('Utilizador não encontrado');
+    const curXp = (userDocSnap.data() as ClientUser).xp || 0;
+
+    const cSnap = await txn.get(challengeRef);
+    if (cSnap.exists()) {
+      alreadyCompleted = true;
+      earnedXp = 0;
+      finalUserXp = curXp;
+      return;
+    }
+
+    alreadyCompleted = false;
+    earnedXp = xpReward;
+    finalUserXp = curXp + earnedXp;
+
+    txn.set(challengeRef, {
       id: challengeId,
       userId,
       challengeId: WEEKLY_CHALLENGE.id,
@@ -972,35 +1022,24 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
       completedAt: now,
     });
 
-    const xpReward = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE; // 30 XP
-    const userRef = doc(db, 'users', userId);
-    await runTransaction(db, async (txn) => {
-      const snap = await txn.get(userRef);
-      if (snap.exists()) {
-        const curXp = (snap.data() as ClientUser).xp || 0;
-        txn.update(userRef, { xp: curXp + xpReward, updatedAt: now });
-      }
-    });
-
-    const txId = `xp-${crypto.randomUUID()}`;
-    await setDoc(doc(db, 'xpTransactions', txId), {
+    txn.update(userRef, { xp: finalUserXp, updatedAt: now });
+    txn.set(txRef, {
       id: txId,
       userId,
-      amount: xpReward,
+      amount: earnedXp,
       reason: 'Desafio Semanal',
       sourceType: 'weekly_challenge',
       sourceId: WEEKLY_CHALLENGE.id,
       previousBest: 0,
       newBest: 100,
-      xpGain: xpReward,
+      xpGain: earnedXp,
       createdAt: now,
-    }).catch(() => {});
+    });
+  });
 
+  if (!alreadyCompleted) {
     await clientCheckBadges(userId);
   }
-
-  const updatedUser = (await getDoc(doc(db, 'users', userId))).data() as ClientUser;
-  const xpReward = alreadyCompleted ? 0 : PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE;
 
   return {
     success: true,
@@ -1008,9 +1047,9 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
     feedback: selected.explanation,
     message: alreadyCompleted
       ? 'Já resolveste com sucesso o desafio desta semana!'
-      : `+${xpReward} XP ganhos no Desafio da Semana!`,
-    xpGain: xpReward,
-    totalXp: updatedUser?.xp || 0,
+      : `+${earnedXp} XP ganhos no Desafio da Semana!`,
+    xpGain: earnedXp,
+    totalXp: finalUserXp,
   };
 }
 
@@ -1048,33 +1087,38 @@ export async function clientSaveGrandeMissaoStage(stageNumber: number, answers: 
 
   const db = getClientFirestore();
   const gmRef = doc(db, 'grandeMissaoProgress', userId);
-  const snap = await getDoc(gmRef);
-
-  let completedStages: number[] = [];
-  if (snap.exists()) {
-    completedStages = snap.data().completedStages || [];
-  }
-  if (!completedStages.includes(stageNumber)) {
-    completedStages.push(stageNumber);
-  }
-
-  const nextStage = Math.min(5, stageNumber + 1);
   const now = new Date().toISOString();
 
-  await setDoc(
-    gmRef,
-    {
-      id: userId,
-      userId,
-      currentStage: nextStage,
-      completedStages,
-      status: completedStages.length >= 5 ? 'completed' : 'in_progress',
-      updatedAt: now,
-    },
-    { merge: true }
-  );
+  let nextStage = stageNumber;
+  let finalCompletedStages: number[] = [];
 
-  return { success: true, currentStage: nextStage, completedStages };
+  await runTransaction(db, async (txn) => {
+    const snap = await txn.get(gmRef);
+    let completedStages: number[] = [];
+    if (snap.exists()) {
+      completedStages = snap.data().completedStages || [];
+    }
+    if (!completedStages.includes(stageNumber)) {
+      completedStages.push(stageNumber);
+    }
+    finalCompletedStages = completedStages;
+    nextStage = Math.min(5, stageNumber + 1);
+
+    txn.set(
+      gmRef,
+      {
+        id: userId,
+        userId,
+        currentStage: nextStage,
+        completedStages,
+        status: completedStages.length >= 5 ? 'completed' : 'in_progress',
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+  });
+
+  return { success: true, currentStage: nextStage, completedStages: finalCompletedStages };
 }
 
 export async function clientCompleteGrandeMissao() {
@@ -1089,23 +1133,66 @@ export async function clientCompleteGrandeMissao() {
   }
 
   const now = new Date().toISOString();
-  await updateDoc(doc(db, 'grandeMissaoProgress', userId), {
-    status: 'completed',
-    completedAt: now,
-    updatedAt: now,
-  });
-
-  const xpGain = 150;
+  const gmRef = doc(db, 'grandeMissaoProgress', userId);
   const userRef = doc(db, 'users', userId);
+  const txId = `xp-${crypto.randomUUID()}`;
+  const txRef = doc(db, 'xpTransactions', txId);
+  const xpGain = 150;
+
+  let alreadyCompleted = false;
+  let finalUserXp = 0;
+
   await runTransaction(db, async (txn) => {
-    const snap = await txn.get(userRef);
-    if (snap.exists()) {
-      const cur = (snap.data() as ClientUser).xp || 0;
-      txn.update(userRef, { xp: cur + xpGain, updatedAt: now });
+    const uSnap = await txn.get(userRef);
+    if (!uSnap.exists()) throw new Error('Utilizador não encontrado');
+    const cur = (uSnap.data() as ClientUser).xp || 0;
+
+    const gmSnap = await txn.get(gmRef);
+    if (gmSnap.exists() && gmSnap.data().status === 'completed') {
+      alreadyCompleted = true;
+      finalUserXp = cur;
+      return;
     }
+
+    alreadyCompleted = false;
+    finalUserXp = cur + xpGain;
+
+    const existingData = gmSnap.exists() ? gmSnap.data() : {};
+    txn.set(
+      gmRef,
+      {
+        ...existingData,
+        id: userId,
+        userId,
+        status: 'completed',
+        currentStage: 5,
+        completedStages: [1, 2, 3, 4, 5],
+        completedAt: now,
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+    txn.update(userRef, { xp: finalUserXp, updatedAt: now });
+    txn.set(txRef, {
+      id: txId,
+      userId,
+      amount: xpGain,
+      reason: 'Grande Missão Final Concluída',
+      sourceType: 'grande_missao',
+      sourceId: 'grande-missao-final',
+      previousBest: 0,
+      newBest: 150,
+      xpGain,
+      createdAt: now,
+    });
   });
 
-  return { success: true, xpGain };
+  if (!alreadyCompleted) {
+    await clientCheckBadges(userId);
+  }
+
+  return { success: true, xpGain: alreadyCompleted ? 0 : xpGain, totalXp: finalUserXp };
 }
 
 // -------------------------------------------------------------

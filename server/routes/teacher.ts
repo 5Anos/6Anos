@@ -37,6 +37,7 @@ import {
   addAuditLog,
   getAuditLogs,
   atomicAwardXP,
+  atomicAwardTeacherMissionGrade,
   awardBadge,
   getFirestoreStats,
   resetStudentProgressInFirestore,
@@ -1400,42 +1401,27 @@ router.post('/missions/:submissionId/grade', async (req: AuthRequest, res) => {
     const student = await getUserById(submission.userId);
     if (!student) return res.status(404).json({ error: 'Aluno associado não encontrado.' });
 
-    const prevScore = submission.score || 0;
     const normalizedScore = Math.round(score);
 
-    const now = new Date().toISOString();
-    submission.score = normalizedScore;
-    submission.feedback = feedback ? feedback.trim() : '';
-    submission.status = 'graded';
-    submission.gradedBy = req.user!.name;
-    submission.gradedAt = now;
-    submission.updatedAt = now;
-    submission.submissionText = submission.submissionText || submission.submission;
-
-    await saveMissionSubmission(submission);
-
-    const newBest = Math.max(prevScore, normalizedScore);
-    const xpGain = newBest - prevScore;
-
-    if (xpGain > 0) {
-      await atomicAwardXP(student.id, xpGain, {
-        sourceType: 'mission',
-        sourceId: submission.missionId,
-        previousBest: prevScore,
-        newBest,
-      });
-    }
+    const result = await atomicAwardTeacherMissionGrade({
+      submissionId,
+      studentId: student.id,
+      missionId: submission.missionId,
+      score: normalizedScore,
+      feedback: feedback ? feedback.trim() : '',
+      gradedBy: req.user!.name,
+    });
 
     await logTeacherAction(req, 'Correção de Missão Real', student.id, student.name, {
       missionId: submission.missionId,
       score: normalizedScore,
-      xpGain,
+      xpGain: result.xpGain,
     });
 
     return res.json({
       success: true,
       message: 'Missão avaliada com sucesso e XP atribuído ao aluno!',
-      submission,
+      submission: result.submission,
     });
   } catch (err) {
     console.error('Error in /missions/:submissionId/grade:', err);

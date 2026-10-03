@@ -507,6 +507,116 @@ export async function saveActivityProgress(progress: ActivityProgress): Promise<
   await setDoc(doc(db, 'activityProgress', docId), progress);
 }
 
+/**
+ * Concurrency-safe atomic transaction that updates ActivityProgress and,
+ * if newBest > previousBest, awards the XP delta to the user and records the XPTransaction.
+ */
+export async function atomicRecordActivityProgress(params: {
+  userId: string;
+  activityId: string;
+  worldId: number;
+  evaluatedScore: number;
+  isChallenge: boolean;
+}): Promise<{
+  previousBest: number;
+  newBest: number;
+  xpGain: number;
+  newTotalXP: number;
+  attempts: number;
+  firstScore: number;
+  isFirst: boolean;
+  progress: ActivityProgress;
+}> {
+  const db = getFirestore();
+  const { userId, activityId, worldId, evaluatedScore, isChallenge } = params;
+  const userRef = doc(db, 'users', userId);
+  const progDocId = `${userId}_${activityId}`;
+  const progRef = doc(db, 'activityProgress', progDocId);
+  const now = new Date().toISOString();
+
+  let previousBest = 0;
+  let newBest = evaluatedScore;
+  let xpGain = 0;
+  let newTotalXP = 0;
+  let attempts = 1;
+  let firstScore = evaluatedScore;
+  let isFirst = true;
+  let resultingProgress: ActivityProgress | null = null;
+
+  await runTransaction(db, async (transaction) => {
+    // 1. Mandatory reads first
+    const userSnap = await transaction.get(userRef);
+    if (!userSnap.exists()) {
+      throw new Error(`Utilizador não encontrado: ${userId}`);
+    }
+    const user = userSnap.data() as User;
+    const currentXp = Number(user.xp) || 0;
+
+    const progSnap = await transaction.get(progRef);
+    const existingProg = progSnap.exists() ? (progSnap.data() as ActivityProgress) : null;
+
+    previousBest = existingProg ? (Number(existingProg.bestScore) || 0) : 0;
+    newBest = Math.max(previousBest, evaluatedScore);
+    isFirst = !existingProg || !existingProg.attempts;
+    firstScore = isFirst ? evaluatedScore : (existingProg?.firstScore ?? previousBest);
+    attempts = (existingProg ? existingProg.attempts : 0) + 1;
+    xpGain = Math.max(0, newBest - previousBest);
+    const previousAwardedXp = existingProg ? (Number(existingProg.awardedXp) || 0) : 0;
+    const awardedXp = previousAwardedXp + xpGain;
+    newTotalXP = currentXp + xpGain;
+
+    resultingProgress = {
+      id: progDocId,
+      userId,
+      activityId,
+      worldId,
+      firstScore,
+      bestScore: newBest,
+      latestScore: evaluatedScore,
+      attempts,
+      awardedXp,
+      completed: true,
+      firstCompletedAt: existingProg?.firstCompletedAt || now,
+      lastAttemptAt: now,
+    };
+
+    // 2. Atomic Writes
+    transaction.set(progRef, resultingProgress, { merge: true });
+
+    if (xpGain > 0) {
+      const txId = `xp-${crypto.randomUUID()}`;
+      const txRef = doc(db, 'xpTransactions', txId);
+      const newTx: XPTransaction = {
+        id: txId,
+        userId,
+        sourceType: isChallenge ? 'challenge' : 'activity',
+        sourceId: activityId,
+        previousBest,
+        newBest,
+        xpGain,
+        createdAt: now,
+      };
+
+      transaction.update(userRef, {
+        xp: newTotalXP,
+        updatedAt: now,
+      });
+      transaction.set(txRef, newTx);
+    }
+  });
+
+  return {
+    previousBest,
+    newBest,
+    xpGain,
+    newTotalXP,
+    attempts,
+    firstScore,
+    isFirst,
+    progress: resultingProgress!,
+  };
+}
+
 // -------------------------------------------------------------
 // 5. ASSESSMENT ATTEMPTS
 // -------------------------------------------------------------
@@ -527,6 +637,30 @@ export async function getAssessmentAttempts(userId: string, worldId?: number): P
 export async function saveAssessmentAttempt(attempt: AssessmentAttempt): Promise<void> {
   const db = getFirestore();
   await setDoc(doc(db, 'assessmentAttempts', attempt.id), attempt);
+}
+
+/**
+ * Concurrency-safe atomic transaction for recording assessment quiz attempts
+ */
+export async function atomicRecordAssessmentAttempt(
+  attempt: AssessmentAttempt
+): Promise<{ attempt: AssessmentAttempt }> {
+  const db = getFirestore();
+  const attemptRef = doc(db, 'assessmentAttempts', attempt.id);
+  const userRef = doc(db, 'users', attempt.userId);
+
+  await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+    if (!userSnap.exists()) {
+      throw new Error(`Utilizador não encontrado: ${attempt.userId}`);
+    }
+    transaction.set(attemptRef, attempt);
+    transaction.update(userRef, {
+      updatedAt: attempt.createdAt,
+    });
+  });
+
+  return { attempt };
 }
 
 // -------------------------------------------------------------
@@ -562,6 +696,83 @@ export async function getMissionSubmissionById(id: string): Promise<MissionSubmi
 export async function saveMissionSubmission(sub: MissionSubmission): Promise<void> {
   const db = getFirestore();
   await setDoc(doc(db, 'missionSubmissions', sub.id), sub);
+}
+
+/**
+ * Concurrency-safe atomic transaction for grading a mission and awarding XP to the student
+ */
+export async function atomicAwardTeacherMissionGrade(params: {
+  submissionId: string;
+  studentId: string;
+  missionId: string;
+  score: number;
+  feedback: string;
+  gradedBy: string;
+}): Promise<{
+  submission: MissionSubmission;
+  xpGain: number;
+  newTotalXP: number;
+}> {
+  const db = getFirestore();
+  const { submissionId, studentId, missionId, score, feedback, gradedBy } = params;
+  const subRef = doc(db, 'missionSubmissions', submissionId);
+  const userRef = doc(db, 'users', studentId);
+  const now = new Date().toISOString();
+
+  let xpGain = 0;
+  let newTotalXP = 0;
+  let updatedSubmission: MissionSubmission | null = null;
+
+  await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+    if (!userSnap.exists()) {
+      throw new Error(`Aluno não encontrado: ${studentId}`);
+    }
+    const user = userSnap.data() as User;
+    const curXp = Number(user.xp) || 0;
+
+    const subSnap = await transaction.get(subRef);
+    if (!subSnap.exists()) {
+      throw new Error(`Submissão não encontrada: ${submissionId}`);
+    }
+    const sub = subSnap.data() as MissionSubmission;
+
+    const prevScore = Number(sub.score) || 0;
+    const normalizedScore = Math.round(score);
+    const newBest = Math.max(prevScore, normalizedScore);
+    xpGain = Math.max(0, newBest - prevScore);
+    newTotalXP = curXp + xpGain;
+
+    updatedSubmission = {
+      ...sub,
+      score: normalizedScore,
+      feedback: feedback ? feedback.trim() : '',
+      status: 'graded',
+      gradedBy,
+      gradedAt: now,
+      updatedAt: now,
+    };
+
+    transaction.set(subRef, updatedSubmission, { merge: true });
+
+    if (xpGain > 0) {
+      const txId = `xp-${crypto.randomUUID()}`;
+      const txRef = doc(db, 'xpTransactions', txId);
+      transaction.update(userRef, { xp: newTotalXP, updatedAt: now });
+      transaction.set(txRef, {
+        id: txId,
+        userId: studentId,
+        sourceType: 'mission',
+        sourceId: missionId,
+        previousBest: prevScore,
+        newBest,
+        xpGain,
+        createdAt: now,
+      });
+    }
+  });
+
+  return { submission: updatedSubmission!, xpGain, newTotalXP };
 }
 
 // -------------------------------------------------------------
@@ -784,6 +995,81 @@ export async function saveWeeklyChallengeProgress(p: WeeklyChallengeProgress): P
   await setDoc(doc(db, 'weeklyChallenges', `${p.userId}_${p.challengeId}`), p);
 }
 
+/**
+ * Concurrency-safe atomic transaction for completing the weekly challenge
+ */
+export async function atomicRecordWeeklyChallenge(params: {
+  userId: string;
+  challengeId: string;
+  solution?: string;
+  optionIndex?: number;
+  xpReward: number;
+}): Promise<{
+  alreadyCompleted: boolean;
+  xpGain: number;
+  totalXp: number;
+}> {
+  const db = getFirestore();
+  const { userId, challengeId, solution, optionIndex, xpReward } = params;
+  const docId = `${userId}_${challengeId}`;
+  const challengeRef = doc(db, 'weeklyChallenges', docId);
+  const userRef = doc(db, 'users', userId);
+  const now = new Date().toISOString();
+
+  let alreadyCompleted = false;
+  let xpGain = 0;
+  let totalXp = 0;
+
+  await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+    if (!userSnap.exists()) {
+      throw new Error(`Utilizador não encontrado: ${userId}`);
+    }
+    const user = userSnap.data() as User;
+    const curXp = Number(user.xp) || 0;
+
+    const cSnap = await transaction.get(challengeRef);
+    if (cSnap.exists()) {
+      alreadyCompleted = true;
+      xpGain = 0;
+      totalXp = curXp;
+      return;
+    }
+
+    alreadyCompleted = false;
+    xpGain = xpReward;
+    totalXp = curXp + xpGain;
+
+    transaction.set(challengeRef, {
+      id: docId,
+      userId,
+      challengeId,
+      solution: solution || '',
+      optionIndex: optionIndex ?? 0,
+      completed: true,
+      completedAt: now,
+      score: 100,
+      status: 'completed',
+    });
+
+    const txId = `xp-${crypto.randomUUID()}`;
+    const txRef = doc(db, 'xpTransactions', txId);
+    transaction.update(userRef, { xp: totalXp, updatedAt: now });
+    transaction.set(txRef, {
+      id: txId,
+      userId,
+      sourceType: 'weekly_challenge',
+      sourceId: challengeId,
+      previousBest: 0,
+      newBest: 100,
+      xpGain,
+      createdAt: now,
+    });
+  });
+
+  return { alreadyCompleted, xpGain, totalXp };
+}
+
 // -------------------------------------------------------------
 // 11. GRANDE MISSAO FINAL
 // -------------------------------------------------------------
@@ -814,6 +1100,136 @@ export async function saveGrandeMissaoProgress(p: GrandeMissaoProgress): Promise
   const db = getFirestore();
   const data = { ...p, id: p.userId, updatedAt: new Date().toISOString() };
   await setDoc(doc(db, 'grandeMissaoProgress', p.userId), data);
+}
+
+/**
+ * Concurrency-safe atomic transaction for advancing a stage in Grande Missao
+ */
+export async function atomicRecordGrandeMissaoStage(params: {
+  userId: string;
+  completedZones: number[];
+  unlockedCodes: Record<string, any>;
+}): Promise<{
+  progress: GrandeMissaoProgress;
+}> {
+  const db = getFirestore();
+  const { userId, completedZones, unlockedCodes } = params;
+  const gmRef = doc(db, 'grandeMissaoProgress', userId);
+  const now = new Date().toISOString();
+  let resultingProgress: GrandeMissaoProgress | null = null;
+
+  await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(gmRef);
+    let currentStages: number[] = [];
+    let currentAnswers: Record<string, any> = {};
+    let status: GrandeMissaoProgress['status'] = 'not_started';
+
+    if (snap.exists()) {
+      const d = snap.data() as GrandeMissaoProgress;
+      currentStages = d.completedStages || [];
+      currentAnswers = d.stageAnswers || {};
+      status = d.status || 'not_started';
+    }
+
+    const mergedStages = Array.from(new Set([...currentStages, ...completedZones]));
+    const mergedAnswers = { ...currentAnswers, ...unlockedCodes };
+    if (status !== 'completed') {
+      status = mergedStages.length > 0 ? 'in_progress' : 'not_started';
+    }
+    const currentStage = Math.min(6, Math.max(...mergedStages, 1));
+
+    resultingProgress = {
+      id: userId,
+      userId,
+      currentStage,
+      completedStages: mergedStages,
+      stageAnswers: mergedAnswers,
+      status,
+      updatedAt: now,
+    };
+
+    transaction.set(gmRef, resultingProgress, { merge: true });
+  });
+
+  return { progress: resultingProgress! };
+}
+
+/**
+ * Concurrency-safe atomic transaction for completing Grande Missao and awarding 150 XP
+ */
+export async function atomicCompleteGrandeMissao(params: {
+  userId: string;
+  missionId: string;
+  xpReward: number;
+}): Promise<{
+  alreadyCompleted: boolean;
+  xpGain: number;
+  totalXp: number;
+}> {
+  const db = getFirestore();
+  const { userId, missionId, xpReward } = params;
+  const gmRef = doc(db, 'grandeMissaoProgress', userId);
+  const userRef = doc(db, 'users', userId);
+  const now = new Date().toISOString();
+
+  let alreadyCompleted = false;
+  let xpGain = 0;
+  let totalXp = 0;
+
+  await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+    if (!userSnap.exists()) {
+      throw new Error(`Utilizador não encontrado: ${userId}`);
+    }
+    const user = userSnap.data() as User;
+    const curXp = Number(user.xp) || 0;
+
+    const gmSnap = await transaction.get(gmRef);
+    const curStatus = gmSnap.exists() ? (gmSnap.data() as GrandeMissaoProgress).status : 'not_started';
+
+    if (curStatus === 'completed') {
+      alreadyCompleted = true;
+      xpGain = 0;
+      totalXp = curXp;
+      return;
+    }
+
+    alreadyCompleted = false;
+    xpGain = xpReward;
+    totalXp = curXp + xpGain;
+
+    const existingData = gmSnap.exists() ? gmSnap.data() : {};
+    transaction.set(
+      gmRef,
+      {
+        ...existingData,
+        id: userId,
+        userId,
+        status: 'completed',
+        currentStage: 5,
+        completedStages: [1, 2, 3, 4, 5],
+        completedAt: now,
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+    const txId = `xp-${crypto.randomUUID()}`;
+    const txRef = doc(db, 'xpTransactions', txId);
+    transaction.update(userRef, { xp: totalXp, updatedAt: now });
+    transaction.set(txRef, {
+      id: txId,
+      userId,
+      sourceType: 'grande_missao',
+      sourceId: missionId,
+      previousBest: 0,
+      newBest: 150,
+      xpGain,
+      createdAt: now,
+    });
+  });
+
+  return { alreadyCompleted, xpGain, totalXp };
 }
 
 // -------------------------------------------------------------
