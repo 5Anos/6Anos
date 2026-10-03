@@ -29,6 +29,9 @@ import {
   Save,
   X,
   Zap,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
 import { PROGRESSION_CONFIG } from '../../progressionConfig';
@@ -100,6 +103,19 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
   const [editUsername, setEditUsername] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+  // Sorting state
+  const [sortBy, setSortBy] = useState<'number' | 'name' | 'turma' | 'xp' | 'average'>('number');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: 'number' | 'name' | 'turma' | 'xp' | 'average') => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
+
   const studentList = Array.isArray(students) ? students : [];
 
   const filteredStudents = studentList.filter((s) => {
@@ -113,6 +129,30 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
       (s.nickname || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (s.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesClass && matchesSearch;
+  });
+
+  const sortedStudents = [...filteredStudents].sort((a, b) => {
+    let result = 0;
+    if (sortBy === 'number') {
+      const numA = a.studentNumber != null && !isNaN(a.studentNumber) ? a.studentNumber : 9999;
+      const numB = b.studentNumber != null && !isNaN(b.studentNumber) ? b.studentNumber : 9999;
+      result = numA - numB;
+      if (result === 0) {
+        result = (a.fullName || a.name || '').localeCompare(b.fullName || b.name || '');
+      }
+    } else if (sortBy === 'name') {
+      result = (a.fullName || a.name || '').localeCompare(b.fullName || b.name || '');
+    } else if (sortBy === 'turma') {
+      result = (a.turma || a.className || '').localeCompare(b.turma || b.className || '');
+      if (result === 0) {
+        result = (a.studentNumber || 9999) - (b.studentNumber || 9999);
+      }
+    } else if (sortBy === 'xp') {
+      result = (a.xp || 0) - (b.xp || 0);
+    } else if (sortBy === 'average') {
+      result = (a.globalAverage || 0) - (b.globalAverage || 0);
+    }
+    return sortOrder === 'asc' ? result : -result;
   });
 
   const allSelected =
@@ -383,19 +423,84 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                     )}
                   </button>
                 </th>
-                <th className="py-3.5 px-3 w-16 text-center">N.º</th>
-                <th className="py-3.5 px-4">Aluno (Nome Oficial)</th>
-                <th className="py-3.5 px-3">Turma</th>
+                <th
+                  onClick={() => handleSort('number')}
+                  className="py-3.5 px-3 w-16 text-center cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  title="Ordenar por número de chamada"
+                >
+                  <div className="inline-flex items-center justify-center gap-1">
+                    <span>N.º</span>
+                    {sortBy === 'number' ? (
+                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-blue-600" /> : <ArrowDown className="w-3 h-3 text-blue-600" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-slate-300" />
+                    )}
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('name')}
+                  className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  title="Ordenar por nome oficial"
+                >
+                  <div className="inline-flex items-center gap-1">
+                    <span>Aluno (Nome Oficial)</span>
+                    {sortBy === 'name' ? (
+                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-blue-600" /> : <ArrowDown className="w-3 h-3 text-blue-600" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-slate-300" />
+                    )}
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('turma')}
+                  className="py-3.5 px-3 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  title="Ordenar por turma"
+                >
+                  <div className="inline-flex items-center gap-1">
+                    <span>Turma</span>
+                    {sortBy === 'turma' ? (
+                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-blue-600" /> : <ArrowDown className="w-3 h-3 text-blue-600" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-slate-300" />
+                    )}
+                  </div>
+                </th>
                 <th className="py-3.5 px-4">Utilizador (Username)</th>
                 <th className="py-3.5 px-4">Palavra-passe (Amigável)</th>
-                <th className="py-3.5 px-3 text-center">Nível & XP</th>
-                <th className="py-3.5 px-3 text-center">Média Global</th>
+                <th
+                  onClick={() => handleSort('xp')}
+                  className="py-3.5 px-3 text-center cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  title="Ordenar por nível e XP"
+                >
+                  <div className="inline-flex items-center justify-center gap-1">
+                    <span>Nível & XP</span>
+                    {sortBy === 'xp' ? (
+                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-blue-600" /> : <ArrowDown className="w-3 h-3 text-blue-600" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-slate-300" />
+                    )}
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('average')}
+                  className="py-3.5 px-3 text-center cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  title="Ordenar por média global"
+                >
+                  <div className="inline-flex items-center justify-center gap-1">
+                    <span>Média Global</span>
+                    {sortBy === 'average' ? (
+                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-blue-600" /> : <ArrowDown className="w-3 h-3 text-blue-600" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-slate-300" />
+                    )}
+                  </div>
+                </th>
                 <th className="py-3.5 px-3 text-center">Estado</th>
                 <th className="py-3.5 px-4 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredStudents.length === 0 ? (
+              {sortedStudents.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-16 text-center text-slate-500">
                     <Users className="w-12 h-12 mx-auto mb-2 opacity-40 text-slate-400" />
@@ -417,7 +522,7 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredStudents.map((s) => {
+                sortedStudents.map((s) => {
                   const isSelected = selectedIds.includes(s.id);
                   const isPassGlobal = s.globalAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
                   const isPwdVisible = !!visiblePasswords[s.id];

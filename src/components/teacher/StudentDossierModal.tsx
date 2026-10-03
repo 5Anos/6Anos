@@ -52,6 +52,11 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
   const [requireChange, setRequireChange] = useState(true);
   const [resettingPwd, setResettingPwd] = useState(false);
 
+  // Bonus XP attribution
+  const [bonusXpAmount, setBonusXpAmount] = useState<number>(50);
+  const [bonusXpReason, setBonusXpReason] = useState<string>('Participação exemplar e cooperação na aula');
+  const [awardingBonus, setAwardingBonus] = useState(false);
+
   // Modals / confirmations
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -120,6 +125,25 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
       setActionMessage({ type: 'error', text: err.message || 'Erro ao redefinir password.' });
     } finally {
       setResettingPwd(false);
+    }
+  };
+
+  const handleAwardBonusXp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bonusXpAmount || bonusXpAmount <= 0) return;
+    try {
+      setAwardingBonus(true);
+      const res = await apiRequest(`/api/teacher/students/${studentId}/xp`, {
+        method: 'POST',
+        body: JSON.stringify({ xpAmount: bonusXpAmount, reason: bonusXpReason }),
+      });
+      setActionMessage({ type: 'success', text: res.message || `+${bonusXpAmount} XP atribuídos com sucesso!` });
+      await loadDossier();
+      onRefresh();
+    } catch (err: any) {
+      setActionMessage({ type: 'error', text: err.message || 'Erro ao atribuir XP ao aluno.' });
+    } finally {
+      setAwardingBonus(false);
     }
   };
 
@@ -244,7 +268,10 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-xl font-bold text-slate-900">{student.name}</h2>
+                <h2 className="text-xl font-bold text-slate-900">
+                  {student.studentNumber ? `N.º ${student.studentNumber} - ` : ''}
+                  {student.fullName || student.name}
+                </h2>
                 {student.blocked ? (
                   <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                     <Lock className="w-3.5 h-3.5" />
@@ -257,9 +284,19 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">
-                @{student.nickname} • {student.email} • Turma {student.className}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-mono mt-1">
+                <span>Turma: <strong className="text-blue-700 font-bold">{student.turma || student.className}</strong></span>
+                <span>•</span>
+                <span>User: <strong className="text-slate-800 font-bold">{student.username || student.nickname}</strong></span>
+                {student.initialPassword && (
+                  <>
+                    <span>•</span>
+                    <span>Pass: <strong className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">{student.initialPassword}</strong></span>
+                  </>
+                )}
+                <span>•</span>
+                <span className="text-slate-400">{student.email}</span>
+              </div>
             </div>
           </div>
 
@@ -701,6 +738,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   </div>
                 </div>
 
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+                  <div className="text-[11px] text-slate-500">Bónus Pedagógico</div>
+                  <div className="text-lg font-bold text-emerald-700 font-mono">
+                    {xpBreakdown.bonus || 0} XP
+                  </div>
+                </div>
+
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-xs">
                   <div className="text-[11px] text-amber-800 font-semibold">Total Geral</div>
                   <div className="text-lg font-black text-amber-800 font-mono">
@@ -831,6 +875,86 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   >
                     <Save className="w-3.5 h-3.5" />
                     {savingEdit ? 'A guardar...' : 'Guardar Alterações'}
+                  </button>
+                </div>
+              </form>
+
+              {/* Award Bonus XP Form */}
+              <form
+                onSubmit={handleAwardBonusXp}
+                className="bg-white border border-emerald-200 rounded-2xl p-5 space-y-4 shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                    Atribuir Bónus de XP Pedagógico
+                  </h4>
+                  <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    Registo Oficial na BD
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-700 font-semibold">Quantidade de XP:</label>
+                    <input
+                      type="number"
+                      min={5}
+                      max={500}
+                      step={5}
+                      required
+                      value={bonusXpAmount}
+                      onChange={(e) => setBonusXpAmount(parseInt(e.target.value, 10) || 0)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1 sm:col-span-2">
+                    <label className="text-xs text-slate-700 font-semibold">Motivo Pedagógico:</label>
+                    <input
+                      type="text"
+                      required
+                      value={bonusXpReason}
+                      onChange={(e) => setBonusXpReason(e.target.value)}
+                      placeholder="Ex: Trabalho de equipa exemplar, cooperação na aula..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-slate-500 text-[11px]">Atalhos:</span>
+                    <button
+                      type="button"
+                      onClick={() => setBonusXpAmount(25)}
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-[11px] rounded-lg cursor-pointer"
+                    >
+                      +25 XP
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBonusXpAmount(50)}
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-[11px] rounded-lg cursor-pointer"
+                    >
+                      +50 XP
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBonusXpAmount(100)}
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-[11px] rounded-lg cursor-pointer"
+                    >
+                      +100 XP
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={awardingBonus}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-xs cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {awardingBonus ? 'A atribuir...' : 'Atribuir XP ao Aluno'}
                   </button>
                 </div>
               </form>

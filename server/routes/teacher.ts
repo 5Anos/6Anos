@@ -447,17 +447,27 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
       grandeMissao: xpHistory
         .filter((t) => t.sourceType === 'grande_missao')
         .reduce((sum, t) => sum + t.xpGain, 0),
+      bonus: xpHistory
+        .filter((t) => t.sourceType === 'bonus')
+        .reduce((sum, t) => sum + t.xpGain, 0),
     };
+
+    const turmaDisplay = student.turma || (classroom ? classroom.name : 'Sem Turma');
 
     return res.json({
       student: {
         id: student.id,
         name: student.name,
+        fullName: student.fullName || student.name,
+        turma: turmaDisplay,
+        studentNumber: student.studentNumber,
+        username: student.username || student.nickname,
+        initialPassword: student.initialPassword || '',
         email: student.email,
         nickname: student.nickname,
         avatar: student.avatar,
         classId: student.classId,
-        className: classroom ? classroom.name : 'Sem Turma',
+        className: classroom ? classroom.name : turmaDisplay,
         locale: student.locale,
         xp: student.xp,
         level: levelInfo.level,
@@ -865,6 +875,49 @@ router.post('/students/:studentId/reset-progress', async (req: AuthRequest, res)
   } catch (err) {
     console.error('Error in reset-progress:', err);
     return res.status(500).json({ error: 'Erro ao reiniciar progresso do aluno.' });
+  }
+});
+
+// 4.6 Award Bonus Pedagogical XP
+router.post('/students/:studentId/xp', async (req: AuthRequest, res) => {
+  try {
+    const { studentId } = req.params;
+    const { xpAmount, reason } = req.body;
+    const amount = parseInt(String(xpAmount), 10);
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: 'Quantidade de XP inválida (deve ser superior a 0).' });
+    }
+
+    const student = await getUserById(studentId);
+    if (!student || student.role !== 'student') {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    const prevXp = student.xp || 0;
+    const newTotal = prevXp + amount;
+
+    const result = await atomicAwardXP(student.id, amount, {
+      sourceType: 'bonus',
+      sourceId: `bonus-${Date.now()}`,
+      previousBest: prevXp,
+      newBest: newTotal,
+    });
+
+    await logTeacherAction(req, 'Atribuição de Bónus de XP', student.id, student.name, {
+      amount,
+      reason: reason || 'Bónus pedagógico atribuído pela Professora',
+      previousXp: prevXp,
+      newXp: result?.newTotalXP || newTotal,
+    });
+
+    return res.json({
+      success: true,
+      message: `+${amount} XP atribuídos a ${student.name}!`,
+      newTotalXP: result?.newTotalXP || newTotal,
+    });
+  } catch (err) {
+    console.error('Error in award bonus XP:', err);
+    return res.status(500).json({ error: 'Erro ao atribuir XP ao aluno.' });
   }
 });
 

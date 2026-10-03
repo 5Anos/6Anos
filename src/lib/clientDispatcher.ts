@@ -323,6 +323,39 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return { success: true, blocked: !curBlocked } as any;
   }
 
+  const quickResetMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/quick-reset-password$/);
+  if (quickResetMatch && method === 'POST') {
+    const sId = quickResetMatch[1];
+    const sRef = doc(db, 'users', sId);
+    const sSnap = await getDoc(sRef);
+    if (!sSnap.exists()) throw new Error('Aluno não encontrado');
+    const newPassword = `sol${Math.floor(100 + Math.random() * 900)}`;
+    const { hash, salt } = await import('./clientAuthUtils').then((m) => m.hashPasswordClient(newPassword));
+    await updateDoc(sRef, {
+      initialPassword: newPassword,
+      passwordHash: hash,
+      passwordSalt: salt,
+      updatedAt: new Date().toISOString(),
+    });
+    return { success: true, newPassword } as any;
+  }
+
+  const bonusXpMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/xp$/);
+  if (bonusXpMatch && method === 'POST') {
+    const sId = bonusXpMatch[1];
+    const sRef = doc(db, 'users', sId);
+    const sSnap = await getDoc(sRef);
+    if (!sSnap.exists()) throw new Error('Aluno não encontrado');
+    const uData = sSnap.data();
+    const amount = parseInt(String(body.xpAmount), 10) || 50;
+    const newTotal = (uData.xp || 0) + amount;
+    await updateDoc(sRef, {
+      xp: newTotal,
+      updatedAt: new Date().toISOString(),
+    });
+    return { success: true, newTotalXP: newTotal, message: `+${amount} XP atribuídos!` } as any;
+  }
+
   const deleteStudentMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)$/);
   if (deleteStudentMatch && method === 'DELETE') {
     const sId = deleteStudentMatch[1];

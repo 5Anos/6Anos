@@ -158,7 +158,8 @@ export interface XPTransaction {
     | 'weekly_challenge'
     | 'registration'
     | 'challenge'
-    | 'grande_missao';
+    | 'grande_missao'
+    | 'bonus';
   sourceId: string;
   previousBest: number;
   newBest: number;

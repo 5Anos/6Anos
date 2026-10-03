@@ -37,6 +37,11 @@ export interface ClientUser {
   xp: number;
   blocked: boolean;
   mustChangePassword?: boolean;
+  fullName?: string;
+  turma?: string;
+  studentNumber?: number;
+  username?: string;
+  initialPassword?: string;
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
@@ -58,6 +63,11 @@ export function sanitizeClientUser(user: ClientUser) {
     levelName: levelInfo.name,
     blocked: user.blocked,
     mustChangePassword: user.mustChangePassword || false,
+    fullName: user.fullName || user.name,
+    turma: user.turma || '',
+    studentNumber: user.studentNumber,
+    username: user.username || user.nickname,
+    initialPassword: user.initialPassword,
     createdAt: user.createdAt,
     lastLoginAt: user.lastLoginAt,
   };
@@ -134,6 +144,15 @@ export async function clientLogin(identifier: string, password: string) {
     }
   }
 
+  // Try by username
+  if (!userDoc) {
+    const qUser = query(collection(db, 'users'), where('username', '==', lowerInput));
+    const snapUser = await getDocs(qUser);
+    if (!snapUser.empty) {
+      userDoc = snapUser.docs[0].data() as ClientUser;
+    }
+  }
+
   // Try by nickname
   if (!userDoc) {
     const qNick = query(collection(db, 'users'), where('nickname', '==', input));
@@ -154,6 +173,8 @@ export async function clientLogin(identifier: string, password: string) {
   // Verify password
   let isValid = false;
   if (userDoc.role === 'teacher' && (password === 'Trabalhar*2026' || password === 'trabalhar*2026')) {
+    isValid = true;
+  } else if (userDoc.initialPassword && userDoc.initialPassword === password) {
     isValid = true;
   } else if (userDoc.passwordHash && userDoc.passwordSalt) {
     isValid = await verifyPasswordClient(password, userDoc.passwordHash, userDoc.passwordSalt);
@@ -177,9 +198,15 @@ export async function clientLogin(identifier: string, password: string) {
   userDoc.lastLoginAt = now;
   setActiveClientUserId(userDoc.id);
 
+  const welcomeGreeting =
+    userDoc.role === 'student'
+      ? `Olá, ${userDoc.fullName || userDoc.name || 'Aluno'}! Bem-vindo à tua turma ${userDoc.turma || '6.º A'}!`
+      : `Bem-vinda, Professora ${userDoc.name}!`;
+
   return {
     user: sanitizeClientUser(userDoc),
     token: userDoc.id,
+    welcomeGreeting,
   };
 }
 

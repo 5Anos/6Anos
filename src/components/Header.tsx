@@ -9,7 +9,7 @@ import {
   User,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getNextLevelInfo } from '../../server/catalog';
+import { getNextLevelInfo } from '../data/catalog';
 import { t } from '../i18n';
 import {
   AlexAvatar,

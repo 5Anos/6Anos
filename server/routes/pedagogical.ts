@@ -228,6 +228,8 @@ router.get('/worlds', async (req: AuthRequest, res) => {
     ]);
 
     const userRole = req.user?.role;
+    const classroom = req.user?.classId ? await getClassById(req.user.classId) : null;
+
     const worlds = await Promise.all(
       WORLDS_DATA.map(async (w) => {
         const stats = await computeWorldStats(userId, w.id, userRole);
@@ -235,9 +237,23 @@ router.get('/worlds', async (req: AuthRequest, res) => {
         const chalProg = userProgress.find((p) => p.activityId === w.challenge.id);
         const worldAssessments = allAssessments.filter((a) => a.worldId === w.id);
 
+        const isTeacherLocked =
+          userRole !== 'teacher' &&
+          classroom?.visibility?.worlds &&
+          classroom.visibility.worlds[w.id] === false;
+
+        const isQuizTeacherLocked =
+          userRole !== 'teacher' &&
+          classroom?.visibility?.quizzes &&
+          classroom.visibility.quizzes[w.id] === false;
+
+        const effectiveUnlocked = isTeacherLocked ? false : stats.isUnlocked;
+
         return {
           ...w,
-          isUnlocked: stats.isUnlocked,
+          isUnlocked: effectiveUnlocked,
+          isTeacherLocked: !!isTeacherLocked,
+          isQuizTeacherLocked: !!isQuizTeacherLocked,
           isCompleted: stats.isWorldCompleted,
           allSimulatorsCompleted: stats.allSimulatorsCompleted,
           hasAssessmentPassed: stats.hasAssessmentPassed,
@@ -282,6 +298,16 @@ router.get('/worlds/:worldId', requireAuth, async (req: AuthRequest, res) => {
 
     const userId = req.user!.id;
     const userRole = req.user?.role;
+    if (userRole !== 'teacher' && req.user?.classId) {
+      const classroom = await getClassById(req.user.classId);
+      if (classroom?.visibility?.worlds && classroom.visibility.worlds[worldId] === false) {
+        return res.status(403).json({
+          error: `O Mundo ${worldId} está temporariamente reservado pela tua Professora para a próxima aula.`,
+          isTeacherLocked: true,
+        });
+      }
+    }
+
     const [stats, missions, userProgress, assessmentAttempts] = await Promise.all([
       computeWorldStats(userId, worldId, userRole),
       getMissionSubmissions({ userId, worldId }),
@@ -327,6 +353,16 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
     if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
 
     const userId = req.user!.id;
+    if (req.user?.role !== 'teacher' && req.user?.classId) {
+      const classroom = await getClassById(req.user.classId);
+      if (classroom?.visibility?.quizzes && classroom.visibility.quizzes[worldId] === false) {
+        return res.status(403).json({
+          error: `O Teste de Avaliação do Mundo ${worldId} está temporariamente reservado pela tua Professora para a próxima aula.`,
+          isTeacherLocked: true,
+        });
+      }
+    }
+
     const stats = await computeWorldStats(userId, worldId, req.user?.role);
     if (!stats.isUnlocked && req.user?.role !== 'teacher') {
       return res.status(403).json({ error: 'Mundo bloqueado.' });

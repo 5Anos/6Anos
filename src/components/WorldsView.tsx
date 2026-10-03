@@ -327,11 +327,20 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     isSelected ? 'bg-white/20 text-white' : 'bg-white'
                   }`}
                 >
-                  {isUnlocked ? getWorldIcon(world.id) : <Lock className="w-4 h-4 text-amber-600" />}
+                  {isUnlocked ? (
+                    getWorldIcon(world.id)
+                  ) : world.isTeacherLocked ? (
+                    <Lock className="w-4 h-4 text-rose-600" />
+                  ) : (
+                    <Lock className="w-4 h-4 text-amber-600" />
+                  )}
                 </div>
                 <div className="text-left">
                   <div className="text-[10px] uppercase tracking-wider opacity-80 flex items-center gap-1">
                     <span>Mundo {world.id}</span>
+                    {world.isTeacherLocked && (
+                      <span className="text-[9px] text-rose-600 font-extrabold">(Prof.)</span>
+                    )}
                   </div>
                   <div className="text-xs font-black truncate max-w-[130px]">
                     {world.title.replace(`MUNDO ${world.id} — `, '')}
@@ -355,27 +364,35 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       {/* If current world is locked for student */}
       {!currentWorld.isUnlocked && user?.role !== 'teacher' ? (
         <div className="bg-white rounded-3xl border border-amber-200/90 p-8 sm:p-12 text-center shadow-xs">
-          <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs ${
+            currentWorld.isTeacherLocked ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+          }`}>
             <Lock className="w-8 h-8" />
           </div>
-          <span className="text-xs font-black text-amber-700 uppercase tracking-wider block mb-1">
-            Desbloqueio Progressivo Obrigatório
+          <span className={`text-xs font-black uppercase tracking-wider block mb-1 ${
+            currentWorld.isTeacherLocked ? 'text-rose-700' : 'text-amber-700'
+          }`}>
+            {currentWorld.isTeacherLocked ? 'Módulo Reservado pela Professora' : 'Desbloqueio Progressivo Obrigatório'}
           </span>
           <h3 className="text-2xl font-black text-slate-900 mb-2">
-            {currentWorld.title} Bloqueado
+            {currentWorld.title} {currentWorld.isTeacherLocked ? 'Reservado' : 'Bloqueado'}
           </h3>
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-            Para acederes e realizares as atividades do <strong>Mundo {currentWorld.id}</strong>, precisas de alcançar uma média global superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> (dos simuladores e do quiz de avaliação) no <strong>Mundo {currentWorld.id - 1}</strong>.
+            {currentWorld.isTeacherLocked
+              ? 'A tua Professora reservou temporariamente este Mundo para a próxima aula presencial. Fica atento às instruções na sala de aula!'
+              : `Para acederes e realizares as atividades do Mundo ${currentWorld.id}, precisas de alcançar uma média global superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (dos simuladores e do quiz de avaliação) no Mundo ${currentWorld.id - 1}.`}
           </p>
-          <button
-            onClick={() => {
-              setSelectedWorldId(currentWorld.id - 1);
-              setActiveTab(`w${currentWorld.id - 1}-t1`);
-            }}
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
-          >
-            <span>Voltar ao Mundo {currentWorld.id - 1} e Praticar</span>
-          </button>
+          {!currentWorld.isTeacherLocked && currentWorld.id > 1 && (
+            <button
+              onClick={() => {
+                setSelectedWorldId(currentWorld.id - 1);
+                setActiveTab(`w${currentWorld.id - 1}-t1`);
+              }}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              <span>Voltar ao Mundo {currentWorld.id - 1} e Praticar</span>
+            </button>
+          )}
         </div>
       ) : (
         <>

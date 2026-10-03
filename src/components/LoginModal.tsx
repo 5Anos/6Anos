@@ -11,6 +11,8 @@ import {
   LogIn,
   UserPlus,
   Shuffle,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { CustomAvatarConfig } from '../types/avatar';
@@ -42,6 +44,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   const [avatarConfig, setAvatarConfig] = useState<CustomAvatarConfig>(DEFAULT_AVATAR_CONFIG);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (isRegister && !nickname) {
@@ -104,6 +107,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <button
             id="btn-close-login-modal"
             onClick={onClose}
+            aria-label="Fechar janela"
             className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -252,14 +256,24 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       <Lock className="w-3.5 h-3.5 text-blue-600" />
                       Palavra-passe:
                     </label>
-                    <input
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Cria uma palavra-passe..."
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Cria uma palavra-passe..."
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                        title={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -280,6 +294,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   <input
                     type="text"
                     required
+                    autoComplete="username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ex: anderson.santos ou anderson.santos@escola.local"
@@ -295,17 +310,32 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     <Lock className="w-3.5 h-3.5 text-blue-600" />
                     Palavra-passe:
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="ex: sol350"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
-                  />
-                  <p className="text-[11px] text-slate-500">
-                    Digita a tua palavra-passe amigável do teu cartão de acesso (ex: <strong className="text-emerald-700">sol350</strong>).
-                  </p>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="ex: sol350"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                      title={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
+                      aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="flex items-start gap-1.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 text-[11px] text-blue-900 mt-2">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Esqueceste a palavra-passe?</strong> Pede à tua Professora para consultar o teu cartão de acesso na caderneta escolar ou gerar uma nova palavra-passe com 1 clique!
+                    </span>
+                  </div>
                 </div>
               </>
             )}
