@@ -9,8 +9,10 @@ interface AuthContextType {
   classroom: { id: string; name: string; code: string } | null;
   loading: boolean;
   locale: Locale;
+  welcomeGreeting: string | null;
+  dismissGreeting: () => void;
   setLocale: (loc: Locale) => void;
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<string | void>;
   register: (data: any) => Promise<string>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<AuthUser>) => Promise<void>;
@@ -25,6 +27,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [classroom, setClassroom] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [locale, setLocaleState] = useState<Locale>('pt');
+  const [welcomeGreeting, setWelcomeGreeting] = useState<string | null>(null);
+
+  const dismissGreeting = () => {
+    setWelcomeGreeting(null);
+  };
 
   const fetchCurrentUser = async () => {
     try {
@@ -61,7 +68,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
+      const greeting = res.welcomeGreeting ||
+        (res.user.role === 'student'
+          ? `Olá, ${res.user.fullName || res.user.name}! Bem-vindo à tua turma ${res.user.turma || '6.º A'}!`
+          : `Bem-vinda, Professora ${res.user.name}!`);
+      setWelcomeGreeting(greeting);
       await refreshUser();
+      return greeting;
     }
   };
 
@@ -141,6 +154,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         classroom,
         loading,
         locale,
+        welcomeGreeting,
+        dismissGreeting,
         setLocale,
         login,
         register,

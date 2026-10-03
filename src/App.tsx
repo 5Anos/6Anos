@@ -13,7 +13,7 @@ import { GrandeMissaoView } from './components/GrandeMissaoView';
 import { LoginModal } from './components/LoginModal';
 
 const MainLayout: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, welcomeGreeting, dismissGreeting } = useAuth();
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [selectedWorldId, setSelectedWorldId] = useState<number>(1);
   const [activeSimulatorId, setActiveSimulatorId] = useState<string>('sim-password');
@@ -156,6 +156,38 @@ const MainLayout: React.FC = () => {
           }
         }}
       />
+
+      {/* Personalized Welcome Greeting Dialog */}
+      {welcomeGreeting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-4 animate-in zoom-in-95">
+            <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-200 text-amber-900 flex items-center justify-center mx-auto text-3xl shadow-md">
+              🎉
+            </div>
+
+            <div>
+              <div className="text-xs font-black tracking-wider uppercase text-blue-600 mb-1">
+                MISSÃO TIC 6.º ANO
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                {welcomeGreeting}
+              </h3>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600">
+              Estás pronto para explorar os mundos da tecnologia, segurança digital e programação?
+            </p>
+
+            <button
+              type="button"
+              onClick={dismissGreeting}
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm shadow-md transition-all cursor-pointer active:scale-98"
+            >
+              Começar as Minhas Missões! 🚀
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

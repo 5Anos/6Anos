@@ -6,6 +6,7 @@ import {
   UserBadge,
   getUserByEmail,
   getUserByNickname,
+  getUserByUsername,
   getUserById,
   saveUser,
   updateUser,
@@ -37,6 +38,11 @@ export function sanitizeUser(user: User) {
   return {
     id: user.id,
     name: user.name,
+    fullName: user.fullName || user.name,
+    turma: user.turma || '',
+    studentNumber: user.studentNumber ?? null,
+    username: user.username || user.nickname,
+    initialPassword: user.initialPassword || '',
     email: user.email,
     nickname: user.nickname,
     avatar: user.avatar,
@@ -182,6 +188,9 @@ router.post('/login', async (req, res) => {
 
     let user = await getUserByEmail(loginInput);
     if (!user) {
+      user = await getUserByUsername(loginInput);
+    }
+    if (!user) {
       user = await getUserByNickname(loginInput);
     }
     if (!user) {
@@ -207,6 +216,13 @@ router.post('/login', async (req, res) => {
     }
 
     let valid = verifyPassword(password, user.passwordHash, user.passwordSalt);
+    if (!valid && user.initialPassword && user.initialPassword === password) {
+      valid = true;
+      const { hash, salt } = hashPassword(password);
+      await updateUser(user.id, { passwordHash: hash, passwordSalt: salt });
+      user.passwordHash = hash;
+      user.passwordSalt = salt;
+    }
     if (!valid && user.role === 'teacher' && (password === 'Trabalhar*2026' || password === 'trabalhar*2026')) {
       valid = true;
       const { hash, salt } = hashPassword('Trabalhar*2026');
@@ -231,9 +247,22 @@ router.post('/login', async (req, res) => {
     const session = await createSession(user.id);
     setSessionCookie(res, session.id);
 
+    // Warm, personalized greeting
+    let turmaDisplay = user.turma;
+    if (!turmaDisplay && user.classId) {
+      const c = await getClassById(user.classId);
+      if (c) turmaDisplay = c.name;
+    }
+    const greetingName = user.fullName || user.name || 'Aluno';
+    const welcomeGreeting =
+      user.role === 'student'
+        ? `Olá, ${greetingName}! Bem-vindo à tua turma ${turmaDisplay || '6.º A'}!`
+        : `Bem-vinda, Professora ${user.name}!`;
+
     return res.json({
       user: sanitizeUser(user),
       token: session.id,
+      welcomeGreeting,
     });
   } catch (err) {
     console.error('Error in /login:', err);

@@ -18,6 +18,11 @@
         "xp": { "type": "number", "description": "Total accrued experience points" },
         "blocked": { "type": "boolean", "description": "Whether account access is suspended" },
         "mustChangePassword": { "type": "boolean", "description": "Forces password change on next login" },
+        "fullName": { "type": "string", "description": "Official full name of student" },
+        "turma": { "type": "string", "description": "Class display name e.g. 6.º A" },
+        "studentNumber": { "type": "number", "description": "Call number on official class roster" },
+        "username": { "type": "string", "description": "Friendly unique student username" },
+        "initialPassword": { "type": "string", "description": "Kid-friendly cleartext initial password for cards" },
         "needsHelp": { "type": "boolean", "description": "Teacher assistance requested flag" },
         "helpReason": { "type": "string", "description": "Teacher assistance reason" },
         "createdAt": { "type": "string", "description": "ISO timestamp of account creation" },
@@ -34,6 +39,8 @@
         "id": { "type": "string", "description": "Class identifier" },
         "name": { "type": "string", "description": "Class name, e.g. 6.º A" },
         "code": { "type": "string", "description": "Registration access code" },
+        "archived": { "type": "boolean", "description": "Whether class is archived" },
+        "visibility": { "type": "object", "description": "Visibility toggles for modules and quizzes" },
         "createdAt": { "type": "string", "description": "ISO creation timestamp" }
       },
       "required": ["id", "name", "code", "createdAt"]

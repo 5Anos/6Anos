@@ -37,6 +37,7 @@ import {
   addAuditLog,
   getAuditLogs,
   atomicAwardXP,
+  awardBadge,
   getFirestoreStats,
   resetStudentProgressInFirestore,
 } from '../firestoreDb';
@@ -52,6 +53,14 @@ import {
 } from '../catalog';
 import { computeWorldStats } from './pedagogical';
 import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
+import {
+  generateKidUsername,
+  generateKidPassword,
+  extractShortName,
+  normalizeTurmaName,
+  normalizeTurmaTag,
+  cleanString,
+} from '../kidCredentials';
 
 const router = Router();
 
@@ -216,14 +225,20 @@ router.get('/students', async (req: AuthRequest, res) => {
         const lowWorldAvg = worldAverages.some((w) => w.isUnlocked && w.completedCount > 0 && w.average < 50);
         const needsHelp = failedAttempts >= 2 || lowWorldAvg;
 
+        const turmaDisplay = s.turma || (classroom ? classroom.name : 'Sem Turma');
         return {
           id: s.id,
           name: s.name,
+          fullName: s.fullName || s.name,
+          turma: turmaDisplay,
+          studentNumber: s.studentNumber ?? null,
+          username: s.username || s.nickname,
+          initialPassword: s.initialPassword || '',
           email: s.email,
           nickname: s.nickname,
           avatar: s.avatar,
           classId: s.classId,
-          className: classroom ? classroom.name : 'Sem Turma',
+          className: turmaDisplay,
           locale: s.locale,
           xp: s.xp,
           level: levelInfo.level,
@@ -245,6 +260,16 @@ router.get('/students', async (req: AuthRequest, res) => {
         };
       })
     );
+
+    // Sort by Turma and studentNumber
+    result.sort((a, b) => {
+      const classComp = (a.turma || '').localeCompare(b.turma || '');
+      if (classComp !== 0) return classComp;
+      if (a.studentNumber && b.studentNumber) return a.studentNumber - b.studentNumber;
+      if (a.studentNumber) return -1;
+      if (b.studentNumber) return 1;
+      return a.name.localeCompare(b.name);
+    });
 
     return res.json({ students: result });
   } catch (err) {
@@ -473,10 +498,257 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
 // -------------------------------------------------------------
 // 4. STUDENT CRUD & MANAGEMENT ACTIONS
 // -------------------------------------------------------------
+// 4.1 Manual Single Student Registration
+router.post('/students', async (req: AuthRequest, res) => {
+  try {
+    const { fullName, name, studentNumber, turma, classId } = req.body;
+    const cleanFullName = (fullName || name || '').trim();
+    if (!cleanFullName) {
+      return res.status(400).json({ error: 'Nome do aluno é obrigatório.' });
+    }
+
+    const [allUsers, existingClasses] = await Promise.all([
+      getAllUsers(),
+      getAllClasses(),
+    ]);
+
+    const existingUsernames = new Set(allUsers.map((u) => (u.username || u.nickname || '').toLowerCase()));
+    const targetTurma = normalizeTurmaName(turma || '6.º A');
+
+    let assignedClassId = classId;
+    if (!assignedClassId) {
+      const matched = existingClasses.find(
+        (c) => c.name.toLowerCase() === targetTurma.toLowerCase() || c.id === targetTurma.toLowerCase()
+      );
+      if (matched) {
+        assignedClassId = matched.id;
+      } else {
+        const newC: ClassRoom = {
+          id: `class-${normalizeTurmaTag(targetTurma)}`,
+          name: targetTurma,
+          code: '',
+          createdAt: new Date().toISOString(),
+        };
+        await saveClass(newC);
+        assignedClassId = newC.id;
+      }
+    }
+
+    const { displayName } = extractShortName(cleanFullName);
+    const shortName = name && name.trim() ? name.trim() : displayName;
+    const username = generateKidUsername(cleanFullName, targetTurma, existingUsernames);
+    const initialPassword = generateKidPassword();
+    const email = `${username}@escola.local`;
+
+    const { hash, salt } = hashPassword(initialPassword);
+    const studentId = `student-${crypto.randomUUID()}`;
+
+    const num =
+      typeof studentNumber === 'number'
+        ? studentNumber
+        : parseInt(studentNumber, 10) || 1;
+
+    const newStudent: User = {
+      id: studentId,
+      name: shortName,
+      fullName: cleanFullName,
+      turma: targetTurma,
+      studentNumber: num,
+      username,
+      email,
+      initialPassword,
+      passwordHash: hash,
+      passwordSalt: salt,
+      nickname: username,
+      avatar: 'avatar-boy-1',
+      role: 'student',
+      classId: assignedClassId,
+      locale: 'pt',
+      xp: 100,
+      blocked: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await saveUser(newStudent);
+    await awardBadge(newStudent.id, 'primeiros-passos');
+
+    await logTeacherAction(req, 'Registo manual individual de aluno', newStudent.id, newStudent.name, {
+      fullName: cleanFullName,
+      turma: targetTurma,
+      username,
+      studentNumber: num,
+    });
+
+    return res.status(201).json({ success: true, student: newStudent });
+  } catch (err: any) {
+    console.error('Error creating student:', err);
+    return res.status(500).json({ error: err.message || 'Erro ao criar aluno.' });
+  }
+});
+
+// 4.2 Batch Import of Students (Excel, CSV, Paste)
+router.post('/students/batch-import', async (req: AuthRequest, res) => {
+  try {
+    const { students: rawStudents, defaultTurma, defaultClassId } = req.body;
+    if (!Array.isArray(rawStudents) || rawStudents.length === 0) {
+      return res.status(400).json({ error: 'Nenhum aluno fornecido para importação.' });
+    }
+
+    const [allUsers, existingClasses] = await Promise.all([
+      getAllUsers(),
+      getAllClasses(),
+    ]);
+
+    const existingUsernames = new Set(allUsers.map((u) => (u.username || u.nickname || '').toLowerCase()));
+    const classesMap = new Map<string, ClassRoom>();
+    for (const c of existingClasses) {
+      classesMap.set(c.id, c);
+      classesMap.set(c.name.toLowerCase(), c);
+    }
+
+    const createdStudents: any[] = [];
+
+    for (let i = 0; i < rawStudents.length; i++) {
+      const item = rawStudents[i];
+      const fullName = (item.fullName || item.name || '').trim();
+      if (!fullName) continue;
+
+      const turmaName = normalizeTurmaName(item.turma || defaultTurma || '6.º A');
+      const studentNum =
+        typeof item.studentNumber === 'number'
+          ? item.studentNumber
+          : parseInt(item.studentNumber || item.number || item['N.º'] || item['Número'] || `${i + 1}`, 10) || i + 1;
+
+      // Ensure class exists
+      let classObj = classesMap.get(item.classId || defaultClassId || '') || classesMap.get(turmaName.toLowerCase());
+      if (!classObj) {
+        classObj = {
+          id: `class-${normalizeTurmaTag(turmaName)}`,
+          name: turmaName,
+          code: '',
+          createdAt: new Date().toISOString(),
+        };
+        await saveClass(classObj);
+        classesMap.set(classObj.id, classObj);
+        classesMap.set(classObj.name.toLowerCase(), classObj);
+      }
+
+      const { displayName } = extractShortName(fullName);
+      const shortName = item.name && item.name.trim() ? item.name.trim() : displayName;
+      const username = item.customUsername || generateKidUsername(fullName, turmaName, existingUsernames);
+      existingUsernames.add(username.toLowerCase());
+
+      const initialPassword = item.customPassword || generateKidPassword();
+      const email = item.email || `${username}@escola.local`;
+
+      const { hash, salt } = hashPassword(initialPassword);
+      const studentId = `student-${crypto.randomUUID()}`;
+
+      const studentDoc: User = {
+        id: studentId,
+        name: shortName,
+        fullName,
+        turma: turmaName,
+        studentNumber: studentNum,
+        username,
+        email,
+        initialPassword,
+        passwordHash: hash,
+        passwordSalt: salt,
+        nickname: username,
+        avatar: 'avatar-boy-1',
+        role: 'student',
+        classId: classObj.id,
+        locale: 'pt',
+        xp: 100,
+        blocked: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      await saveUser(studentDoc);
+      await awardBadge(studentDoc.id, 'primeiros-passos');
+
+      createdStudents.push({
+        id: studentDoc.id,
+        fullName: studentDoc.fullName,
+        name: studentDoc.name,
+        turma: studentDoc.turma,
+        studentNumber: studentDoc.studentNumber,
+        username: studentDoc.username,
+        email: studentDoc.email,
+        initialPassword: studentDoc.initialPassword,
+        classId: studentDoc.classId,
+      });
+    }
+
+    await logTeacherAction(req, 'Importação de alunos em lote', undefined, undefined, {
+      totalImported: createdStudents.length,
+      turma: defaultTurma || 'Várias',
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `${createdStudents.length} alunos registados com credenciais geradas com sucesso!`,
+      importedCount: createdStudents.length,
+      students: createdStudents,
+    });
+  } catch (err: any) {
+    console.error('Error in batch-import:', err);
+    return res.status(500).json({ error: err.message || 'Erro ao importar alunos em lote.' });
+  }
+});
+
+// 4.3 1-Click Kid-Friendly Password Reset
+router.post('/students/:studentId/quick-reset-password', async (req: AuthRequest, res) => {
+  try {
+    const { studentId } = req.params;
+    const student = await getUserById(studentId);
+    if (!student || student.role !== 'student') {
+      return res.status(404).json({ error: 'Aluno não encontrado' });
+    }
+
+    const newFriendlyPassword = generateKidPassword();
+    const { hash, salt } = hashPassword(newFriendlyPassword);
+
+    await updateUser(studentId, {
+      passwordHash: hash,
+      passwordSalt: salt,
+      initialPassword: newFriendlyPassword,
+      mustChangePassword: false,
+    });
+
+    await logTeacherAction(req, 'Redefinição rápida de palavra-passe (1-clique)', student.id, student.name, {
+      newPassword: newFriendlyPassword,
+    });
+
+    return res.json({
+      success: true,
+      message: `Nova palavra-passe para ${student.name}: ${newFriendlyPassword}`,
+      newPassword: newFriendlyPassword,
+    });
+  } catch (err: any) {
+    console.error('Error in quick-reset-password:', err);
+    return res.status(500).json({ error: 'Erro ao redefinir palavra-passe do aluno.' });
+  }
+});
+
 router.put('/students/:studentId', async (req: AuthRequest, res) => {
   try {
     const { studentId } = req.params;
-    const { nickname, avatar, classId, locale, mustChangePassword } = req.body;
+    const {
+      name,
+      fullName,
+      studentNumber,
+      turma,
+      username,
+      nickname,
+      avatar,
+      classId,
+      locale,
+      mustChangePassword,
+    } = req.body;
 
     const student = await getUserById(studentId);
     if (!student || student.role !== 'student') {
@@ -484,7 +756,18 @@ router.put('/students/:studentId', async (req: AuthRequest, res) => {
     }
 
     const updates: Partial<User> = {};
-    if (nickname) updates.nickname = nickname.trim();
+    if (name) updates.name = name.trim();
+    if (fullName) updates.fullName = fullName.trim();
+    if (turma) updates.turma = normalizeTurmaName(turma);
+    if (studentNumber !== undefined) {
+      updates.studentNumber = typeof studentNumber === 'number' ? studentNumber : parseInt(studentNumber, 10) || null as any;
+    }
+    if (username) {
+      updates.username = cleanString(username);
+      updates.nickname = updates.username;
+    } else if (nickname) {
+      updates.nickname = nickname.trim();
+    }
     if (avatar) updates.avatar = avatar;
     if (classId) updates.classId = classId;
     if (locale) updates.locale = locale;
@@ -494,10 +777,7 @@ router.put('/students/:studentId', async (req: AuthRequest, res) => {
     const updated = { ...student, ...updates };
 
     await logTeacherAction(req, 'Alteração de dados de aluno', student.id, student.name, {
-      nickname,
-      classId,
-      locale,
-      mustChangePassword,
+      updates,
     });
 
     return res.json({ success: true, student: updated });
@@ -708,7 +988,7 @@ router.post('/classes', async (req: AuthRequest, res) => {
 router.put('/classes/:classId', async (req: AuthRequest, res) => {
   try {
     const { classId } = req.params;
-    const { name, code } = req.body;
+    const { name, code, archived, visibility } = req.body;
 
     const existing = await getClassById(classId);
     if (!existing) return res.status(404).json({ error: 'Turma não encontrada' });
@@ -718,6 +998,15 @@ router.put('/classes/:classId', async (req: AuthRequest, res) => {
     if (typeof code === 'string') {
       updates.code = code.trim().toUpperCase();
     }
+    if (typeof archived === 'boolean') {
+      updates.archived = archived;
+    }
+    if (visibility && typeof visibility === 'object') {
+      updates.visibility = {
+        ...existing.visibility,
+        ...visibility,
+      };
+    }
 
     await updateClass(classId, updates);
     await logTeacherAction(req, 'Edição de turma', undefined, undefined, { classId, ...updates });
@@ -726,6 +1015,55 @@ router.put('/classes/:classId', async (req: AuthRequest, res) => {
   } catch (err) {
     console.error('Error in PUT /classes/:classId:', err);
     return res.status(500).json({ error: 'Erro ao atualizar turma.' });
+  }
+});
+
+// Class Module and Quiz Visibility Settings
+router.get('/classes/:classId/visibility', async (req: AuthRequest, res) => {
+  try {
+    const { classId } = req.params;
+    const classroom = await getClassById(classId);
+    if (!classroom) return res.status(404).json({ error: 'Turma não encontrada.' });
+
+    const defaultVisibility = {
+      worlds: { 1: true, 2: true, 3: true, 4: true, 5: true },
+      quizzes: { 1: true, 2: true, 3: true, 4: true, 5: true },
+      grandeMissao: true,
+      weeklyChallenge: true,
+    };
+
+    return res.json({
+      visibility: classroom.visibility || defaultVisibility,
+      archived: classroom.archived || false,
+    });
+  } catch (err) {
+    console.error('Error fetching class visibility:', err);
+    return res.status(500).json({ error: 'Erro ao obter visibilidade de módulos.' });
+  }
+});
+
+router.put('/classes/:classId/visibility', async (req: AuthRequest, res) => {
+  try {
+    const { classId } = req.params;
+    const { visibility } = req.body;
+    const classroom = await getClassById(classId);
+    if (!classroom) return res.status(404).json({ error: 'Turma não encontrada.' });
+
+    const updatedVisibility = {
+      ...(classroom.visibility || {}),
+      ...visibility,
+    };
+
+    await updateClass(classId, { visibility: updatedVisibility });
+    await logTeacherAction(req, 'Alteração de visibilidade de módulos/quizzes', undefined, undefined, {
+      classId,
+      visibility: updatedVisibility,
+    });
+
+    return res.json({ success: true, visibility: updatedVisibility });
+  } catch (err) {
+    console.error('Error updating class visibility:', err);
+    return res.status(500).json({ error: 'Erro ao atualizar visibilidade.' });
   }
 });
 
@@ -1712,6 +2050,63 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
   } catch (err) {
     console.error('Error in /export/xlsx:', err);
     return res.status(500).json({ error: 'Erro ao exportar relatório Excel.' });
+  }
+});
+
+// Export Student Access Credentials to Excel (.xlsx) for Teacher's Private Records
+router.get('/export/credentials-xlsx', async (req: AuthRequest, res: Response) => {
+  try {
+    const { classId } = req.query;
+    const [allUsers, classes] = await Promise.all([getAllUsers(), getAllClasses()]);
+
+    let students = allUsers.filter((u) => u.role === 'student');
+    if (classId && classId !== 'all') {
+      students = students.filter((s) => s.classId === classId);
+    }
+
+    students.sort((a, b) => {
+      const classComp = (a.turma || '').localeCompare(b.turma || '');
+      if (classComp !== 0) return classComp;
+      if (a.studentNumber && b.studentNumber) return a.studentNumber - b.studentNumber;
+      if (a.studentNumber) return -1;
+      if (b.studentNumber) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const rows = students.map((s) => {
+      const classroom = classes.find((c) => c.id === s.classId);
+      return {
+        'Turma': s.turma || (classroom ? classroom.name : ''),
+        'N.º Chamada': s.studentNumber ?? '',
+        'Nome Completo': s.fullName || s.name,
+        'Nome Curto': s.name,
+        'Nome de Utilizador (Username)': s.username || s.nickname,
+        'Palavra-passe (Password)': s.initialPassword || '—',
+        'Email Virtual/Escolar': s.email,
+        'Estado': s.blocked ? 'Bloqueado' : 'Ativo',
+        'Data de Registo': s.createdAt ? new Date(s.createdAt).toLocaleDateString('pt-PT') : '',
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'Credenciais Alunos');
+
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    await logTeacherAction(req, 'Exportação de Credenciais de Alunos (XLSX)', undefined, undefined, {
+      studentCount: students.length,
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader('Content-Disposition', 'attachment; filename="missao_tic_credenciais_alunos.xlsx"');
+    return res.send(buf);
+  } catch (err) {
+    console.error('Error in /export/credentials-xlsx:', err);
+    return res.status(500).json({ error: 'Erro ao exportar credenciais de alunos.' });
   }
 });
 

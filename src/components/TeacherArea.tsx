@@ -25,6 +25,9 @@ import {
   ArrowRightLeft,
   Settings,
   Flame,
+  Scissors,
+  UserPlus,
+  Sliders,
 } from 'lucide-react';
 import { apiRequest, downloadFile } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -44,6 +47,9 @@ import {
   TeacherAuditTab,
   TeacherCleanupTab,
 } from './teacher/TeacherDetailedViews';
+import { StudentImportModal } from './teacher/StudentImportModal';
+import { LoginCardsModal } from './teacher/LoginCardsModal';
+import { ModuleVisibilityModal } from './teacher/ModuleVisibilityModal';
 
 export const TeacherArea: React.FC = () => {
   const { user } = useAuth();
@@ -87,6 +93,11 @@ export const TeacherArea: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [requireChangeOnNextLogin, setRequireChangeOnNextLogin] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // New Modals for requested features
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showLoginCardsModal, setShowLoginCardsModal] = useState(false);
+  const [showVisibilityModal, setShowVisibilityModal] = useState(false);
 
   useEffect(() => {
     loadAllData();
@@ -283,6 +294,18 @@ export const TeacherArea: React.FC = () => {
     }
   };
 
+  const handleExportCredentialsXLSX = async () => {
+    try {
+      await downloadFile(
+        `/api/teacher/export/credentials-xlsx?classId=${selectedClass}`,
+        `missao_tic_credenciais_${selectedClass}.xlsx`
+      );
+      showToast('Pauta de credenciais descarregada com sucesso em Excel (.xlsx).');
+    } catch (err: any) {
+      alert(err.message || 'Erro ao exportar credenciais');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-24">
       {/* Toast Notification */}
@@ -309,18 +332,45 @@ export const TeacherArea: React.FC = () => {
               Central de Gestão e Acompanhamento
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 max-w-2xl">
-              Gere os alunos, turmas, avaliações, relatórios e correções de Missões Reais em tempo real com persistência no Cloud Firestore.
+              Gere os alunos, turmas, credenciais de acesso, visibilidade de módulos e relatórios em tempo real com persistência no Cloud Firestore.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+              title="Importar lista de turma (Excel, CSV, colar texto ou manual)"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Importar Alunos</span>
+            </button>
+
+            <button
+              onClick={() => setShowLoginCardsModal(true)}
+              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+              title="Gerar cartões de acesso A4 com linhas de corte"
+            >
+              <Scissors className="w-4 h-4 text-amber-300" />
+              <span>Cartões A4</span>
+            </button>
+
+            <button
+              onClick={handleExportCredentialsXLSX}
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Descarregar pauta privada com todos os nomes, utilizadores e palavras-passe"
+            >
+              <Key className="w-4 h-4 text-amber-600" />
+              <span>Credenciais (.xlsx)</span>
+            </button>
+
             <button
               onClick={handleExportXLSX}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-xs"
-              title="Descarregar relatório completo com pauta, avaliações e missões"
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+              title="Descarregar relatório pedagógico completo com pauta, avaliações e missões"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Exportar Excel (.xlsx)</span>
+              <span>Relatório (.xlsx)</span>
             </button>
           </div>
         </div>
@@ -595,6 +645,11 @@ export const TeacherArea: React.FC = () => {
               onBulkUnblock={handleBulkUnblock}
               onBulkDelete={handleBulkDelete}
               onDeleteStudent={handleDeleteStudent}
+              onOpenImport={() => setShowImportModal(true)}
+              onOpenLoginCards={() => setShowLoginCardsModal(true)}
+              onExportCredentialsXLSX={handleExportCredentialsXLSX}
+              onOpenVisibility={() => setShowVisibilityModal(true)}
+              onRefresh={loadAllData}
             />
           )}
 
@@ -618,6 +673,10 @@ export const TeacherArea: React.FC = () => {
               students={students}
               onRefresh={loadAllData}
               onOpenStudent={(s) => setSelectedStudentForDossier(s)}
+              onOpenVisibility={(classId) => {
+                if (classId) setSelectedClass(classId);
+                setShowVisibilityModal(true);
+              }}
             />
           )}
 
@@ -682,6 +741,36 @@ export const TeacherArea: React.FC = () => {
           onRefresh={loadAllData}
         />
       )}
+
+      {/* Student Import Modal (4 Methods) */}
+      <StudentImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        classes={classes}
+        onSuccess={() => {
+          loadAllData();
+          showToast('Alunos registados com sucesso com credenciais geradas!');
+        }}
+      />
+
+      {/* Login Cards Modal (Printable A4 Sheet) */}
+      <LoginCardsModal
+        isOpen={showLoginCardsModal}
+        onClose={() => setShowLoginCardsModal(false)}
+        students={students}
+        classes={classes}
+      />
+
+      {/* Module and Quiz Visibility Modal */}
+      <ModuleVisibilityModal
+        isOpen={showVisibilityModal}
+        onClose={() => setShowVisibilityModal(false)}
+        classes={classes}
+        onSuccess={() => {
+          loadAllData();
+          showToast('Visibilidade de módulos e testes atualizada.');
+        }}
+      />
 
       {/* Reset Password Modal (Single Student) */}
       {resetPwdStudent && (

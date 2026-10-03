@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   ChevronRight,
+  Archive,
+  Sliders,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
 import { PROGRESSION_CONFIG } from '../../progressionConfig';
@@ -22,6 +24,7 @@ interface TeacherClassesTabProps {
   students: any[];
   onRefresh: () => void;
   onOpenStudent: (student: any) => void;
+  onOpenVisibility?: (classId?: string) => void;
 }
 
 export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
@@ -29,6 +32,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
   students = [],
   onRefresh,
   onOpenStudent,
+  onOpenVisibility,
 }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newClassName, setNewClassName] = useState('');
@@ -214,17 +218,29 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                  <button
-                    onClick={() => handleDeleteClass(c.id, c.name)}
-                    className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"
-                    title="Eliminar Turma"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleDeleteClass(c.id, c.name)}
+                      className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition-colors cursor-pointer"
+                      title="Eliminar Turma"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    {onOpenVisibility && (
+                      <button
+                        onClick={() => onOpenVisibility(c.id)}
+                        className="text-slate-500 hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-bold"
+                        title="Configurar visibilidade de módulos para esta turma"
+                      >
+                        <Sliders className="w-3.5 h-3.5" />
+                        <span>Módulos</span>
+                      </button>
+                    )}
+                  </div>
 
                   <button
                     onClick={() => handleOpenClassDetails(c)}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-amber-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors"
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-amber-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <span>Gerir Turma</span>
                     <ChevronRight className="w-3 h-3" />

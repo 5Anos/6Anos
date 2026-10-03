@@ -1,6 +1,24 @@
+export interface StudentUser {
+  id: string;              // UID único (ex: "aluno_6a_01" ou gerado pelo Firebase Auth/DB)
+  fullName: string;        // Nome completo oficial (ex: "Anderson Oliveira dos Santos")
+  name: string;            // Nome curto (ex: "Anderson Oliveira")
+  turma: string;           // Turma normalizada (ex: "6.º A")
+  studentNumber: number;   // Número de chamada na pauta (ex: 1, 2, 3...)
+  username: string;        // Nome de utilizador simples (ex: "anderson.santos")
+  email: string;           // Email virtual/real (ex: "anderson.santos@escola.local")
+  initialPassword: string; // Palavra-passe legível em texto limpo para o cartão (ex: "sol350")
+  role: 'student';
+  createdAt: string;
+}
+
 export interface AuthUser {
   id: string;
   name: string;
+  fullName?: string;
+  turma?: string;
+  studentNumber?: number | null;
+  username?: string;
+  initialPassword?: string;
   email: string;
   nickname: string;
   avatar: string;

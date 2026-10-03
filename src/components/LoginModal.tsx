@@ -274,17 +274,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-blue-600" />
-                    Email ou Nickname (Aluno ou Professora):
+                    <User className="w-3.5 h-3.5 text-blue-600" />
+                    Nome de Utilizador ou Email:
                   </label>
                   <input
                     type="text"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ex: imaginebycarla2023@gmail.com ou Prof_Carla"
+                    placeholder="ex: anderson.santos ou anderson.santos@escola.local"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
                   />
+                  <p className="text-[11px] text-slate-500">
+                    O aluno pode introduzir o seu Username simples (ex: <strong className="text-blue-700">anderson.santos</strong>) ou o seu email institucional.
+                  </p>
                 </div>
 
                 <div className="space-y-1">
@@ -297,9 +300,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="ex: sol350"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
                   />
+                  <p className="text-[11px] text-slate-500">
+                    Digita a tua palavra-passe amigável do teu cartão de acesso (ex: <strong className="text-emerald-700">sol350</strong>).
+                  </p>
                 </div>
               </>
             )}
