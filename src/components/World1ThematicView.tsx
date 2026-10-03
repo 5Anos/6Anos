@@ -9,11 +9,22 @@ import {
   AlertTriangle,
   ArrowRight,
   Award,
-  BookOpen,
   Sparkles,
-  RefreshCw,
-  Clock,
-  ExternalLink,
+  Zap,
+  ShieldAlert,
+  HelpCircle,
+  Dice5,
+  ThumbsUp,
+  Eye,
+  Lock,
+  Smartphone,
+  Check,
+  Star,
+  Flame,
+  Gamepad2,
+  Smile,
+  Shield,
+  PartyPopper,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -47,7 +58,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   } | null>(null);
 
   // -------------------------------------------------------------
-  // 1. PASSWORD SIMULATOR STATE
+  // 1. PASSWORD SIMULATOR STATE & GENERATOR
   // -------------------------------------------------------------
   const [pwdInput, setPwdInput] = useState('');
   const [hasTestedPwd, setHasTestedPwd] = useState(false);
@@ -56,7 +67,24 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     score: number;
     title: string;
     description: string;
+    level: 'weak' | 'medium' | 'good' | 'legendary';
   } | null>(null);
+
+  const crazyIdeas = [
+    'Pizza_Ninja_Espacial_99!',
+    'Gato+Com+Skate#2026',
+    'Dinossauro_Azul_Comeu_7_Biscoitos!',
+    'Astronauta_Com_Patins$88',
+    'Super_Pinguim_Voador@42',
+    'Gelado_De_Chocolate_Lendario#10',
+  ];
+
+  const handlePickCrazyIdea = () => {
+    const random = crazyIdeas[Math.floor(Math.random() * crazyIdeas.length)];
+    setPwdInput(random);
+    setHasTestedPwd(false);
+    setPwdFeedback(null);
+  };
 
   // -------------------------------------------------------------
   // 2. PHISHING SIMULATOR STATE
@@ -69,45 +97,53 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     description: string;
   } | null>(null);
   const [phishingUserChoices, setPhishingUserChoices] = useState<Record<number, boolean>>({});
+
   const phishingScenarios = [
     {
+      app: 'Roblox & Jogos Online',
       sender: 'suporte@notificacoes-plataforma-jog0s.com',
-      subject: 'Aviso de Segurança: Início de sessão detetado num novo dispositivo',
-      body: 'Olá! Detetámos um novo início de sessão na tua conta a partir de um dispositivo desconhecido. Se não foste tu, clica imediatamente em http://verificacao-conta-jog0s.com/login e introduz a tua palavra-passe para bloquear o acesso.',
+      avatar: '🎮',
+      subject: '🎁 PARABÉNS! 10.000 Moedas / Robux Grátis para a tua conta!',
+      body: 'Olá Campeão! A tua conta foi sorteada no evento anual! Para receberes imediatamente 10.000 moedas grátis no jogo, clica no link http://verificacao-conta-jog0s.com/login e introduz o teu nome de utilizador e a tua palavra-passe secreta em menos de 5 minutos!',
       isPhishing: true,
       signals: [
-        'Endereço falsificado com "0" em vez de "o" (@notificacoes-plataforma-jog0s.com)',
-        'Criação de urgência artificial e medo de perda da conta',
-        'Link externo não oficial a solicitar a introdução da palavra-passe',
+        'Promessa de moedas ou prémios grátis (bom demais para ser verdade!)',
+        'Endereço suspeito com "0" (zero) em vez de "o" (@...jog0s.com)',
+        'Pede a tua palavra-passe secreta num site desconhecido',
+        'Cria pressa falsa ("em menos de 5 minutos") para não pensares com calma',
       ],
       explanation:
-        'Esta mensagem é phishing. Os atacantes alteram subtilmente o endereço com um zero ("jog0s") e criam falsos alertas de segurança para que introduzas a tua palavra-passe num site falso.',
+        '🚨 Cilada total de Phishing! Lembra-te: NUNCA nenhum jogo ou site oficial oferece moedas grátis em troca da tua palavra-passe. Os vigaristas usam nomes com letras trocadas (como "jog0s") para te enganar!',
     },
     {
+      app: 'Escola & Biblioteca Digital',
       sender: 'direcao.turma@agrupamento-escolas.edu.pt',
-      subject: 'Aviso: Calendário de Atividades e Avaliações do 2.º Período',
-      body: 'Caros alunos e encarregados de educação, o calendário das atividades curriculares do 2.º período está disponível para consulta no placard da escola e na plataforma oficial Moodle/Inovar habitual. Não é solicitada qualquer partilha de dados pessoais. Bom trabalho a todos!',
+      avatar: '🏫',
+      subject: '📚 O teu livro da Biblioteca Escolar está pronto',
+      body: 'Olá! O livro que requisitaste na biblioteca da escola já está disponível. Podes passar na sala de leitura durante o intervalo da manhã para o levantar. Não precisas de responder a este email nem fornecer dados.',
       isPhishing: false,
       signals: [
-        'A mensagem tem contexto escolar e não pede palavras-passe nem outros dados privados.',
-        'Indica onde consultar a informação: o placard da escola e a plataforma oficial que os alunos já utilizam.',
-        'Mesmo assim, uma mensagem não deve ser considerada segura apenas por parecer vir da escola: em caso de dúvida, confirma através de um canal oficial conhecido.',
+        'Vem do email oficial da escola (.edu.pt)',
+        'Não pede senhas, códigos, cartões nem dados pessoais',
+        'Apenas dá uma informação real da vida na escola',
       ],
       explanation:
-        'Esta mensagem não apresenta os sinais habituais de phishing, porque não pede palavras-passe, códigos ou dados pessoais e indica canais oficiais que já conheces. Mesmo assim, não deves confiar apenas no endereço do remetente. Se tiveres dúvidas, confirma a informação através de um canal oficial da escola.',
+        '✅ Mensagem Segura e Real! Esta mensagem não pede dados confidenciais, não tem links manhosos nem te mete medo. Mesmo assim, se um dia tiveres dúvidas sobre um email da escola, pergunta diretamente à tua professora!',
     },
     {
-      sender: 'partilha-trabalhos@cloud-documentos-storage.net',
-      subject: 'Um colega partilhou o documento "Trabalho_TIC_6Ano.docx" contigo',
-      body: 'Para acederes ao documento partilhado e editares o trabalho de grupo, inicia sessão com o teu email institucional e palavra-passe escolar em http://cloud-documentos-storage.net/auth-escola.',
+      app: 'Alerta de Cibersegurança',
+      sender: 'alerta-seguranca@cloud-documentos-storage.net',
+      avatar: '⚠️',
+      subject: '🚨 URGENTE: A tua conta foi suspensa por suspeita de intrusão!',
+      body: 'A tua conta de trabalhos escolares vai ser eliminada para sempre dentro de 10 minutos! Clica imediatamente em http://cloud-documentos-storage.net/recuperar-passe e introduz a tua palavra-passe escolar e o teu número de telemóvel para a desbloquear.',
       isPhishing: true,
       signals: [
-        'Domínio externo desconhecido (.storage.net) que não pertence à escola',
-        'Pedido de introdução de credenciais escolares num site externo',
-        'Não utiliza a plataforma oficial autorizada pela escola (ex.: Google Classroom / Teams)',
+        'Mete medo e inventa um prazo de 10 minutos para te assustar',
+        'Domínio estranho que não tem nada a ver com a tua escola',
+        'Pede a tua palavra-passe escolar e telemóvel num formulário externo',
       ],
       explanation:
-        'Esta mensagem é phishing. Nunca deves introduzir a tua palavra-passe escolar num site externo desconhecido. As partilhas de trabalhos escolares devem ocorrer apenas nas plataformas oficiais autorizadas pela escola.',
+        '🚨 É uma Cilada das grandes! Os atacantes adoram assustar os alunos com avisos vermelhos a dizer que a conta vai ser apagada. Mantém a calma: a escola nunca te pede para meter a tua senha num link desconhecido!',
     },
   ];
 
@@ -121,9 +157,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     title: string;
     description: string;
   } | null>(null);
+
   const privacyItems: {
     id: string;
     label: string;
+    emoji: string;
     hint: string;
     correct: 'public' | 'private' | 'context';
     explanation: string;
@@ -131,50 +169,56 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     {
       id: 'item-phone',
       label: 'O teu número de telemóvel pessoal',
-      hint: 'Contacto direto via chamadas ou SMS',
+      emoji: '📱',
+      hint: 'Permite que qualquer pessoa te ligue ou envie mensagens',
       correct: 'private',
       explanation:
-        'Proteger (Privado): O número de telemóvel é um dado confidencial crítico que permite contactos não solicitados, mensagens indesejadas e tentativas de burla.',
+        '🔒 Super Secreto! O teu número de telemóvel é um dado pessoal confidencial. Se estiver público na net, podes receber chamadas de estranhos, burlas e mensagens chatas.',
     },
     {
       id: 'item-hobby',
-      label: 'O teu desporto, livro ou passatempo preferido',
-      hint: 'Interesses culturais e desportivos',
+      label: 'O teu desporto, livro ou jogo de tabuleiro preferido',
+      emoji: '⚽',
+      hint: 'Gostos e interesses divertidos',
       correct: 'public',
       explanation:
-        'Partilhar publicamente: Interesses e gostos gerais são partilhas positivas e saudáveis que não revelam a tua identidade confidencial nem a tua localização.',
+        '🌍 Livre para Partilhar! Dizer que adoras futebol, ler banda desenhada ou jogar xadrez é seguro e ajuda-te a fazer amigos com gostos parecidos!',
     },
     {
       id: 'item-address',
-      label: 'A morada completa da tua casa',
-      hint: 'Rua, número de porta e código postal',
+      label: 'A morada completa da tua casa (rua e número da porta)',
+      emoji: '🏠',
+      hint: 'O local onde moras com a tua família',
       correct: 'private',
       explanation:
-        'Proteger (Privado): A morada de residência nunca deve ser divulgada publicamente para garantir a segurança física e a privacidade da tua família.',
+        '🔒 Super Secreto! Nunca digas a tua morada na net. Ela indica onde vives e deve ser guardada a sete chaves para proteger a tua segurança no mundo real.',
     },
     {
       id: 'item-photo-friends',
-      label: 'Fotografia com colegas de turma no recreio da escola',
-      hint: 'Imagem que envolve a cara e presença de outras pessoas',
+      label: 'Fotografia com colegas da turma a brincar no recreio',
+      emoji: '📸',
+      hint: 'Aparecem caras de outros colegas da escola',
       correct: 'context',
       explanation:
-        'Pensar antes de partilhar: Depende do contexto e exige sempre a autorização prévia de todos os colegas que aparecem na foto, além de ser publicada apenas em contas com definições restritas a amigos conhecidos.',
+        '🤔 Pára e Pensa! As fotos com amigos precisam de autorização de todos os que aparecem nela. Pergunta sempre: "Posso partilhar esta foto?". Se alguém disser que não, respeita!',
     },
     {
       id: 'item-school-routine',
-      label: 'O horário e percurso exato em que vais e voltas sozinho da escola',
-      hint: 'Rotinas e deslocações diárias a pé',
+      label: 'O percurso exato e as horas em que voltas sozinho da escola para casa',
+      emoji: '🚶‍♂️',
+      hint: 'Horários e caminhos que fazes a pé',
       correct: 'private',
       explanation:
-        'Proteger (Privado): Rotinas e horários em que estás sozinho expõem a tua localização física e colocam em risco a tua segurança no mundo real.',
+        '🔒 Super Secreto! Dizer a que horas sais e que ruas percorres sozinho expõe os teus passos no mundo real a qualquer pessoa estranha.',
     },
     {
       id: 'item-school-project',
-      label: 'Um desenho, história ou projeto criado por ti para a aula de TIC',
-      hint: 'Trabalho de autor escolar',
+      label: 'Um desenho, banda desenhada ou projeto criado por ti na aula de TIC',
+      emoji: '🎨',
+      hint: 'Trabalho de criatividade escolar feito por ti',
       correct: 'public',
       explanation:
-        'Partilhar publicamente: Trabalhos criativos e projetos escolares podem ser partilhados de forma construtiva na comunidade escolar e no portefólio digital.',
+        '🌍 Livre para Partilhar! Trabalhos criativos da escola sem dados pessoais são excelentes para mostrar o teu talento à comunidade escolar!',
     },
   ];
 
@@ -188,8 +232,10 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     title: string;
     description: string;
   } | null>(null);
+
   const footprintScenarios: {
     id: string;
+    emoji: string;
     title: string;
     description: string;
     correct: 'positivo' | 'moderado' | 'alto';
@@ -198,43 +244,47 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   }[] = [
     {
       id: 'fp-1',
-      title: 'Vídeo no recreio com farda e localização GPS em direto',
+      emoji: '📍',
+      title: 'Vídeo em direto no recreio com o símbolo da escola e GPS ativado',
       description:
-        'Publicar nas redes sociais um vídeo no recreio escolar, com o logótipo da escola visível, identificando os colegas e ativando a transmissão de localização GPS em tempo real.',
+        'Fazer uma transmissão em direto no TikTok/Instagram no pátio da escola, mostrando as caras dos colegas e com a localização exata do GPS ligada.',
       correct: 'alto',
-      riskLevelText: 'Alto Risco / Prejudicial',
+      riskLevelText: 'Alto Perigo / Risco Grave',
       explanation:
-        'Alto Risco: Revela a localização física de menores em direto, rotinas escolares e expõe colegas sem consentimento, criando um registo digital prejudicial permanente.',
+        '🚨 Alto Risco! Revela onde estás em tempo real a qualquer pessoa na Internet e expõe os teus colegas sem autorização. Deixa uma pegada perigosa!',
     },
     {
       id: 'fp-2',
-      title: 'Fotografia das férias com matrícula do carro em segundo plano',
+      emoji: '🚗',
+      title: 'Foto bonita de família onde se vê a matrícula do carro ao fundo',
       description:
-        'Partilhar uma fotografia casual com a família onde, ao fundo da imagem, é perfeitamente legível a matrícula do carro e a placa com o nome da rua.',
+        'Partilhar uma fotografia das férias à porta de casa onde, no fundo da imagem, dá para ler a matrícula do carro dos teus pais e a placa com o nome da rua.',
       correct: 'moderado',
-      riskLevelText: 'Risco Moderado (Atenção ao Detalhe)',
+      riskLevelText: 'Atenção ao Detalhe (Risco Moderado)',
       explanation:
-        'Risco Moderado: Embora a intenção seja positiva, detalhes de fundo involuntários expõem bens e moradas. Exige atenção e reflexão prévia para cortar ou desfocar a informação antes de publicar.',
+        '⚠️ Risco Moderado! A foto é querida, mas os detalhes ao fundo revelam a matrícula e a morada. Dica de Guardião: Corta a foto ou tapa a matrícula antes de publicar!',
     },
     {
       id: 'fp-3',
-      title: 'Artigo educativo no blogue escolar sobre segurança online',
+      emoji: '🌟',
+      title: 'Artigo no jornal da escola com dicas de segurança para os colegas',
       description:
-        'Escrever e publicar no blogue da turma um artigo construtivo com conselhos de cidadania digital e prevenção de cyberbullying, assinado apenas com o primeiro nome.',
+        'Escrever um texto super fixe no blogue da turma a ensinar truques para criar senhas fortes e combater o cyberbullying, assinado com o teu primeiro nome.',
       correct: 'positivo',
-      riskLevelText: 'Impacto Positivo e Construtivo',
+      riskLevelText: 'Pegada de Herói / Super Positivo',
       explanation:
-        'Impacto Positivo: Demonstra competências digitais, cooperação, sentido cívico e respeito pela privacidade, construindo uma excelente reputação digital.',
+        '✨ Pegada Brilhante! Demonstra bondade, inteligência digital e ajuda os teus colegas. Quando fores mais velho, esta pegada vai mostrar que és um cidadão de ouro!',
     },
     {
       id: 'fp-4',
-      title: 'Comentário num vídeo da escola',
+      emoji: '💬',
+      title: 'Comentário simpático a elogiar a apresentação de um colega',
       description:
-        'Escrever num vídeo da escola um comentário sobre o trabalho realizado pela turma, sem indicar moradas, contactos ou outras informações pessoais.',
+        'Deixar um comentário encorajador num vídeo de um trabalho escolar, dizendo: "Muitos parabéns pelo projeto, ficou espetacular e muito criativo!".',
       correct: 'positivo',
-      riskLevelText: 'Impacto Positivo e Construtivo',
+      riskLevelText: 'Pegada de Herói / Super Positivo',
       explanation:
-        'Impacto Positivo: Um comentário respeitoso e sem dados pessoais pode contribuir para uma presença digital positiva.',
+        '✨ Pegada Brilhante! Espalhar energia positiva e respeito na Internet faz com que a rede seja um lugar mais seguro e feliz para todos nós!',
     },
   ];
 
@@ -248,48 +298,61 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     title: string;
     description: string;
   } | null>(null);
+
   const wellbeingHabits = [
     {
       id: 'wb-posture',
-      label: 'Costas direitas apoiadas na cadeira, pés no chão e ecrã ao nível dos olhos',
-      category: 'Ergonomia & Postura',
+      emoji: '🚀',
+      label: 'Postura de Astronauta: Costas direitas na cadeira, pés bem assentes no chão e ecrã ao nível dos olhos',
+      category: 'Coluna & Postura',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Uma postura correta ajuda a evitar dores e desconforto nas costas, no pescoço e nos braços.',
+      explanation:
+        '🌟 Hábito de Campeão! As tuas costas e o teu pescoço agradecem. Evita dores e ficas com muito mais energia para jogar e estudar!',
     },
     {
       id: 'wb-lighting',
-      label: 'Utilizar o computador num quarto às escuras com o brilho do ecrã no máximo',
-      category: 'Iluminação & Visão',
+      emoji: '🦇',
+      label: 'Modo Caverna: Usar o telemóvel ou tablet num quarto às escuras com o brilho no máximo',
+      category: 'Luz & Visão',
       correct: 'risco',
-      explanation: 'Hábito Prejudicial: Usar um ecrã muito brilhante num quarto escuro pode cansar os olhos. É melhor ter uma iluminação adequada e evitar grandes diferenças entre a luz do quarto e a luz do ecrã.',
+      explanation:
+        '⚠️ Hábito Prejudicial! Um ecrã a brilhar muito num quarto escuro cansa imenso os teus olhos e dá dores de cabeça. Acende uma luz suave!',
     },
     {
       id: 'wb-distance',
-      label: 'Manter uma distância confortável do ecrã (cerca do comprimento de um braço)',
-      category: 'Distância do Ecrã',
+      emoji: '📏',
+      label: 'Regra do Braço: Manter a distância de cerca de um braço esticado em relação ao ecrã',
+      category: 'Distância dos Olhos',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Mantém uma distância confortável para proteger a saúde dos olhos.',
+      explanation:
+        '🌟 Hábito de Campeão! Não encostes o nariz ao ecrã. A distância de um braço protege a tua visão!',
     },
     {
       id: 'wb-wrists',
-      label: 'Apoiar os pulsos e braços confortavelmente ao utilizar o teclado',
-      category: 'Ergonomia dos Membros',
+      emoji: '🎮',
+      label: 'Conforto Gamer: Apoiar os pulsos e braços relaxados na mesa ao escrever no teclado ou usar o rato',
+      category: 'Mãos & Pulsos',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Manter os braços e pulsos numa posição confortável ajuda a evitar desconforto nas mãos e braços.',
+      explanation:
+        '🌟 Hábito de Campeão! Evita que as mãos fiquem cansadas ou doridas depois de jogares ou fazeres trabalhos de TIC.',
     },
     {
       id: 'wb-202020',
-      label: 'Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
+      emoji: '👀',
+      label: 'Regra dos 20-20-20: A cada 20 minutos, olhar 20 segundos pela janela para longe para relaxar a vista',
       category: 'Descanso dos Olhos',
       correct: 'saudavel',
-      explanation: 'Hábito Saudável: Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
+      explanation:
+        '🌟 Hábito de Campeão! Olhar para longe faz com que os músculos dos olhos descansem do brilho do ecrã!',
     },
     {
       id: 'wb-bed',
-      label: 'Levar o telemóvel para a cama e ficar a ver vídeos no escuro até de madrugada',
-      category: 'Sono & Descanso',
+      emoji: '😴',
+      label: 'Maratona na Cama: Ficar a ver vídeos no telemóvel debaixo dos lençóis até às 2 da manhã',
+      category: 'Sono & Energia',
       correct: 'risco',
-      explanation: 'Hábito Prejudicial: Usar ecrãs até muito tarde pode dificultar o descanso e o sono.',
+      explanation:
+        '⚠️ Hábito Prejudicial! A luz azul do ecrã engana o cérebro e impede que durmas bem. No dia seguinte ficas sem energia e com sono na aula!',
     },
   ];
 
@@ -332,19 +395,21 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       setPwdScore(0);
       setPwdFeedback({
         score: 0,
-        title: 'Insere uma palavra-passe',
-        description: 'Escreve uma palavra-passe no campo acima para testares a sua segurança.',
+        title: 'Escreve uma palavra-passe de treino!',
+        description: 'Digita uma ideia de palavra-passe na caixa acima ou clica no botão do dado 🎲 para veres ideias fixes.',
+        level: 'weak',
       });
       return;
     }
 
     // 1. Comprimento
-    if (len >= 10) score += 40;
-    else if (len >= 8) score += 30;
-    else if (len >= 6) score += 20;
-    else score += 10;
+    if (len >= 12) score += 40;
+    else if (len >= 10) score += 35;
+    else if (len >= 8) score += 25;
+    else if (len >= 6) score += 15;
+    else score += 5;
 
-    // 2. Imprevisibilidade (sequências óbvias)
+    // 2. Imprevisibilidade
     const lower = pwdInput.toLowerCase();
     const predictableWalks = ['123', '234', '345', '456', '789', 'abc', 'bcd', 'cde', 'qwerty', 'asdf', 'zxcv', 'aaaa', '1111', '0000'];
     const hasPredictableWalk = predictableWalks.some((walk) => lower.includes(walk));
@@ -352,48 +417,46 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       score += 30;
     }
 
-    // 3. Dados pessoais óbvios
-    const personalKeywords = ['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', 'benfica', 'sporting', 'porto', '2024', '2025', '2026', '2014', '2013', '2012', '2011', 'password', 'passe', 'admin'];
+    // 3. Sem dados pessoais óbvios
+    const personalKeywords = ['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', 'benfica', 'sporting', '2024', '2025', '2026', '2014', '2013', '2012', '2011', 'password', 'passe', 'admin'];
     const hasPersonalData = personalKeywords.some((kw) => lower.includes(kw));
     if (!hasPersonalData && len >= 8) {
       score += 20;
     }
 
-    // 4. Variedade de caracteres
+    // 4. Mistura de caracteres
     let varietyCount = 0;
     if (/[a-z]/.test(pwdInput)) varietyCount++;
     if (/[A-Z]/.test(pwdInput)) varietyCount++;
     if (/[0-9]/.test(pwdInput)) varietyCount++;
     if (/[^A-Za-z0-9]/.test(pwdInput)) varietyCount++;
 
-    if (varietyCount >= 2) {
-      score += 10;
-    }
+    if (varietyCount >= 3) score += 10;
+    else if (varietyCount >= 2) score += 5;
 
-    // Limitar entre 0 e 100
     score = Math.min(100, Math.max(0, score));
 
-    let title = 'Palavra-passe Vulnerável / Curta';
-    let description =
-      'Esta palavra-passe é curta ou utiliza padrões fáceis de adivinhar. Uma palavra-passe longa, única e difícil de adivinhar é mais importante do que simplesmente juntar símbolos.';
+    let title = 'Palavra-passe Vulnerável / Curta 😴';
+    let description = 'Esta senha é muito curta ou tem padrões fáceis demais. Um robot hacker consegue adivinhá-la num segundo!';
+    let level: 'weak' | 'medium' | 'good' | 'legendary' = 'weak';
 
-    if (score === 100) {
-      title = 'Palavra-passe muito segura!';
-      description =
-        'Excelente! A tua palavra-passe é suficientemente longa, difícil de adivinhar e não apresenta dados pessoais óbvios. Usa palavras-passe diferentes nas tuas contas e nunca as partilhes.';
-    } else if (score >= 80) {
-      title = 'Palavra-passe Segura (Boa Proteção)';
-      description =
-        'Muito bom! A tua palavra-passe tem boa proteção. Para alcançar a pontuação máxima (100 pontos), certifica-te de que tem pelo menos 10 caracteres, sem sequências nem dados pessoais óbvios.';
+    if (score >= 90) {
+      title = 'Palavra-passe Lendária & Invencível! 🌟';
+      description = 'Fantástico! Esta senha é comprida, criativa, mistura caracteres e não tem dados óbvios. Nenhum vilão cibernético a vai conseguir adivinhar!';
+      level = 'legendary';
+    } else if (score >= 75) {
+      title = 'Escudo Forte! Muito Boa Proteção 🛡️';
+      description = 'Muito bom trabalho! Para chegares aos 100 pontos de mestre, tenta que tenha 10 ou mais letras e inclui um símbolo especial como ! ou #.';
+      level = 'good';
     } else if (score >= 50) {
-      title = 'Palavra-passe Razoável (Pode Melhorar)';
-      description =
-        'Bom progresso! Para ficar verdadeiramente segura, tenta que tenha cerca de 10 caracteres, seja difícil de adivinhar e não use nomes, datas ou sequências previsíveis.';
+      title = 'Em Treino: Está a ficar melhor! ⚡';
+      description = 'Bom começo! Torna-a um bocadinho mais longa e inventa uma "frase maluca" para ficar mesmo difícil de quebrar.';
+      level = 'medium';
     }
 
     setHasTestedPwd(true);
     setPwdScore(score);
-    setPwdFeedback({ score, title, description });
+    setPwdFeedback({ score, title, description, level });
     reportCompletion('sim-password', 'Laboratório de Palavras-Passe', { password: pwdInput }, score);
   };
 
@@ -407,7 +470,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     setPhishingScore(currentScore);
     setPhishingFeedback({
       score: currentScore,
-      title: isCurrentCorrect ? '✓ Decisão Pericial Correta!' : '⚠️ Atenção aos Sinais de Alerta!',
+      title: isCurrentCorrect ? '🎯 Boa Detetive! Acertaste em cheio!' : '⚠️ Cuidado com a Armadilha!',
       description: phishingScenarios[phishingStep].explanation,
     });
 
@@ -432,17 +495,17 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     const score = Math.round((correctCount / privacyItems.length) * 100);
     setPrivacyScore(score);
 
-    let title = 'Classificação em Análise';
+    let title = 'Classificação em Análise 🔍';
     let description =
-      'Revê a tua classificação. Lembra-te: dados que põem em risco a tua segurança física devem ser sempre protegidos (privados), enquanto fotografias com outras pessoas exigem pensar antes de partilhar e autorização.';
+      'Revê as tuas escolhas! Lembra-te: morada e telemóvel são super secretos, fotos com amigos exigem autorização e os teus desenhos podes partilhar à vontade!';
     if (score === 100) {
-      title = 'Classificação de Privacidade Exemplar!';
+      title = '🏆 Guardião de Privacidade Nível Máximo!';
       description =
-        'Discernimento perfeito! Sabes exatamente quando proteger dados confidenciais, quando ponderar o contexto de partilha de imagens e que projetos podes divulgar em segurança.';
+        'Parabéns! Sabes exatamente como proteger a tua identidade no mundo real e digital sem deixar de partilhar o que é fixe e seguro!';
     } else if (score >= 60) {
-      title = 'Bom Sentido de Privacidade';
+      title = '👍 Bom Sentido de Proteção!';
       description =
-        'Conseguiste identificar os principais dados! Tem atenção redobrada a dados de rotinas físicas e imagens com colegas que exigem reflexão contextual.';
+        'Conseguiste acertar na maioria! Tem atenção aos dados de localização e às fotos de colegas para seres um guardião completo!';
     }
 
     setPrivacyFeedback({ score, title, description });
@@ -458,17 +521,15 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     const score = Math.round((correctCount / footprintScenarios.length) * 100);
     setFootprintScore(score);
 
-    let title = 'Análise da Pegada Digital';
-    let description =
-      'Lembra-te que a pegada digital inclui tanto os registos que criamos voluntariamente como os detalhes involuntários em fotos ou vídeos.';
+    let title = 'Análise do Rasto Digital 👣';
+    let description = 'Lembra-te que tudo o que publicas constrói a tua reputação de herói na Internet.';
     if (score === 100) {
-      title = 'Avaliação Crítica Exemplar!';
+      title = '✨ Detetive de Pegadas Perfeito!';
       description =
-        'Excelente discernimento dos diferentes graus de impacto: soubeste distinguir o alto risco da exposição física em direto, o risco moderado dos detalhes em segundo plano e o impacto construtivo de artigos escolares.';
+        'Espetacular! Soubeste identificar os grandes perigos do GPS em direto, o cuidado com as matrículas e a beleza de espalhar palavras boas!';
     } else if (score >= 66) {
-      title = 'Bom Sentido Crítico';
-      description =
-        'Compreendeste bem os impactos. Lembra-te de analisar os pequenos detalhes que podem estar visíveis no fundo de fotografias casuais.';
+      title = '👍 Bom Discernimento Digital!';
+      description = 'Muito bem! Fica atento aos pequenos detalhes no fundo das fotos para deixares sempre um rasto brilhante.';
     }
 
     setFootprintFeedback({ score, title, description });
@@ -484,17 +545,15 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     const score = Math.round((correctCount / wellbeingHabits.length) * 100);
     setWellbeingScore(score);
 
-    let title = 'Índice de Bem-estar e Ergonomia';
-    let description =
-      'A postura corporal, a distância do ecrã e a iluminação correta são tão importantes quanto o tempo de ecrã para evitar dores e cansaço visual.';
+    let title = 'Índice de Saúde Gamer 🎮';
+    let description = 'Um verdadeiro campeão digital precisa de cuidar do corpo, dos olhos e de um sono reparador!';
     if (score === 100) {
-      title = 'Equilíbrio e Ergonomia Exemplares!';
+      title = '🚀 Mestre Gamer & Super-Corpo!';
       description =
-        'Fantástico! Uma boa postura, uma posição confortável do ecrã e pausas regulares ajudam a evitar desconforto e cansaço.';
+        'Excelente! Postura de astronauta, pausas dos olhos e zero modo morcego na cama! Vais ter energia máxima para vencer todos os desafios!';
     } else if (score >= 60) {
-      title = 'Bom Sentido Ergonómico';
-      description =
-        'Identificaste a maioria dos hábitos saudáveis! Mantém uma postura correta e faz pausas regulares para garantir o teu bem-estar.';
+      title = '👍 Bons Hábitos de Saúde!';
+      description = 'Estás no bom caminho! Pratica a regra dos 20-20-20 e dorme cedo para manteres a tua energia no máximo!';
     }
 
     setWellbeingFeedback({ score, title, description });
@@ -506,123 +565,166 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     return world.simulatorsProgress?.find((p) => p.id === simId);
   };
 
-  // Find theoretical topic from catalog
-  const topic1 = world.topics.find((t) => t.id === 'w1-t1');
-  const topic2 = world.topics.find((t) => t.id === 'w1-t2');
-  const topic3 = world.topics.find((t) => t.id === 'w1-t3');
-  const topic4 = world.topics.find((t) => t.id === 'w1-t4');
-  const topic5 = world.topics.find((t) => t.id === 'w1-t5');
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 sm:p-8 text-white shadow-lg shadow-emerald-500/10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+              <span>Quartel-General do Guardião Digital</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
+              Mundo 1: O Teu Escudo Protetor na Internet! 🛡️⚡
+            </h2>
+            <p className="text-xs sm:text-sm text-emerald-50 font-medium leading-relaxed">
+              Olá, explorador! Neste Mundo vais aprender a defender as tuas contas de jogos, caçar armadilhas falsas, proteger o teu quarto secreto de dados e cuidar do teu corpo como um verdadeiro campeão!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
+              <Shield className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black uppercase text-emerald-100 block">
+                Progresso no Mundo 1
+              </span>
+              <span className="text-xl font-black text-white">
+                {world.average > 0 ? `${world.average}%` : '0%'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-3xl flex items-center justify-between text-emerald-950 shadow-xs animate-in fade-in">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-emerald-950 shadow-md animate-in fade-in">
           <div className="flex items-center gap-3">
-            <Award className="w-7 h-7 text-emerald-600 shrink-0" />
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <PartyPopper className="w-6 h-6" />
+            </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 block">
-                Atividade Registada com Sucesso: {completedFeedback.activityTitle}
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-700 block">
+                🎉 Missão Concluída: {completedFeedback.activityTitle}
               </span>
-              <p className="text-sm font-black">
-                Pontuação Obtida: {completedFeedback.score}/100{' '}
+              <p className="text-sm font-extrabold text-slate-900">
+                Pontuação: <span className="text-emerald-700">{completedFeedback.score}/100</span>
                 {completedFeedback.xpGain > 0 && (
-                  <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md ml-1">
+                  <span className="inline-flex items-center gap-1 bg-yellow-400 text-yellow-950 font-black px-2.5 py-0.5 rounded-full text-xs ml-2 shadow-xs">
+                    <Zap className="w-3.5 h-3.5 fill-current" />
                     +{completedFeedback.xpGain} XP Ganho!
                   </span>
                 )}
               </p>
             </div>
           </div>
-          <span className="text-xs font-black bg-emerald-200 text-emerald-900 px-3 py-1.5 rounded-xl">
-            Melhor Recorde: {completedFeedback.newBest}/100
+          <span className="text-xs font-black bg-emerald-200/80 text-emerald-900 px-3.5 py-2 rounded-xl border border-emerald-300 self-start sm:self-auto">
+            ⭐ Melhor Recorde: {completedFeedback.newBest}/100
           </span>
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 1: PALAVRAS-PASSE */}
+      {/* MISSÃO 1: PALAVRAS-PASSE SECRETAS */}
       {/* ========================================================= */}
       {activeTopicId === 'w1-t1' && (
         <div className="space-y-6">
-          {/* Header do Tema */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <Key className="w-6 h-6" />
+          {/* Header da Missão */}
+          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Key className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-blue-600 tracking-wider block">
-                  Tema 1 do Mundo 1
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
+                  Treino 1 · Missão de Guardião
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic1?.title || 'Palavras-passe'}
+                  O Cofre das Palavras-Passe Invencíveis 🗝️
                 </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-password')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-password')?.score}%)</span>
+                  <span>Concluído ({getSimProg('sim-password')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 📖 HISTÓRIA & DICAS DO MESTRE (Linguagem para crianças) */}
+          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
             <div className="flex items-center gap-2.5 text-blue-700">
-              <BookOpen className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-amber-500" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: COMO CRIAR E PROTEGER A TUA PALAVRA-PASSE
+                Como Criar a Senha de um Super-Herói! 🛡️
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic1?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic1?.takeaway && (
-              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                  ✨ {topic1.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🗝️</div>
+                <h5 className="text-sm font-black text-blue-900">A Chave do Teu Castelo</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A tua palavra-passe protege as tuas contas de videojogos, escola e vídeos. Se for fácil, qualquer pessoa pode entrar e mexer nas tuas coisas!
                 </p>
               </div>
-            )}
 
+              <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🧠</div>
+                <h5 className="text-sm font-black text-amber-900">O Truque da "Frase Maluca"</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Em vez de "123456" ou o teu nome, junta palavras divertidas: <em>"Gato_Ninja_Comeu_9_Pizzas!"</em>. Fácil para ti lembrar, impossível para outros adivinhar!
+                </p>
+              </div>
+
+              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🤫</div>
+                <h5 className="text-sm font-black text-emerald-900">Segredo Sagrado!</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Nunca dês a tua palavra-passe a amigos ou colegas, nem a troco de doces ou moedas de jogo. Só os teus pais ou encarregados de educação podem saber!
+                </p>
+              </div>
+            </div>
+
+            {/* Dica Visual Ilustrativa */}
             <TopicIllustrationCard topicId="w1-t1" />
           </div>
 
-          {/* 🎮 2. EXPERIMENTA (Simulador de Palavras-passe) */}
-          <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          {/* 🎮 SIMULADOR: O LABORATÓRIO DE PALAVRAS-PASSE */}
+          <div className="bg-white border-2 border-blue-300 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
               <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5" />
+                <Gamepad2 className="w-6 h-6 text-blue-600" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Laboratório de Palavras-Passe
+                  Laboratório de Testes: Mede a Força da Tua Senha!
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                Testa a robustez da palavra-passe em tempo real
-              </span>
+              <button
+                onClick={handlePickCrazyIdea}
+                className="inline-flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-black px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
+              >
+                <Dice5 className="w-4 h-4 text-amber-600" />
+                <span>🎲 Gerar Ideia Maluca</span>
+              </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  Cria uma palavra-passe de TESTE:
+                <label className="block text-xs font-black text-slate-800 mb-1">
+                  Escreve uma palavra-passe de TESTE (não uses a tua verdadeira!):
                 </label>
-                <p className="text-[11px] text-slate-500 mb-2">
-                  Não uses uma palavra-passe verdadeira. Cria apenas um exemplo para experimentar.
-                </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
@@ -632,92 +734,146 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                       setHasTestedPwd(false);
                       setPwdFeedback(null);
                     }}
-                    placeholder="Ex.: Gato_Azul_782!"
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500/30"
+                    placeholder="Experimenta ex.: Dinossauro_Azul#77"
+                    className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono text-slate-900 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-colors"
                   />
                   <button
                     onClick={evaluatePassword}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3.5 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                   >
-                    <Key className="w-4 h-4" />
-                    <span>Testar Força</span>
+                    <Zap className="w-4 h-4 fill-current text-yellow-300" />
+                    <span>Testar Escudo</span>
                   </button>
                 </div>
               </div>
 
-              {/* Checklist de Robustez e Imprevisibilidade */}
+              {/* BARRA DE ENERGIA GAMIFICADA */}
+              {pwdScore !== null && (
+                <div className="space-y-1.5 pt-2">
+                  <div className="flex justify-between items-center text-xs font-black">
+                    <span className="text-slate-600">Nível de Proteção do Teu Escudo:</span>
+                    <span className="text-blue-700 font-mono text-sm">{pwdScore}%</span>
+                  </div>
+                  <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        pwdScore >= 90
+                          ? 'bg-gradient-to-r from-emerald-400 to-teal-500 shadow-sm'
+                          : pwdScore >= 70
+                          ? 'bg-gradient-to-r from-blue-400 to-indigo-500'
+                          : pwdScore >= 40
+                          ? 'bg-gradient-to-r from-amber-400 to-orange-500'
+                          : 'bg-rose-500'
+                      }`}
+                      style={{ width: `${Math.max(8, pwdScore)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 4 ESCUDOS DE VALIDAÇÃO */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <div
-                  className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                  className={`p-3.5 rounded-2xl border-2 text-xs font-extrabold flex items-center gap-2.5 transition-all ${
                     pwdInput.length >= 10
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : pwdInput.length >= 8
-                      ? 'bg-amber-50 border-amber-200 text-amber-800'
-                      : 'bg-slate-50 border-slate-200 text-slate-500'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Comprimento (10+ car.)</span>
+                  <CheckCircle2 className={`w-4 h-4 shrink-0 ${pwdInput.length >= 10 ? 'text-emerald-600' : 'text-slate-300'}`} />
+                  <span>📏 10+ Letras (Comprida)</span>
                 </div>
+
                 <div
-                  className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                  className={`p-3.5 rounded-2xl border-2 text-xs font-extrabold flex items-center gap-2.5 transition-all ${
                     pwdInput.length >= 8 &&
                     !['123', '234', '345', '456', '789', 'abc', 'bcd', 'qwerty', 'asdf', 'aaaa', '1111'].some((w) =>
                       pwdInput.toLowerCase().includes(w)
                     )
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-slate-50 border-slate-200 text-slate-500'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Sem Sequências Óbvias</span>
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 ${
+                      pwdInput.length >= 8 &&
+                      !['123', '234', '345', '456', '789', 'abc', 'bcd', 'qwerty', 'asdf', 'aaaa', '1111'].some((w) =>
+                        pwdInput.toLowerCase().includes(w)
+                      )
+                        ? 'text-emerald-600'
+                        : 'text-slate-300'
+                    }`}
+                  />
+                  <span>🎲 Sem 1234 / abc</span>
                 </div>
+
                 <div
-                  className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                  className={`p-3.5 rounded-2xl border-2 text-xs font-extrabold flex items-center gap-2.5 transition-all ${
                     pwdInput.length >= 8 &&
                     !['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', '2024', '2025', '2026', 'password', 'admin'].some(
                       (kw) => pwdInput.toLowerCase().includes(kw)
                     )
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-slate-50 border-slate-200 text-slate-500'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Sem Dados Pessoais</span>
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 ${
+                      pwdInput.length >= 8 &&
+                      !['escola', 'aluno', 'alex', 'turma', 'portugal', 'porto', 'lisboa', '2024', '2025', '2026', 'password', 'admin'].some(
+                        (kw) => pwdInput.toLowerCase().includes(kw)
+                      )
+                        ? 'text-emerald-600'
+                        : 'text-slate-300'
+                    }`}
+                  />
+                  <span>🚫 Sem o Teu Nome</span>
                 </div>
+
                 <div
-                  className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                  className={`p-3.5 rounded-2xl border-2 text-xs font-extrabold flex items-center gap-2.5 transition-all ${
                     (/[a-z]/.test(pwdInput) ? 1 : 0) +
                       (/[A-Z]/.test(pwdInput) ? 1 : 0) +
                       (/[0-9]/.test(pwdInput) ? 1 : 0) +
                       (/[^A-Za-z0-9]/.test(pwdInput) ? 1 : 0) >=
                     2
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-slate-50 border-slate-200 text-slate-500'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>2+ Tipos de Caracteres</span>
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 ${
+                      (/[a-z]/.test(pwdInput) ? 1 : 0) +
+                        (/[A-Z]/.test(pwdInput) ? 1 : 0) +
+                        (/[0-9]/.test(pwdInput) ? 1 : 0) +
+                        (/[^A-Za-z0-9]/.test(pwdInput) ? 1 : 0) >=
+                      2
+                        ? 'text-emerald-600'
+                        : 'text-slate-300'
+                    }`}
+                  />
+                  <span>🔀 Mistura de Símbolos</span>
                 </div>
               </div>
 
+              {/* FEEDBACK AMIGÁVEL DO ROBO-MESTRE */}
               {pwdFeedback && (
                 <div
-                  className={`p-5 rounded-2xl border text-xs space-y-2 ${
-                    pwdFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                      : pwdFeedback.score >= 50
-                      ? 'bg-amber-50 border-amber-200 text-amber-950'
-                      : 'bg-rose-50 border-rose-200 text-rose-950'
+                  className={`p-5 rounded-2xl border-2 text-xs space-y-2 ${
+                    pwdFeedback.level === 'legendary' || pwdFeedback.level === 'good'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                      : pwdFeedback.level === 'medium'
+                      ? 'bg-amber-50 border-amber-300 text-amber-950'
+                      : 'bg-rose-50 border-rose-300 text-rose-950'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <h5 className="font-extrabold text-sm">{pwdFeedback.title}</h5>
-                    <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
-                      Pontuação: {pwdFeedback.score}/100
+                    <h5 className="font-black text-sm">{pwdFeedback.title}</h5>
+                    <span className="font-mono font-black text-xs px-2.5 py-1 bg-white rounded-lg border border-current">
+                      {pwdFeedback.score} / 100 Pts
                     </span>
                   </div>
-                  <p className="leading-relaxed font-medium whitespace-pre-line">
+                  <p className="leading-relaxed font-medium">
                     {pwdFeedback.description}
                   </p>
                 </div>
@@ -725,16 +881,17 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 🎯 3. CONCLUSÃO & AVANÇAR */}
-          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs text-slate-600 font-medium">
-              Concluíste a aprendizagem e experimentação do Tema 1.
+          {/* AVANÇAR DE MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Concluíste o treino de palavras-passe! Pronto para o próximo desafio?</span>
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t2')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 2. Phishing</span>
+              <span>Avançar para: 2. Caça ao Phishing</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -742,139 +899,158 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 2: PHISHING */}
+      {/* MISSÃO 2: PHISHING (CAÇA AOS TRUQUES E ISCOS) */}
       {/* ========================================================= */}
       {activeTopicId === 'w1-t2' && (
         <div className="space-y-6">
-          {/* Header do Tema */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Mail className="w-6 h-6" />
+          {/* Header da Missão */}
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Mail className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 2 do Mundo 1
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  Treino 2 · Missão de Guardião
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic2?.title || 'Phishing'}
+                  Radar Anti-Phishing: Caça aos Iscos Falsos! 🎣
                 </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-phishing')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-phishing')?.score}%)</span>
+                  <span>Concluído ({getSimProg('sim-phishing')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-600 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 📖 HISTÓRIA DO DETETIVE (Linguagem para crianças) */}
+          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
             <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-amber-500" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O QUE É PHISHING E SINAIS DE ALERTA
+                O que é "Phishing" e Como Não Morder o Isco? 🐟
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic2?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic2?.bulletPoints && (
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
-                <h5 className="text-xs font-black text-amber-900 uppercase tracking-wider mb-2">
-                  Desconfia imediatamente de mensagens que:
-                </h5>
-                <ul className="space-y-1.5 text-xs text-amber-950 font-bold">
-                  {topic2.bulletPoints.map((bp, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-amber-600 font-black">•</span>
-                      <span>{bp}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🎣</div>
+                <h5 className="text-sm font-black text-amber-900">A Pesca de Palavras-Passe</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Phishing vem de "pescar": pessoas mal-intencionadas lançam mensagens com iscos atrativos (como jogos ou prémios grátis) para te enganar e roubar a tua conta!
+                </p>
               </div>
-            )}
+
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🚨</div>
+                <h5 className="text-sm font-black text-rose-900">Sinais de Alerta Vermelho</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Desconfia logo se a mensagem te prometer moedas de videojogos, disser que tens apenas 5 minutos para responder ou tiver links estranhos com letras trocadas!
+                </p>
+              </div>
+
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🛑</div>
+                <h5 className="text-sm font-black text-blue-900">A Regra dos 3 Passos</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  <strong>1. Pára!</strong> Não cliques logo. <br />
+                  <strong>2. Observa</strong> quem mandou a mensagem. <br />
+                  <strong>3. Pergunta</strong> a um professor ou aos teus pais!
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w1-t2" />
           </div>
 
-          {/* 🎮 2. EXPERIMENTA (Simulador de Phishing) */}
-          <div className="bg-white border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <Sparkles className="w-5 h-5" />
+          {/* 🎮 SIMULADOR: RADAR DE PHISHING EM FORMATO SMARTPHONE / NOTIFICAÇÃO */}
+          <div className="bg-white border-2 border-amber-300 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-amber-800">
+                <Smartphone className="w-6 h-6 text-amber-600" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Laboratório de Phishing
+                  Laboratório Detetive: É Seguro ou É Cilada?
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500">
+              <span className="text-xs font-black px-3 py-1 bg-amber-100 text-amber-800 rounded-xl">
                 Cenário {phishingStep + 1} de {phishingScenarios.length}
               </span>
             </div>
 
-            {/* Email Preview Card */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
-              <div className="border-b border-slate-200 pb-2 text-xs text-slate-600 space-y-1">
-                <div>
-                  <strong className="text-slate-900">De: </strong>
-                  <span className="font-mono text-slate-800">{phishingScenarios[phishingStep].sender}</span>
-                </div>
-                <div>
-                  <strong className="text-slate-900">Assunto: </strong>
-                  <span className="text-slate-900 font-bold">{phishingScenarios[phishingStep].subject}</span>
+            {/* MOCK DE MENSAGEM RECEBIDA */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-inner">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-xl shadow-xs border border-slate-200">
+                    {phishingScenarios[phishingStep].avatar}
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                      {phishingScenarios[phishingStep].app}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-700">
+                      {phishingScenarios[phishingStep].sender}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-slate-800 leading-relaxed pt-1">
-                {phishingScenarios[phishingStep].body}
-              </p>
+
+              <div>
+                <h5 className="text-sm font-black text-slate-900 mb-1.5">
+                  {phishingScenarios[phishingStep].subject}
+                </h5>
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal bg-white p-4 rounded-2xl border border-slate-200/80">
+                  {phishingScenarios[phishingStep].body}
+                </p>
+              </div>
             </div>
 
-            {/* Decision Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* BOTÕES DE DECISÃO GRANDES E DIVERTIDOS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => handlePhishingDecision(true)}
-                className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs sm:text-sm py-4 px-6 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
               >
-                <AlertTriangle className="w-4 h-4" />
-                <span>É Phishing / Tentativa de Fraude</span>
+                <AlertTriangle className="w-5 h-5 text-yellow-200" />
+                <span>🚨 É UMA CILADA! (Phishing)</span>
               </button>
+
               <button
                 onClick={() => handlePhishingDecision(false)}
-                className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm py-4 px-6 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
               >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>É Mensagem Legítima / Segura</span>
+                <CheckCircle2 className="w-5 h-5 text-emerald-200" />
+                <span>✅ É MENSAGEM SEGURA!</span>
               </button>
             </div>
 
+            {/* FEEDBACK DO DETETIVE */}
             {phishingFeedback && (
               <div
-                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                className={`p-5 rounded-3xl border-2 text-xs space-y-3 ${
                   phishingFeedback.score === 100
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                    : 'bg-rose-50 border-rose-200 text-rose-950'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                    : 'bg-rose-50 border-rose-300 text-rose-950'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h5 className="font-extrabold text-sm">{phishingFeedback.title}</h5>
-                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
-                    {phishingFeedback.score === 100 ? '100 XP' : '0 XP'}
+                  <h5 className="font-black text-sm">{phishingFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-3 py-1 bg-white rounded-xl border border-current">
+                    {phishingFeedback.score === 100 ? '+100 Pontos!' : 'Tenta novamente!'}
                   </span>
                 </div>
                 <p className="leading-relaxed font-medium">
-                  <strong>Análise do Perito: </strong>
                   {phishingFeedback.description}
                 </p>
 
@@ -885,26 +1061,27 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                       setPhishingScore(null);
                       setPhishingFeedback(null);
                     }}
-                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 mt-3 shadow-xs cursor-pointer"
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 mt-2 shadow-xs cursor-pointer"
                   >
                     <span>Próximo Cenário ({phishingStep + 2}/{phishingScenarios.length})</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 )}
               </div>
             )}
           </div>
 
-          {/* 🎯 3. CONCLUSÃO & AVANÇAR */}
-          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs text-slate-600 font-medium">
-              Concluíste a aprendizagem e experimentação do Tema 2.
+          {/* AVANÇAR DE MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Agora sabes detetar armadilhas! Vamos proteger os teus dados pessoais?</span>
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t3')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 3. Privacidade / Dados pessoais</span>
+              <span>Avançar para: 3. O Escudo de Privacidade</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -912,142 +1089,147 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 3: DADOS PESSOAIS / PRIVACIDADE */}
+      {/* MISSÃO 3: DADOS PESSOAIS & PRIVACIDADE */}
       {/* ========================================================= */}
       {activeTopicId === 'w1-t3' && (
         <div className="space-y-6">
-          {/* Header do Tema */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-6 h-6" />
+          {/* Header da Missão */}
+          <div className="bg-white border-2 border-emerald-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <ShieldCheck className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-emerald-600 tracking-wider block">
-                  Tema 3 do Mundo 1
+                <span className="text-xs font-black text-emerald-600 uppercase tracking-wider block">
+                  Treino 3 · Missão de Guardião
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic3?.title ? `Privacidade / ${topic3.title}` : 'Privacidade / Dados pessoais'}
+                  O Escudo de Privacidade: O Teu Quarto Digital 🚪🛡️
                 </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-privacy')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-privacy')?.score}%)</span>
+                  <span>Concluído ({getSimProg('sim-privacy')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-emerald-700">
-              <BookOpen className="w-5 h-5" />
+          {/* 📖 HISTÓRIA DO ESCUDO DE PRIVACIDADE (Linguagem para crianças) */}
+          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-2.5 text-emerald-800">
+              <Sparkles className="w-5 h-5 text-emerald-500" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: DADOS PESSOAIS E PROTEÇÃO DA PRIVACIDADE
+                O que Podes Mostrar e o que Fica Guardado no Cofre?
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic3?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic3?.bulletPoints && (
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
-                <h5 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-2">
-                  Exemplos de dados pessoais a proteger:
-                </h5>
-                <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-emerald-950 font-bold">
-                  {topic3.bulletPoints.map((bp, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                      <span>{bp}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🔒</div>
+                <h5 className="text-sm font-black text-emerald-900">Super Secreto (Privado)</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Morada de casa, número de telemóvel, senhas e caminhos para a escola nunca devem ser mostrados na Internet. Guardam-se a sete chaves!
+                </p>
               </div>
-            )}
+
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🤔</div>
+                <h5 className="text-sm font-black text-amber-900">Pára e Pensa (Autorização)</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Fotos com os teus colegas de turma ou vídeos do recreio: tens sempre de pedir autorização a todos antes de publicar. Respeito em primeiro lugar!
+                </p>
+              </div>
+
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🌍</div>
+                <h5 className="text-sm font-black text-blue-900">Livre para o Mundo (Público)</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Os teus desenhos, histórias criadas por ti, os desportos que adoras e trabalhos escolares sem dados pessoais são excelentes para partilhar!
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w1-t3" />
           </div>
 
-          {/* 🎮 2. EXPERIMENTA (Privacy Simulator) */}
-          <div className="bg-white border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-emerald-700">
-                <Sparkles className="w-5 h-5" />
+          {/* 🎮 SIMULADOR: CLASSIFICADOR DE PRIVACIDADE */}
+          <div className="bg-white border-2 border-emerald-300 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-emerald-800">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Laboratório de Privacidade
+                  Classifica as Informações: Onde Pertence Cada Dado?
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                Classifica: Partilhar Publicamente / Pensar Antes / Proteger (Privado)
-              </span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {privacyItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
+                  className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 p-4 sm:p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors"
                 >
-                  <div className="space-y-0.5 max-w-lg">
-                    <span className="text-xs sm:text-sm font-bold text-slate-800">
-                      {item.label}
-                    </span>
-                    <p className="text-[11px] text-slate-500">{item.hint}</p>
+                  <div className="space-y-1 max-w-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{item.emoji}</span>
+                      <span className="text-xs sm:text-sm font-black text-slate-900">
+                        {item.label}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 font-medium pl-7">{item.hint}</p>
                     {privacyChoices[item.id] && (
-                      <p className="text-[11px] text-slate-600 italic mt-1">
-                        💡 {item.explanation}
+                      <p className="text-[11px] text-emerald-900 font-semibold italic mt-1.5 pl-7 bg-emerald-50/80 p-2 rounded-xl border border-emerald-200">
+                        {item.explanation}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0 pl-7 md:pl-0">
                     <button
                       onClick={() =>
                         setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'public' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         privacyChoices[item.id] === 'public'
                           ? 'bg-blue-600 text-white shadow-xs'
-                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
-                      Público
+                      🌍 Livre / Público
                     </button>
                     <button
                       onClick={() =>
                         setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'context' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         privacyChoices[item.id] === 'context'
                           ? 'bg-amber-600 text-white shadow-xs'
-                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
-                      Pensar Antes
+                      🤔 Pedir Autorização
                     </button>
                     <button
                       onClick={() =>
                         setPrivacyChoices((prev) => ({ ...prev, [item.id]: 'private' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         privacyChoices[item.id] === 'private'
                           ? 'bg-emerald-600 text-white shadow-xs'
-                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
-                      Proteger (Privado)
+                      🔒 Super Secreto
                     </button>
                   </div>
                 </div>
@@ -1057,43 +1239,45 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handlePrivacySubmit}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-7 py-3.5 rounded-2xl shadow-md transition-transform active:scale-95 cursor-pointer flex items-center gap-2"
               >
-                Avaliar Classificação de Privacidade
+                <Zap className="w-4 h-4 fill-current text-yellow-300" />
+                <span>Avaliar as Minhas Escolhas de Privacidade</span>
               </button>
             </div>
 
             {privacyFeedback && (
               <div
-                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                className={`p-5 rounded-3xl border-2 text-xs space-y-2 ${
                   privacyFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                    : 'bg-amber-50 border-amber-300 text-amber-950'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h5 className="font-extrabold text-sm">{privacyFeedback.title}</h5>
-                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
-                    Pontuação: {privacyFeedback.score}/100
+                  <h5 className="font-black text-sm">{privacyFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-3 py-1 bg-white rounded-xl border border-current">
+                    {privacyFeedback.score} / 100 Pts
                   </span>
                 </div>
-                <p className="leading-relaxed font-medium whitespace-pre-line">
+                <p className="leading-relaxed font-medium">
                   {privacyFeedback.description}
                 </p>
               </div>
             )}
           </div>
 
-          {/* 🎯 3. CONCLUSÃO & AVANÇAR */}
-          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs text-slate-600 font-medium">
-              Concluíste a aprendizagem e experimentação do Tema 3.
+          {/* AVANÇAR DE MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente! Agora vamos descobrir o rasto que deixamos no ciberespaço.</span>
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t4')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 4. Pegada digital</span>
+              <span>Avançar para: 4. O Rasto Digital</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1101,124 +1285,137 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 4: PEGADA DIGITAL */}
+      {/* MISSÃO 4: PEGADA DIGITAL & CIDADANIA */}
       {/* ========================================================= */}
       {activeTopicId === 'w1-t4' && (
         <div className="space-y-6">
-          {/* Header do Tema */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-                <Footprints className="w-6 h-6" />
+          {/* Header da Missão */}
+          <div className="bg-white border-2 border-indigo-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Footprints className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 4 do Mundo 1
+                <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                  Treino 4 · Missão de Guardião
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic4?.title || 'Pegada digital'}
+                  O Rasto Digital: As Tuas Pegadas no Ciberespaço 👣✨
                 </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-digital-footprint')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-digital-footprint')?.score}%)</span>
+                  <span>Concluído ({getSimProg('sim-digital-footprint')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-indigo-100 text-indigo-800 border border-indigo-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-indigo-700">
-              <BookOpen className="w-5 h-5" />
+          {/* 📖 HISTÓRIA DO RASTO DIGITAL (Linguagem para crianças) */}
+          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-2.5 text-indigo-800">
+              <Sparkles className="w-5 h-5 text-indigo-500" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O QUE É A PEGADA DIGITAL E A SUA PERMANÊNCIA
+                A Internet Tem Memória de Elefante! 🐘
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic4?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🏖️</div>
+                <h5 className="text-sm font-black text-indigo-900">Caminhar na Areia Digital</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Cada foto que publicas, vídeo que partilhas ou comentário que escreves deixa uma pegada luminosa. Na net não há borracha mágica: pensa sempre duas vezes antes de publicar!
+                </p>
+              </div>
+
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🤝</div>
+                <h5 className="text-sm font-black text-purple-900">Ser Amigo Online (Zero Bullying)</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Trata os outros como gostarias que te tratassem a ti! Elogia os teus colegas, ajuda quem está com dúvidas e nunca partilhes coisas para gozar com alguém.
+                </p>
+              </div>
             </div>
 
             <TopicIllustrationCard topicId="w1-t4" />
           </div>
 
-          {/* 🎮 2. EXPERIMENTA (Simulador de Pegada Digital) */}
-          <div className="bg-white border border-indigo-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-indigo-700">
-                <Sparkles className="w-5 h-5" />
+          {/* 🎮 SIMULADOR: AVALIADOR DE PEGADA DIGITAL */}
+          <div className="bg-white border-2 border-indigo-300 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-indigo-800">
+                <Footprints className="w-6 h-6 text-indigo-600" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Pegada Digital
+                  Simulador de Pegada: Qual é o Impacto Desta Publicação?
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                Avalia o grau de impacto: Positivo / Risco Moderado / Alto Risco
-              </span>
             </div>
 
             <div className="space-y-4">
               {footprintScenarios.map((scen) => (
                 <div
                   key={scen.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2.5"
+                  className="p-4 sm:p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/70 space-y-3 hover:bg-slate-50 transition-colors"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                    <h5 className="text-xs sm:text-sm font-black text-slate-900">{scen.title}</h5>
-                    <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">{scen.emoji}</span>
+                      <h5 className="text-xs sm:text-sm font-black text-slate-900">{scen.title}</h5>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
                       <button
                         onClick={() =>
                           setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'positivo' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                           footprintChoices[scen.id] === 'positivo'
                             ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
-                        Impacto Positivo
+                        ✨ Pegada de Herói (Fixe)
                       </button>
                       <button
                         onClick={() =>
                           setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'moderado' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                           footprintChoices[scen.id] === 'moderado'
                             ? 'bg-amber-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
-                        Risco Moderado
+                        ⚠️ Atenção / Cuidado
                       </button>
                       <button
                         onClick={() =>
                           setFootprintChoices((prev) => ({ ...prev, [scen.id]: 'alto' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                           footprintChoices[scen.id] === 'alto'
                             ? 'bg-rose-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
-                        Alto Risco
+                        🚨 Alto Perigo
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal pl-8">
                     {scen.description}
                   </p>
                   {footprintChoices[scen.id] && (
-                    <p className="text-[11px] text-slate-600 italic pt-1 border-t border-slate-200/60">
+                    <p className="text-[11px] text-indigo-950 font-semibold italic pl-8 pt-1">
                       💡 {scen.explanation}
                     </p>
                   )}
@@ -1229,43 +1426,45 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleFootprintSubmit}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-7 py-3.5 rounded-2xl shadow-md transition-transform active:scale-95 cursor-pointer flex items-center gap-2"
               >
-                Avaliar o Impacto na Minha Pegada
+                <Zap className="w-4 h-4 fill-current text-yellow-300" />
+                <span>Avaliar a Minha Pegada Digital</span>
               </button>
             </div>
 
             {footprintFeedback && (
               <div
-                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                className={`p-5 rounded-3xl border-2 text-xs space-y-2 ${
                   footprintFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-950'
-                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                    ? 'bg-indigo-50 border-indigo-300 text-indigo-950'
+                    : 'bg-amber-50 border-amber-300 text-amber-950'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h5 className="font-extrabold text-sm">{footprintFeedback.title}</h5>
-                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
-                    Pontuação: {footprintFeedback.score}/100
+                  <h5 className="font-black text-sm">{footprintFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-3 py-1 bg-white rounded-xl border border-current">
+                    {footprintFeedback.score} / 100 Pts
                   </span>
                 </div>
-                <p className="leading-relaxed font-medium whitespace-pre-line">
+                <p className="leading-relaxed font-medium">
                   {footprintFeedback.description}
                 </p>
               </div>
             )}
           </div>
 
-          {/* 🎯 3. CONCLUSÃO & AVANÇAR */}
-          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs text-slate-600 font-medium">
-              Concluíste a aprendizagem e experimentação do Tema 4.
+          {/* AVANÇAR DE MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Fantástico! Falta apenas o treino de Super-Corpo e Bem-Estar!</span>
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t5')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 5. Bem-estar digital</span>
+              <span>Avançar para: 5. Super-Corpo & Bem-Estar</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1273,132 +1472,137 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 5: BEM-ESTAR DIGITAL */}
+      {/* MISSÃO 5: SUPER-CORPO & BEM-ESTAR GAMER */}
       {/* ========================================================= */}
       {activeTopicId === 'w1-t5' && (
         <div className="space-y-6">
-          {/* Header do Tema */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                <Heart className="w-6 h-6" />
+          {/* Header da Missão */}
+          <div className="bg-white border-2 border-rose-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Heart className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-rose-600 tracking-wider block">
-                  Tema 5 do Mundo 1
+                <span className="text-xs font-black text-rose-600 uppercase tracking-wider block">
+                  Treino 5 · Missão de Guardião
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic5?.title || 'Bem-estar digital'}
+                  Super-Corpo & Bem-Estar Gamer 🕹️🧘
                 </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-digital-wellbeing')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-digital-wellbeing')?.score}%)</span>
+                  <span>Concluído ({getSimProg('sim-digital-wellbeing')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-rose-100 text-rose-800 border border-rose-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-rose-700">
-              <BookOpen className="w-5 h-5" />
+          {/* 📖 HISTÓRIA DO SUPER-CORPO (Linguagem para crianças) */}
+          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-2.5 text-rose-800">
+              <Sparkles className="w-5 h-5 text-rose-500" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: USO EQUILIBRADO E SEGURO DA TECNOLOGIA
+                Como Ter Energia Máxima e Cuidar dos Olhos e Coluna! ⚡
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic5?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic5?.bulletPoints && (
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4">
-                <h5 className="text-xs font-black text-rose-900 uppercase tracking-wider mb-2">
-                  Dicas para um equilíbrio saudável:
-                </h5>
-                <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-rose-950 font-bold">
-                  {topic5.bulletPoints.map((bp, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                      <span>{bp}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🚀</div>
+                <h5 className="text-sm font-black text-rose-900">Postura de Astronauta</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Costas direitas e apoiadas, pés bem assentes no chão e ecrã à altura dos olhos. Nada de ficar todo curvado feito caracol! 🐌
+                </p>
               </div>
-            )}
+
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">👀</div>
+                <h5 className="text-sm font-black text-amber-900">Regra dos 20-20-20</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  A cada 20 minutos de ecrã, faz uma pausa de 20 segundos para olhar pela janela para longe. Os teus olhos relaxam e ficas sem dor de cabeça!
+                </p>
+              </div>
+
+              <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-2">
+                <div className="text-2xl">🦇</div>
+                <h5 className="text-sm font-black text-indigo-900">Adeus Modo Morcego</h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Nada de telemóveis no escuro debaixo dos lençóis! Desliga os ecrãs 30 minutos antes de dormir para o teu cérebro descansar em pleno.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w1-t5" />
           </div>
 
-          {/* 🎮 2. EXPERIMENTA (Simulador de Bem-estar Digital) */}
-          <div className="bg-white border border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-rose-700">
-                <Sparkles className="w-5 h-5" />
+          {/* 🎮 SIMULADOR: TESTE DE HÁBITOS SAUDÁVEIS */}
+          <div className="bg-white border-2 border-rose-300 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-rose-800">
+                <Gamepad2 className="w-6 h-6 text-rose-600" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Ergonomia e Hábitos Saudáveis
+                  Laboratório Gamer: Escolhe os Hábitos de Campeão!
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                Avalia a ergonomia (postura, distância, luz) e os hábitos de ecrã
-              </span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {wellbeingHabits.map((h) => (
                 <div
                   key={h.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50/70"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors"
                 >
                   <div className="space-y-1 max-w-lg">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-rose-100/80 text-rose-800">
+                      <span className="text-xl">{h.emoji}</span>
+                      <span className="text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800">
                         {h.category}
                       </span>
                     </div>
-                    <span className="text-xs sm:text-sm font-bold text-slate-800 block">
+                    <span className="text-xs sm:text-sm font-black text-slate-900 block pl-7">
                       {h.label}
                     </span>
                     {wellbeingChoices[h.id] && (
-                      <p className="text-[11px] text-slate-600 italic">💡 {h.explanation}</p>
+                      <p className="text-[11px] text-rose-950 font-semibold italic pl-7 mt-1 bg-rose-50/80 p-2 rounded-xl border border-rose-200">
+                        💡 {h.explanation}
+                      </p>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 pl-7 sm:pl-0">
                     <button
                       onClick={() =>
                         setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'saudavel' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         wellbeingChoices[h.id] === 'saudavel'
                           ? 'bg-emerald-600 text-white shadow-xs'
-                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
-                      Hábito Saudável
+                      🌟 Hábito de Campeão
                     </button>
                     <button
                       onClick={() =>
                         setWellbeingChoices((prev) => ({ ...prev, [h.id]: 'risco' }))
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         wellbeingChoices[h.id] === 'risco'
                           ? 'bg-rose-600 text-white shadow-xs'
-                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
-                      Hábito Prejudicial
+                      🦇 Modo Prejudicial
                     </button>
                   </div>
                 </div>
@@ -1408,88 +1612,88 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleWellbeingSubmit}
-                className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors cursor-pointer"
+                className="bg-rose-600 hover:bg-rose-700 text-white font-black text-xs px-7 py-3.5 rounded-2xl shadow-md transition-transform active:scale-95 cursor-pointer flex items-center gap-2"
               >
-                Avaliar Meu Bem-estar Digital
+                <Zap className="w-4 h-4 fill-current text-yellow-300" />
+                <span>Avaliar a Minha Energia e Postura</span>
               </button>
             </div>
 
             {wellbeingFeedback && (
               <div
-                className={`p-5 rounded-2xl border text-xs space-y-2 ${
+                className={`p-5 rounded-3xl border-2 text-xs space-y-2 ${
                   wellbeingFeedback.score > PROGRESSION_CONFIG.PASSING_THRESHOLD
-                    ? 'bg-rose-50 border-rose-200 text-rose-950'
-                    : 'bg-amber-50 border-amber-200 text-amber-950'
+                    ? 'bg-rose-50 border-rose-300 text-rose-950'
+                    : 'bg-amber-50 border-amber-300 text-amber-950'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h5 className="font-extrabold text-sm">{wellbeingFeedback.title}</h5>
-                  <span className="font-mono font-black text-xs px-2.5 py-1 bg-white/80 rounded-lg border border-current">
-                    Índice: {wellbeingFeedback.score}/100
+                  <h5 className="font-black text-sm">{wellbeingFeedback.title}</h5>
+                  <span className="font-mono font-black text-xs px-3 py-1 bg-white rounded-xl border border-current">
+                    {wellbeingFeedback.score} / 100 Pts
                   </span>
                 </div>
-                <p className="leading-relaxed font-medium whitespace-pre-line">
+                <p className="leading-relaxed font-medium">
                   {wellbeingFeedback.description}
                 </p>
               </div>
             )}
           </div>
 
-          {/* 🎯 3. CONCLUSÃO & AVANÇAR PARA AVALIAÇÃO FINAL */}
-          <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* AVANÇAR PARA AVALIAÇÃO FINAL */}
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
             <div>
-              <span className="text-[10px] uppercase font-black text-emerald-700 tracking-wider block">
-                Completaste todos os temas teóricos e práticos do Mundo 1!
+              <span className="text-xs font-black text-emerald-700 uppercase tracking-wider block">
+                🎉 Treinos Concluídos com Sucesso!
               </span>
-              <h4 className="text-base font-black text-emerald-950 mt-0.5">
-                Pronto para a Avaliação Final (10 Perguntas)?
+              <h4 className="text-lg sm:text-xl font-black text-emerald-950 mt-0.5">
+                Pronto para o Grande Torneio do Guardião (10 Perguntas)? 🏆
               </h4>
             </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3.5 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm px-8 py-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer shrink-0"
             >
-              <span>Ir para a Avaliação Final</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Ir para o Grande Desafio</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* SEPARADOR 6: AVALIAÇÃO FINAL (10 PERGUNTAS) */}
+      {/* SEPARADOR 6: AVALIAÇÃO FINAL DO GUARDIÃO DIGITAL */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto shadow-xs">
-            <CheckCircle2 className="w-8 h-8" />
+        <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-10 shadow-md max-w-3xl mx-auto space-y-6 text-center">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-yellow-400 to-amber-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-amber-500/20">
+            <Award className="w-10 h-10" />
           </div>
 
           <div className="space-y-2">
-            <span className="text-xs uppercase font-extrabold text-blue-600 tracking-wider">
-              Prova Curricular de Conclusão do Mundo 1
+            <span className="text-xs uppercase font-black text-blue-600 tracking-wider">
+              🏆 O Grande Desafio do Guardião Digital
             </span>
-            <h3 className="text-2xl font-black text-slate-900">
-              Avaliação Final (10 Perguntas)
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+              Quiz dos 10 Desafios do Mundo 1!
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-              Responde às 10 questões de escolha múltipla sobre Palavras-passe, Phishing, Privacidade,
-              Pegada Digital e Bem-estar. Para aprovação e desbloquear o Mundo 2, a tua média global (simuladores e avaliação) tem de ser superior a {PROGRESSION_CONFIG.PASSING_THRESHOLD}%.
+              Responde a 10 perguntas divertidas sobre Palavras-passe, Phishing, Privacidade, Pegada Digital e Postura Gamer. Alcança mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% de média para ganhares o teu Crachá e abrires as portas do Mundo 2!
             </p>
           </div>
 
           {world.bestAssessmentPercentage !== null && (
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl max-w-md mx-auto flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-600">A tua Melhor Pontuação:</span>
+            <div className="p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl max-w-md mx-auto flex items-center justify-between">
+              <span className="text-xs font-black text-slate-700">O Teu Melhor Recorde:</span>
               <span
-                className={`text-sm font-black px-3 py-1 rounded-lg ${
+                className={`text-sm font-black px-3.5 py-1.5 rounded-xl ${
                   world.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-amber-100 text-amber-800'
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    : 'bg-amber-100 text-amber-800 border border-amber-300'
                 }`}
               >
                 {world.bestAssessmentPercentage}%
-                {world.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD ? ' (Aprovado)' : ` (Pendente > ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`}
+                {world.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD ? ' (🌟 Aprovado!)' : ` (🎯 Falta > ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`}
               </span>
             </div>
           )}
@@ -1497,12 +1701,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           <div className="pt-4">
             <button
               onClick={onOpenAssessment}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-8 py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 mx-auto cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm sm:text-base px-10 py-4 rounded-2xl shadow-xl shadow-blue-600/30 transition-transform active:scale-95 flex items-center gap-3 mx-auto cursor-pointer"
             >
+              <Zap className="w-5 h-5 fill-current text-yellow-300" />
               <span>
                 {world.bestAssessmentPercentage !== null
-                  ? 'Repetir Avaliação Final (10 Perguntas)'
-                  : 'Iniciar Avaliação Final (10 Perguntas)'}
+                  ? 'Repetir Desafio das 10 Perguntas'
+                  : 'Iniciar o Desafio das 10 Perguntas!'}
               </span>
               <ArrowRight className="w-5 h-5" />
             </button>

@@ -170,29 +170,29 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   };
 
   const world1Tabs = [
-    { id: 'w1-t1', label: '1. Palavras-passe', icon: Key, simId: 'sim-password' },
-    { id: 'w1-t2', label: '2. Phishing', icon: Mail, simId: 'sim-phishing' },
+    { id: 'w1-t1', label: '1. Palavras-passe Secretas 🗝️', icon: Key, simId: 'sim-password' },
+    { id: 'w1-t2', label: '2. Caça ao Phishing 🎣', icon: Mail, simId: 'sim-phishing' },
     {
       id: 'w1-t3',
-      label: '3. Privacidade / Dados pessoais',
+      label: '3. Escudo de Privacidade 🛡️',
       icon: ShieldCheck,
       simId: 'sim-privacy',
     },
     {
       id: 'w1-t4',
-      label: '4. Pegada digital',
+      label: '4. Rasto Digital 👣',
       icon: Footprints,
       simId: 'sim-digital-footprint',
     },
     {
       id: 'w1-t5',
-      label: '5. Bem-estar digital',
+      label: '5. Super-Corpo & Bem-Estar 🕹️',
       icon: Heart,
       simId: 'sim-digital-wellbeing',
     },
     {
       id: 'avaliacao',
-      label: '6. Avaliação Final (10 Perguntas)',
+      label: '6. Quiz do Guardião 🏆',
       icon: CheckCircle2,
       simId: 'assessment',
     },
