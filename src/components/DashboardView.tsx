@@ -3,6 +3,7 @@ import {
   ArrowRight,
   BookOpen,
   Lock,
+  LogIn,
   Signal,
   CheckCircle2,
   Crown,
@@ -317,10 +318,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div>
                 <h4 className="text-sm font-black text-slate-900 leading-snug">
-                  Mundos Bloqueados — Acesso Exclusivo a Utilizadores Registados
+                  Mundos Bloqueados — Acesso Exclusivo com Início de Sessão
                 </h4>
                 <p className="text-xs text-slate-600 font-medium mt-0.5">
-                  Não é permitido aceder nem ver a informação dos 5 Mundos sem registo na plataforma. Inicia sessão ou regista-te para começar!
+                  Para aceder aos 5 Mundos, utiliza o nome de utilizador e a palavra-passe do teu cartão escolar fornecido pela tua Professora.
                 </p>
               </div>
             </div>
@@ -328,8 +329,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => onOpenLoginModal?.()}
               className="shrink-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Registar / Entrar</span>
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Iniciar Sessão</span>
             </button>
           </div>
         )}
@@ -379,7 +380,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     user ? 'hover:-translate-y-1.5' : 'opacity-90'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island1Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-25' : ''}`} />
@@ -426,7 +427,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Registo Obrigatório'
+                          ? 'Sessão Obrigatória'
                           : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
@@ -469,7 +470,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 1' : undefined}
+                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 1' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island2Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -523,7 +524,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Registo Obrigatório'
+                          ? 'Sessão Obrigatória'
                           : !isUnlocked
                           ? 'Bloqueado (> 70% no M1)'
                           : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
@@ -568,7 +569,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 2' : undefined}
+                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 2' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island3Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -622,7 +623,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Registo Obrigatório'
+                          ? 'Sessão Obrigatória'
                           : !isUnlocked
                           ? 'Bloqueado (> 70% no M2)'
                           : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
@@ -667,7 +668,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 3' : undefined}
+                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 3' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island4Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -721,7 +722,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Registo Obrigatório'
+                          ? 'Sessão Obrigatória'
                           : !isUnlocked
                           ? 'Bloqueado (> 70% no M3)'
                           : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
@@ -766,7 +767,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     isUnlocked ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 4' : undefined}
+                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : !isUnlocked ? 'Bloqueado — Requer média > 70% no Mundo 4' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island5Artwork className={`w-full h-full drop-shadow-sm ${isUnlocked ? '' : 'grayscale-75 opacity-70'}`} />
@@ -820,7 +821,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {(!user || !isUnlocked) && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Registo Obrigatório'
+                          ? 'Sessão Obrigatória'
                           : !isUnlocked
                           ? 'Bloqueado (> 70% no M4)'
                           : avg > PROGRESSION_CONFIG.PASSING_THRESHOLD
@@ -864,7 +865,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
                     all5Passed ? 'hover:-translate-y-1.5' : 'opacity-85'
                   }`}
-                  title={!user ? 'Registo obrigatório para ver a Grande Missão' : !all5Passed ? 'Bloqueado — Requer os 5 Mundos com média > 70%' : undefined}
+                  title={!user ? 'Início de sessão obrigatório para ver a Grande Missão' : !all5Passed ? 'Bloqueado — Requer os 5 Mundos com média > 70%' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <SummitMountainArtwork className={`w-full h-full drop-shadow-md ${!all5Passed ? 'grayscale-75 opacity-75' : ''}`} />
@@ -921,7 +922,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         ) : !user ? (
                           <>
                             <Lock className="w-3.5 h-3.5 text-amber-400" />
-                            <span>Registo Obrigatório</span>
+                            <span>Sessão Obrigatória</span>
                           </>
                         ) : !all5Passed ? (
                           <>

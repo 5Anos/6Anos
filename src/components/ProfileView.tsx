@@ -44,10 +44,10 @@ export const ProfileView: React.FC = () => {
           <User className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Perfil Bloqueado — Registo Obrigatório
+          Perfil Bloqueado — Início de Sessão Obrigatório
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para personalizares o teu avatar e o teu nome de explorador digital, inicia sessão na tua conta.
+          Para personalizares o teu avatar e o teu nome de explorador digital, inicia sessão com a conta fornecida pela tua Professora.
         </p>
       </div>
     );

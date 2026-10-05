@@ -81,10 +81,10 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
           <Trophy className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Desafios Bloqueados — Registo Obrigatório
+          Desafios Bloqueados — Início de Sessão Obrigatório
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para participar nos desafios semanais e figurar no ranking da turma, é necessário ter conta e iniciar sessão na plataforma.
+          Para participar nos desafios semanais e figurar no ranking da turma, é necessário iniciar sessão com a conta fornecida pela Professora.
         </p>
       </div>
     );

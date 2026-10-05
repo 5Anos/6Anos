@@ -383,10 +383,10 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
           <Key className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Simuladores Bloqueados — Registo Obrigatório
+          Simuladores Bloqueados — Início de Sessão Obrigatório
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Os simuladores práticos da Missão TIC requerem registo e início de sessão na plataforma para gravar o progresso e conquistas.
+          Os simuladores práticos da Missão TIC requerem início de sessão com a conta disponibilizada pela tua Professora para gravar o teu progresso e conquistas.
         </p>
         <button
           onClick={onBack}

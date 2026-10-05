@@ -49,10 +49,10 @@ export const BadgesView: React.FC = () => {
           <Award className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Conquistas Bloqueadas — Registo Obrigatório
+          Conquistas Bloqueadas — Início de Sessão Obrigatório
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para colecionares medalhas, insígnias e pontos XP, precisas de iniciar sessão com a tua conta de aluno.
+          Para colecionares medalhas, insígnias e pontos XP, inicia sessão com o cartão escolar fornecido pela tua Professora.
         </p>
       </div>
     );

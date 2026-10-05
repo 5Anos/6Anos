@@ -152,10 +152,10 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           <Crown className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Grande Missão Bloqueada — Registo Obrigatório
+          Grande Missão Bloqueada — Início de Sessão Obrigatório
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          A Grande Missão Final é reservada a alunos registados que concluam as etapas dos 5 Mundos curriculares.
+          A Grande Missão Final é reservada a alunos que tenham sessão iniciada e concluam as etapas dos 5 Mundos curriculares.
         </p>
         <button
           onClick={onBack}

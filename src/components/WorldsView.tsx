@@ -6,6 +6,7 @@ import {
   Terminal,
   Sparkles,
   Lock,
+  LogIn,
   CheckCircle2,
   Award,
   Key,
@@ -106,17 +107,17 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           Acesso Restrito
         </span>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Mundos Bloqueados — Registo Obrigatório
+          Mundos Bloqueados — Inicia Sessão
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Não é permitido aceder nem ver a informação dos 5 Mundos para pessoas que não estejam registadas na plataforma. Inicia sessão ou cria a tua conta para desbloquear o acesso!
+          Para acederes e explorares os 5 Mundos das TIC, utiliza o nome de utilizador e a palavra-passe atribuídos pela tua Professora no teu cartão de acesso.
         </p>
         <button
           onClick={() => onOpenLoginModal?.()}
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
         >
-          <Lock className="w-4 h-4" />
-          <span>Iniciar Sessão / Criar Conta</span>
+          <LogIn className="w-4 h-4" />
+          <span>Iniciar Sessão</span>
         </button>
       </div>
     );

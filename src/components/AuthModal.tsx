@@ -34,45 +34,18 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ onContinueToApp }) => {
-  const { user, login, register, logout } = useAuth();
-  const [isRegister, setIsRegister] = useState(false);
+  const { user, login, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [classId, setClassId] = useState('class-6a');
-  const [avatarConfig, setAvatarConfig] = useState<CustomAvatarConfig>(DEFAULT_AVATAR_CONFIG);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Generate safe default nickname when switching to register
-  useEffect(() => {
-    if (isRegister && !nickname) {
-      setNickname(generateSafeNickname());
-    }
-  }, [isRegister]);
-
-  const handleShuffleNickname = () => {
-    setNickname(generateSafeNickname());
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      if (isRegister) {
-        await register({
-          name: name.trim(),
-          email: email.trim(),
-          password,
-          nickname: nickname.trim(),
-          classId,
-          avatar: serializeAvatarConfig(avatarConfig),
-        });
-      } else {
-        await login(email.trim(), password);
-      }
+      await login(email.trim(), password);
       if (onContinueToApp) onContinueToApp();
     } catch (err: any) {
       setError(err.message || 'Erro ao processar autenticação');
@@ -195,32 +168,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onContinueToApp }) => {
           </div>
 
           {/* Authentication Card */}
-          <div className={isRegister ? 'lg:col-span-12' : 'lg:col-span-5'}>
+          <div className="lg:col-span-5">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
                 <div className="space-y-1">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <Lock className="w-5 h-5 text-blue-400" />
-                    {isRegister ? 'Criação de Conta de Aluno' : 'Entrar com Credenciais'}
+                    <span>Entrar com Credenciais</span>
                   </h3>
                   <p className="text-xs text-slate-400">
-                    {isRegister
-                      ? 'Preenche os teus dados escolares e personaliza o teu avatar digital antes de começar!'
-                      : 'Acede com o teu email escolar e palavra-passe.'}
+                    Acede com o teu nome de utilizador ou email escolar e palavra-passe.
                   </p>
                 </div>
-                {isRegister && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsRegister(false);
-                      setError(null);
-                    }}
-                    className="self-start sm:self-auto text-xs font-bold text-slate-400 hover:text-white px-3 py-1.5 bg-slate-800 rounded-xl transition-all"
-                  >
-                    ← Voltar ao Início de Sessão
-                  </button>
-                )}
               </div>
 
               {error && (
@@ -229,166 +188,52 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onContinueToApp }) => {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {isRegister ? (
-                  <div className="space-y-6">
-                    {/* Personal Information Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-blue-400" />
-                          Nome Completo:
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Ex: Beatriz Silva"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Nome de Utilizador ou Email:</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ex: anderson.santos ou Prof_Carla"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
 
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                            Nickname:
-                          </label>
-                          <button
-                            type="button"
-                            onClick={handleShuffleNickname}
-                            title="Gerar outro nickname seguro"
-                            className="text-[10px] text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            <Shuffle className="w-2.5 h-2.5" />
-                            <span>Baralhar</span>
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          required
-                          value={nickname}
-                          onChange={(e) => setNickname(e.target.value)}
-                          placeholder="Ex: Ciber_Heroi_84"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                          <School className="w-3.5 h-3.5 text-blue-400" />
-                          Turma do 6.º Ano:
-                        </label>
-                        <select
-                          id="select-authmodal-class"
-                          required
-                          value={classId}
-                          onChange={(e) => setClassId(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-blue-500"
-                        >
-                          <option value="class-6a">6.º A</option>
-                          <option value="class-6b">6.º B</option>
-                          <option value="class-6c">6.º C</option>
-                          <option value="class-6d">6.º D</option>
-                          <option value="class-6e">6.º E</option>
-                        </select>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5 text-blue-400" />
-                          Email Escolar:
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="aluno@escola.edu.pt"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div className="space-y-1 sm:col-span-2 lg:col-span-4">
-                        <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-blue-400" />
-                          Palavra-passe:
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Cria uma palavra-passe segura..."
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Integrated Full Avatar Builder */}
-                    <AvatarBuilder
-                      value={avatarConfig}
-                      onChange={(newConfig) => setAvatarConfig(newConfig)}
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-blue-400" />
-                        Email ou Nickname (Aluno ou Professora):
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="ex: imaginebycarla2023@gmail.com ou Prof_Carla"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-blue-400" />
-                        Palavra-passe:
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </>
-                )}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Palavra-passe / PIN:</span>
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm py-3.5 rounded-2xl transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
                 >
-                  <span>{loading ? 'A processar...' : isRegister ? 'Concluir Criação de Conta com Este Avatar' : 'Entrar na Plataforma'}</span>
+                  <span>{loading ? 'A processar...' : 'Entrar na Plataforma'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
 
-              <div className="text-center pt-1 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsRegister(!isRegister);
-                    setError(null);
-                  }}
-                  className="text-xs font-bold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
-                >
-                  {isRegister
-                    ? 'Já tens conta? Entra aqui'
-                    : 'Novo aluno do 6.º ano? Cria a tua conta e constrói o teu avatar'}
-                </button>
+              <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 space-y-1">
+                <span className="font-bold text-slate-300 block">🏫 Contas Geridas pela Professora:</span>
+                <p className="text-[11px] leading-relaxed">
+                  As contas dos alunos são criadas pela Professora de TIC. Consulta o teu cartão de acesso da turma ou pede apoio à tua professora na sala de aula.
+                </p>
               </div>
             </div>
           </div>
