@@ -446,74 +446,76 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             </div>
           )}
 
-          {/* World Hero & Intro */}
-          <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/50 border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider">
-                  {currentWorld.title}
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5">
-                  {currentWorld.subtitle}
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-white border border-blue-200 rounded-2xl px-4 py-2 text-center shadow-xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Média do Mundo
+          {/* World Hero & Intro (For World 2, the dedicated Detective Hero renders inside World2ThematicView) */}
+          {currentWorld.id !== 2 && (
+            <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/50 border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <span className="text-xs font-black text-blue-600 uppercase tracking-wider">
+                    {currentWorld.title}
                   </span>
-                  <span className="text-base font-black text-blue-700">
-                    {currentWorld.average > 0 ? `${currentWorld.average}%` : '0%'}
-                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5">
+                    {currentWorld.subtitle}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="bg-white border border-blue-200 rounded-2xl px-4 py-2 text-center shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                      Média do Mundo
+                    </span>
+                    <span className="text-base font-black text-blue-700">
+                      {currentWorld.average > 0 ? `${currentWorld.average}%` : '0%'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Micro-Mission Goal Banner */}
-            {(() => {
-              const catalogIntro = WORLDS_DATA.find((w) => w.id === currentWorld.id)?.intro;
-              const intro = currentWorld.intro || catalogIntro;
-              if (!intro?.mission) return null;
-              return (
-                <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 border border-blue-200/80 rounded-2xl px-4 py-2 text-xs font-bold">
-                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>{intro.mission}</span>
-                </div>
-              );
-            })()}
-
-            {/* Navigation Tabs */}
-            <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-blue-100">
-              {currentTabs.map((tab) => {
-                const Icon = tab.icon;
-                const active = activeTab === tab.id;
-                const completed = isSimCompleted(tab.simId);
-
+              {/* Micro-Mission Goal Banner */}
+              {(() => {
+                const catalogIntro = WORLDS_DATA.find((w) => w.id === currentWorld.id)?.intro;
+                const intro = currentWorld.intro || catalogIntro;
+                if (!intro?.mission) return null;
                 return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-3.5 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 transition-all ${
-                      active
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-white text-slate-700 hover:bg-blue-50/80 border border-slate-200'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="whitespace-nowrap">{tab.label}</span>
-                    {completed && (
-                      <span
-                        className={`w-2 h-2 rounded-full shrink-0 ${
-                          active ? 'bg-emerald-300' : 'bg-emerald-500'
-                        }`}
-                        title="Atividade Concluída"
-                      />
-                    )}
-                  </button>
+                  <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 border border-blue-200/80 rounded-2xl px-4 py-2 text-xs font-bold">
+                    <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>{intro.mission}</span>
+                  </div>
                 );
-              })}
+              })()}
+
+              {/* Navigation Tabs */}
+              <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-blue-100">
+                {currentTabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const active = activeTab === tab.id;
+                  const completed = isSimCompleted(tab.simId);
+
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-3.5 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 transition-all ${
+                        active
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-white text-slate-700 hover:bg-blue-50/80 border border-slate-200'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="whitespace-nowrap">{tab.label}</span>
+                      {completed && (
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            active ? 'bg-emerald-300' : 'bg-emerald-500'
+                          }`}
+                          title="Atividade Concluída"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* ========================================================= */}
           {/* THEMATIC VIEWS (THEORY + SIMULATOR TOGETHER PER TOPIC)   */}

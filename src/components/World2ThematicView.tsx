@@ -18,7 +18,20 @@ import {
   Star,
   Zap,
   AlertOctagon,
+  Users,
+  Megaphone,
+  Trophy,
+  Target,
+  Check,
+  X,
+  XCircle,
+  Lightbulb,
+  FlaskConical,
+  PawPrint,
+  ChevronRight,
+  ExternalLink,
 } from 'lucide-react';
+import { DetectiveBoyHero, StudyStackIllustration } from './DetectiveMascot';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -545,23 +558,309 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 1: PESQUISAR MELHOR */}
+      {/* 🕵️ HERO BANNER DETETIVE DIGITAL (Matching Mockup image.png) */}
+      {/* ========================================================= */}
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-b from-[#bfe7ff] via-[#d7efff] to-[#eaf6ff] border border-sky-200/80 p-6 sm:p-8 lg:p-10 shadow-sm">
+        {/* Soft background clouds and radial highlights */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-sky-200/30 rounded-full blur-2xl pointer-events-none" />
+
+        {/* Top Breadcrumb & Route Progress */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-2 text-xs font-black text-blue-900 tracking-wide">
+            <span className="text-base">🌐</span>
+            <span>MUNDO 2</span>
+            <span className="text-blue-400 font-bold">&gt;</span>
+            <span>DETETIVE DIGITAL</span>
+            <span className="text-base">🕵️</span>
+          </div>
+
+          <div className="bg-white/90 backdrop-blur-md border border-white/80 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-700 tracking-wider">
+              <span className="text-amber-500">👑</span>
+              <span>A Tua Rota no Mundo</span>
+            </div>
+            <div className="w-24 sm:w-28 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200/80">
+              <div
+                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${world.average > 0 ? world.average : 0}%`,
+                }}
+              />
+            </div>
+            <span className="text-xs font-black text-slate-800 tabular-nums">
+              {world.average > 0 ? `${world.average}%` : '0%'}
+            </span>
+          </div>
+        </div>
+
+        {/* Middle Hero: Headline, Subtitle, Detective Mascot */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 my-6 relative z-10">
+          <div className="max-w-xl space-y-3">
+            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-950 tracking-tight leading-[1.12]">
+              A Lupa da Verdade:<br />
+              Caça a Pistas, Fontes Seguras<br />
+              e Notícias Falsas!
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed max-w-lg">
+              A tua missão de detetive: investigar pistas, confirmar factos e nunca morder o isco de notícias falsas! 🔎
+            </p>
+          </div>
+          <div className="shrink-0 flex justify-center lg:justify-end">
+            <DetectiveBoyHero className="w-64 sm:w-72 lg:w-[320px] h-auto drop-shadow-md" />
+          </div>
+        </div>
+
+        {/* 6 Mission Cards Grid (Row 1: 4 cards, Row 2: 2 cards) */}
+        <div className="space-y-3 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Missão 1: Radar de Palavras */}
+            <button
+              onClick={() => onNavigateTopic('w2-t1')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w2-t1'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeTopicId === 'w2-t1' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
+                  }`}
+                >
+                  <Search className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span
+                    className={`text-[10px] font-bold block ${
+                      activeTopicId === 'w2-t1' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    Missão 1/6
+                  </span>
+                  <span className="text-xs sm:text-sm font-black truncate">
+                    Radar de Palavras
+                  </span>
+                </div>
+              </div>
+              <ChevronRight
+                className={`w-4 h-4 shrink-0 ${
+                  activeTopicId === 'w2-t1' ? 'text-white' : 'text-blue-500'
+                }`}
+              />
+            </button>
+
+            {/* Missão 2: Quem é o Autor? */}
+            <button
+              onClick={() => onNavigateTopic('w2-t2')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w2-t2'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeTopicId === 'w2-t2' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
+                  }`}
+                >
+                  <Users className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span
+                    className={`text-[10px] font-bold block ${
+                      activeTopicId === 'w2-t2' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    Missão 2/6
+                  </span>
+                  <span className="text-xs sm:text-sm font-black truncate">
+                    Quem é o Autor?
+                  </span>
+                </div>
+              </div>
+              <ChevronRight
+                className={`w-4 h-4 shrink-0 ${
+                  activeTopicId === 'w2-t2' ? 'text-white' : 'text-blue-500'
+                }`}
+              />
+            </button>
+
+            {/* Missão 3: Linha do Tempo */}
+            <button
+              onClick={() => onNavigateTopic('w2-t3')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w2-t3'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeTopicId === 'w2-t3' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-500'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span
+                    className={`text-[10px] font-bold block ${
+                      activeTopicId === 'w2-t3' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    Missão 3/6
+                  </span>
+                  <span className="text-xs sm:text-sm font-black truncate">
+                    Linha do Tempo
+                  </span>
+                </div>
+              </div>
+              <ChevronRight
+                className={`w-4 h-4 shrink-0 ${
+                  activeTopicId === 'w2-t3' ? 'text-white' : 'text-blue-500'
+                }`}
+              />
+            </button>
+
+            {/* Missão 4: Comparar Pistas */}
+            <button
+              onClick={() => onNavigateTopic('w2-t4')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w2-t4'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeTopicId === 'w2-t4' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
+                  }`}
+                >
+                  <Layers className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span
+                    className={`text-[10px] font-bold block ${
+                      activeTopicId === 'w2-t4' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    Missão 4/6
+                  </span>
+                  <span className="text-xs sm:text-sm font-black truncate">
+                    Comparar Pistas
+                  </span>
+                </div>
+              </div>
+              <ChevronRight
+                className={`w-4 h-4 shrink-0 ${
+                  activeTopicId === 'w2-t4' ? 'text-white' : 'text-blue-500'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Row 2: Missões 5 e 6 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Missão 5: Caça a Boatos */}
+            <button
+              onClick={() => onNavigateTopic('w2-t5')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w2-t5'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeTopicId === 'w2-t5' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-500'
+                  }`}
+                >
+                  <Megaphone className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span
+                    className={`text-[10px] font-bold block ${
+                      activeTopicId === 'w2-t5' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    Missão 5/6
+                  </span>
+                  <span className="text-xs sm:text-sm font-black truncate">
+                    Caça a Boatos
+                  </span>
+                </div>
+              </div>
+              <ChevronRight
+                className={`w-4 h-4 shrink-0 ${
+                  activeTopicId === 'w2-t5' ? 'text-white' : 'text-blue-500'
+                }`}
+              />
+            </button>
+
+            {/* Missão 6: Guia do Detetive (Quiz) */}
+            <button
+              onClick={() => onNavigateTopic('avaliacao')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'avaliacao'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeTopicId === 'avaliacao' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'
+                  }`}
+                >
+                  <Trophy className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span
+                    className={`text-[10px] font-bold block ${
+                      activeTopicId === 'avaliacao' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    Missão 6/6
+                  </span>
+                  <span className="text-xs sm:text-sm font-black truncate">
+                    Guia do Detetive
+                  </span>
+                </div>
+              </div>
+              <ChevronRight
+                className={`w-4 h-4 shrink-0 ${
+                  activeTopicId === 'avaliacao' ? 'text-white' : 'text-blue-500'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* MISSÃO 1: RADAR DE PALAVRAS-CHAVE                        */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t1' && (
         <div className="space-y-6">
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Active Mission Header Card */}
+          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
-                <Search className="w-7 h-7" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
+                <Search className="w-7 h-7 stroke-[2.5]" />
               </div>
               <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 1/6
+                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> MISSÃO 1/6
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  Radar de Palavras-Chave 🔍
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  Radar de Palavras-Chave 🎯
                 </h3>
-                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                   Hoje vais descobrir como fazer pesquisas certeiras como um cientista.
                 </p>
               </div>
@@ -569,63 +868,121 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-keywords')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
+                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-keywords')?.score}%)</span>
-                </span>
+                  <span>Concluída (100%)</span>
+                </div>
               ) : (
-                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <Zap className="w-4 h-4 text-amber-500 fill-current" />
                   <span>Recompensa: +100 XP</span>
-                </span>
+                </div>
               )}
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Pesquisar com Precisão
-              </h4>
+          {/* 💡 1. APRENDE: PESQUISAR COM PRECISÃO */}
+          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
+                <span className="text-lg">💡</span>
+                <span>1. APRENDE: PESQUISAR COM PRECISÃO</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>Dicas do detetive</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🔍</div>
-                <h5 className="text-xs font-black text-blue-900">Palavras Precisas</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Se pesquisares apenas "jogos", o motor de busca perde-se. Se pesquisares termos específicos, encontras logo a resposta certa!
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Left Card: Palavras Precisas */}
+              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-3.5 flex flex-col justify-between">
+                <div className="space-y-1.5">
+                  <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
+                    <Search className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+                  </div>
+                  <h4 className="text-sm font-black text-slate-900">Palavras Precisas</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                    Se pesquisares apenas "jogar", o motor de busca perde-se. Se pesquisares termos específicos, encontras logo a resposta certa!
+                  </p>
+                </div>
+
+                {/* Mock Browser Search Bar */}
+                <div className="bg-white rounded-xl border border-sky-200/90 p-3 shadow-xs space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 sm:p-2.5 flex items-center justify-between gap-2">
+                    <span className="text-xs sm:text-sm font-mono text-slate-700 font-semibold truncate">
+                      animais em perigo de extinção em Portugal
+                    </span>
+                    <button
+                      type="button"
+                      className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg flex items-center justify-center shrink-0 shadow-xs cursor-pointer"
+                    >
+                      <Search className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🎯</div>
-                <h5 className="text-xs font-black text-amber-900">Regra do Detetive</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Usa termos técnicos e claros (ex.: "distância da Terra à Lua em km") e evita perguntas vagas de conversa.
-                </p>
+              {/* Right Card: Regra do Detetive */}
+              <div className="bg-amber-50/60 border border-amber-200 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between gap-4">
+                <div className="space-y-1.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-amber-600 stroke-[2.5]" />
+                  </div>
+                  <h4 className="text-sm font-black text-slate-900">Regra do Detetive</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                    Usa termos técnicos e claros (ex.: "declínio da fénix à Lua em km") e evita perguntas vagas de conversa.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+                  <div className="space-y-2 text-xs font-bold text-slate-800">
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Usa palavras específicas</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Inclui o contexto (onde? quando? como?)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-rose-800">
+                      <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                      <span>Evita termos vagos como "coisas" ou "jogos"</span>
+                    </div>
+                  </div>
+
+                  {/* Yellow Sticky Note with Pushpin */}
+                  <div className="relative self-center sm:self-auto bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-300 rounded-xl p-3 shadow-md transform rotate-2 max-w-[140px] text-center shrink-0">
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 border-2 border-white shadow-xs" />
+                    <p className="text-[11px] font-black text-amber-950 uppercase leading-snug tracking-tight">
+                      SER PRECISO É O PODER DO DETETIVE!
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE */}
-          <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 🧪 2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE */}
+          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Pesquisa Inteligente
-                </h4>
+              <div className="flex items-center gap-2.5 text-blue-900 font-black text-sm sm:text-base tracking-wide">
+                <FlaskConical className="w-5 h-5 text-blue-600" />
+                <span>2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE</span>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                3 Situações Reais de Estudo
+              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+                <Layers className="w-4 h-4 text-slate-400" />
+                <span>3 Situações Reais de Estudo</span>
               </span>
             </div>
 
-            {/* Scenario Selector Pills */}
-            <div className="flex flex-wrap gap-2">
+            {/* Situations Selector Buttons */}
+            <div className="flex flex-wrap gap-2.5">
               {searchScenarios.map((scen, sIdx) => {
                 const isCurrent = activeSearchScenarioIndex === sIdx;
                 const isAnswered = selectedSearchQueries[sIdx] !== undefined;
@@ -648,11 +1005,11 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         setKeywordFeedback(null);
                       }
                     }}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                       isCurrent
                         ? 'bg-blue-600 text-white shadow-xs'
                         : isAnswered
-                        ? 'bg-blue-50 text-blue-800 border border-blue-200'
+                        ? 'bg-sky-50 text-blue-800 border border-blue-200'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -670,75 +1027,93 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
               return (
                 <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl space-y-1">
-                    <span className="text-[10px] font-black uppercase text-blue-700 tracking-wider block">
-                      {currentScenario.theme}
-                    </span>
-                    <p className="text-xs sm:text-sm text-blue-950 font-medium">
-                      {currentScenario.prompt}
-                    </p>
+                  {/* Scenario Prompt Card */}
+                  <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs text-2xl">
+                      {activeSearchScenarioIndex === 0 ? '🐾' : activeSearchScenarioIndex === 1 ? '🎮' : '🚀'}
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-xs sm:text-sm font-black text-blue-900 uppercase tracking-wide">
+                        {currentScenario.theme}
+                      </h4>
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                        {currentScenario.prompt}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="space-y-3">
+                  {/* 3 Queries Rows */}
+                  <div className="space-y-2.5">
                     {currentScenario.queries.map((sq) => {
                       const isSelected = selectedQId === sq.id;
                       return (
                         <div
                           key={sq.id}
                           onClick={() => handleKeywordSelect(activeSearchScenarioIndex, sq.id)}
-                          className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                          className={`p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                             isSelected
                               ? sq.score === 100
-                                ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-300/30'
-                                : 'bg-amber-50 border-amber-300 ring-2 ring-amber-300/30'
-                              : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                ? 'bg-emerald-50/80 border-emerald-400 shadow-xs'
+                                : 'bg-amber-50/80 border-amber-400 shadow-xs'
+                              : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-sky-50/30'
                           }`}
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div className="flex items-center gap-2.5">
-                              <span className="text-xs font-black text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
-                                {sq.label}
-                              </span>
-                              <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
-                                "{sq.query}"
-                              </span>
-                            </div>
-                            <span className="text-xs font-semibold text-slate-500">
-                              {isSelected ? 'Opção selecionada' : 'Clica para testar esta pesquisa'}
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-black text-blue-800 bg-sky-100 px-3 py-1.5 rounded-xl shrink-0">
+                              {sq.label}
+                            </span>
+                            <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
+                              "{sq.query}"
                             </span>
                           </div>
+
+                          <button
+                            type="button"
+                            className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shrink-0 transition-all ${
+                              isSelected
+                                ? sq.score === 100
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-amber-600 text-white'
+                                : 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-50 shadow-2xs'
+                            }`}
+                          >
+                            <Search className="w-3.5 h-3.5" />
+                            <span>{isSelected ? '✓ Testada' : 'Clica para testar esta pesquisa'}</span>
+                          </button>
                         </div>
                       );
                     })}
                   </div>
 
+                  {/* Feedback Drawer */}
                   {keywordFeedback && (
                     <div
-                      className={`p-4 rounded-2xl border text-xs font-medium space-y-1 ${
+                      className={`p-4 rounded-2xl border text-xs font-medium space-y-1 animate-in fade-in duration-200 ${
                         keywordFeedback.score === 100
-                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                          : 'bg-amber-50 border-amber-200 text-amber-950'
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                          : 'bg-amber-50 border-amber-300 text-amber-950'
                       }`}
                     >
-                      <div className="flex items-center gap-2 font-black">
+                      <div className="flex items-center gap-2 font-black text-sm">
                         {keywordFeedback.score === 100 ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                         ) : (
-                          <AlertTriangle className="w-4 h-4 text-amber-600" />
+                          <AlertTriangle className="w-5 h-5 text-amber-600" />
                         )}
                         <span>
                           {keywordFeedback.title} (Pontuação: {keywordFeedback.score}/100)
                         </span>
                       </div>
-                      <p>{keywordFeedback.description}</p>
+                      <p className="text-xs leading-relaxed opacity-90">{keywordFeedback.description}</p>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-2">
+                  {/* Bottom Line */}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                     <span className="text-xs font-bold text-slate-500">
                       Situações concluídas: {Object.keys(selectedSearchQueries).length} de {searchScenarios.length}
                     </span>
-                    {activeSearchScenarioIndex < searchScenarios.length - 1 && (
+                    {activeSearchScenarioIndex < searchScenarios.length - 1 ? (
                       <button
                         type="button"
                         onClick={() => {
@@ -758,11 +1133,15 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                             setKeywordFeedback(null);
                           }
                         }}
-                        className="text-xs font-black text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                        className="bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 font-black text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
                       >
                         <span>Próxima Situação</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
+                    ) : (
+                      <span className="text-xs font-black text-emerald-600 flex items-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Todas as situações testadas!
+                      </span>
                     )}
                   </div>
                 </div>
@@ -770,29 +1149,78 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             })()}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Pesquisas precisas com palavras-chave certas encontram respostas muito mais depressa.</li>
-              <li>Evita termos vagos como "coisas" ou "jogos" para não te perderes em anúncios e vídeos soltos.</li>
-            </ul>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Pesquisas precisas com palavras-chave certas encontram respostas muito mais depressa.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Evita termos vagos como "coisas" ou "jogos" para não te perderes em anúncios e vídeos soltos.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PESQUISAR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>ANALISAR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>DESCOBRIR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PENSAR CRITICAMENTE</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Excelente pesquisa! Agora vamos descobrir quem escreveu os artigos!</span>
+          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
+          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
+              <span className="text-xs sm:text-sm font-black text-indigo-950">
+                Excelente pesquisa! Agora vamos descobrir quem escreveu os artigos!
+              </span>
             </div>
             <button
+              type="button"
               onClick={() => onNavigateTopic('w2-t2')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
             >
-              <span>👉 Próxima Missão: 2. Quem é o Autor?</span>
+              <span>Próxima Missão: 2. Quem é o Autor?</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -800,23 +1228,24 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 2: QUEM CRIOU A INFORMAÇÃO? */}
+      {/* MISSÃO 2: QUEM CRIOU A INFORMAÇÃO?                       */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t2' && (
         <div className="space-y-6">
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Active Mission Header Card */}
+          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
-                <UserCheck className="w-7 h-7" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
+                <Users className="w-7 h-7 stroke-[2.5]" />
               </div>
               <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 2/6
+                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> MISSÃO 2/6
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   Quem é o Autor? 🕵️
                 </h3>
-                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                   Hoje vais aprender a verificar quem escreveu a informação antes de confiar.
                 </p>
               </div>
@@ -824,55 +1253,61 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-author-check')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
+                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-author-check')?.score}%)</span>
-                </span>
+                  <span>Concluída ({getSimProg('sim-author-check')?.score}%)</span>
+                </div>
               ) : (
-                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <Zap className="w-4 h-4 text-amber-500 fill-current" />
                   <span>Recompensa: +100 XP</span>
-                </span>
+                </div>
               )}
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Pista da Autoria
-              </h4>
+          {/* 💡 1. APRENDE: A PISTA DA AUTORIA */}
+          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
+                <span className="text-lg">💡</span>
+                <span>1. APRENDE: A PISTA DA AUTORIA</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>Dicas do detetive</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">👤</div>
-                <h5 className="text-xs font-black text-blue-900">Quem Escreveu?</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Qualquer pessoa pode criar um blog ou vídeo. Procura sempre o nome do autor e a sua profissão!
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2">
+                <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
+                  <UserCheck className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">Quem Escreveu?</h4>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Qualquer pessoa pode criar um blog ou vídeo. Procura sempre o nome do autor e a sua profissão ou especialidade no assunto!
                 </p>
               </div>
 
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🏛️</div>
-                <h5 className="text-xs font-black text-emerald-900">Fontes Oficiais</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Sites de universidades, museus, escolas e enciclopédias têm especialistas que confirmam os factos.
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 space-y-2">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                  <Award className="w-5 h-5 text-emerald-600 stroke-[2.5]" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">Fontes Oficiais & Credíveis</h4>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Sites de universidades, museus, escolas e enciclopédias têm especialistas e equipas editoriais que confirmam os factos.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE AUTORIA */}
+          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Autoria & Origem
-                </h4>
+              <div className="flex items-center gap-2.5 text-blue-900 font-black text-sm sm:text-base tracking-wide">
+                <FlaskConical className="w-5 h-5 text-blue-600" />
+                <span>2. EXPERIMENTA: SIMULADOR DE AUTORIA & ORIGEM</span>
               </div>
               <span className="text-xs font-bold text-slate-500">
                 Analisa as 4 situações observando as pistas
@@ -883,9 +1318,9 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {authorScenarios.map((scen) => (
                 <div
                   key={scen.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
+                  className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider block">
                         Origem: {scen.origin}
@@ -899,7 +1334,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         onClick={() =>
                           setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'credibilidade' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                           authorChoices[scen.id] === 'credibilidade'
                             ? 'bg-emerald-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -911,7 +1346,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         onClick={() =>
                           setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'verificacao' }))
                         }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                           authorChoices[scen.id] === 'verificacao'
                             ? 'bg-amber-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -922,26 +1357,29 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-700 font-medium">"{scen.snippet}"</p>
+                  <p className="text-xs sm:text-sm text-slate-800 font-medium italic bg-white p-3 rounded-xl border border-slate-200/80">
+                    "{scen.snippet}"
+                  </p>
 
-                  <div className="p-2.5 bg-blue-50/60 border border-blue-100 rounded-xl text-[11px] text-blue-900 font-medium">
-                    {scen.clues}
+                  <div className="p-3 bg-sky-50/70 border border-sky-100 rounded-xl text-xs text-blue-950 font-medium flex items-center gap-2">
+                    <span className="text-base">🔎</span>
+                    <span>{scen.clues}</span>
                   </div>
 
                   {authorSubmitted && (
                     <div
-                      className={`p-3 rounded-xl border text-xs font-medium ${
+                      className={`p-3.5 rounded-xl border text-xs font-medium ${
                         authorChoices[scen.id] === scen.correct
-                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                          : 'bg-amber-50 border-amber-200 text-amber-950'
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                          : 'bg-amber-50 border-amber-300 text-amber-950'
                       }`}
                     >
-                      <p className="font-bold">
+                      <p className="font-black text-sm">
                         {authorChoices[scen.id] === scen.correct
                           ? '✓ Avaliação correta!'
                           : 'ℹ️ Observação do Detetive:'}
                       </p>
-                      <p>{scen.feedback}</p>
+                      <p className="mt-0.5 leading-relaxed">{scen.feedback}</p>
                     </div>
                   )}
                 </div>
@@ -952,47 +1390,96 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               <button
                 onClick={handleAuthorSubmit}
                 disabled={Object.keys(authorChoices).length < authorScenarios.length}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black text-xs px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 Validar Avaliação de Autores
               </button>
             </div>
 
             {authorScore !== null && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium space-y-1">
-                <p className="font-black text-blue-900">
+              <div className="p-4 bg-sky-50 border border-sky-200 rounded-2xl text-xs text-blue-950 font-medium space-y-1">
+                <p className="font-black text-blue-900 text-sm">
                   Pontuação da Auditoria: {authorScore}/100
                 </p>
-                <p>
+                <p className="leading-relaxed">
                   Saber quem criou a informação é uma pista importante, mas não é a única coisa que devemos verificar. Procura sempre saber quem criou e verifica se existem dados e evidências que a apoiem.
                 </p>
               </div>
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Verifica sempre quem é o autor e se representa uma entidade credível.</li>
-              <li>Saber quem escreveu é essencial, mas confirma se a informação tem provas e referências.</li>
-            </ul>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Verifica sempre quem é o autor e se representa uma entidade credível.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Saber quem escreveu é essencial, mas confirma se a informação tem provas e referências.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>IDENTIFICAR O AUTOR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>VERIFICAR CREDENCIAIS</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>CONFIRMAR FONTES</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PENSAR CRITICAMENTE</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Ótimo olho para os autores! Vamos verificar as datas das notícias?</span>
+          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
+          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
+              <span className="text-xs sm:text-sm font-black text-indigo-950">
+                Ótimo olho para os autores! Vamos verificar as datas das notícias?
+              </span>
             </div>
             <button
+              type="button"
               onClick={() => onNavigateTopic('w2-t3')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
             >
-              <span>👉 Próxima Missão: 3. Linha do Tempo</span>
+              <span>Próxima Missão: 3. Linha do Tempo</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1000,23 +1487,24 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 3: VERIFICAR A DATA */}
+      {/* MISSÃO 3: VERIFICAR A DATA                               */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t3' && (
         <div className="space-y-6">
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Active Mission Header Card */}
+          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
-                <Calendar className="w-7 h-7" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-amber-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/25">
+                <Calendar className="w-7 h-7 stroke-[2.5]" />
               </div>
               <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 3/6
+                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> MISSÃO 3/6
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   Linha do Tempo ⏳
                 </h3>
-                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                   Hoje vais descobrir por que razão a data da notícia faz toda a diferença.
                 </p>
               </div>
@@ -1024,42 +1512,50 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-date-verifier')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
+                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-date-verifier')?.score}%)</span>
-                </span>
+                  <span>Concluída ({getSimProg('sim-date-verifier')?.score}%)</span>
+                </div>
               ) : (
-                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <Zap className="w-4 h-4 text-amber-500 fill-current" />
                   <span>Recompensa: +100 XP</span>
-                </span>
+                </div>
               )}
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Pista do Tempo
-              </h4>
+          {/* 💡 1. APRENDE: A PISTA DO TEMPO */}
+          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
+                <span className="text-lg">💡</span>
+                <span>1. APRENDE: A PISTA DO TEMPO</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>Dicas do detetive</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">⏳</div>
-                <h5 className="text-xs font-black text-blue-900">O Mundo Muda</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Uma notícia sobre ciência ou regras escolares de há 10 anos pode já não ser válida hoje.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2">
+                <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">O Mundo Muda</h4>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Uma notícia sobre ciência ou regras escolares de há 10 anos pode já não ser válida hoje. A tecnologia e a ciência avançam depressa!
                 </p>
               </div>
 
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">📅</div>
-                <h5 className="text-xs font-black text-amber-900">Olho na Data</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Antes de partilhar ou citar, procura sempre o dia, mês e ano em que o artigo foi publicado.
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 space-y-2">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-amber-600 stroke-[2.5]" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">Olho na Data</h4>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Antes de partilhar ou citar num trabalho escolar, procura sempre o dia, mês e ano em que o artigo foi originalmente publicado.
                 </p>
               </div>
             </div>
@@ -1162,29 +1658,78 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>A ciência e a tecnologia evoluem: uma notícia antiga pode já não ser verdadeira hoje.</li>
-              <li>Antes de usar dados num trabalho escolar, confirma sempre o ano em que foram publicados.</li>
-            </ul>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>A ciência e a tecnologia evoluem: uma notícia antiga pode já não ser verdadeira hoje.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Antes de usar dados num trabalho escolar, confirma sempre o ano em que foram publicados.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>VER DATA DO ARTIGO</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>AVALIAR ATUALIDADE</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>DESCOBRIR REVISÕES</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PENSAR CRITICAMENTE</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Excelente! Agora vamos aprender a cruzar fontes e comparar pistas!</span>
+          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
+          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
+              <span className="text-xs sm:text-sm font-black text-indigo-950">
+                Excelente! Agora vamos aprender a cruzar fontes e comparar pistas!
+              </span>
             </div>
             <button
+              type="button"
               onClick={() => onNavigateTopic('w2-t4')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
             >
-              <span>👉 Próxima Missão: 4. Comparar Pistas</span>
+              <span>Próxima Missão: 4. Comparar Pistas</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1192,23 +1737,24 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 4: COMPARAR FONTES */}
+      {/* MISSÃO 4: COMPARAR FONTES                                */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t4' && (
         <div className="space-y-6">
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Active Mission Header Card */}
+          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
-                <GitCompare className="w-7 h-7" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
+                <Layers className="w-7 h-7 stroke-[2.5]" />
               </div>
               <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 4/6
+                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> MISSÃO 4/6
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   Comparar Pistas 📑
                 </h3>
-                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                   Hoje vais aprender a não confiar no primeiro resultado e a cruzar fontes.
                 </p>
               </div>
@@ -1216,41 +1762,49 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-source-compare')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
+                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-source-compare')?.score}%)</span>
-                </span>
+                  <span>Concluída ({getSimProg('sim-source-compare')?.score}%)</span>
+                </div>
               ) : (
-                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
                   <Zap className="w-4 h-4 text-amber-500 fill-current" />
                   <span>Recompensa: +100 XP</span>
-                </span>
+                </div>
               )}
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Cruzar Informação
-              </h4>
+          {/* 💡 1. APRENDE: CRUZAR INFORMAÇÃO */}
+          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
+                <span className="text-lg">💡</span>
+                <span>1. APRENDE: CRUZAR INFORMAÇÃO</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>Dicas do detetive</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">📑</div>
-                <h5 className="text-xs font-black text-blue-900">Nunca Fiques Pela Primeira</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Compara sempre duas ou três fontes diferentes para ver se todos dizem o mesmo facto.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2">
+                <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
+                  <Layers className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">Nunca Fiques Pela Primeira</h4>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Compara sempre duas ou três fontes diferentes para ver se todos dizem o mesmo facto. Se só um site estranho diz, desconfia!
                 </p>
               </div>
 
-              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">⚖️</div>
-                <h5 className="text-xs font-black text-purple-900">Facto vs Opinião</h5>
-                <p className="text-xs text-slate-600 leading-snug">
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-5 space-y-2">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                  <Award className="w-5 h-5 text-purple-600 stroke-[2.5]" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">Facto vs Opinião</h4>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
                   Um facto é uma verdade comprovada ("A Terra gira à volta do Sol"). Uma opinião é o que alguém acha ("Este jogo é o melhor!").
                 </p>
               </div>
@@ -1473,29 +2027,78 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Nunca confies apenas numa fonte: cruza com outros sites para ver se os factos coincidem.</li>
-              <li>Distingue factos reais e científicos de opiniões ou boatos sensacionalistas.</li>
-            </ul>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Nunca confies apenas numa fonte: cruza com outros sites para ver se os factos coincidem.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Distingue factos reais e científicos de opiniões ou boatos sensacionalistas.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>CRUZAR FONTES</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>FACTO VS OPINIÃO</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>COMPARAR EVIDÊNCIAS</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PENSAR CRITICAMENTE</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Espetacular! Falta apenas o treino de caça a boatos e notícias falsas!</span>
+          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
+          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
+              <span className="text-xs sm:text-sm font-black text-indigo-950">
+                Espetacular! Falta apenas o treino de caça a boatos e notícias falsas!
+              </span>
             </div>
             <button
+              type="button"
               onClick={() => onNavigateTopic('w2-t5')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
             >
-              <span>👉 Próxima Missão: 5. Caça a Boatos</span>
+              <span>Próxima Missão: 5. Caça a Boatos</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1503,92 +2106,97 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 5: PENSAR ANTES DE PARTILHAR (NEWS DETECTIVE) */}
+      {/* MISSÃO 5: CAÇA A BOATOS & FAKE NEWS                       */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t5' && (
         <div className="space-y-6">
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Header Card */}
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
-                <AlertOctagon className="w-7 h-7" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
+                <AlertOctagon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
               </div>
-              <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 5/6
+              <div className="space-y-1">
+                <span className="text-[11px] font-black tracking-wider uppercase text-rose-600 bg-rose-50 border border-rose-200/60 px-2.5 py-0.5 rounded-full inline-block">
+                  MISSÃO 5/6
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   Caça a Boatos & Fake News 🚨
                 </h3>
-                <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Hoje vais desmascarar notícias falsas e títulos armadilha.
+                <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                  Aprende a desmascarar notícias falsas, boatos de redes sociais e títulos armadilha sensacionalistas.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-center">
               {getSimProg('sim-news-detective')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-news-detective')?.score}%)</span>
-                </span>
+                <div className="bg-emerald-500 text-white text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Missão Concluída ({getSimProg('sim-news-detective')?.score}%)</span>
+                </div>
               ) : (
-                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-1.5 shadow-xs">
+                  <Zap className="w-4 h-4 fill-current text-slate-950" />
                   <span>Recompensa: +100 XP</span>
-                </span>
+                </div>
               )}
             </div>
           </div>
 
           {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Pára Antes de Partilhar!
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-900">
+              <Sparkles className="w-5 h-5 text-amber-500 fill-current" />
+              <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider">
+                1. APRENDE: PÁRA, ANALISA E PENSA ANTES DE PARTILHAR!
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🎣</div>
-                <h5 className="text-xs font-black text-rose-900">Títulos Armadilha (Clickbait)</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Títulos exagerados e dramáticos querem apenas cliques para ganhar dinheiro. Desconfia sempre!
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gradient-to-br from-rose-50/70 to-pink-50/40 border border-rose-200/80 rounded-2xl p-5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🎣</span>
+                  <h5 className="text-xs sm:text-sm font-black text-rose-950">Títulos Armadilha (Clickbait)</h5>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Títulos exagerados e dramáticos ("Não vais acreditar no que aconteceu!") querem apenas cliques para ganhar dinheiro de publicidade. Desconfia sempre!
                 </p>
               </div>
 
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🛑</div>
-                <h5 className="text-xs font-black text-emerald-900">Não Espalhes Dúvidas</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Se tens dúvidas se uma notícia é real, não a partilhes com amigos. Pergunta antes a um adulto!
+              <div className="bg-gradient-to-br from-emerald-50/70 to-teal-50/40 border border-emerald-200/80 rounded-2xl p-5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🛑</span>
+                  <h5 className="text-xs sm:text-sm font-black text-emerald-950">Não Espalhes Dúvidas</h5>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Se tens a mínima dúvida se uma notícia é real, nunca a reencaminhes para o grupo da turma ou família. Pergunta primeiro a um professor ou adulto!
                 </p>
               </div>
             </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: DETETIVE DE NOTÍCIAS & CLASSIFICAÇÃO DE INFORMAÇÃO
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-2">
+              <div className="flex items-center gap-2.5 text-blue-900">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+                <h4 className="text-sm sm:text-base font-black uppercase tracking-wide">
+                  2. EXPERIMENTA: AUDITORIA DE NOTÍCIAS & CLASSIFICAÇÃO
                 </h4>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                Treino Prático do Detetive
+              <span className="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-200/70">
+                Treino de Detetive
               </span>
             </div>
 
             {/* Atividade A: Classificar Afirmações */}
-            <div className="space-y-4 p-5 rounded-2xl border border-blue-100 bg-blue-50/40">
-              <div className="border-b border-blue-200/60 pb-2">
+            <div className="space-y-4 p-5 sm:p-6 rounded-2xl border border-blue-200/70 bg-gradient-to-b from-blue-50/40 to-slate-50/40">
+              <div className="border-b border-blue-200/60 pb-3">
                 <h5 className="text-xs sm:text-sm font-black text-blue-950 uppercase tracking-wide">
                   Parte A: Classifica cada afirmação no tipo correto
                 </h5>
-                <p className="text-xs text-blue-900">
+                <p className="text-xs text-slate-600 font-medium mt-1">
                   Identifica se é um Facto com dados, uma Opinião pessoal, uma Notícia com base ou uma Informação enganadora:
                 </p>
               </div>
@@ -1600,13 +2208,13 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   return (
                     <div
                       key={item.id}
-                      className="p-3.5 rounded-xl border border-slate-200 bg-white space-y-2.5 shadow-xs"
+                      className="p-4 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs"
                     >
                       <p className="text-xs sm:text-sm font-bold text-slate-900">
                         {item.text}
                       </p>
 
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-2">
                         {[
                           { id: 'facto' as const, label: 'Facto com dados' },
                           { id: 'opiniao' as const, label: 'Opinião' },
@@ -1622,7 +2230,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                                 [item.id]: cat.id,
                               }))
                             }
-                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                               currentChoice === cat.id
                                 ? 'bg-blue-600 text-white shadow-xs'
                                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -1635,13 +2243,13 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                       {currentChoice && (
                         <div
-                          className={`p-2.5 rounded-lg text-xs font-medium ${
+                          className={`p-3 rounded-xl text-xs font-medium ${
                             isCorrect
                               ? 'bg-emerald-50 text-emerald-950 border border-emerald-200'
                               : 'bg-amber-50 text-amber-950 border border-amber-200'
                           }`}
                         >
-                          <span className="font-bold">
+                          <span className="font-black">
                             {isCorrect ? '✓ Correto!' : 'ℹ️ Análise do Detetive:'}{' '}
                           </span>
                           {item.explanation}
@@ -1655,36 +2263,36 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
             {/* Atividade B: Auditoria de Publicação Viral */}
             <div className="space-y-4">
-              <div className="border-b border-slate-200 pb-2">
+              <div className="border-b border-slate-100 pb-2">
                 <h5 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
                   Parte B: Auditoria de Publicação Viral
                 </h5>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-slate-600 font-medium">
                   Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura evidências e compara outras fontes.
                 </p>
               </div>
 
               {/* Publicação Viral */}
-              <div className="p-5 rounded-2xl border border-rose-200 bg-rose-50/50 space-y-2.5">
-                <div className="flex items-center gap-2 text-rose-700 text-xs font-bold">
+              <div className="p-5 rounded-2xl border border-rose-200/90 bg-rose-50/50 space-y-2.5">
+                <div className="flex items-center gap-2 text-rose-700 text-xs font-black">
                   <ShieldAlert className="w-4 h-4" />
                   <span>Publicação viral muito partilhada nas redes sociais</span>
                 </div>
                 <h4 className="text-sm sm:text-base font-black text-slate-900">
                   "Descoberta extraordinária na serra revoluciona a ciência mundial! As autoridades tentaram esconder este segredo!"
                 </h4>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
                   Publicação com milhares de partilhas nas redes sociais, imagem desfocada com cores artificiais, sem indicação de autor cientista, sem data original e sem links para relatórios ou instituições.
                 </p>
               </div>
 
               {/* Checklist de Auditoria */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-700 block">
-                  Passos de Investigação do Detetive: (Marca o que verificaste)
+              <div className="space-y-2.5">
+                <span className="text-xs font-black text-slate-700 block uppercase tracking-wide">
+                  Passos de Investigação do Detetive (Marca o que verificaste):
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
                     <input
                       type="checkbox"
                       checked={newsDetectiveAudit.checkedAuthor}
@@ -1698,7 +2306,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     />
                     <span>1. Verifiquei quem publicou</span>
                   </label>
-                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
                     <input
                       type="checkbox"
                       checked={newsDetectiveAudit.checkedDate}
@@ -1712,7 +2320,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     />
                     <span>2. Verifiquei a data</span>
                   </label>
-                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
                     <input
                       type="checkbox"
                       checked={newsDetectiveAudit.checkedEvidence}
@@ -1724,9 +2332,9 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                       }
                       className="w-4 h-4 text-blue-600 rounded-md"
                     />
-                    <span>3. Procurei evidências</span>
+                    <span>3. Procurei evidências reais</span>
                   </label>
-                  <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-800">
+                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
                     <input
                       type="checkbox"
                       checked={newsDetectiveAudit.checkedOtherSources}
@@ -1745,41 +2353,46 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
               {/* Decisão Final */}
               <div className="space-y-2 pt-2">
-                <span className="text-xs font-bold text-slate-700 block">
+                <span className="text-xs font-black text-slate-700 block uppercase tracking-wide">
                   Agora decide: partilhar ou continuar a verificar?
                 </span>
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <button
                     onClick={() => handleNewsDecision('verificar')}
-                    className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm py-3.5 rounded-2xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Continuar a verificar</span>
+                    <span>Continuar a verificar (Não partilhar)</span>
                   </button>
                   <button
                     onClick={() => handleNewsDecision('partilhar')}
-                    className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-3 rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm py-3.5 rounded-2xl shadow-md shadow-rose-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
                     <AlertTriangle className="w-4 h-4" />
-                    <span>Partilhar</span>
+                    <span>Partilhar imediatamente</span>
                   </button>
                 </div>
               </div>
 
               {newsScore !== null && (
                 <div
-                  className={`p-4 rounded-2xl border text-xs font-medium ${
+                  className={`p-4 sm:p-5 rounded-2xl border text-xs sm:text-sm font-medium ${
                     newsDecision === 'verificar'
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                       : 'bg-rose-50 border-rose-200 text-rose-950'
                   }`}
                 >
-                  <p className="font-bold mb-1">
-                    Resultado do Detetive de Notícias: {newsScore}/100
+                  <p className="font-black mb-1 flex items-center gap-2">
+                    {newsDecision === 'verificar' ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    ) : (
+                      <AlertTriangle className="w-5 h-5 text-rose-600" />
+                    )}
+                    <span>Resultado da Auditoria: {newsScore}/100</span>
                   </p>
-                  <p>
+                  <p className="leading-relaxed">
                     {newsDecision === 'verificar'
-                      ? 'Excelente atitude de Detetive Digital! Não partilhaste um boato sem antes confirmar as provas e comparar fontes. O teu lema é: Para, Verifica, Compara. Só depois decide!'
+                      ? 'Excelente atitude de Detetive Digital! Não partilhaste um boato sem antes confirmar as provas e comparar fontes. O teu lema de ouro é: Pára, Verifica, Compara. Só depois decide!'
                       : 'Atenção! Ainda não tens informação suficiente nem fontes confirmadas para partilhar com segurança. Partilhar sem verificar apenas espalha boatos e desinformação.'}
                   </p>
                 </div>
@@ -1787,33 +2400,79 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Pára, verifica e compara antes de clicar em partilhar com os teus amigos ou família.</li>
-              <li>Títulos alarmantes ou milagrosos querem cliques para publicidade, não verdade científica.</li>
-            </ul>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Pára, verifica e compara antes de clicar em partilhar com amigos ou familiares.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Títulos alarmantes ou milagrosos querem apenas cliques para publicidade, não a verdade.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PÁRA E PENSA</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>VERIFICA ANTES</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>ZERO CLICKBAIT</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>DETETIVE ATENTO</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-            <div>
-              <span className="text-xs font-black text-blue-700 uppercase tracking-wider block">
+          <div className="bg-gradient-to-r from-amber-50/80 via-orange-50/60 to-amber-50/80 border border-amber-200/90 rounded-3xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-xs">
+            <div className="space-y-1">
+              <span className="text-xs font-black text-amber-700 uppercase tracking-wider block">
                 🎉 Todas as 5 Micro-Missões de Investigação Concluídas!
               </span>
-              <h4 className="text-lg sm:text-xl font-black text-slate-900 mt-0.5">
-                Pronto para a Missão 6/6: Quiz do Detetive (10 Perguntas)? 🏆
+              <h4 className="text-lg sm:text-xl font-black text-slate-900">
+                Pronto para o Desafio Final: Quiz do Detetive (10 Perguntas)? 🏆
               </h4>
             </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-8 py-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer shrink-0"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-8 py-3.5 rounded-2xl shadow-md shadow-blue-500/25 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer shrink-0"
             >
-              <span>👉 Fazer a Missão 6/6: Quiz do Detetive</span>
+              <span>👉 Fazer Missão 6: Quiz do Detetive</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1821,43 +2480,48 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* SEPARADOR 6: AVALIAÇÃO FINAL */}
+      {/* SEPARADOR 6: AVALIAÇÃO FINAL                              */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
-        <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-10 shadow-md max-w-3xl mx-auto space-y-6 text-center">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-500/20">
-            <Award className="w-10 h-10" />
+        <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-12 shadow-sm max-w-3xl mx-auto space-y-6 text-center">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 text-white flex items-center justify-center mx-auto shadow-lg shadow-orange-500/25">
+            <Award className="w-10 h-10 sm:w-12 sm:h-12 stroke-[2.2]" />
           </div>
 
           <div className="space-y-2">
-            <span className="text-xs uppercase font-black text-blue-600 tracking-wider">
-              🏆 MISSÃO 6/6 · O DESAFIO FINAL
+            <span className="text-[11px] uppercase font-black text-amber-600 tracking-wider bg-amber-50 border border-amber-200/60 px-3 py-1 rounded-full inline-block">
+              🏆 MISSÃO 6/6 · O GRANDE TESTE
             </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Quiz do Detetive Digital 🔍
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-              Demonstra que sabes pesquisar com rigor, identificar autores credíveis, verificar a data e comparar fontes. Acerta mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% para desbloquear o Mundo 3!
+            <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed font-medium">
+              Demonstra que sabes pesquisar com palavras-chave exatas, identificar autores credíveis, verificar a data e comparar fontes. Acerta mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% para desbloquear o Mundo 3!
             </p>
           </div>
 
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl max-w-md mx-auto text-xs text-blue-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloquear o Mundo 3: Média global &gt; 70%</p>
-            <p>
+          <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-blue-50/70 border border-blue-200/80 rounded-2xl max-w-md mx-auto text-xs sm:text-sm text-blue-950 font-bold space-y-1.5 shadow-xs">
+            <p className="flex items-center justify-center gap-1.5 text-blue-800">
+              <Trophy className="w-4 h-4 text-amber-500" />
+              <span>Requisito para desbloquear Mundo 3: Média &ge; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</span>
+            </p>
+            <p className="text-slate-600 font-medium">
               Melhor resultado registado:{' '}
-              {world.bestAssessmentPercentage !== null
-                ? `${world.bestAssessmentPercentage}%`
-                : 'Ainda não realizado'}
+              <span className="font-black text-slate-900">
+                {world.bestAssessmentPercentage !== null
+                  ? `${world.bestAssessmentPercentage}%`
+                  : 'Ainda não realizado'}
+              </span>
             </p>
           </div>
 
-          <div>
+          <div className="pt-2">
             <button
               onClick={onOpenAssessment}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm sm:text-base px-10 py-4 rounded-2xl shadow-lg shadow-blue-500/30 transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-3 cursor-pointer"
             >
               <span>Começar Avaliação Final (10 Perguntas)</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
