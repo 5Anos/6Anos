@@ -24,6 +24,10 @@ import {
 } from 'lucide-react';
 import { CreativeKidHero } from './WorldMascots';
 import { StudyStackIllustration } from './DetectiveMascot';
+import { AudioReaderButton } from './AudioReaderButton';
+import { GlossaryTerm } from './PedagogicalGlossary';
+import { MetacognitionWidget } from './MetacognitionWidget';
+import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -642,14 +646,20 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 <MessageSquare className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 1/7
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-purple-600 uppercase tracking-wider">
+                    🎯 MISSÃO 1/7
+                  </span>
+                  <AudioReaderButton
+                    textToRead="Missão 1: Conversas e Emojis. Hoje vais descobrir como comunicar online com clareza, empatia e sem mal-entendidos. Reler as tuas mensagens e indicar prazos claros ajuda toda a gente a trabalhar em equipa!"
+                    label="Ouvir Missão"
+                  />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
                   Conversas & Emojis 💬
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Hoje vais descobrir como comunicar online com clareza, simpatia e sem mal-entendidos.
+                  Hoje vais descobrir como comunicar online com clareza, simpatia e boa <GlossaryTerm term="netiqueta">netiqueta</GlossaryTerm>.
                 </p>
               </div>
             </div>
@@ -813,6 +823,18 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
+          <MetacognitionWidget
+            missionId="w3-t1"
+            worldThemeColor="purple"
+            questionPrompt="Como avalias a tua forma de escrever mensagens quando trabalhas em equipa?"
+            options={[
+              'Já sei reler sempre e colocar o prazo bem claro!',
+              'Vou ter mais cuidado para não parecer seco ou impaciente.',
+              'Aprendi que oferecer ajuda torna o trabalho muito mais rápido!',
+            ]}
+          />
 
           {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
           <div className="bg-gradient-to-r from-slate-50 via-white to-purple-50/40 border-2 border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">

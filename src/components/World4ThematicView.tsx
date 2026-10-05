@@ -24,6 +24,10 @@ import {
 } from 'lucide-react';
 import { EngineerKidHero } from './WorldMascots';
 import { StudyStackIllustration } from './DetectiveMascot';
+import { AudioReaderButton } from './AudioReaderButton';
+import { GlossaryTerm } from './PedagogicalGlossary';
+import { MetacognitionWidget } from './MetacognitionWidget';
+import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -601,14 +605,20 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 <Layers className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 1/7
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-amber-600 uppercase tracking-wider">
+                    🎯 MISSÃO 1/7
+                  </span>
+                  <AudioReaderButton
+                    textToRead="Missão 1: Fatiar Problemas. Hoje vais descobrir como resolver grandes desafios dividindo-os em partes fáceis. A técnica da decomposição ajuda a organizar qualquer projeto escolar passo a passo!"
+                    label="Ouvir Missão"
+                  />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
                   Fatiar Problemas 🧩
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Hoje vais descobrir como resolver grandes problemas dividindo-os em partes fáceis!
+                  Hoje vais descobrir a técnica da <GlossaryTerm term="decomposição">decomposição</GlossaryTerm> para resolver desafios difíceis por partes!
                 </p>
               </div>
             </div>
@@ -783,6 +793,18 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
+          <MetacognitionWidget
+            missionId="w4-t1"
+            worldThemeColor="amber"
+            questionPrompt="Como avalias a tua facilidade em fatiar um grande problema em pequenos passos?"
+            options={[
+              'Já sei que resolver uma etapa de cada vez torna tudo mais simples!',
+              'Vou usar listas numeradas antes de começar qualquer trabalho difícil.',
+              'Compreendi que os programadores pensam sempre em passos ordenados!',
+            ]}
+          />
 
           {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
           <div className="bg-gradient-to-r from-slate-50 via-white to-amber-50/40 border-2 border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">

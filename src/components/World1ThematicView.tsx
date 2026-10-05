@@ -30,6 +30,10 @@ import {
 } from 'lucide-react';
 import { GuardianKidHero } from './WorldMascots';
 import { StudyStackIllustration } from './DetectiveMascot';
+import { AudioReaderButton } from './AudioReaderButton';
+import { GlossaryTerm } from './PedagogicalGlossary';
+import { MetacognitionWidget } from './MetacognitionWidget';
+import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -831,14 +835,20 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 <Key className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  🎯 MISSÃO 1/6
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-blue-600 uppercase tracking-wider">
+                    🎯 MISSÃO 1/6
+                  </span>
+                  <AudioReaderButton
+                    textToRead="Missão 1: O Cofre das Palavras-Passe. Hoje vais descobrir como criar uma palavra-passe mais segura. Uma boa senha protege os teus dados pessoais, contas escolares e jogos favoritos!"
+                    label="Ouvir Missão"
+                  />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
                   O Cofre das Palavras-Passe 🔐
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Hoje vais descobrir como criar uma palavra-passe mais segura.
+                  Hoje vais descobrir como criar uma palavra-passe mais segura e proteger os teus <GlossaryTerm term="dados pessoais">dados pessoais</GlossaryTerm>.
                 </p>
               </div>
             </div>
@@ -1130,6 +1140,18 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
+          <MetacognitionWidget
+            missionId="w1-t1"
+            worldThemeColor="emerald"
+            questionPrompt="Como avalias a tua segurança atual na criação de palavras-passe fortes e pessoais?"
+            options={[
+              'Já criei uma Frase Maluca comprida e secreta!',
+              'Vou rever as minhas senhas hoje para adicionar números e símbolos.',
+              'Aprendi que nunca mais devo partilhar senhas com ninguém!',
+            ]}
+          />
 
           {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
           <div className="bg-gradient-to-r from-[#f0fdf4] via-[#f5fbf7] to-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">

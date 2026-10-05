@@ -32,6 +32,10 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { DetectiveBoyHero, StudyStackIllustration } from './DetectiveMascot';
+import { AudioReaderButton } from './AudioReaderButton';
+import { GlossaryTerm } from './PedagogicalGlossary';
+import { MetacognitionWidget } from './MetacognitionWidget';
+import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -856,14 +860,20 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 <Search className="w-7 h-7 stroke-[2.5]" />
               </div>
               <div>
-                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> MISSÃO 1/6
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" /> MISSÃO 1/6
+                  </span>
+                  <AudioReaderButton
+                    textToRead="Missão 1: Radar de Palavras-Chave. Hoje vais descobrir como fazer pesquisas certeiras como um cientista. Aprende a usar termos específicos e evitar palavras vagas para encontrar a melhor informação rapidamente!"
+                    label="Ouvir Missão"
+                  />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
                   Radar de Palavras-Chave 🎯
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                  Hoje vais descobrir como fazer pesquisas certeiras como um cientista.
+                  Hoje vais descobrir como fazer pesquisas certeiras usando <GlossaryTerm term="palavras-chave">palavras-chave</GlossaryTerm> precisas.
                 </p>
               </div>
             </div>
@@ -1206,6 +1216,18 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
+          <MetacognitionWidget
+            missionId="w2-t1"
+            worldThemeColor="blue"
+            questionPrompt="Como te sentes a formular pesquisas com palavras-chave exatas na Internet?"
+            options={[
+              'Já sei evitar termos vagos como "coisas" e ir direto ao assunto!',
+              'Vou praticar pesquisas mais detalhadas nos trabalhos de grupo.',
+              'Aprendi a combinar o tema com o país ou contexto certo!',
+            ]}
+          />
 
           {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
           <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">

@@ -29,6 +29,10 @@ import {
 } from 'lucide-react';
 import { AIPioneerHero } from './WorldMascots';
 import { StudyStackIllustration } from './DetectiveMascot';
+import { AudioReaderButton } from './AudioReaderButton';
+import { GlossaryTerm } from './PedagogicalGlossary';
+import { MetacognitionWidget } from './MetacognitionWidget';
+import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -734,14 +738,20 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 <Cpu className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  🎯 MISSÃO 1/6
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider">
+                    🎯 MISSÃO 1/6
+                  </span>
+                  <AudioReaderButton
+                    textToRead="Missão 1: O que é a Inteligência Artificial? Descobre como os computadores aprendem com dados estatísticos e onde a IA é realmente usada. Lembra-te de que a IA é uma ferramenta sem consciência própria!"
+                    label="Ouvir Missão"
+                  />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
                   O que é a Inteligência Artificial? 🧠
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  Descobre como os computadores aprendem com dados e onde a IA é realmente usada.
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Descobre como os computadores aprendem com dados, evitam <GlossaryTerm term="alucinação de IA">alucinações</GlossaryTerm> e onde a IA é realmente usada.
                 </p>
               </div>
             </div>
@@ -971,6 +981,18 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
+          <MetacognitionWidget
+            missionId="w5-t1"
+            worldThemeColor="indigo"
+            questionPrompt="Como avalias a tua compreensão sobre o que a IA consegue e não consegue fazer?"
+            options={[
+              'Já sei que a IA não tem sentimentos nem consciência própria!',
+              'Vou verificar sempre as respostas geradas por IA em fontes fiáveis.',
+              'Aprendi que os modelos de IA precisam de milhões de dados de treino!',
+            ]}
+          />
 
           {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
           <div className="bg-gradient-to-r from-slate-50 via-white to-indigo-50/40 border-2 border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
