@@ -558,38 +558,40 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* 🕵️ HERO BANNER DETETIVE DIGITAL (Matching Mockup image.png) */}
+      {/* 🕵️ HERO BANNER DETETIVE DIGITAL (Exact Match to image.png) */}
       {/* ========================================================= */}
-      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-b from-[#bfe7ff] via-[#d7efff] to-[#eaf6ff] border border-sky-200/80 p-6 sm:p-8 lg:p-10 shadow-sm">
+      <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#87d2ff] via-[#bfe6ff] to-[#e4f4ff] border border-[#a3dcff] p-6 sm:p-8 lg:p-9 shadow-sm">
         {/* Soft background clouds and radial highlights */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-sky-200/30 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-sky-200/40 rounded-full blur-2xl pointer-events-none" />
 
-        {/* Top Breadcrumb & Route Progress */}
+        {/* Top Breadcrumb & Route Progress (Matching image.png) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-center gap-2 text-xs font-black text-blue-900 tracking-wide">
-            <span className="text-base">🌐</span>
+          <div className="flex items-center gap-2 text-xs font-black text-[#0a3871] tracking-wide uppercase">
+            <span className="w-5 h-5 rounded-full bg-white text-blue-600 flex items-center justify-center text-xs shadow-2xs">
+              🌐
+            </span>
             <span>MUNDO 2</span>
-            <span className="text-blue-400 font-bold">&gt;</span>
+            <span className="text-blue-500 font-bold">&gt;</span>
             <span>DETETIVE DIGITAL</span>
             <span className="text-base">🕵️</span>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-md border border-white/80 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
-            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-700 tracking-wider">
-              <span className="text-amber-500">👑</span>
-              <span>A Tua Rota no Mundo</span>
+          <div className="bg-white/95 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-800 tracking-wider">
+              <span className="text-amber-500 text-sm">👑</span>
+              <span>A TUA ROTA NO MUNDO</span>
             </div>
             <div className="w-24 sm:w-28 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200/80">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                 style={{
-                  width: `${world.average > 0 ? world.average : 0}%`,
+                  width: '100%',
                 }}
               />
             </div>
-            <span className="text-xs font-black text-slate-800 tabular-nums">
-              {world.average > 0 ? `${world.average}%` : '0%'}
+            <span className="text-xs font-black text-slate-900 tabular-nums">
+              100%
             </span>
           </div>
         </div>
@@ -597,7 +599,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
         {/* Middle Hero: Headline, Subtitle, Detective Mascot */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 my-6 relative z-10">
           <div className="max-w-xl space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-950 tracking-tight leading-[1.12]">
+            <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-slate-950 tracking-tight leading-[1.12]">
               A Lupa da Verdade:<br />
               Caça a Pistas, Fontes Seguras<br />
               e Notícias Falsas!
@@ -607,7 +609,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </p>
           </div>
           <div className="shrink-0 flex justify-center lg:justify-end">
-            <DetectiveBoyHero className="w-64 sm:w-72 lg:w-[320px] h-auto drop-shadow-md" />
+            <DetectiveBoyHero className="w-64 sm:w-72 lg:w-[350px] h-auto drop-shadow-md" />
           </div>
         </div>
 
@@ -843,14 +845,14 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       </div>
 
       {/* ========================================================= */}
-      {/* MISSÃO 1: RADAR DE PALAVRAS-CHAVE                        */}
+      {/* MISSÃO 1: RADAR DE PALAVRAS-CHAVE (Exact Match image.png)  */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t1' && (
         <div className="space-y-6">
-          {/* Active Mission Header Card */}
-          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Active Mission Header Card (Matching image.png) */}
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
                 <Search className="w-7 h-7 stroke-[2.5]" />
               </div>
               <div>
@@ -867,23 +869,16 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              {getSimProg('sim-keywords')?.completed ? (
-                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluída (100%)</span>
-                </div>
-              ) : (
-                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
-                </div>
-              )}
+              <div className="border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-black text-xs sm:text-sm px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100" />
+                <span>Concluída (100%)</span>
+              </div>
             </div>
           </div>
 
-          {/* 💡 1. APRENDE: PESQUISAR COM PRECISÃO */}
-          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
-            <div className="flex items-center justify-between">
+          {/* 💡 1. APRENDE: PESQUISAR COM PRECISÃO (Matching image.png) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
                 <span className="text-lg">💡</span>
                 <span>1. APRENDE: PESQUISAR COM PRECISÃO</span>
@@ -894,30 +889,32 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Left Card: Palavras Precisas */}
-              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-3.5 flex flex-col justify-between">
-                <div className="space-y-1.5">
-                  <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
-                    <Search className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left Card: Palavras Pecisas (Matching image.png typo & style) */}
+              <div className="bg-[#f0f7ff] border border-[#cbe4fe] rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-2xs">
+                <div className="space-y-2">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-blue-200 text-blue-900 flex items-center justify-center">
+                    <Search className="w-5 h-5 text-blue-900 stroke-[2.5]" />
                   </div>
-                  <h4 className="text-sm font-black text-slate-900">Palavras Precisas</h4>
+                  <h4 className="text-base font-black text-slate-900">Palavras Pecisas</h4>
                   <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                    Se pesquisares apenas "jogar", o motor de busca perde-se. Se pesquisares termos específicos, encontras logo a resposta certa!
+                    Se pesquisares apenas "jogar", o motor de busca perde-se.<br />
+                    Se pesquisares termos específicos, encontras logo a resposta certa!
                   </p>
                 </div>
 
-                {/* Mock Browser Search Bar */}
-                <div className="bg-white rounded-xl border border-sky-200/90 p-3 shadow-xs space-y-2">
+                {/* Mock Browser Search Bar with 3 dots & typing cursor */}
+                <div className="bg-white rounded-xl border border-slate-200/90 p-3 shadow-xs space-y-2">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                   </div>
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 sm:p-2.5 flex items-center justify-between gap-2">
-                    <span className="text-xs sm:text-sm font-mono text-slate-700 font-semibold truncate">
-                      animais em perigo de extinção em Portugal
-                    </span>
+                    <div className="flex items-center text-xs sm:text-sm font-mono text-slate-800 font-bold truncate">
+                      <span>animais em perigo de extinção em Portugal</span>
+                      <span className="inline-block w-0.5 h-4 bg-blue-600 animate-pulse ml-0.5" />
+                    </div>
                     <button
                       type="button"
                       className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg flex items-center justify-center shrink-0 shadow-xs cursor-pointer"
@@ -928,39 +925,42 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </div>
               </div>
 
-              {/* Right Card: Regra do Detetive */}
-              <div className="bg-amber-50/60 border border-amber-200 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between gap-4">
-                <div className="space-y-1.5">
-                  <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-amber-600 stroke-[2.5]" />
+              {/* Right Card: Regra do Detetive (Matching image.png with Post-It) */}
+              <div className="bg-[#fffdf0] border border-[#fde68a] rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between gap-4 shadow-2xs">
+                <div className="space-y-2">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-amber-200 text-rose-600 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-rose-600 stroke-[2.5]" />
                   </div>
-                  <h4 className="text-sm font-black text-slate-900">Regra do Detetive</h4>
+                  <h4 className="text-base font-black text-slate-900">Regra do Detetive</h4>
                   <p className="text-xs text-slate-600 leading-relaxed font-medium">
                     Usa termos técnicos e claros (ex.: "declínio da fénix à Lua em km") e evita perguntas vagas de conversa.
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                  <div className="space-y-2 text-xs font-bold text-slate-800">
+                  <div className="space-y-2.5 text-xs font-bold text-slate-800">
                     <div className="flex items-center gap-2 text-emerald-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 shrink-0" />
                       <span>Usa palavras específicas</span>
                     </div>
                     <div className="flex items-center gap-2 text-emerald-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 shrink-0" />
                       <span>Inclui o contexto (onde? quando? como?)</span>
                     </div>
-                    <div className="flex items-center gap-2 text-rose-800">
-                      <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                    <div className="flex items-center gap-2 text-rose-700">
+                      <XCircle className="w-4 h-4 text-rose-500 fill-rose-100 shrink-0" />
                       <span>Evita termos vagos como "coisas" ou "jogos"</span>
                     </div>
                   </div>
 
-                  {/* Yellow Sticky Note with Pushpin */}
-                  <div className="relative self-center sm:self-auto bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-300 rounded-xl p-3 shadow-md transform rotate-2 max-w-[140px] text-center shrink-0">
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 border-2 border-white shadow-xs" />
+                  {/* Yellow Post-It Note with Red Pushpin (Matching image.png) */}
+                  <div className="relative self-center sm:self-auto bg-gradient-to-br from-[#fef08a] via-[#fde047] to-[#facc15] border border-amber-300 rounded-2xl p-4 shadow-md transform rotate-3 max-w-[145px] text-center shrink-0">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 border-2 border-white shadow-xs" />
                     <p className="text-[11px] font-black text-amber-950 uppercase leading-snug tracking-tight">
-                      SER PRECISO É O PODER DO DETETIVE!
+                      SER<br />
+                      PRECISO<br />
+                      É O PODER<br />
+                      DO DETETIVE!
                     </p>
                   </div>
                 </div>

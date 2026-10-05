@@ -275,10 +275,10 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   };
 
   // Progression gating:
-  // Visible worlds: All 5 worlds are in the selector. Teachers have all unlocked; students have Mundo 1 unlocked and progress sequentially (> 70%).
-  const visibleWorlds = isTeacher
-    ? (worlds.length > 0 ? worlds.map((w) => ({ ...w, isUnlocked: true })) : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any)))
-    : (worlds.length > 0 ? worlds : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: w.id === 1, average: 0 } as any)));
+  // All worlds are unlocked for interactive exploration and learning
+  const visibleWorlds = worlds.length > 0
+    ? worlds.map((w) => ({ ...w, isUnlocked: true }))
+    : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any));
 
   const currentTabs = getCurrentWorldTabs();
 
@@ -362,7 +362,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       </div>
 
       {/* If current world is locked for student */}
-      {!currentWorld.isUnlocked && user?.role !== 'teacher' ? (
+      {!currentWorld.isUnlocked && user?.role !== 'teacher' && currentWorld.isTeacherLocked ? (
         <div className="bg-white rounded-3xl border border-amber-200/90 p-8 sm:p-12 text-center shadow-xs">
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs ${
             currentWorld.isTeacherLocked ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
@@ -397,7 +397,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       ) : (
         <>
           {/* Progression Banner: Requirement to unlock the next world */}
-          {!isTeacher && currentWorld.id < 5 && (
+          {currentWorld.id !== 2 && !isTeacher && currentWorld.id < 5 && (
             <div
               className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs ${
                 currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD

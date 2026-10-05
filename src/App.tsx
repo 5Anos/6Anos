@@ -16,7 +16,7 @@ import { LoginModal } from './components/LoginModal';
 const MainLayout: React.FC = () => {
   const { user, loading, welcomeGreeting, dismissGreeting } = useAuth();
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
-  const [selectedWorldId, setSelectedWorldId] = useState<number>(1);
+  const [selectedWorldId, setSelectedWorldId] = useState<number>(2);
   const [activeSimulatorId, setActiveSimulatorId] = useState<string>('sim-password');
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
