@@ -944,6 +944,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
+      {/* NOVO SEPARADOR: APRENDER — CARTAZES NO CANVA */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-6 sm:p-7 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl shrink-0">
+            🎨
+          </div>
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 bg-yellow-400 text-slate-950 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase">
+              <span>Novo Separador • Aprender</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-black text-white">
+              Oficina Prática: Como Fazer Cartazes no Canva!
+            </h3>
+            <p className="text-xs sm:text-sm text-blue-100 max-w-xl">
+              Descobre a regra dos 3 segundos, o contraste de cores e experimenta o nosso Mini-Estúdio de Design interativo para 11 anos!
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            if (!user && onOpenLoginModal) {
+              onOpenLoginModal();
+              return;
+            }
+            onSelectTab('learn');
+          }}
+          className="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs px-6 py-3 rounded-2xl shadow-md transition-all shrink-0 flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+        >
+          <span>Explorar no Aprender</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
       {/* 3. BOTTOM 3 COLUMNS (Matching Reference Mockup) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Column 1: As minhas conquistas */}

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Home,
   Globe,
+  BookOpen,
   Trophy,
   Award,
   User,
@@ -23,6 +24,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
   const navItems = [
     { id: 'dashboard', label: 'Início', icon: Home },
     { id: 'worlds', label: 'Mundos', icon: Globe },
+    { id: 'learn', label: 'Aprender', icon: BookOpen },
     { id: 'challenges', label: 'Desafios', icon: Trophy },
     { id: 'badges', label: 'Conquistas', icon: Award },
     { id: 'profile', label: 'Perfil', icon: User },

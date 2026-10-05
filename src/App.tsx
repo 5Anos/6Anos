@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
 import { WorldsView } from './components/WorldsView';
+import { LearnView } from './components/LearnView';
 import { SimulatorsView } from './components/SimulatorsView';
 import { ChallengesView } from './components/ChallengesView';
 import { BadgesView } from './components/BadgesView';
@@ -118,6 +119,10 @@ const MainLayout: React.FC = () => {
               onOpenSimulator={handleOpenSimulator}
               onOpenLoginModal={() => setShowLoginModal(true)}
             />
+          )}
+
+          {currentTab === 'learn' && (
+            <LearnView onNavigateTab={handleSelectTab} />
           )}
 
           {currentTab === 'simulators' && (
