@@ -481,6 +481,38 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+              <span>Laboratório do Explorador da IA</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
+              Mundo 5: O Futuro Chegou com a IA! ✨🤖
+            </h2>
+            <p className="text-xs sm:text-sm text-indigo-50 font-medium leading-relaxed">
+              Olá, explorador do futuro! Neste Mundo vais aprender a escrever prompts mágicos para estudar melhor, descobrir por que razão a IA às vezes inventa disparates e como proteger os teus segredos mantendo o teu cérebro sempre no comando!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
+              <Brain className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black uppercase text-indigo-100 block">
+                Progresso no Mundo 5
+              </span>
+              <span className="text-xl font-black text-white">
+                {world.average > 0 ? `${world.average}%` : '0%'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
         <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-3xl flex items-center justify-between text-indigo-950 shadow-xs animate-in fade-in">

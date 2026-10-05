@@ -515,6 +515,38 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 p-6 sm:p-8 text-white shadow-lg shadow-blue-500/10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+              <span>Quartel-General do Detetive Digital</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
+              Mundo 2: A Lupa da Verdade na Internet! 🔍🕵️‍♂️
+            </h2>
+            <p className="text-xs sm:text-sm text-blue-50 font-medium leading-relaxed">
+              Olá, jovem detetive! Neste Mundo vais aprender a pesquisar como um verdadeiro cientista, descobrir quem escreveu os artigos, verificar datas e desmascarar notícias falsas antes de caíres em armadilhas!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
+              <Search className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black uppercase text-blue-100 block">
+                Progresso no Mundo 2
+              </span>
+              <span className="text-xl font-black text-white">
+                {world.average > 0 ? `${world.average}%` : '0%'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-3xl flex items-center justify-between text-emerald-950 shadow-xs animate-in fade-in">

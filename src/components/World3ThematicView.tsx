@@ -14,6 +14,7 @@ import {
   Sparkles,
   RefreshCw,
   HelpCircle,
+  Palette,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -392,6 +393,38 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
 
   return (
     <div className="space-y-8">
+      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 p-6 sm:p-8 text-white shadow-lg shadow-purple-500/10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+              <span>Estúdio do Criador Digital</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
+              Mundo 3: Super-Poderes de Criação & Respeito! 🎨✨
+            </h2>
+            <p className="text-xs sm:text-sm text-purple-50 font-medium leading-relaxed">
+              Olá, criador de conteúdos! Neste Mundo vais aprender a comunicar com empatia, usar boas maneiras nos chats (Netiqueta), trabalhar em equipa e respeitar os direitos de autor e licenças Creative Commons!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
+              <Palette className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black uppercase text-purple-100 block">
+                Progresso no Mundo 3
+              </span>
+              <span className="text-xl font-black text-white">
+                {world.average > 0 ? `${world.average}%` : '0%'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 🚀 BANNER DE SUCESSO DE ATIVIDADE CONCLUÍDA */}
       {completedFeedback && (
         <div className="p-4 bg-purple-100 border border-purple-300 rounded-2xl flex items-center justify-between shadow-xs">

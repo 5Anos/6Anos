@@ -199,59 +199,59 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   ];
 
   const world2Tabs = [
-    { id: 'w2-t1', label: '1. Palavras-chave', icon: Search, simId: 'sim-keywords' },
-    { id: 'w2-t2', label: '2. Autoria', icon: UserCheck, simId: 'sim-author' },
-    { id: 'w2-t3', label: '3. Data e Atualidade', icon: Calendar, simId: 'sim-date' },
-    { id: 'w2-t4', label: '4. Comparar fontes', icon: Layers, simId: 'sim-compare' },
-    { id: 'w2-t5', label: '5. Notícias falsas', icon: AlertOctagon, simId: 'sim-news-detective' },
+    { id: 'w2-t1', label: '1. Radar de Palavras-Chave 🔍', icon: Search, simId: 'sim-keywords' },
+    { id: 'w2-t2', label: '2. Quem é o Autor? 🕵️', icon: UserCheck, simId: 'sim-author' },
+    { id: 'w2-t3', label: '3. Máquina do Tempo ⏳', icon: Calendar, simId: 'sim-date' },
+    { id: 'w2-t4', label: '4. Comparar Pistas 📑', icon: Layers, simId: 'sim-compare' },
+    { id: 'w2-t5', label: '5. Caça a Boatos & Fake News 🚨', icon: AlertOctagon, simId: 'sim-news-detective' },
     {
       id: 'avaliacao',
-      label: '6. Avaliação Final (10 Perguntas)',
+      label: '6. Quiz do Detetive 🏆',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world3Tabs = [
-    { id: 'w3-t1', label: '1. Comunicação digital', icon: MessageSquare, simId: 'sim-digital-comm' },
-    { id: 'w3-t2', label: '2. Netiqueta', icon: Smile, simId: 'sim-netiquette' },
-    { id: 'w3-t3', label: '3. Colaboração online', icon: Users, simId: 'sim-collab' },
-    { id: 'w3-t4', label: '4. Direitos de autor', icon: ShieldCheck, simId: 'sim-copyright' },
-    { id: 'w3-t5', label: '5. Plágio e citação', icon: FileText, simId: 'sim-plagiarism' },
-    { id: 'w3-t6', label: '6. Creative Commons', icon: Share2, simId: 'sim-cc' },
+    { id: 'w3-t1', label: '1. Conversas & Emojis 💬', icon: MessageSquare, simId: 'sim-digital-comm' },
+    { id: 'w3-t2', label: '2. Netiqueta Fixe ✨', icon: Smile, simId: 'sim-netiquette' },
+    { id: 'w3-t3', label: '3. Super-Equipa Online 🤝', icon: Users, simId: 'sim-collab' },
+    { id: 'w3-t4', label: '4. Direitos de Autor 🎨', icon: ShieldCheck, simId: 'sim-copyright' },
+    { id: 'w3-t5', label: '5. Caça ao Plágio & Créditos 📜', icon: FileText, simId: 'sim-plagiarism' },
+    { id: 'w3-t6', label: '6. Licenças Creative Commons 🔓', icon: Share2, simId: 'sim-cc' },
     {
       id: 'avaliacao',
-      label: '7. Avaliação Final (10 Perguntas)',
+      label: '7. Quiz do Criador 🏆',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world4Tabs = [
-    { id: 'w4-t1', label: '1. Dividir um problema', icon: Layers, simId: 'sim-decomposicao' },
-    { id: 'w4-t2', label: '2. Algoritmos', icon: Code, simId: 'sim-block-coding' },
-    { id: 'w4-t3', label: '3. Condições', icon: GitBranch, simId: 'sim-algoritmos' },
-    { id: 'w4-t4', label: '4. Repetições', icon: Repeat, simId: 'sim-ciclos' },
-    { id: 'w4-t5', label: '5. Dados', icon: BarChart2, simId: 'sim-dados' },
-    { id: 'w4-t6', label: '6. Debugging', icon: AlertOctagon, simId: 'sim-debugging' },
+    { id: 'w4-t1', label: '1. Fatiar Problemas 🧩', icon: Layers, simId: 'sim-decomposicao' },
+    { id: 'w4-t2', label: '2. Comandar com Algoritmos 🤖', icon: Code, simId: 'sim-block-coding' },
+    { id: 'w4-t3', label: '3. Decisões: SE e SENÃO 🔀', icon: GitBranch, simId: 'sim-algoritmos' },
+    { id: 'w4-t4', label: '4. Super-Ciclos Repetir 🔁', icon: Repeat, simId: 'sim-ciclos' },
+    { id: 'w4-t5', label: '5. Caçadores de Dados 📊', icon: BarChart2, simId: 'sim-dados' },
+    { id: 'w4-t6', label: '6. Caça aos Bugs 🐞', icon: AlertOctagon, simId: 'sim-debugging' },
     {
       id: 'avaliacao',
-      label: '7. Avaliação Final (10 Perguntas)',
+      label: '7. Quiz do Engenheiro 🏆',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world5Tabs = [
-    { id: 'w5-t1', label: '1. O que é IA?', icon: Cpu, simId: 'sim-ia-concepts' },
-    { id: 'w5-t2', label: '2. IA generativa', icon: Wand2, simId: 'sim-ai-generation' },
-    { id: 'w5-t3', label: '3. Prompts', icon: Sparkles, simId: 'sim-prompt' },
-    { id: 'w5-t4', label: '4. A IA pode enganar-se', icon: AlertCircle, simId: 'sim-hallucination' },
-    { id: 'w5-t5', label: '5. Privacidade e IA', icon: Lock, simId: 'sim-ai-responsibility' },
-    { id: 'w5-t6', label: '6. Pensar com a IA', icon: Brain, simId: 'sim-recommendation' },
+    { id: 'w5-t1', label: '1. O que é a IA? 🧠', icon: Cpu, simId: 'sim-ia-concepts' },
+    { id: 'w5-t2', label: '2. Máquinas que Criam 🎨', icon: Wand2, simId: 'sim-ai-generation' },
+    { id: 'w5-t3', label: '3. Prompts Mágicos ✨', icon: Sparkles, simId: 'sim-prompt' },
+    { id: 'w5-t4', label: '4. Quando a IA Alucina 🔎', icon: AlertCircle, simId: 'sim-hallucination' },
+    { id: 'w5-t5', label: '5. Cofre Secreto & Privacidade 🔐', icon: Lock, simId: 'sim-ai-responsibility' },
+    { id: 'w5-t6', label: '6. O Humano é Quem Manda! 🚀', icon: Brain, simId: 'sim-recommendation' },
     {
       id: 'avaliacao',
-      label: '7. Avaliação Final (10 Perguntas)',
+      label: '7. Quiz da IA 🏆',
       icon: CheckCircle2,
       simId: 'assessment',
     },
