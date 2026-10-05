@@ -18,7 +18,12 @@ import {
   Bug,
   Star,
   Zap,
+  ChevronRight,
+  Check,
+  Lightbulb,
 } from 'lucide-react';
+import { EngineerKidHero } from './WorldMascots';
+import { StudyStackIllustration } from './DetectiveMascot';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -375,6 +380,217 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
+      {/* 🤖 HERO BANNER ENGENHEIRO DE ALGORITMOS (Pixar 3D Theme)   */}
+      {/* ========================================================= */}
+      <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#fde68a] via-[#fef3c7] to-[#fffbeb] border border-[#f59e0b] p-6 sm:p-8 lg:p-9 shadow-sm">
+        {/* Soft background clouds and radial highlights */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-amber-200/40 rounded-full blur-2xl pointer-events-none" />
+
+        {/* Top Breadcrumb & Route Progress */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-2 text-xs font-black text-[#78350f] tracking-wide uppercase">
+            <span className="w-5 h-5 rounded-full bg-white text-amber-600 flex items-center justify-center text-xs shadow-2xs">
+              🌐
+            </span>
+            <span>MUNDO 4</span>
+            <span className="text-amber-600 font-bold">&gt;</span>
+            <span>ENGENHEIRO DE ALGORITMOS</span>
+            <span className="text-base">🤖</span>
+          </div>
+
+          <div className="bg-white/95 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-800 tracking-wider">
+              <span className="text-amber-500 text-sm">👑</span>
+              <span>A TUA ROTA NO MUNDO</span>
+            </div>
+            <div className="w-24 sm:w-28 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200/80">
+              <div
+                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                style={{
+                  width: '100%',
+                }}
+              />
+            </div>
+            <span className="text-xs font-black text-slate-900 tabular-nums">
+              100%
+            </span>
+          </div>
+        </div>
+
+        {/* Middle Hero: Headline, Subtitle, Engineer Mascot */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 my-6 relative z-10">
+          <div className="max-w-xl space-y-3">
+            <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-slate-950 tracking-tight leading-[1.12]">
+              O Código em Ação:<br />
+              Algoritmos Inteligentes, Desafios Fatiados<br />
+              e Zero Bugs no Sistema!
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed max-w-lg">
+              A tua missão de engenheiro: dar instruções infalíveis ao robô, tomar decisões lógicas com SE/SENÃO e dominar ciclos repetitivos! 💻⚡
+            </p>
+          </div>
+          <div className="shrink-0 flex justify-center lg:justify-end">
+            <EngineerKidHero className="w-64 sm:w-72 lg:w-[350px] h-auto drop-shadow-md" />
+          </div>
+        </div>
+
+        {/* 7 Mission Navigation Cards */}
+        <div className="space-y-3 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Missão 1 */}
+            <button
+              onClick={() => onNavigateTopic('w4-t1')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w4-t1'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w4-t1' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'}`}>
+                  <Layers className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t1' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 1/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Fatiar Problemas</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w4-t1' ? 'text-white' : 'text-amber-500'}`} />
+            </button>
+
+            {/* Missão 2 */}
+            <button
+              onClick={() => onNavigateTopic('w4-t2')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w4-t2'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w4-t2' ? 'bg-white/20 text-white' : 'bg-orange-50 text-orange-600'}`}>
+                  <Code className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t2' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 2/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Robô & Algoritmos</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w4-t2' ? 'text-white' : 'text-amber-500'}`} />
+            </button>
+
+            {/* Missão 3 */}
+            <button
+              onClick={() => onNavigateTopic('w4-t3')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w4-t3'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w4-t3' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'}`}>
+                  <GitBranch className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t3' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 3/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Decisões: SE & SENÃO</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w4-t3' ? 'text-white' : 'text-amber-500'}`} />
+            </button>
+
+            {/* Missão 4 */}
+            <button
+              onClick={() => onNavigateTopic('w4-t4')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w4-t4'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w4-t4' ? 'bg-white/20 text-white' : 'bg-yellow-50 text-yellow-600'}`}>
+                  <Repeat className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t4' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 4/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Super-Ciclos (Loops)</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w4-t4' ? 'text-white' : 'text-amber-500'}`} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* Missão 5 */}
+            <button
+              onClick={() => onNavigateTopic('w4-t5')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w4-t5'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w4-t5' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'}`}>
+                  <BarChart2 className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t5' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 5/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Caçadores de Dados</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w4-t5' ? 'text-white' : 'text-amber-500'}`} />
+            </button>
+
+            {/* Missão 6 */}
+            <button
+              onClick={() => onNavigateTopic('w4-t6')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w4-t6'
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w4-t6' ? 'bg-white/20 text-white' : 'bg-red-50 text-red-600'}`}>
+                  <Bug className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t6' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 6/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Caça aos Bugs</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w4-t6' ? 'text-white' : 'text-amber-500'}`} />
+            </button>
+
+            {/* Missão 7: Quiz Final */}
+            <button
+              onClick={() => onNavigateTopic('avaliacao')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'avaliacao'
+                  ? 'bg-amber-700 text-white shadow-md shadow-amber-600/30 ring-2 ring-amber-400'
+                  : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs hover:brightness-105'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
+                  <Award className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-amber-100 block">MISSÃO FINAL 7/7</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Quiz do Engenheiro 🏆</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0 text-white" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
       {/* MISSÃO 1: DIVIDIR UM PROBLEMA */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t1' && (
@@ -510,30 +726,79 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Dividir um problema complexo em sub-tarefas simples é a técnica principal de qualquer programador.</li>
-              <li>Resolver uma etapa de cada vez evita erros e torna tudo mais fácil de alcançar.</li>
-            </ul>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Dividir um problema complexo em sub-tarefas simples é a técnica principal de qualquer programador.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Resolver uma etapa de cada vez evita erros, poupa tempo e torna tudo mais fácil de alcançar.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>DECOMPOR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>ORGANIZAR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PROGRAMAR</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>RESOLVER BUGS</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Excelente organização! Agora vamos programar o robô passo a passo!</span>
+          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
+          <div className="bg-gradient-to-r from-slate-50 via-white to-amber-50/40 border-2 border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0 text-xl shadow-2xs">
+                ⭐
+              </div>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug">
+                Excelente organização! Agora vamos programar o robô passo a passo com algoritmos!
+              </span>
             </div>
             <button
               onClick={() => onNavigateTopic('w4-t2')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
             >
-              <span>👉 Próxima Missão: 2. O Robô dos Algoritmos 🤖</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Próxima Missão: 2. O Robô dos Algoritmos ➔</span>
             </button>
           </div>
         </div>

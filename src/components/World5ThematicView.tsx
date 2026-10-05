@@ -24,7 +24,11 @@ import {
   Flame,
   Star,
   Zap,
+  ChevronRight,
+  Lightbulb,
 } from 'lucide-react';
+import { AIPioneerHero } from './WorldMascots';
+import { StudyStackIllustration } from './DetectiveMascot';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -509,6 +513,217 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
+      {/* 🚀 HERO BANNER PIONEIRO DA IA (Pixar 3D Theme)             */}
+      {/* ========================================================= */}
+      <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#a5b4fc] via-[#c7d2fe] to-[#eef2ff] border border-[#818cf8] p-6 sm:p-8 lg:p-9 shadow-sm">
+        {/* Soft background clouds and radial highlights */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-indigo-200/40 rounded-full blur-2xl pointer-events-none" />
+
+        {/* Top Breadcrumb & Route Progress */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-2 text-xs font-black text-[#312e81] tracking-wide uppercase">
+            <span className="w-5 h-5 rounded-full bg-white text-indigo-600 flex items-center justify-center text-xs shadow-2xs">
+              🌐
+            </span>
+            <span>MUNDO 5</span>
+            <span className="text-indigo-600 font-bold">&gt;</span>
+            <span>PIONEIRO DA IA</span>
+            <span className="text-base">🚀</span>
+          </div>
+
+          <div className="bg-white/95 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-800 tracking-wider">
+              <span className="text-amber-500 text-sm">👑</span>
+              <span>A TUA ROTA NO MUNDO</span>
+            </div>
+            <div className="w-24 sm:w-28 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200/80">
+              <div
+                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                style={{
+                  width: '100%',
+                }}
+              />
+            </div>
+            <span className="text-xs font-black text-slate-900 tabular-nums">
+              100%
+            </span>
+          </div>
+        </div>
+
+        {/* Middle Hero: Headline, Subtitle, AI Mascot */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 my-6 relative z-10">
+          <div className="max-w-xl space-y-3">
+            <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-slate-950 tracking-tight leading-[1.12]">
+              O Futuro da Inteligência:<br />
+              Prompts Perfeitos, Caça a Alucinações<br />
+              e Ética Digital!
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed max-w-lg">
+              A tua missão de pioneiro: dominar a IA Generativa, verificar factos sem pestanejar e proteger a tua privacidade no ciberespaço! 🤖✨
+            </p>
+          </div>
+          <div className="shrink-0 flex justify-center lg:justify-end">
+            <AIPioneerHero className="w-64 sm:w-72 lg:w-[350px] h-auto drop-shadow-md" />
+          </div>
+        </div>
+
+        {/* 7 Mission Navigation Cards */}
+        <div className="space-y-3 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* Missão 1 */}
+            <button
+              onClick={() => onNavigateTopic('w5-t1')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w5-t1'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t1' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                  <Cpu className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t1' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 1/6</span>
+                  <span className="text-xs sm:text-sm font-black truncate">O Que É e Não É IA</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t1' ? 'text-white' : 'text-indigo-500'}`} />
+            </button>
+
+            {/* Missão 2 */}
+            <button
+              onClick={() => onNavigateTopic('w5-t2')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w5-t2'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t2' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600'}`}>
+                  <Wand2 className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t2' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 2/6</span>
+                  <span className="text-xs sm:text-sm font-black truncate">IA Generativa & Fatos</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t2' ? 'text-white' : 'text-indigo-500'}`} />
+            </button>
+
+            {/* Missão 3 */}
+            <button
+              onClick={() => onNavigateTopic('w5-t3')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w5-t3'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t3' ? 'bg-white/20 text-white' : 'bg-sky-50 text-sky-600'}`}>
+                  <Sparkles className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t3' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 3/6</span>
+                  <span className="text-xs sm:text-sm font-black truncate">A Arte do Prompt</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t3' ? 'text-white' : 'text-indigo-500'}`} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Missão 4 */}
+            <button
+              onClick={() => onNavigateTopic('w5-t4')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w5-t4'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t4' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'}`}>
+                  <AlertCircle className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t4' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 4/6</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Alucinações & Falsos</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t4' ? 'text-white' : 'text-indigo-500'}`} />
+            </button>
+
+            {/* Missão 5 */}
+            <button
+              onClick={() => onNavigateTopic('w5-t5')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w5-t5'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t5' ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
+                  <Lock className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t5' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 5/6</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Privacidade & Dados</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t5' ? 'text-white' : 'text-indigo-500'}`} />
+            </button>
+
+            {/* Missão 6 */}
+            <button
+              onClick={() => onNavigateTopic('w5-t6')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'w5-t6'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-400'
+                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t6' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'}`}>
+                  <Brain className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t6' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 6/6</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Bolhas & Algoritmos</span>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t6' ? 'text-white' : 'text-indigo-500'}`} />
+            </button>
+
+            {/* Missão 7: Quiz Final */}
+            <button
+              onClick={() => onNavigateTopic('avaliacao')}
+              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                activeTopicId === 'avaliacao'
+                  ? 'bg-indigo-800 text-white shadow-md shadow-indigo-700/30 ring-2 ring-indigo-400'
+                  : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs hover:brightness-105'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
+                  <Award className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-indigo-100 block">DESAFIO FINAL</span>
+                  <span className="text-xs sm:text-sm font-black truncate">Quiz do Pioneiro 🏆</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0 text-white" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
       {/* MISSÃO 1: O QUE É IA? */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t1' && (
@@ -699,34 +914,79 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
-              <Star className="w-5 h-5 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
+          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
             </div>
-            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
-              <li>A IA aprende procurando padrões em milhões de exemplos e dados.</li>
-              <li>A IA é uma ferramenta criada por humanos e não possui sentimentos nem consciência.</li>
-            </ul>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>A IA aprende procurando padrões estatísticos em milhões de dados e exemplos prévios.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>A IA é uma ferramenta criada por humanos — não tem consciência, sentimentos nem vontade própria.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* White Pinned Notepad Checklist with Pencil */}
+            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
+              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>EXPLORAR IA</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>VERIFICAR DADOS</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>PENSAR CRÍTICO</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-700">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>ÉTICA & ÉTICA</span>
+                </div>
+              </div>
+
+              {/* Pencil Vector across notepad */}
+              <div className="absolute -bottom-2 -right-3 transform rotate-12">
+                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
+                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
+                  <div className="flex-1" />
+                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 👉 Próxima Missão */}
-          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
-                Missão cumprida?
+          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
+          <div className="bg-gradient-to-r from-slate-50 via-white to-indigo-50/40 border-2 border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0 text-xl shadow-2xs">
+                ⭐
+              </div>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug">
+                Excelente reflexão! Agora vamos descobrir os segredos da IA Generativa!
               </span>
-              <p className="text-sm font-bold text-slate-800">
-                Avança para a Missão 2 e descobre como a IA gera texto e imagens!
-              </p>
             </div>
             <button
               onClick={() => onNavigateTopic('w5-t2')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
             >
-              <span>👉 Próxima Missão: IA Generativa</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Próxima Missão: 2. IA Generativa ➔</span>
             </button>
           </div>
         </div>
