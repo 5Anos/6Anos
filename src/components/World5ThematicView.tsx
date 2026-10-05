@@ -22,6 +22,8 @@ import {
   FileCheck,
   Compass,
   Flame,
+  Star,
+  Zap,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -481,38 +483,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/10">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-              <span>Laboratório do Explorador da IA</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
-              Mundo 5: O Futuro Chegou com a IA! ✨🤖
-            </h2>
-            <p className="text-xs sm:text-sm text-indigo-50 font-medium leading-relaxed">
-              Olá, explorador do futuro! Neste Mundo vais aprender a escrever prompts mágicos para estudar melhor, descobrir por que razão a IA às vezes inventa disparates e como proteger os teus segredos mantendo o teu cérebro sempre no comando!
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
-              <Brain className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase text-indigo-100 block">
-                Progresso no Mundo 5
-              </span>
-              <span className="text-xl font-black text-white">
-                {world.average > 0 ? `${world.average}%` : '0%'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
         <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-3xl flex items-center justify-between text-indigo-950 shadow-xs animate-in fade-in">
@@ -539,7 +509,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 1: O QUE É IA? */}
+      {/* MISSÃO 1: O QUE É IA? */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t1' && (
         <div className="space-y-6">
@@ -550,11 +520,14 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 1 do Mundo 5
+                  🎯 MISSÃO 1/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic1?.title || 'O que é Inteligência Artificial?'}
+                  O que é a Inteligência Artificial? 🧠
                 </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Descobre como os computadores aprendem com dados e onde a IA é realmente usada.
+                </p>
               </div>
             </div>
 
@@ -572,28 +545,40 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5 text-indigo-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O QUE É INTELIGÊNCIA ARTIFICIAL?
+                💡 1. Aprende: Programas Inteligentes vs Regras Fixas
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic1?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
+            <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
+              A <strong>Inteligência Artificial (IA)</strong> é um conjunto de programas avançados capazes de encontrar padrões em milhares de dados para realizar tarefas que antes só os humanos faziam.
+            </p>
 
-            {topic1?.takeaway && (
-              <div className="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic1.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wide">
+                  <span>🤖</span>
+                  <span>O que a IA faz</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Aprende a reconhecer vozes, traduzir idiomas e identificar fotos através de milhões de exemplos.
                 </p>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-amber-700 font-black text-xs uppercase tracking-wide">
+                  <span>⚙️</span>
+                  <span>O que NÃO é IA</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Uma calculadora a somar 5 + 5 segue apenas uma regra direta. E a IA não é viva nem tem sentimentos!
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w5-t1" />
           </div>
@@ -604,11 +589,11 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Conceitos de IA (6 Situações)
+                  🎮 2. Experimenta: Radar de IA (6 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Classifica cada caso na categoria correta
+                Classifica cada caso
               </span>
             </div>
 
@@ -714,13 +699,33 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
+              <Star className="w-5 h-5 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </div>
+            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
+              <li>A IA aprende procurando padrões em milhões de exemplos e dados.</li>
+              <li>A IA é uma ferramenta criada por humanos e não possui sentimentos nem consciência.</li>
+            </ul>
+          </div>
+
+          {/* 👉 Próxima Missão */}
+          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                Missão cumprida?
+              </span>
+              <p className="text-sm font-bold text-slate-800">
+                Avança para a Missão 2 e descobre como a IA gera texto e imagens!
+              </p>
+            </div>
             <button
               onClick={() => onNavigateTopic('w5-t2')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
             >
-              <span>Avançar para Tema 2: IA generativa</span>
+              <span>👉 Próxima Missão: IA Generativa</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -728,7 +733,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 2: IA GENERATIVA */}
+      {/* MISSÃO 2: IA GENERATIVA */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t2' && (
         <div className="space-y-6">
@@ -739,11 +744,14 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 2 do Mundo 5
+                  🎯 MISSÃO 2/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic2?.title || 'IA generativa'}
+                  Máquinas que Criam: IA Generativa 🎨
                 </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Compreende como a IA produz novos textos e imagens e por que deves sempre verificar os factos.
+                </p>
               </div>
             </div>
 
@@ -761,28 +769,40 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5 text-indigo-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: IA GENERATIVA E VERIFICAÇÃO DE RESPOSTAS
+                💡 1. Aprende: Como a IA Generativa Produz Conteúdos
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic2?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
+            <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
+              A <strong>IA Generativa</strong> cria novos conteúdos combinando padrões que aprendeu a partir de milhões de exemplos de texto, som ou imagem.
+            </p>
 
-            {topic2?.takeaway && (
-              <div className="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic2.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wide">
+                  <span>🎨</span>
+                  <span>Criação rápida</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Consegue criar resumos, ideias, histórias e ilustrações surpreendentes a partir de pedidos escritos.
                 </p>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-amber-700 font-black text-xs uppercase tracking-wide">
+                  <span>🔍</span>
+                  <span>Verificar sempre</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Um texto bem escrito e articulado pode conter erros graves. Confirma sempre factos em fontes credíveis.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w5-t2" />
           </div>
@@ -793,7 +813,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de IA Generativa & Verificação (5 Situações)
+                  🎮 2. Experimenta: Simulador de IA Generativa & Verificação (5 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -878,13 +898,33 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
+              <Star className="w-5 h-5 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </div>
+            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
+              <li>A IA generativa constrói novos conteúdos combinando dados aprendidos.</li>
+              <li>A beleza do texto não garante verdade científica: confirma sempre em enciclopédias e livros.</li>
+            </ul>
+          </div>
+
+          {/* 👉 Próxima Missão */}
+          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                Missão cumprida?
+              </span>
+              <p className="text-sm font-bold text-slate-800">
+                Avança para a Missão 3 e domina a arte de escrever bons prompts!
+              </p>
+            </div>
             <button
               onClick={() => onNavigateTopic('w5-t3')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
             >
-              <span>Avançar para Tema 3: Prompts</span>
+              <span>👉 Próxima Missão: Prompts Mágicos</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -892,7 +932,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 3: PROMPTS */}
+      {/* MISSÃO 3: PROMPTS */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t3' && (
         <div className="space-y-6">
@@ -903,11 +943,14 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 3 do Mundo 5
+                  🎯 MISSÃO 3/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic3?.title || 'Prompts'}
+                  A Arte dos Prompts Mágicos ✨
                 </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Aprende a formular instruções claras e detalhadas para obter as melhores respostas.
+                </p>
               </div>
             </div>
 
@@ -925,28 +968,40 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5 text-indigo-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: COMO FORMULAR BONS PROMPTS
+                💡 1. Aprende: Como Formular Bons Prompts
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic3?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
+            <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
+              Um <strong>Prompt</strong> é o pedido escrito que dás à IA. Quanto mais claro e específico for o teu pedido, mais útil será a ajuda recebida!
+            </p>
 
-            {topic3?.takeaway && (
-              <div className="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic3.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-amber-700 font-black text-xs uppercase tracking-wide">
+                  <span>❌</span>
+                  <span>Prompt vago</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  "Fala sobre o espaço." Gera uma resposta genérica, longa e aborrecida.
                 </p>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-emerald-700 font-black text-xs uppercase tracking-wide">
+                  <span>✅</span>
+                  <span>Prompt detalhado</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  "Explica a um aluno do 6.º ano como funciona a gravidade na Lua em 3 tópicos simples."
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w5-t3" />
           </div>
@@ -957,7 +1012,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Prompt Simulator Progressivo (4 Níveis)
+                  🎮 2. Experimenta: Prompt Simulator Progressivo (4 Níveis)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1049,13 +1104,33 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
+              <Star className="w-5 h-5 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </div>
+            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
+              <li>Um bom prompt inclui quem és, o objetivo concreto e o formato de resposta desejado.</li>
+              <li>Instruções detalhadas poupam tempo e geram respostas muito mais úteis.</li>
+            </ul>
+          </div>
+
+          {/* 👉 Próxima Missão */}
+          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                Missão cumprida?
+              </span>
+              <p className="text-sm font-bold text-slate-800">
+                Avança para a Missão 4 e descobre como detetar alucinações e erros da IA!
+              </p>
+            </div>
             <button
               onClick={() => onNavigateTopic('w5-t4')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
             >
-              <span>Avançar para Tema 4: A IA pode enganar-se</span>
+              <span>👉 Próxima Missão: A IA pode enganar-se</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1063,7 +1138,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 4: A IA PODE ENGANAR-SE */}
+      {/* MISSÃO 4: A IA PODE ENGANAR-SE */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t4' && (
         <div className="space-y-6">
@@ -1074,11 +1149,14 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 4 do Mundo 5
+                  🎯 MISSÃO 4/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic4?.title || 'A IA pode enganar-se'}
+                  Cuidado! A IA Alucina e Inventa Coisas 🔎
                 </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Aprende o que são alucinações e por que nunca deves confiar cegamente em respostas bonitas.
+                </p>
               </div>
             </div>
 
@@ -1096,28 +1174,40 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5 text-indigo-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: ALUCINAÇÕES E VERIFICAÇÃO DE FONTES
+                💡 1. Aprende: O Que São Alucinações da IA?
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic4?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
+            <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
+              Chamamos <strong>"alucinação"</strong> quando a IA inventa factos falsos ou fontes inexistentes com um tom tão confiante que parece a maior verdade do mundo!
+            </p>
 
-            {topic4?.takeaway && (
-              <div className="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic4.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-rose-700 font-black text-xs uppercase tracking-wide">
+                  <span>⚠️</span>
+                  <span>O perigo do tom seguro</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  A IA pode inventar datas de batalhas, livros falsos e cientistas inexistentes sem hesitar.
                 </p>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wide">
+                  <span>🕵️</span>
+                  <span>O teu papel de detetive</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Nunca copies respostas de IA para trabalhos de casa sem confirmar factos em livros ou fontes oficiais.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w5-t4" />
           </div>
@@ -1128,7 +1218,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Hallucination & Evidence Simulator (6 Afirmações)
+                  🎮 2. Experimenta: Hallucination & Evidence Simulator (6 Afirmações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1246,13 +1336,33 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
+              <Star className="w-5 h-5 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </div>
+            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
+              <li>A IA pode inventar datas, citações e fontes com ar convincente (alucinações).</li>
+              <li>Confiança no tom de resposta não é garantia de certeza: desconfia e confirma sempre.</li>
+            </ul>
+          </div>
+
+          {/* 👉 Próxima Missão */}
+          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                Missão cumprida?
+              </span>
+              <p className="text-sm font-bold text-slate-800">
+                Avança para a Missão 5 e aprende a proteger os teus dados privados ao usar a IA!
+              </p>
+            </div>
             <button
               onClick={() => onNavigateTopic('w5-t5')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
             >
-              <span>Avançar para Tema 5: Privacidade e IA</span>
+              <span>👉 Próxima Missão: Privacidade e IA</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1260,7 +1370,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 5: PRIVACIDADE E IA */}
+      {/* MISSÃO 5: PRIVACIDADE E IA */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t5' && (
         <div className="space-y-6">
@@ -1271,11 +1381,14 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 5 do Mundo 5
+                  🎯 MISSÃO 5/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic5?.title || 'Privacidade e IA'}
+                  O Cofre Secreto: Privacidade e IA 🔐
                 </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Aprende a proteger as tuas informações pessoais ao utilizar ferramentas públicas de IA.
+                </p>
               </div>
             </div>
 
@@ -1293,28 +1406,40 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5 text-indigo-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: PROTEÇÃO DE DADOS PRIVADOS E IA
+                💡 1. Aprende: Proteção de Dados e IA Pública
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic5?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
+            <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
+              Tudo o que escreves numa ferramenta pública de IA pode ser gravado e usado para treinar futuros modelos informáticos pelo mundo fora.
+            </p>
 
-            {topic5?.takeaway && (
-              <div className="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic5.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-rose-700 font-black text-xs uppercase tracking-wide">
+                  <span>⛔</span>
+                  <span>Nunca partilhes</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Palavras-passe, morada, telemóvel, dados familiares ou nomes completos de colegas.
                 </p>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-emerald-700 font-black text-xs uppercase tracking-wide">
+                  <span>🛡️</span>
+                  <span>Uso seguro</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Faz perguntas gerais sobre matérias escolares sem revelar detalhes da tua vida privada.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w5-t5" />
           </div>
@@ -1325,11 +1450,11 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Privacidade e Classificação de Dados (10 Itens)
+                  🎮 2. Experimenta: Simulador de Privacidade e Dados (10 Itens)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Classifica a partilha de cada dado com uma IA
+                Classifica cada dado antes de enviar
               </span>
             </div>
 
@@ -1418,13 +1543,33 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
+              <Star className="w-5 h-5 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </div>
+            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
+              <li>Ferramentas públicas podem guardar o que escreves para treinar modelos futuros.</li>
+              <li>Mantém palavras-passe, contactos e segredos pessoais longe de qualquer assistente de IA.</li>
+            </ul>
+          </div>
+
+          {/* 👉 Próxima Missão */}
+          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                Missão cumprida?
+              </span>
+              <p className="text-sm font-bold text-slate-800">
+                Avança para a Missão 6 e aprende a manter o teu cérebro no comando da tecnologia!
+              </p>
+            </div>
             <button
               onClick={() => onNavigateTopic('w5-t6')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
             >
-              <span>Avançar para Tema 6: Pensar com a IA</span>
+              <span>👉 Próxima Missão: Pensar com a IA</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1432,7 +1577,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 6: PENSAR COM A IA */}
+      {/* MISSÃO 6: PENSAR COM A IA */}
       {/* ========================================================= */}
       {activeTopicId === 'w5-t6' && (
         <div className="space-y-6">
@@ -1443,11 +1588,14 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-black text-indigo-600 tracking-wider block">
-                  Tema 6 do Mundo 5
+                  🎯 MISSÃO 6/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic6?.title || 'Pensar com a IA'}
+                  O Humano é Quem Manda! O Teu Cérebro é Único 🚀
                 </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Usa a IA como aliada nos estudos sem perderes a tua própria capacidade crítica e autonomia.
+                </p>
               </div>
             </div>
 
@@ -1465,28 +1613,40 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5 text-indigo-700">
               <BookOpen className="w-5 h-5" />
               <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: PENSAR COM A IA E ALGORITMOS DE RECOMENDAÇÃO
+                💡 1. Aprende: A Tecnologia Ajuda, Tu Comandas
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic6?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
+            <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
+              A IA é como uma bicicleta rápida: ajuda-te a avançar velozmente, mas és <strong>tu</strong> quem escolhe o rumo e trava quando necessário!
+            </p>
 
-            {topic6?.takeaway && (
-              <div className="p-4 bg-indigo-50/80 border border-indigo-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-indigo-800 italic">
-                  ✨ {topic6.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-indigo-700 font-black text-xs uppercase tracking-wide">
+                  <span>💡</span>
+                  <span>A IA como assistente</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Serve para ter ideias, debater perspetivas e tirar dúvidas sobre tópicos difíceis.
                 </p>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-1.5">
+                <div className="flex items-center gap-2 text-emerald-700 font-black text-xs uppercase tracking-wide">
+                  <span>🧠</span>
+                  <span>O teu cérebro no comando</span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Revê, dá o teu toque pessoal e garante que compreendes tudo antes de partilhar ou entregar.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w5-t6" />
           </div>
@@ -1497,7 +1657,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Recomendações (5 Situações)
+                  🎮 2. Experimenta: Simulador de Recomendações e Autonomia (5 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1580,13 +1740,33 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Conclusão / Avaliação */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
+              <Star className="w-5 h-5 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </div>
+            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
+              <li>A tecnologia é uma ferramenta fantástica de apoio, mas a decisão final é sempre humana.</li>
+              <li>Pensar pela própria cabeça e compreender o que apresentas é o maior super-poder de todos!</li>
+            </ul>
+          </div>
+
+          {/* 👉 Conclusão / Avaliação */}
+          <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
+                Todas as missões concluídas! 🎉
+              </span>
+              <p className="text-sm font-bold text-slate-800">
+                Estás pronto para demonstrar os teus conhecimentos na Avaliação Final do Mundo 5!
+              </p>
+            </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 shrink-0"
             >
-              <span>Avançar para a Avaliação Final do Mundo 5</span>
+              <span>👉 Ir para a Avaliação Final</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1604,10 +1784,10 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
           <div>
             <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
-              {world.title}
+              🎯 DESAFIO FINAL • MUNDO 5
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 10 Perguntas
+              Avaliação Final de 10 Perguntas 🏆
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
               Mostra que compreendes a Inteligência Artificial, formulas prompts eficazes e usas a tecnologia com ética e responsabilidade!

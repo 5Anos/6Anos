@@ -149,26 +149,46 @@ export const DAILY_TIPS = [
     id: 'tip-1',
     pt: 'Antes de clicares num link recebido por mensagem, verifica sempre para onde ele realmente te leva.',
     en: 'Before clicking a link received via message, always verify where it actually leads.',
+    statement: 'Devemos clicar imediatamente em qualquer link recebido se a mensagem disser que é urgente.',
+    isTrue: false,
+    feedbackCorrect: 'Exatamente! As mensagens que criam urgência para clicar costumam ser armadilhas de phishing.',
+    feedbackIncorrect: 'Cuidado! A pressa é a tática preferida dos criminosos para te impedir de pensar com calma.',
   },
   {
     id: 'tip-2',
-    pt: 'Uma palavra-passe forte deve ter pelo menos 10 caracteres, combinando letras, números e símbolos.',
-    en: 'A strong password should be at least 10 characters long, combining letters, numbers, and symbols.',
+    pt: 'A tua palavra-passe é pessoal. Não a partilhes com amigos, nem mesmo para jogos.',
+    en: 'Your password is personal. Never share it with friends, even for gaming.',
+    statement: 'A tua palavra-passe é pessoal e não deves partilhá-la com amigos ou colegas da turma.',
+    isTrue: true,
+    feedbackCorrect: 'Exatamente! A tua palavra-passe protege as tuas coisas e deve manter-se sempre em segredo.',
+    feedbackIncorrect: 'Atenção! Mesmo o teu melhor amigo não deve saber a tua senha pessoal.',
   },
   {
     id: 'tip-3',
-    pt: 'Encontrar uma imagem na Internet não significa que ela seja tua: verifica sempre os direitos de autor.',
-    en: 'Finding an image on the Internet does not make it yours: always check copyright and licenses.',
+    pt: 'Encontrar uma imagem no Google não significa que ela seja tua: verifica sempre os direitos de autor.',
+    en: 'Finding an image on Google does not make it yours: always check copyright and licenses.',
+    statement: 'Podemos copiar qualquer imagem bonita da Internet e dizer no trabalho escolar que fomos nós a fazê-la.',
+    isTrue: false,
+    feedbackCorrect: 'Muito bem! Apresentar trabalhos de outros como se fossem nossos chama-se plágio.',
+    feedbackIncorrect: 'Errado! As imagens têm autores reais e devemos sempre respeitar os direitos de autor.',
   },
   {
     id: 'tip-4',
     pt: 'A Inteligência Artificial pode inventar respostas com convicção. Confirma sempre factos importantes!',
     en: 'Artificial Intelligence can invent answers with confidence. Always double-check important facts!',
+    statement: 'Se uma resposta da Inteligência Artificial estiver escrita com um tom muito seguro, é garantido que é verdade.',
+    isTrue: false,
+    feedbackCorrect: 'Correto! A IA pode alucinar e inventar informações falsas com um ar muito convincente.',
+    feedbackIncorrect: 'Cuidado! Uma IA pode errar mesmo parecendo muito segura. Confirma sempre em fontes fiáveis.',
   },
   {
     id: 'tip-5',
     pt: 'Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
     en: 'Taking regular breaks helps rest your eyes and reduces screen fatigue.',
+    statement: 'Aplicar a regra dos 20-20-20 (olhar a 20 metros por 20 segundos a cada 20 minutos) ajuda a descansar a vista.',
+    isTrue: true,
+    feedbackCorrect: 'Excelente! Pequenas pausas regulares mantêm a visão descansada e a energia no máximo.',
+    feedbackIncorrect: 'Incorreto! Olhar para longe a cada 20 minutos é um hábito de ouro para quem usa ecrãs.',
   },
 ];
 
@@ -194,21 +214,20 @@ export const WORLDS_DATA: WorldContent[] = [
         number: 1,
         title: 'Palavras-passe Secretas 🗝️',
         paragraphs: [
-          'A tua palavra-passe é a chave mestra que tranca o teu cofre digital.',
-          'Nunca uses coisas fáceis como "123456", o teu nome, a data de aniversário ou o nome do teu cão.',
-          'Usa a técnica da "Frase Maluca": junta palavras divertidas com números e símbolos (ex.: "Gato_Ninja_Comeu_9_Pizzas!").',
-          'Uma palavra-passe é um segredo sagrado: nunca a dês a amigos nem a colegas da escola. Só os teus pais ou encarregados de educação podem saber!',
+          'A tua palavra-passe é a chave que protege as tuas contas de jogos e da escola.',
+          'Usa palavras divertidas com números e símbolos para ficar forte (ex.: "Gato_Ninja_Comeu_9_Pizzas!").',
+          'A tua palavra-passe é pessoal. Não a partilhes com amigos nem colegas.',
         ],
-        takeaway: 'Regra de Ouro: Palavra-passe comprida, maluca e super secreta! 🗝️',
+        takeaway: 'Regra de Ouro: Palavra-passe comprida, pessoal e super secreta! 🗝️',
       },
       {
         id: 'w1-t2',
         number: 2,
         title: 'Caça ao Phishing 🎣',
         paragraphs: [
-          'Phishing vem de "pescar": pessoas mal-intencionadas lançam iscos falsos para tentar apanhar a tua palavra-passe ou roubar a tua conta!',
-          'Cuidado com mensagens que prometem moedas de jogos grátis (como Robux ou V-Bucks) ou dizem com urgência que a tua conta vai ser apagada em 5 minutos.',
-          'Aplica a Regra dos 3 Passos do Detetive: Parar → Desconfiar do Isco → Perguntar a um adulto de confiança antes de clicar!',
+          'Phishing são mensagens falsas que tentam roubar a tua palavra-passe ou conta.',
+          'Desconfia de promessas de moedas grátis (como Robux) ou avisos a dizer "Clica em 5 minutos!".',
+          'Regra do Detetive: Se parece bom demais para ser verdade, é uma armadilha!',
         ],
         bulletPoints: [
           'Promessas de moedas ou prémios grátis;',
@@ -223,9 +242,9 @@ export const WORLDS_DATA: WorldContent[] = [
         number: 3,
         title: 'Escudo de Privacidade 🚪',
         paragraphs: [
-          'Os teus dados pessoais são pistas que mostram quem és e onde estás no mundo real.',
-          'A tua morada, número de telemóvel e caminho da escola devem ficar sempre trancados no teu quarto secreto!',
-          'Fotos com colegas de turma exigem sempre que lhes perguntes primeiro se podes partilhar. Já os teus desenhos e projetos fixes podes mostrar com orgulho!',
+          'Os teus dados pessoais dizem quem és e onde estás.',
+          'Guarda a tua morada e telemóvel no teu cofre secreto.',
+          'Pede sempre autorização antes de publicar fotos com amigos!',
         ],
         bulletPoints: [
           'Morada de casa (super secreto);',
@@ -239,8 +258,9 @@ export const WORLDS_DATA: WorldContent[] = [
         number: 4,
         title: 'O Rasto Digital 👣',
         paragraphs: [
-          'A Internet tem memória de elefante: tudo o que publicas, comentas ou pesquisas deixa uma pegada luminosa que nunca se apaga.',
-          'Sê um verdadeiro herói da net: espalha comentários amigos, apoia os teus colegas e nunca participes em brincadeiras de mau gosto (cyberbullying).',
+          'Tudo o que publicas ou comentas na Internet constrói o teu rasto digital.',
+          'Mesmo quando apagas algo, alguém pode já ter guardado uma cópia ou feito uma captura de ecrã. Por isso, pensa antes de publicar.',
+          'Espalha comentários amigos e sê sempre respeitador com os outros online.',
         ],
       },
       {
@@ -248,10 +268,9 @@ export const WORLDS_DATA: WorldContent[] = [
         number: 5,
         title: 'Super-Corpo & Bem-Estar 🕹️',
         paragraphs: [
-          'Um verdadeiro campeão dos videojogos cuida da sua postura, dos olhos e do sono!',
-          'Senta-te com postura de astronauta: costas direitas e apoiadas, pés no chão e ecrã à distância de um braço.',
-          'Aplica a regra dos 20-20-20: a cada 20 minutos, olha pela janela 20 segundos para os teus olhos descansarem.',
-          'Desliga os ecrãs antes de ir para a cama: nada de modo morcego no escuro para acordares cheio de energia!',
+          'Um bom jogador cuida da postura, dos olhos e do sono para ter energia máxima!',
+          'Postura de astronauta: costas direitas e ecrã à distância de um braço.',
+          'Regra dos 20-20-20: a cada 20 minutos, descansa os olhos 20 segundos olhando ao longe.',
         ],
         bulletPoints: [
           'Postura de astronauta (costas direitas);',
@@ -1027,16 +1046,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
     questions: [
       {
         id: 'w1-q1',
-        text: 'A Leonor precisa de criar uma palavra-passe para a sua conta escolar. Qual destas opções apresenta a estratégia mais segura?',
+        text: 'A Leonor quer escolher uma palavra-passe forte para a sua conta escolar. Qual destas opções é a mais segura?',
         options: [
-          'Leonor2014',
-          '12345678',
-          'futebol2025',
-          'Criar uma palavra-passe longa e única, que não inclua o nome, datas ou outras informações fáceis de adivinhar.',
+          'Leonor2014! (o seu primeiro nome e ano de nascimento)',
+          '12345678Escola (uma sequência numérica simples)',
+          'futebol2026 (o desporto preferido e o ano atual)',
+          'Gato#Com#Skate*24 (uma frase longa com símbolos)',
         ],
         correctIndex: 3,
         explanation:
-          'Uma palavra-passe deve ser difícil de adivinhar, suficientemente longa e não deve utilizar informações pessoais óbvias. Também é importante evitar reutilizar a mesma palavra-passe noutras contas.',
+          'Uma palavra-passe deve ser longa e misturar palavras, números e símbolos, sem incluir dados pessoais óbvios como nomes ou datas.',
       },
       {
         id: 'w1-q2',
@@ -1131,16 +1150,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w1-q9',
-        text: 'Um jogo online pede-te a tua localização, fotografia, número de telefone e palavra-passe para desbloquear uma funcionalidade gratuita. O que deves fazer?',
+        text: 'Um jogo online pede a tua localização, fotografia e palavra-passe para te dar um fato grátis. O que deves fazer?',
         options: [
-          'Pensar se esses dados são realmente necessários, evitar partilhar informações pessoais e pedir ajuda a um adulto se tiveres dúvidas.',
-          'Fornecer todos os dados porque a funcionalidade é gratuita.',
-          'Fornecer apenas a palavra-passe, porque os outros dados não são importantes.',
-          'Fornecer os dados e apagar a conta depois de desbloquear a funcionalidade.',
+          'Recusar partilhar esses dados privados e pedir conselho a um adulto.',
+          'Dar apenas a localização e a senha para desbloquear o fato rápido.',
+          'Inventar dados falsos de um colega da turma para conseguir o fato.',
+          'Aceitar partilhar tudo porque os jogos online são sempre seguros.',
         ],
         correctIndex: 0,
         explanation:
-          'Uma funcionalidade gratuita não significa que devamos fornecer todos os nossos dados. Devemos pensar sobre a necessidade dessas informações e proteger a nossa privacidade.',
+          'Nenhum brinde de jogo justifica entregar dados privados ou senhas. Deves proteger a tua privacidade e falar com um adulto.',
       },
       {
         id: 'w1-q10',
@@ -1164,12 +1183,12 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
     questions: [
       {
         id: 'w2-q1',
-        text: 'O teu professor pediu-te para descobrir quais são alguns dos animais em perigo de extinção em Portugal. Qual destas pesquisas é a mais adequada para começar?',
+        text: 'O teu professor pediu-te para pesquisar os animais em risco de extinção em Portugal. Qual destas pesquisas é a mais eficaz?',
         options: [
-          'animais',
-          'coisas sobre animais',
+          'animais selvagens do mundo',
+          'notícias gerais sobre animais',
           'animais em perigo de extinção em Portugal',
-          'Portugal',
+          'histórias sobre a floresta portuguesa',
         ],
         correctIndex: 2,
         explanation:
@@ -1218,14 +1237,14 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
         id: 'w2-q5',
         text: 'Encontraste uma informação importante sobre um novo jogo que vai ser lançado. Como deves confirmar se é verdadeira?',
         options: [
-          'Acreditar logo porque aparece no primeiro resultado do motor de busca.',
-          'Consultar outra fonte diferente e independente para verificar se a informação também aparece aí e quem a publicou.',
-          'Partilhar com todos os teus contactos antes de ler o texto.',
-          'Procurar uma página que apenas tenha copiado o mesmo texto.',
+          'Acreditar logo porque é o primeiro resultado do motor de busca.',
+          'Confirmar a notícia na página oficial dos criadores do jogo.',
+          'Partilhar com todos os contactos para ver o que eles acham.',
+          'Procurar vídeos no YouTube com o maior número de gostos.',
         ],
         correctIndex: 1,
         explanation:
-          'Quanto mais importante for a informação, mais importante é confirmar noutra fonte diferente e independente.',
+          'Quanto mais importante for a informação, mais importante é confirmar numa fonte oficial e independente.',
       },
       {
         id: 'w2-q6',
@@ -1281,16 +1300,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w2-q10',
-        text: 'Ao fazer uma pesquisa na Internet para um trabalho da escola, qual é a ordem correta da Regra do Detetive Digital?',
+        text: 'Ao fazer uma pesquisa na Internet para a escola, qual é a ordem correta da Regra do Detetive Digital?',
         options: [
-          'Copiar o primeiro resultado → entregar sem ler → fechar o computador.',
-          'Encontrar a informação com palavras certas → verificar quem publicou e a data → confirmar noutra fonte → só depois utilizar ou partilhar.',
-          'Escolher o site com as cores mais bonitas e copiar o texto.',
-          'Partilhar nas redes sociais e perguntar aos amigos se é verdade.',
+          'Pesquisar termos precisos → verificar autoria e data → confirmar noutra fonte → utilizar.',
+          'Copiar logo o primeiro resultado → imprimir o trabalho → entregar sem fazer revisão.',
+          'Escolher o site com as ilustrações mais coloridas → aceitar tudo o que está escrito.',
+          'Publicar nas redes sociais → perguntar aos amigos se é verdade → só depois ler.',
         ],
-        correctIndex: 1,
+        correctIndex: 0,
         explanation:
-          'A Regra do Detetive Digital é clara: encontra com pesquisa cuidada, verifica autoria e data, confirma e só depois utiliza ou partilha.',
+          'A Regra do Detetive Digital é clara: encontra com pesquisa cuidada, verifica autoria e data, confirma e só depois utiliza.',
       },
     ],
   },

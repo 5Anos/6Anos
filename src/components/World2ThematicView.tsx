@@ -15,7 +15,11 @@ import {
   HelpCircle,
   Clock,
   Layers,
+  Star,
+  Zap,
+  AlertOctagon,
 } from 'lucide-react';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -515,38 +519,6 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 p-6 sm:p-8 text-white shadow-lg shadow-blue-500/10">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-              <span>Quartel-General do Detetive Digital</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
-              Mundo 2: A Lupa da Verdade na Internet! 🔍🕵️‍♂️
-            </h2>
-            <p className="text-xs sm:text-sm text-blue-50 font-medium leading-relaxed">
-              Olá, jovem detetive! Neste Mundo vais aprender a pesquisar como um verdadeiro cientista, descobrir quem escreveu os artigos, verificar datas e desmascarar notícias falsas antes de caíres em armadilhas!
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
-              <Search className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase text-blue-100 block">
-                Progresso no Mundo 2
-              </span>
-              <span className="text-xl font-black text-white">
-                {world.average > 0 ? `${world.average}%` : '0%'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-3xl flex items-center justify-between text-emerald-950 shadow-xs animate-in fade-in">
@@ -577,59 +549,65 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       {/* ========================================================= */}
       {activeTopicId === 'w2-t1' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <Search className="w-6 h-6" />
+          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Search className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-blue-600 tracking-wider block">
-                  Tema 1 do Mundo 2
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 1/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic1?.title || 'Pesquisar melhor'}
+                  Radar de Palavras-Chave 🔍
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como fazer pesquisas certeiras como um cientista.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-keywords')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-keywords')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-blue-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: PESQUISAR MELHOR
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Pesquisar com Precisão
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic1?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic1?.takeaway && (
-              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                  ✨ {topic1.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🔍</div>
+                <h5 className="text-xs font-black text-blue-900">Palavras Precisas</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Se pesquisares apenas "jogos", o motor de busca perde-se. Se pesquisares termos específicos, encontras logo a resposta certa!
                 </p>
               </div>
-            )}
 
-            <TopicIllustrationCard topicId="w2-t1" />
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🎯</div>
+                <h5 className="text-xs font-black text-amber-900">Regra do Detetive</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Usa termos técnicos e claros (ex.: "distância da Terra à Lua em km") e evita perguntas vagas de conversa.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE */}
@@ -792,13 +770,29 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             })()}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Pesquisas precisas com palavras-chave certas encontram respostas muito mais depressa.</li>
+              <li>Evita termos vagos como "coisas" ou "jogos" para não te perderes em anúncios e vídeos soltos.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente pesquisa! Agora vamos descobrir quem escreveu os artigos!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w2-t2')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 2: Quem criou a informação?</span>
+              <span>👉 Próxima Missão: 2. Quem é o Autor?</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -810,59 +804,65 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       {/* ========================================================= */}
       {activeTopicId === 'w2-t2' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <UserCheck className="w-6 h-6" />
+          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
+                <UserCheck className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-blue-600 tracking-wider block">
-                  Tema 2 do Mundo 2
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 2/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic2?.title || 'Quem criou a informação?'}
+                  Quem é o Autor? 🕵️
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais aprender a verificar quem escreveu a informação antes de confiar.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-author-check')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-author-check')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-blue-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: QUEM CRIOU A INFORMAÇÃO?
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: A Pista da Autoria
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic2?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic2?.takeaway && (
-              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                  ✨ {topic2.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">👤</div>
+                <h5 className="text-xs font-black text-blue-900">Quem Escreveu?</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Qualquer pessoa pode criar um blog ou vídeo. Procura sempre o nome do autor e a sua profissão!
                 </p>
               </div>
-            )}
 
-            <TopicIllustrationCard topicId="w2-t2" />
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🏛️</div>
+                <h5 className="text-xs font-black text-emerald-900">Fontes Oficiais</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Sites de universidades, museus, escolas e enciclopédias têm especialistas que confirmam os factos.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -970,13 +970,29 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Verifica sempre quem é o autor e se representa uma entidade credível.</li>
+              <li>Saber quem escreveu é essencial, mas confirma se a informação tem provas e referências.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Ótimo olho para os autores! Vamos verificar as datas das notícias?</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w2-t3')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 3: Verificar a data</span>
+              <span>👉 Próxima Missão: 3. Linha do Tempo</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -988,59 +1004,65 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       {/* ========================================================= */}
       {activeTopicId === 'w2-t3' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <Calendar className="w-6 h-6" />
+          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Calendar className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-blue-600 tracking-wider block">
-                  Tema 3 do Mundo 2
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 3/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic3?.title || 'Verificar a data'}
+                  Linha do Tempo ⏳
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir por que razão a data da notícia faz toda a diferença.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-date-verifier')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-date-verifier')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-blue-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: VERIFICAR A DATA
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: A Pista do Tempo
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic3?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic3?.takeaway && (
-              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                  ✨ {topic3.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">⏳</div>
+                <h5 className="text-xs font-black text-blue-900">O Mundo Muda</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Uma notícia sobre ciência ou regras escolares de há 10 anos pode já não ser válida hoje.
                 </p>
               </div>
-            )}
 
-            <TopicIllustrationCard topicId="w2-t3" />
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">📅</div>
+                <h5 className="text-xs font-black text-amber-900">Olho na Data</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Antes de partilhar ou citar, procura sempre o dia, mês e ano em que o artigo foi publicado.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -1140,13 +1162,29 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>A ciência e a tecnologia evoluem: uma notícia antiga pode já não ser verdadeira hoje.</li>
+              <li>Antes de usar dados num trabalho escolar, confirma sempre o ano em que foram publicados.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente! Agora vamos aprender a cruzar fontes e comparar pistas!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w2-t4')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 4: Comparar fontes</span>
+              <span>👉 Próxima Missão: 4. Comparar Pistas</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1158,59 +1196,65 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       {/* ========================================================= */}
       {activeTopicId === 'w2-t4' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <GitCompare className="w-6 h-6" />
+          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
+                <GitCompare className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-blue-600 tracking-wider block">
-                  Tema 4 do Mundo 2
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 4/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic4?.title || 'Comparar fontes'}
+                  Comparar Pistas 📑
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais aprender a não confiar no primeiro resultado e a cruzar fontes.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-source-compare')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-source-compare')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-blue-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: COMPARAR FONTES
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Cruzar Informação
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic4?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic4?.takeaway && (
-              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                  ✨ {topic4.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">📑</div>
+                <h5 className="text-xs font-black text-blue-900">Nunca Fiques Pela Primeira</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Compara sempre duas ou três fontes diferentes para ver se todos dizem o mesmo facto.
                 </p>
               </div>
-            )}
 
-            <TopicIllustrationCard topicId="w2-t4" />
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">⚖️</div>
+                <h5 className="text-xs font-black text-purple-900">Facto vs Opinião</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Um facto é uma verdade comprovada ("A Terra gira à volta do Sol"). Uma opinião é o que alguém acha ("Este jogo é o melhor!").
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -1429,13 +1473,29 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Nunca confies apenas numa fonte: cruza com outros sites para ver se os factos coincidem.</li>
+              <li>Distingue factos reais e científicos de opiniões ou boatos sensacionalistas.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Espetacular! Falta apenas o treino de caça a boatos e notícias falsas!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w2-t5')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 5: Pensar antes de partilhar</span>
+              <span>👉 Próxima Missão: 5. Caça a Boatos</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1447,59 +1507,65 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       {/* ========================================================= */}
       {activeTopicId === 'w2-t5' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <Eye className="w-6 h-6" />
+          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
+                <AlertOctagon className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-blue-600 tracking-wider block">
-                  Tema 5 do Mundo 2
+                <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 5/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic5?.title || 'Pensar antes de partilhar'}
+                  Caça a Boatos & Fake News 🚨
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais desmascarar notícias falsas e títulos armadilha.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-news-detective')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-news-detective')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-blue-100 text-blue-800 border border-blue-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-blue-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: PENSAR ANTES DE PARTILHAR
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Pára Antes de Partilhar!
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic5?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic5?.takeaway && (
-              <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-blue-800 italic">
-                  ✨ {topic5.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🎣</div>
+                <h5 className="text-xs font-black text-rose-900">Títulos Armadilha (Clickbait)</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Títulos exagerados e dramáticos querem apenas cliques para ganhar dinheiro. Desconfia sempre!
                 </p>
               </div>
-            )}
 
-            <TopicIllustrationCard topicId="w2-t5" />
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🛑</div>
+                <h5 className="text-xs font-black text-emerald-900">Não Espalhes Dúvidas</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Se tens dúvidas se uma notícia é real, não a partilhes com amigos. Pergunta antes a um adulto!
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -1721,13 +1787,33 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 🎯 Conclusão / Avaliação */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-blue-50/80 border-2 border-blue-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-blue-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Pára, verifica e compara antes de clicar em partilhar com os teus amigos ou família.</li>
+              <li>Títulos alarmantes ou milagrosos querem cliques para publicidade, não verdade científica.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div>
+              <span className="text-xs font-black text-blue-700 uppercase tracking-wider block">
+                🎉 Todas as 5 Micro-Missões de Investigação Concluídas!
+              </span>
+              <h4 className="text-lg sm:text-xl font-black text-slate-900 mt-0.5">
+                Pronto para a Missão 6/6: Quiz do Detetive (10 Perguntas)? 🏆
+              </h4>
+            </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-8 py-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer shrink-0"
             >
-              <span>Avançar para a Avaliação Final do Mundo 2</span>
+              <span>👉 Fazer a Missão 6/6: Quiz do Detetive</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1738,20 +1824,20 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       {/* SEPARADOR 6: AVALIAÇÃO FINAL */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto shadow-xs">
-            <Award className="w-8 h-8" />
+        <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-10 shadow-md max-w-3xl mx-auto space-y-6 text-center">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-500/20">
+            <Award className="w-10 h-10" />
           </div>
 
-          <div>
-            <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-              {world.title}
+          <div className="space-y-2">
+            <span className="text-xs uppercase font-black text-blue-600 tracking-wider">
+              🏆 MISSÃO 6/6 · O DESAFIO FINAL
             </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 10 Perguntas
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+              Quiz do Detetive Digital 🔍
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Demonstra que sabes pesquisar com rigor, identificar autores credíveis, verificar a data e comparar fontes para desbloquear o Mundo 3!
+            <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+              Demonstra que sabes pesquisar com rigor, identificar autores credíveis, verificar a data e comparar fontes. Acerta mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% para desbloquear o Mundo 3!
             </p>
           </div>
 

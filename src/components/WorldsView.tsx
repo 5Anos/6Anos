@@ -170,88 +170,88 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   };
 
   const world1Tabs = [
-    { id: 'w1-t1', label: '1. Palavras-passe Secretas 🗝️', icon: Key, simId: 'sim-password' },
-    { id: 'w1-t2', label: '2. Caça ao Phishing 🎣', icon: Mail, simId: 'sim-phishing' },
+    { id: 'w1-t1', label: '🎯 Missão 1/6: Palavras-passe 🗝️', icon: Key, simId: 'sim-password' },
+    { id: 'w1-t2', label: '🎯 Missão 2/6: Caça ao Phishing 🎣', icon: Mail, simId: 'sim-phishing' },
     {
       id: 'w1-t3',
-      label: '3. Escudo de Privacidade 🛡️',
+      label: '🎯 Missão 3/6: Privacidade 🛡️',
       icon: ShieldCheck,
       simId: 'sim-privacy',
     },
     {
       id: 'w1-t4',
-      label: '4. Rasto Digital 👣',
+      label: '🎯 Missão 4/6: Rasto Digital 👣',
       icon: Footprints,
       simId: 'sim-digital-footprint',
     },
     {
       id: 'w1-t5',
-      label: '5. Super-Corpo & Bem-Estar 🕹️',
+      label: '🎯 Missão 5/6: Super-Corpo 🕹️',
       icon: Heart,
       simId: 'sim-digital-wellbeing',
     },
     {
       id: 'avaliacao',
-      label: '6. Quiz do Guardião 🏆',
+      label: '🏆 Missão 6/6: Quiz do Guardião',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world2Tabs = [
-    { id: 'w2-t1', label: '1. Radar de Palavras-Chave 🔍', icon: Search, simId: 'sim-keywords' },
-    { id: 'w2-t2', label: '2. Quem é o Autor? 🕵️', icon: UserCheck, simId: 'sim-author' },
-    { id: 'w2-t3', label: '3. Máquina do Tempo ⏳', icon: Calendar, simId: 'sim-date' },
-    { id: 'w2-t4', label: '4. Comparar Pistas 📑', icon: Layers, simId: 'sim-compare' },
-    { id: 'w2-t5', label: '5. Caça a Boatos & Fake News 🚨', icon: AlertOctagon, simId: 'sim-news-detective' },
+    { id: 'w2-t1', label: '🎯 Missão 1/6: Radar de Pesquisa 🔍', icon: Search, simId: 'sim-keywords' },
+    { id: 'w2-t2', label: '🎯 Missão 2/6: Quem é o Autor? 🕵️', icon: UserCheck, simId: 'sim-author' },
+    { id: 'w2-t3', label: '🎯 Missão 3/6: Linha do Tempo ⏳', icon: Calendar, simId: 'sim-date' },
+    { id: 'w2-t4', label: '🎯 Missão 4/6: Comparar Pistas 📑', icon: Layers, simId: 'sim-compare' },
+    { id: 'w2-t5', label: '🎯 Missão 5/6: Caça a Boatos 🚨', icon: AlertOctagon, simId: 'sim-news-detective' },
     {
       id: 'avaliacao',
-      label: '6. Quiz do Detetive 🏆',
+      label: '🏆 Missão 6/6: Quiz do Detetive',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world3Tabs = [
-    { id: 'w3-t1', label: '1. Conversas & Emojis 💬', icon: MessageSquare, simId: 'sim-digital-comm' },
-    { id: 'w3-t2', label: '2. Netiqueta Fixe ✨', icon: Smile, simId: 'sim-netiquette' },
-    { id: 'w3-t3', label: '3. Super-Equipa Online 🤝', icon: Users, simId: 'sim-collab' },
-    { id: 'w3-t4', label: '4. Direitos de Autor 🎨', icon: ShieldCheck, simId: 'sim-copyright' },
-    { id: 'w3-t5', label: '5. Caça ao Plágio & Créditos 📜', icon: FileText, simId: 'sim-plagiarism' },
-    { id: 'w3-t6', label: '6. Licenças Creative Commons 🔓', icon: Share2, simId: 'sim-cc' },
+    { id: 'w3-t1', label: '🎯 Missão 1/7: Conversas & Emojis 💬', icon: MessageSquare, simId: 'sim-digital-comm' },
+    { id: 'w3-t2', label: '🎯 Missão 2/7: Netiqueta Fixe ✨', icon: Smile, simId: 'sim-netiquette' },
+    { id: 'w3-t3', label: '🎯 Missão 3/7: Super-Equipa Online 🤝', icon: Users, simId: 'sim-collab' },
+    { id: 'w3-t4', label: '🎯 Missão 4/7: Direitos de Autor 🎨', icon: ShieldCheck, simId: 'sim-copyright' },
+    { id: 'w3-t5', label: '🎯 Missão 5/7: Caça ao Plágio 📜', icon: FileText, simId: 'sim-plagiarism' },
+    { id: 'w3-t6', label: '🎯 Missão 6/7: Licenças Livres 🔓', icon: Share2, simId: 'sim-cc' },
     {
       id: 'avaliacao',
-      label: '7. Quiz do Criador 🏆',
+      label: '🏆 Missão 7/7: Quiz do Criador',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world4Tabs = [
-    { id: 'w4-t1', label: '1. Fatiar Problemas 🧩', icon: Layers, simId: 'sim-decomposicao' },
-    { id: 'w4-t2', label: '2. Comandar com Algoritmos 🤖', icon: Code, simId: 'sim-block-coding' },
-    { id: 'w4-t3', label: '3. Decisões: SE e SENÃO 🔀', icon: GitBranch, simId: 'sim-algoritmos' },
-    { id: 'w4-t4', label: '4. Super-Ciclos Repetir 🔁', icon: Repeat, simId: 'sim-ciclos' },
-    { id: 'w4-t5', label: '5. Caçadores de Dados 📊', icon: BarChart2, simId: 'sim-dados' },
-    { id: 'w4-t6', label: '6. Caça aos Bugs 🐞', icon: AlertOctagon, simId: 'sim-debugging' },
+    { id: 'w4-t1', label: '🎯 Missão 1/7: Fatiar Problemas 🧩', icon: Layers, simId: 'sim-decomposicao' },
+    { id: 'w4-t2', label: '🎯 Missão 2/7: O Robô dos Algoritmos 🤖', icon: Code, simId: 'sim-block-coding' },
+    { id: 'w4-t3', label: '🎯 Missão 3/7: Decisões: SE e SENÃO 🔀', icon: GitBranch, simId: 'sim-algoritmos' },
+    { id: 'w4-t4', label: '🎯 Missão 4/7: Super-Ciclos 🔁', icon: Repeat, simId: 'sim-ciclos' },
+    { id: 'w4-t5', label: '🎯 Missão 5/7: Caçadores de Dados 📊', icon: BarChart2, simId: 'sim-dados' },
+    { id: 'w4-t6', label: '🎯 Missão 6/7: Caça aos Bugs 🐞', icon: AlertOctagon, simId: 'sim-debugging' },
     {
       id: 'avaliacao',
-      label: '7. Quiz do Engenheiro 🏆',
+      label: '🏆 Missão 7/7: Quiz do Engenheiro',
       icon: CheckCircle2,
       simId: 'assessment',
     },
   ];
 
   const world5Tabs = [
-    { id: 'w5-t1', label: '1. O que é a IA? 🧠', icon: Cpu, simId: 'sim-ia-concepts' },
-    { id: 'w5-t2', label: '2. Máquinas que Criam 🎨', icon: Wand2, simId: 'sim-ai-generation' },
-    { id: 'w5-t3', label: '3. Prompts Mágicos ✨', icon: Sparkles, simId: 'sim-prompt' },
-    { id: 'w5-t4', label: '4. Quando a IA Alucina 🔎', icon: AlertCircle, simId: 'sim-hallucination' },
-    { id: 'w5-t5', label: '5. Cofre Secreto & Privacidade 🔐', icon: Lock, simId: 'sim-ai-responsibility' },
-    { id: 'w5-t6', label: '6. O Humano é Quem Manda! 🚀', icon: Brain, simId: 'sim-recommendation' },
+    { id: 'w5-t1', label: '🎯 Missão 1/7: O que é a IA? 🧠', icon: Cpu, simId: 'sim-ia-concepts' },
+    { id: 'w5-t2', label: '🎯 Missão 2/7: Máquinas que Criam 🎨', icon: Wand2, simId: 'sim-ai-generation' },
+    { id: 'w5-t3', label: '🎯 Missão 3/7: Prompts Mágicos ✨', icon: Sparkles, simId: 'sim-prompt' },
+    { id: 'w5-t4', label: '🎯 Missão 4/7: Quando a IA Falha 🔎', icon: AlertCircle, simId: 'sim-hallucination' },
+    { id: 'w5-t5', label: '🎯 Missão 5/7: Cofre & Privacidade 🔐', icon: Lock, simId: 'sim-ai-responsibility' },
+    { id: 'w5-t6', label: '🎯 Missão 6/7: O Humano é Quem Manda! 🚀', icon: Brain, simId: 'sim-recommendation' },
     {
       id: 'avaliacao',
-      label: '7. Quiz da IA 🏆',
+      label: '🏆 Missão 7/7: Quiz da IA',
       icon: CheckCircle2,
       simId: 'assessment',
     },
@@ -469,22 +469,15 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
               </div>
             </div>
 
-            {/* Intro text from prompt */}
+            {/* Micro-Mission Goal Banner */}
             {(() => {
               const catalogIntro = WORLDS_DATA.find((w) => w.id === currentWorld.id)?.intro;
               const intro = currentWorld.intro || catalogIntro;
-              if (!intro) return null;
+              if (!intro?.mission) return null;
               return (
-                <div className="bg-white/80 border border-blue-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-700 space-y-1.5 leading-relaxed">
-                  <p className="font-bold text-blue-900">{intro.greeting}</p>
-                  {intro.description?.map((p, idx) => (
-                    <p key={idx}>{p}</p>
-                  ))}
-                  {intro.mission && (
-                    <p className="font-extrabold text-blue-600 pt-1">
-                      {intro.mission}
-                    </p>
-                  )}
+                <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 border border-blue-200/80 rounded-2xl px-4 py-2 text-xs font-bold">
+                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>{intro.mission}</span>
                 </div>
               );
             })()}

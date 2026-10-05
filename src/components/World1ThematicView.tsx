@@ -566,39 +566,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   };
 
   return (
-    <div className="space-y-8">
-      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 sm:p-8 text-white shadow-lg shadow-emerald-500/10">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-              <span>Quartel-General do Guardião Digital</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
-              Mundo 1: O Teu Escudo Protetor na Internet! 🛡️⚡
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-50 font-medium leading-relaxed">
-              Olá, explorador! Neste Mundo vais aprender a defender as tuas contas de jogos, caçar armadilhas falsas, proteger o teu quarto secreto de dados e cuidar do teu corpo como um verdadeiro campeão!
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
-              <Shield className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase text-emerald-100 block">
-                Progresso no Mundo 1
-              </span>
-              <span className="text-xl font-black text-white">
-                {world.average > 0 ? `${world.average}%` : '0%'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-6">
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
         <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-emerald-950 shadow-md animate-in fade-in">
@@ -640,11 +608,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-xs font-black text-blue-600 uppercase tracking-wider block">
-                  Treino 1 · Missão de Guardião
+                  🎯 MISSÃO 1/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  O Cofre das Palavras-Passe Invencíveis 🗝️
+                  O Cofre das Palavras-Passe 🔐
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como criar uma palavra-passe mais segura.
+                </p>
               </div>
             </div>
 
@@ -663,43 +634,40 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 HISTÓRIA & DICAS DO MESTRE (Linguagem para crianças) */}
-          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="flex items-center gap-2.5 text-blue-700">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-blue-700">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                Como Criar a Senha de um Super-Herói! 🛡️
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: O Segredo da Senha
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🗝️</div>
-                <h5 className="text-sm font-black text-blue-900">A Chave do Teu Castelo</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A tua palavra-passe protege as tuas contas de videojogos, escola e vídeos. Se for fácil, qualquer pessoa pode entrar e mexer nas tuas coisas!
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🗝️</div>
+                <h5 className="text-xs font-black text-blue-900">A Chave do Castelo</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Protege as tuas contas de jogos e da escola contra pessoas não autorizadas.
                 </p>
               </div>
 
-              <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🧠</div>
-                <h5 className="text-sm font-black text-amber-900">O Truque da "Frase Maluca"</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Em vez de "123456" ou o teu nome, junta palavras divertidas: <em>"Gato_Ninja_Comeu_9_Pizzas!"</em>. Fácil para ti lembrar, impossível para outros adivinhar!
+              <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🧠</div>
+                <h5 className="text-xs font-black text-amber-900">A Frase Maluca</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Junta palavras engraçadas e números: <em>"Gato_Ninja_Comeu_9_Pizzas!"</em>.
                 </p>
               </div>
 
-              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🤫</div>
-                <h5 className="text-sm font-black text-emerald-900">Segredo Sagrado!</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Nunca dês a tua palavra-passe a amigos ou colegas, nem a troco de doces ou moedas de jogo. Só os teus pais ou encarregados de educação podem saber!
+              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🤫</div>
+                <h5 className="text-xs font-black text-emerald-900">Segredo Pessoal</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  A tua palavra-passe é pessoal. Não a partilhes com amigos nem colegas.
                 </p>
               </div>
             </div>
-
-            {/* Dica Visual Ilustrativa */}
-            <TopicIllustrationCard topicId="w1-t1" />
           </div>
 
           {/* 🎮 SIMULADOR: O LABORATÓRIO DE PALAVRAS-PASSE */}
@@ -881,17 +849,29 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* AVANÇAR DE MISSÃO */}
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border-2 border-emerald-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-emerald-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Uma senha forte é comprida (10+ caracteres) e usa a técnica da Frase Maluca.</li>
+              <li>A tua palavra-passe é pessoal e secreta — não a partilhes com amigos.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Concluíste o treino de palavras-passe! Pronto para o próximo desafio?</span>
+              <span>Excelente! Agora vamos aprender a desmascarar armadilhas e phishing!</span>
             </div>
             <button
               onClick={() => onNavigateTopic('w1-t2')}
               className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 2. Caça ao Phishing</span>
+              <span>👉 Próxima Missão: 2. Caça ao Phishing</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -911,11 +891,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
-                  Treino 2 · Missão de Guardião
+                  🎯 MISSÃO 2/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  Radar Anti-Phishing: Caça aos Iscos Falsos! 🎣
+                  Radar Anti-Phishing: Caça aos Iscos 🎣
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais aprender a reconhecer mensagens falsas e armadilhas online.
+                </p>
               </div>
             </div>
 
@@ -934,44 +917,32 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 HISTÓRIA DO DETETIVE (Linguagem para crianças) */}
-          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-800">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                O que é "Phishing" e Como Não Morder o Isco? 🐟
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Não Mordas o Isco!
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🎣</div>
-                <h5 className="text-sm font-black text-amber-900">A Pesca de Palavras-Passe</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Phishing vem de "pescar": pessoas mal-intencionadas lançam mensagens com iscos atrativos (como jogos ou prémios grátis) para te enganar e roubar a tua conta!
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🎣</div>
+                <h5 className="text-xs font-black text-amber-900">O Que É Phishing?</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Mensagens que prometem prémios grátis (ex: Robux) ou metem medo para te roubar a senha!
                 </p>
               </div>
 
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🚨</div>
-                <h5 className="text-sm font-black text-rose-900">Sinais de Alerta Vermelho</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Desconfia logo se a mensagem te prometer moedas de videojogos, disser que tens apenas 5 minutos para responder ou tiver links estranhos com letras trocadas!
-                </p>
-              </div>
-
-              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🛑</div>
-                <h5 className="text-sm font-black text-blue-900">A Regra dos 3 Passos</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  <strong>1. Pára!</strong> Não cliques logo. <br />
-                  <strong>2. Observa</strong> quem mandou a mensagem. <br />
-                  <strong>3. Pergunta</strong> a um professor ou aos teus pais!
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🛑</div>
+                <h5 className="text-xs font-black text-rose-900">Regra do Detetive</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Se parece bom demais para ser verdade, é cilada! Pára e pergunta a um professor ou aos teus pais.
                 </p>
               </div>
             </div>
-
-            <TopicIllustrationCard topicId="w1-t2" />
           </div>
 
           {/* 🎮 SIMULADOR: RADAR DE PHISHING EM FORMATO SMARTPHONE / NOTIFICAÇÃO */}
@@ -1071,7 +1042,19 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             )}
           </div>
 
-          {/* AVANÇAR DE MISSÃO */}
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Mensagens com ofertas milagrosas ou urgência são tentativas de phishing.</li>
+              <li>Nunca cliques em links estranhos nem introduzas a tua palavra-passe em sites desconhecidos.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500 fill-current" />
@@ -1081,7 +1064,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               onClick={() => onNavigateTopic('w1-t3')}
               className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 3. O Escudo de Privacidade</span>
+              <span>👉 Próxima Missão: 3. O Escudo de Privacidade</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1101,11 +1084,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-xs font-black text-emerald-600 uppercase tracking-wider block">
-                  Treino 3 · Missão de Guardião
+                  🎯 MISSÃO 3/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  O Escudo de Privacidade: O Teu Quarto Digital 🚪🛡️
+                  O Escudo de Privacidade 🛡️
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir o que guardar a sete chaves no teu cofre pessoal.
+                </p>
               </div>
             </div>
 
@@ -1124,42 +1110,32 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 HISTÓRIA DO ESCUDO DE PRIVACIDADE (Linguagem para crianças) */}
-          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="flex items-center gap-2.5 text-emerald-800">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-emerald-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-emerald-800">
               <Sparkles className="w-5 h-5 text-emerald-500" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                O que Podes Mostrar e o que Fica Guardado no Cofre?
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: O Teu Cofre Pessoal
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🔒</div>
-                <h5 className="text-sm font-black text-emerald-900">Super Secreto (Privado)</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Morada de casa, número de telemóvel, senhas e caminhos para a escola nunca devem ser mostrados na Internet. Guardam-se a sete chaves!
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🔒</div>
+                <h5 className="text-xs font-black text-emerald-900">Super Secreto</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Morada, telemóvel e escola devem ficar sempre guardados a sete chaves!
                 </p>
               </div>
 
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🤔</div>
-                <h5 className="text-sm font-black text-amber-900">Pára e Pensa (Autorização)</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Fotos com os teus colegas de turma ou vídeos do recreio: tens sempre de pedir autorização a todos antes de publicar. Respeito em primeiro lugar!
-                </p>
-              </div>
-
-              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🌍</div>
-                <h5 className="text-sm font-black text-blue-900">Livre para o Mundo (Público)</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Os teus desenhos, histórias criadas por ti, os desportos que adoras e trabalhos escolares sem dados pessoais são excelentes para partilhar!
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🤔</div>
+                <h5 className="text-xs font-black text-amber-900">Pede Autorização</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Fotos com colegas exigem sempre que lhes perguntes primeiro se podes partilhar.
                 </p>
               </div>
             </div>
-
-            <TopicIllustrationCard topicId="w1-t3" />
           </div>
 
           {/* 🎮 SIMULADOR: CLASSIFICADOR DE PRIVACIDADE */}
@@ -1267,7 +1243,19 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             )}
           </div>
 
-          {/* AVANÇAR DE MISSÃO */}
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-emerald-50/80 border-2 border-emerald-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-emerald-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Dados como morada e telemóvel são privados e nunca se partilham com desconhecidos.</li>
+              <li>Pede sempre licença antes de partilhar fotos ou informações de outras pessoas.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500 fill-current" />
@@ -1277,7 +1265,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               onClick={() => onNavigateTopic('w1-t4')}
               className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 4. O Rasto Digital</span>
+              <span>👉 Próxima Missão: 4. O Rasto Digital</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1297,11 +1285,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-xs font-black text-indigo-600 uppercase tracking-wider block">
-                  Treino 4 · Missão de Guardião
+                  🎯 MISSÃO 4/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  O Rasto Digital: As Tuas Pegadas no Ciberespaço 👣✨
+                  O Rasto Digital 👣
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir que marcas deixas quando navegas na Internet.
+                </p>
               </div>
             </div>
 
@@ -1320,34 +1311,32 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 HISTÓRIA DO RASTO DIGITAL (Linguagem para crianças) */}
-          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="flex items-center gap-2.5 text-indigo-800">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-indigo-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-indigo-800">
               <Sparkles className="w-5 h-5 text-indigo-500" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                A Internet Tem Memória de Elefante! 🐘
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Pensa Antes de Publicar!
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🏖️</div>
-                <h5 className="text-sm font-black text-indigo-900">Caminhar na Areia Digital</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Cada foto que publicas, vídeo que partilhas ou comentário que escreves deixa uma pegada luminosa. Na net não há borracha mágica: pensa sempre duas vezes antes de publicar!
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">👣</div>
+                <h5 className="text-xs font-black text-indigo-900">O Teu Rasto</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Mesmo quando apagas algo, alguém pode já ter guardado uma cópia ou feito uma captura de ecrã. Por isso, pensa antes de publicar!
                 </p>
               </div>
 
-              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🤝</div>
-                <h5 className="text-sm font-black text-purple-900">Ser Amigo Online (Zero Bullying)</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Trata os outros como gostarias que te tratassem a ti! Elogia os teus colegas, ajuda quem está com dúvidas e nunca partilhes coisas para gozar com alguém.
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🤝</div>
+                <h5 className="text-xs font-black text-purple-900">Respeito Online</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Sê simpático, ajuda os teus colegas e nunca participes em brincadeiras de mau gosto ou cyberbullying.
                 </p>
               </div>
             </div>
-
-            <TopicIllustrationCard topicId="w1-t4" />
           </div>
 
           {/* 🎮 SIMULADOR: AVALIADOR DE PEGADA DIGITAL */}
@@ -1454,7 +1443,19 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             )}
           </div>
 
-          {/* AVANÇAR DE MISSÃO */}
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-indigo-50/80 border-2 border-indigo-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-indigo-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Mesmo ao apagar, alguém pode tirar screenshot. Pensa antes de publicar!</li>
+              <li>Usa a internet para apoiar e respeitar os teus colegas de turma.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500 fill-current" />
@@ -1464,7 +1465,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               onClick={() => onNavigateTopic('w1-t5')}
               className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para: 5. Super-Corpo & Bem-Estar</span>
+              <span>👉 Próxima Missão: 5. Super-Corpo & Bem-Estar</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1484,11 +1485,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               </div>
               <div>
                 <span className="text-xs font-black text-rose-600 uppercase tracking-wider block">
-                  Treino 5 · Missão de Guardião
+                  🎯 MISSÃO 5/6
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  Super-Corpo & Bem-Estar Gamer 🕹️🧘
+                  Super-Corpo & Bem-Estar 🕹️
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais aprender os hábitos de um verdadeiro campeão dos jogos.
+                </p>
               </div>
             </div>
 
@@ -1507,42 +1511,32 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 📖 HISTÓRIA DO SUPER-CORPO (Linguagem para crianças) */}
-          <div className="bg-white border-2 border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="flex items-center gap-2.5 text-rose-800">
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-rose-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-rose-800">
               <Sparkles className="w-5 h-5 text-rose-500" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                Como Ter Energia Máxima e Cuidar dos Olhos e Coluna! ⚡
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Energia e Saúde Gamer
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🚀</div>
-                <h5 className="text-sm font-black text-rose-900">Postura de Astronauta</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Costas direitas e apoiadas, pés bem assentes no chão e ecrã à altura dos olhos. Nada de ficar todo curvado feito caracol! 🐌
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🚀</div>
+                <h5 className="text-xs font-black text-rose-900">Postura de Astronauta</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Costas direitas apoiadas na cadeira, pés no chão e ecrã à distância de um braço.
                 </p>
               </div>
 
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">👀</div>
-                <h5 className="text-sm font-black text-amber-900">Regra dos 20-20-20</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  A cada 20 minutos de ecrã, faz uma pausa de 20 segundos para olhar pela janela para longe. Os teus olhos relaxam e ficas sem dor de cabeça!
-                </p>
-              </div>
-
-              <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-2">
-                <div className="text-2xl">🦇</div>
-                <h5 className="text-sm font-black text-indigo-900">Adeus Modo Morcego</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Nada de telemóveis no escuro debaixo dos lençóis! Desliga os ecrãs 30 minutos antes de dormir para o teu cérebro descansar em pleno.
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">👀</div>
+                <h5 className="text-xs font-black text-amber-900">Regra dos 20-20-20</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  A cada 20 minutos de ecrã, descansa os teus olhos 20 segundos olhando ao longe!
                 </p>
               </div>
             </div>
-
-            <TopicIllustrationCard topicId="w1-t5" />
           </div>
 
           {/* 🎮 SIMULADOR: TESTE DE HÁBITOS SAUDÁVEIS */}
@@ -1640,21 +1634,33 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             )}
           </div>
 
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-rose-50/80 border-2 border-rose-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-rose-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>A postura de astronauta (costas direitas, pés no chão) evita dores no corpo e cansaço.</li>
+              <li>A regra dos 20-20-20 descansa os olhos e mantém a tua energia no máximo.</li>
+            </ul>
+          </div>
+
           {/* AVANÇAR PARA AVALIAÇÃO FINAL */}
           <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
             <div>
               <span className="text-xs font-black text-emerald-700 uppercase tracking-wider block">
-                🎉 Treinos Concluídos com Sucesso!
+                🎉 Todas as 5 Micro-Missões Concluídas!
               </span>
               <h4 className="text-lg sm:text-xl font-black text-emerald-950 mt-0.5">
-                Pronto para o Grande Torneio do Guardião (10 Perguntas)? 🏆
+                Pronto para a Missão 6/6: Quiz do Guardião (10 Perguntas)? 🏆
               </h4>
             </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm px-8 py-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer shrink-0"
             >
-              <span>Ir para o Grande Desafio</span>
+              <span>👉 Fazer a Missão 6/6: Quiz do Guardião</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -1672,13 +1678,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           <div className="space-y-2">
             <span className="text-xs uppercase font-black text-blue-600 tracking-wider">
-              🏆 O Grande Desafio do Guardião Digital
+              🏆 MISSÃO 6/6 · O DESAFIO FINAL
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
-              Quiz dos 10 Desafios do Mundo 1!
+              Quiz do Guardião Digital 🛡️
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-              Responde a 10 perguntas divertidas sobre Palavras-passe, Phishing, Privacidade, Pegada Digital e Postura Gamer. Alcança mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% de média para ganhares o teu Crachá e abrires as portas do Mundo 2!
+              Responde a 10 perguntas rápidas sobre o que aprendeste. Acerta mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% para ganhares o teu Crachá e desbloqueares o Mundo 2!
             </p>
           </div>
 

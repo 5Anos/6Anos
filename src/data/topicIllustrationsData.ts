@@ -40,8 +40,8 @@ export const TOPIC_VISUALS_DATA: Record<string, TopicVisualData> = {
       },
       {
         iconName: 'Lock',
-        label: 'Segredo Absoluto',
-        description: 'Não partilhes palavras-passe com amigos; apenas com os teus pais ou encarregados de educação.',
+        label: 'Segredo Pessoal',
+        description: 'A tua palavra-passe é pessoal. Não a partilhes com amigos nem colegas.',
       },
     ],
     proTip: 'Dica do Guardião: Imagina uma frase divertida (ex: "O_Meu_G@to_Comeu_7_Biscoitos!") para criar palavras-passe fáceis de lembrar e impossíveis de adivinhar!',

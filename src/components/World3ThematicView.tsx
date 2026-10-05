@@ -15,6 +15,8 @@ import {
   RefreshCw,
   HelpCircle,
   Palette,
+  Star,
+  Zap,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -392,39 +394,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const topic6 = world.topics.find((t) => t.id === 'w3-t6');
 
   return (
-    <div className="space-y-8">
-      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 p-6 sm:p-8 text-white shadow-lg shadow-purple-500/10">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-              <span>Estúdio do Criador Digital</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
-              Mundo 3: Super-Poderes de Criação & Respeito! 🎨✨
-            </h2>
-            <p className="text-xs sm:text-sm text-purple-50 font-medium leading-relaxed">
-              Olá, criador de conteúdos! Neste Mundo vais aprender a comunicar com empatia, usar boas maneiras nos chats (Netiqueta), trabalhar em equipa e respeitar os direitos de autor e licenças Creative Commons!
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-300">
-              <Palette className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase text-purple-100 block">
-                Progresso no Mundo 3
-              </span>
-              <span className="text-xl font-black text-white">
-                {world.average > 0 ? `${world.average}%` : '0%'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-6">
       {/* 🚀 BANNER DE SUCESSO DE ATIVIDADE CONCLUÍDA */}
       {completedFeedback && (
         <div className="p-4 bg-purple-100 border border-purple-300 rounded-2xl flex items-center justify-between shadow-xs">
@@ -449,72 +419,80 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 1: COMUNICAR ONLINE */}
+      {/* MISSÃO 1: COMUNICAR ONLINE */}
       {/* ========================================================= */}
       {activeTopicId === 'w3-t1' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <MessageSquare className="w-6 h-6" />
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-xs">
+                <MessageSquare className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-purple-600 tracking-wider block">
-                  Tema 1 do Mundo 3
+                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 1/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic1?.title || 'Comunicar online'}
+                  Conversas & Emojis 💬
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como comunicar online com clareza, simpatia e sem mal-entendidos.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-comunicacao-digital')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-comunicacao-digital')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-purple-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: CLAREZA E RESPEITO NA COMUNICAÇÃO ONLINE
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Comunicar com Clareza e Empatia
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic1?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic1?.takeaway && (
-              <div className="p-4 bg-purple-50/80 border border-purple-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-purple-800 italic">
-                  ✨ {topic1.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">💬</div>
+                <h5 className="text-xs font-black text-purple-900">Pessoas Reais</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Do outro lado do ecrã está uma pessoa real com sentimentos. Reler a tua mensagem antes de enviar evita muitas discussões!
                 </p>
               </div>
-            )}
+
+              <div className="bg-fuchsia-50/70 border border-fuchsia-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">😊</div>
+                <h5 className="text-xs font-black text-fuchsia-900">Emojis e Tom de Voz</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Como ninguém ouve a tua voz, usa emojis simpáticos para mostrar o teu tom. Se estiveres chateado, espera 5 minutos antes de responder.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w3-t1" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Comunicação Digital
+                  🎮 2. Experimenta: Simulador de Mensagens
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -565,13 +543,29 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Trata os outros online exatamente como gostarias que te tratassem a ti.</li>
+              <li>Reler as mensagens antes de enviar garante clareza e evita discussões desnecessárias.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente comunicação! Agora vamos descobrir o código secreto da Netiqueta!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w3-t2')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 2: Netiqueta</span>
+              <span>👉 Próxima Missão: 2. Netiqueta Fixe ✨</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -579,79 +573,80 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 2: NETIQUETA */}
+      {/* MISSÃO 2: NETIQUETA */}
       {/* ========================================================= */}
       {activeTopicId === 'w3-t2' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <Smile className="w-6 h-6" />
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Smile className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-purple-600 tracking-wider block">
-                  Tema 2 do Mundo 3
+                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 2/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic2?.title || 'Netiqueta'}
+                  Netiqueta Fixe ✨
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais aprender as boas maneiras secretas da Internet!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-netiqueta')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-netiqueta')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-purple-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: BOAS MANEIRAS NA INTERNET
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: As Boas Maneiras da Rede
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic2?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic2?.bulletPoints && topic2.bulletPoints.length > 0 && (
-                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic2.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {topic2?.takeaway && (
-              <div className="p-4 bg-purple-50/80 border border-purple-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-purple-800 italic">
-                  ✨ {topic2.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🌟</div>
+                <h5 className="text-xs font-black text-purple-900">Netiqueta = Respeito</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  É a etiqueta da rede: ouvir os outros, não espalhar boatos e conviver com calma nos grupos de conversas.
                 </p>
               </div>
-            )}
+
+              <div className="bg-pink-50/70 border border-pink-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">📢</div>
+                <h5 className="text-xs font-black text-pink-900">Não Grites com Letras!</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Escrever com TODAS AS MAIÚSCULAS parece que estás a gritar aos ouvidos dos colegas. Usa letras normais!
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w3-t2" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Netiqueta
+                  🎮 2. Experimenta: Simulador de Netiqueta
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -718,7 +713,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
 
           {/* 🎨 3. DESAFIO ESPECIAL: AVATAR CHALLENGE (IDENTIDADE DIGITAL) */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
@@ -839,13 +834,29 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>A simpatia e o respeito abrem todas as portas no mundo digital.</li>
+              <li>Nunca uses maiúsculas para barafustar e protege o teu rosto criando um avatar criativo.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Parabéns pelas boas maneiras! Vamos formar uma super-equipa online!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w3-t3')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 3: Trabalhar em equipa</span>
+              <span>👉 Próxima Missão: 3. Super-Equipa Online 🤝</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -853,79 +864,80 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 3: TRABALHAR EM EQUIPA */}
+      {/* MISSÃO 3: TRABALHAR EM EQUIPA */}
       {/* ========================================================= */}
       {activeTopicId === 'w3-t3' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <Users className="w-6 h-6" />
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Users className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-purple-600 tracking-wider block">
-                  Tema 3 do Mundo 3
+                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 3/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic3?.title || 'Trabalhar em equipa'}
+                  Super-Equipa Online 🤝
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como trabalhar em equipa e vencer desafios juntos!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-colaboracao')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-colaboracao')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-purple-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: ORGANIZAÇÃO, ENTREAJUDA E RESPEITO EM EQUIPA
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: O Poder da Colaboração
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic3?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic3?.bulletPoints && topic3.bulletPoints.length > 0 && (
-                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic3.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {topic3?.takeaway && (
-              <div className="p-4 bg-purple-50/80 border border-purple-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-purple-800 italic">
-                  ✨ {topic3.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🧩</div>
+                <h5 className="text-xs font-black text-purple-900">Tarefas Divididas</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Numa super-equipa ninguém faz tudo sozinho e ninguém fica sem fazer nada. Dividem-se tarefas justas e cumprem-se prazos!
                 </p>
               </div>
-            )}
+
+              <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🤝</div>
+                <h5 className="text-xs font-black text-indigo-900">Diálogo em Primeiro Lugar</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Nunca apagues o texto de um colega sem falar com ele com calma. Conversem para juntar o melhor das duas ideias!
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w3-t3" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Colaboração & Equipa
+                  🎮 2. Experimenta: Simulador de Colaboração & Equipa
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -979,13 +991,29 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Trabalhar em grupo requer combinar prazos e respeitar o trabalho dos colegas.</li>
+              <li>Ouvir opiniões diferentes torna os projetos da turma muito mais criativos e completos.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Grande espírito de equipa! Agora vamos descobrir os Direitos de Autor!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w3-t4')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 4: Direitos de autor</span>
+              <span>👉 Próxima Missão: 4. Direitos de Autor 🎨</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -993,72 +1021,80 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 4: DIREITOS DE AUTOR */}
+      {/* MISSÃO 4: DIREITOS DE AUTOR */}
       {/* ========================================================= */}
       {activeTopicId === 'w3-t4' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <Copyright className="w-6 h-6" />
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Copyright className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-purple-600 tracking-wider block">
-                  Tema 4 do Mundo 3
+                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 4/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic4?.title || 'Direitos de autor'}
+                  Direitos de Autor 🎨
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais aprender a respeitar o trabalho dos artistas e criadores da Internet!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-direitos-autor')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-direitos-autor')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-purple-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: REGRAS E PERMISSÕES PARA USAR CONTEÚDOS
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Respeitar a Criação Alheia
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic4?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic4?.takeaway && (
-              <div className="p-4 bg-purple-50/80 border border-purple-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-purple-800 italic">
-                  ✨ {topic4.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🎨</div>
+                <h5 className="text-xs font-black text-purple-900">Criar Dá Trabalho</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Toda a imagem, som ou texto foi feito por alguém. Esse esforço é protegido por lei como Direito de Autor.
                 </p>
               </div>
-            )}
+
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">⚖️</div>
+                <h5 className="text-xs font-black text-rose-900">Encontrar Não é Ser Dono</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Aparecer numa pesquisa do Google não quer dizer que seja livre para copiar. Pede autorização ou procura recursos livres!
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w3-t4" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Direitos de Autor & Permissões
+                  🎮 2. Experimenta: Simulador de Direitos de Autor & Permissões
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1124,13 +1160,29 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Respeita o trabalho de quem cria: não uses criações de outros como se fossem tuas.</li>
+              <li>Para trabalhos escolares, procura bancos de imagens e sons com licença livre para estudantes.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Muito bem! Sabes respeitar os autores. Agora vamos à caça do plágio!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w3-t5')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 5: Plágio e autoria</span>
+              <span>👉 Próxima Missão: 5. Caça ao Plágio 📜</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1138,79 +1190,80 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 5: PLÁGIO E AUTORIA */}
+      {/* MISSÃO 5: PLÁGIO E AUTORIA */}
       {/* ========================================================= */}
       {activeTopicId === 'w3-t5' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <FileText className="w-6 h-6" />
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-xs">
+                <FileText className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-purple-600 tracking-wider block">
-                  Tema 5 do Mundo 3
+                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 5/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic5?.title || 'Plágio e autoria'}
+                  Caça ao Plágio 📜
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como citar autores e dar valor ao teu trabalho!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-plagio-citacao')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-plagio-citacao')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-purple-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O QUE É PLÁGIO E COMO INDICAR AUTORES
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Honestidade e Citação
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic5?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic5?.bulletPoints && topic5.bulletPoints.length > 0 && (
-                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic5.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {topic5?.takeaway && (
-              <div className="p-4 bg-purple-50/80 border border-purple-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-purple-800 italic">
-                  ✨ {topic5.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🚫</div>
+                <h5 className="text-xs font-black text-rose-900">O que é Plágio?</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Copiar frases ou trabalhos de outras pessoas e fingir que foram feitos por ti é plágio. É desonesto e não te ensina nada!
                 </p>
               </div>
-            )}
+
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🏷️</div>
+                <h5 className="text-xs font-black text-purple-900">Citar Dá Brilho</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Dizer "Segundo o autor X..." e colocar as fontes no fim do trabalho mostra que és um estudante atento, maduro e honesto.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w3-t5" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Citação & Reconhecimento
+                  🎮 2. Experimenta: Simulador de Citação & Reconhecimento
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1271,13 +1324,29 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Citar a fonte dá brilho e credibilidade aos teus trabalhos escolares.</li>
+              <li>Reescreve as ideias por palavras tuas ou usa aspas quando copiares frases exatas.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente honestidade científica! Agora vamos aprender sobre licenças livres!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w3-t6')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 6: Creative Commons</span>
+              <span>👉 Próxima Missão: 6. Licenças Livres 🔓</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1285,80 +1354,80 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 6: CREATIVE COMMONS */}
+      {/* MISSÃO 6: CREATIVE COMMONS */}
       {/* ========================================================= */}
       {activeTopicId === 'w3-t6' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <Share2 className="w-6 h-6" />
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Share2 className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-purple-600 tracking-wider block">
-                  Tema 6 do Mundo 3
+                <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 6/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic6?.title || 'Creative Commons'}
+                  Licenças Livres 🔓
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais desvendar os símbolos das licenças Creative Commons!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-creative-commons')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-creative-commons')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5 text-purple-700">
-                <BookOpen className="w-5 h-5" />
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                  1. APRENDE: REGRAS DAS LICENÇAS CREATIVE COMMONS
-                </h4>
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Partilhar com Creative Commons
+              </h4>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🔓</div>
+                <h5 className="text-xs font-black text-purple-900">Partilha Aberta</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Com o Creative Commons, os criadores autorizam toda a gente a usar a sua obra sob regras simples e transparentes.
+                </p>
+              </div>
+
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🏷️</div>
+                <h5 className="text-xs font-black text-emerald-900">Símbolos Fáceis</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  BY exige dar os créditos ao autor; NC proíbe vender para ganhar dinheiro; ND proíbe alterações à obra original.
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
-              <div className="space-y-4">
-                <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-                  {topic6?.paragraphs.map((p, idx) => (
-                    <p key={idx}>{p}</p>
-                  ))}
-                </div>
-
-                {topic6?.takeaway && (
-                  <div className="mt-4 p-4 bg-purple-50/80 border border-purple-200 rounded-2xl">
-                    <p className="text-xs sm:text-sm font-black text-purple-800 italic">
-                      ✨ {topic6.takeaway}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full">
-                <TopicIllustrationCard topicId="w3-t6" />
-              </div>
-            </div>
+            <TopicIllustrationCard topicId="w3-t6" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA (SITUAÇÕES PRÁTICAS) */}
-          <div className="bg-white border border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Licenças Creative Commons
+                  🎮 2. Experimenta: Simulador de Licenças Creative Commons
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1404,7 +1473,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleCcSubmit}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 Validar Licenças Creative Commons
               </button>
@@ -1419,13 +1488,29 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>As licenças Creative Commons facilitam a partilha legal de músicas, fotos e desenhos.</li>
+              <li>Basta ler os símbolos para saber se podes partilhar, alterar ou apenas usar para a escola.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Completaste todas as missões do Criador! O desafio final está pronto!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para a Avaliação Final do Mundo 3</span>
+              <span>🏆 Ir para a Avaliação Final: Quiz do Criador</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1436,17 +1521,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       {/* SEPARADOR 7: AVALIAÇÃO FINAL */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto shadow-xs">
-            <Award className="w-8 h-8" />
+        <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-10 shadow-sm max-w-3xl mx-auto space-y-6 text-center">
+          <div className="w-20 h-20 rounded-3xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto shadow-xs">
+            <Award className="w-10 h-10" />
           </div>
 
           <div>
             <span className="text-xs font-black text-purple-600 uppercase tracking-wider block">
-              {world.title}
+              🏆 MISSÃO 7/7 · O DESAFIO FINAL
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 10 Perguntas
+              Quiz do Criador Digital 🎨
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
               Mostra que dominas a comunicação online, a netiqueta, o trabalho em equipa e o respeito pelos direitos de autor!
@@ -1466,9 +1551,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           <div>
             <button
               onClick={onOpenAssessment}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2 cursor-pointer"
             >
-              <span>Começar Avaliação Final (10 Perguntas)</span>
+              <span>Começar Desafio Final (10 Perguntas)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

@@ -16,6 +16,8 @@ import {
   RotateCcw,
   Bot,
   Bug,
+  Star,
+  Zap,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -347,38 +349,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 🚀 BANNER DE BOAS-VINDAS INFANTIL & GAMIFICADO */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 p-6 sm:p-8 text-white shadow-lg shadow-amber-500/10">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-white uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
-              <span>Oficina do Engenheiro Digital</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
-              Mundo 4: Comandar Máquinas, Robôs & Código! 🤖💻
-            </h2>
-            <p className="text-xs sm:text-sm text-amber-50 font-medium leading-relaxed">
-              Olá, futuro programador! Neste Mundo vais aprender a linguagem secreta dos robôs: partir problemas grandes em fatias pequeninas, programar passos com algoritmos, usar repetições (ciclos) e caçar bugs como um campeão!
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-yellow-200">
-              <Bot className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase text-amber-100 block">
-                Progresso no Mundo 4
-              </span>
-              <span className="text-xl font-black text-white">
-                {world.average > 0 ? `${world.average}%` : '0%'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Global Completed Feedback Banner */}
       {completedFeedback && (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-3xl flex items-center justify-between text-amber-950 shadow-xs animate-in fade-in">
@@ -405,79 +375,80 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 1: DIVIDIR UM PROBLEMA */}
+      {/* MISSÃO 1: DIVIDIR UM PROBLEMA */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t1' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Layers className="w-6 h-6" />
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Layers className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 1 do Mundo 4
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 1/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic1?.title || 'Dividir um problema'}
+                  Fatiar Problemas 🧩
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como resolver grandes problemas dividindo-os em partes fáceis!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-decomposicao')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-decomposicao')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: A TÉCNICA DA DECOMPOSIÇÃO
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: A Arte de Fatiar Desafios
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic1?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic1?.bulletPoints && topic1.bulletPoints.length > 0 && (
-                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic1.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {topic1?.takeaway && (
-              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                  ✨ {topic1.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🧩</div>
+                <h5 className="text-xs font-black text-amber-900">Fatiar em Pedaços</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Decomposição é dividir uma tarefa grande em passos fáceis. Uma pizza inteira come-se fatia a fatia!
                 </p>
               </div>
-            )}
+
+              <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🎯</div>
+                <h5 className="text-xs font-black text-orange-900">Menos Confusão</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Quando resolves uma etapa de cada vez, tudo fica simples e consegues construir projetos sem te baralhares.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w4-t1" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Dividir Problemas
+                  🎮 2. Experimenta: Simulador de Dividir Problemas
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -539,13 +510,29 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Dividir um problema complexo em sub-tarefas simples é a técnica principal de qualquer programador.</li>
+              <li>Resolver uma etapa de cada vez evita erros e torna tudo mais fácil de alcançar.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente organização! Agora vamos programar o robô passo a passo!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w4-t2')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 2: Algoritmos</span>
+              <span>👉 Próxima Missão: 2. O Robô dos Algoritmos 🤖</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -553,79 +540,80 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 2: ALGORITMOS (BLOCK CODING) */}
+      {/* MISSÃO 2: ALGORITMOS (BLOCK CODING) */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t2' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Code className="w-6 h-6" />
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Code className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 2 do Mundo 4
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 2/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic2?.title || 'Algoritmos'}
+                  O Robô dos Algoritmos 🤖
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais dar ordens precisas ao robô através de um algoritmo passo a passo!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-block-coding')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-block-coding')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: O QUE É UM ALGORITMO E A SEQUÊNCIA LÓGICA
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Instruções e Ordem Lógica
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic2?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic2?.bulletPoints && topic2.bulletPoints.length > 0 && (
-                <ol className="list-decimal pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic2.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ol>
-              )}
-            </div>
-
-            {topic2?.takeaway && (
-              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                  ✨ {topic2.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🤖</div>
+                <h5 className="text-xs font-black text-amber-900">Robôs Seguem Instruções</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Um computador não adivinha pensamentos! Um algoritmo é uma sequência de instruções exatas, numa ordem rigorosa.
                 </p>
               </div>
-            )}
+
+              <div className="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">📐</div>
+                <h5 className="text-xs font-black text-yellow-900">A Ordem é Tudo</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Se mandares o robô calçar sapatilhas antes de vestir meias, dá disparate! A ordem correta dos passos conta muito.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w4-t2" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA: ROBOT SIMULATOR WITH 4 DIRECTIONS AND OBSTACLES */}
-          <div className="bg-white border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: O Caminho do Robô (4 Direções)
+                  🎮 2. Experimenta: O Caminho do Robô (4 Direções)
                 </h4>
               </div>
               <div className="flex items-center gap-1.5">
@@ -788,13 +776,29 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Um algoritmo é uma lista de passos precisos para atingir um objetivo.</li>
+              <li>A ordem dos comandos tem de ser exata para o robô não bater contra obstáculos.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente algoritmo! Agora vamos ensinar o robô a tomar decisões!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w4-t3')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 3: Condições</span>
+              <span>👉 Próxima Missão: 3. Decisões: SE e SENÃO 🔀</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -802,79 +806,80 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 3: CONDIÇÕES */}
+      {/* MISSÃO 3: CONDIÇÕES */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t3' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <GitBranch className="w-6 h-6" />
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                <GitBranch className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 3 do Mundo 4
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 3/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic3?.title || 'Condições'}
+                  Decisões: SE e SENÃO 🔀
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais ensinar o computador a tomar decisões inteligentes com SE e SENÃO!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-algoritmos')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-algoritmos')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: TOMADA DE DECISÃO LÓGICA COM SE E SENÃO
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Tomar Decisões no Código
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic3?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic3?.bulletPoints && topic3.bulletPoints.length > 0 && (
-                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic3.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {topic3?.takeaway && (
-              <div className="mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                  ✨ {topic3.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🔀</div>
+                <h5 className="text-xs font-black text-amber-900">Condições Inteligentes</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  SE estiver frio, vestes um casaco; SENÃO, vestes uma t-shirt! É assim que os programas tomam decisões.
                 </p>
               </div>
-            )}
+
+              <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">💡</div>
+                <h5 className="text-xs font-black text-orange-900">Caminhos Diferentes</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  O computador avalia uma condição e escolhe o caminho certo a seguir em frações de segundo.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w4-t3" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA: SIMULADOR DE CONDIÇÕES (SE / ENTÃO / SENÃO) */}
-          <div className="bg-white border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Condições (SE / ENTÃO / SENÃO)
+                  🎮 2. Experimenta: Simulador de Condições (SE / ENTÃO / SENÃO)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -901,7 +906,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     <select
                       value={cond1Then}
                       onChange={(e) => setCond1Then(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       <option value="">Escolhe a consequência...</option>
                       <option value="casaco">Vestir um casaco quente</option>
@@ -913,7 +918,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     <select
                       value={cond1Else}
                       onChange={(e) => setCond1Else(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       <option value="">Escolhe a consequência...</option>
                       <option value="camisola">Vestir uma camisola ligeira</option>
@@ -937,7 +942,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     <select
                       value={cond2Then}
                       onChange={(e) => setCond2Then(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       <option value="">Escolhe a consequência...</option>
                       <option value="avancar_nivel">Desbloquear e avançar para o nível seguinte</option>
@@ -949,7 +954,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     <select
                       value={cond2Else}
                       onChange={(e) => setCond2Else(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       <option value="">Escolhe a consequência...</option>
                       <option value="manter_nivel">Continuar no nível atual para tentar nova pontuação</option>
@@ -973,7 +978,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     <select
                       value={cond3Then}
                       onChange={(e) => setCond3Then(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       <option value="">Escolhe a consequência...</option>
                       <option value="desviar">Parar o motor e virar para desviar</option>
@@ -985,7 +990,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                     <select
                       value={cond3Else}
                       onChange={(e) => setCond3Else(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       <option value="">Escolhe a consequência...</option>
                       <option value="seguir_em_frente">Continuar a avançar em linha reta</option>
@@ -1014,13 +1019,29 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>As instruções condicionais (SE... SENÃO) permitem que os programas reajam a situações diferentes.</li>
+              <li>Sem condições, os jogos e robôs fariam sempre a mesma coisa sem se adaptarem.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Decisões inteligentes dominadas! Agora vamos aprender a repetir sem esforço!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w4-t4')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 4: Repetições</span>
+              <span>👉 Próxima Missão: 4. Super-Ciclos 🔁</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1028,79 +1049,80 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 4: REPETIÇÕES (CICLOS / LOOPS) */}
+      {/* MISSÃO 4: REPETIÇÕES (CICLOS / LOOPS) */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t4' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Repeat className="w-6 h-6" />
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Repeat className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 4 do Mundo 4
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 4/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic4?.title || 'Repetições'}
+                  Super-Ciclos 🔁
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais descobrir como poupar trabalho repetindo comandos com ciclos!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-ciclos')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-ciclos')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: A EFICIÊNCIA DAS REPETIÇÕES (CICLOS)
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Poupar Código com Repetições
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic4?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-              {topic4?.bulletPoints && topic4.bulletPoints.length > 0 && (
-                <ul className="list-disc pl-5 space-y-2 text-slate-800 font-medium">
-                  {topic4.bulletPoints.map((bp, bidx) => (
-                    <li key={bidx}>{bp}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {topic4?.takeaway && (
-              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                  ✨ {topic4.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🔁</div>
+                <h5 className="text-xs font-black text-amber-900">Repetir sem Cansaço</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Para dar 10 passos, não precisas de escrever "Avança" 10 vezes. Basta dizer "Repete 10 vezes: Avança"!
                 </p>
               </div>
-            )}
+
+              <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">⚡</div>
+                <h5 className="text-xs font-black text-orange-900">Menos Código, Mais Poder</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Os ciclos (loops) tornam o teu programa muito mais curto, limpo e rápido de ler para humanos e robôs.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w4-t4" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA: 3 SCENARIOS OF LOOPS */}
-          <div className="bg-white border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Desafio de Repetições
+                  🎮 2. Experimenta: Desafio de Repetições
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1189,13 +1211,29 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Progresso */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Os ciclos poupam tempo e evitam escrever dezenas de linhas de código repetido.</li>
+              <li>Repetir blocos de comandos é a melhor forma de criar movimentos e padrões fluídos.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Ciclos dominados! Agora vamos aprender a organizar dados e tabelas!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w4-t5')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para Tema 5: Dados</span>
+              <span>👉 Próxima Missão: 5. Caçadores de Dados 📊</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1203,72 +1241,80 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 5: DADOS */}
+      {/* MISSÃO 5: DADOS */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t5' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <BarChart2 className="w-6 h-6" />
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                <BarChart2 className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 5 do Mundo 4
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 5/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic5?.title || 'Dados'}
+                  Caçadores de Dados 📊
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais organizar e interpretar dados através de tabelas e gráficos!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-dados')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-dados')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE (Conteúdo Teórico Exato + Ilustração Educativa) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: ORGANIZAÇÃO DE DADOS, TABELAS E GRÁFICOS
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: Informação em Ordem
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic5?.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
-              ))}
-            </div>
-
-            {topic5?.takeaway && (
-              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl">
-                <p className="text-xs sm:text-sm font-black text-amber-800 italic">
-                  ✨ {topic5.takeaway}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">📊</div>
+                <h5 className="text-xs font-black text-amber-900">Dados em Tabelas</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Dados são números ou escolhas recolhidas. Quando estão organizados em tabelas, podemos tirar conclusões valiosas.
                 </p>
               </div>
-            )}
+
+              <div className="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">📈</div>
+                <h5 className="text-xs font-black text-yellow-900">Gráficos Visuais</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Um gráfico transforma números numa imagem clara e fácil de entender num piscar de olhos.
+                </p>
+              </div>
+            </div>
 
             <TopicIllustrationCard topicId="w4-t5" />
           </div>
 
           {/* 🎮 2. EXPERIMENTA: SIMULADOR DE DADOS E TABELAS */}
-          <div className="bg-white border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Dados e Tabelas
+                  🎮 2. Experimenta: Simulador de Dados e Tabelas
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1311,7 +1357,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 <select
                   value={mostVotedSport}
                   onChange={(e) => setMostVotedSport(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   <option value="">Seleciona a modalidade...</option>
                   <option value="futebol">Futebol (12 alunos)</option>
@@ -1328,7 +1374,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 <select
                   value={leastVotedSport}
                   onChange={(e) => setLeastVotedSport(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   <option value="">Seleciona a modalidade...</option>
                   <option value="futebol">Futebol (12 alunos)</option>
@@ -1345,7 +1391,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 <select
                   value={sumSports}
                   onChange={(e) => setSumSports(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   <option value="">Seleciona a conclusão...</option>
                   <option value="futebol_mais_escolhido">O Futebol foi o desporto mais escolhido.</option>
@@ -1361,7 +1407,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 <select
                   value={totalStudents}
                   onChange={(e) => setTotalStudents(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   <option value="">Calcula o total da turma...</option>
                   <option value="26">26 alunos</option>
@@ -1389,13 +1435,29 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Conclusão / Avançar para Tema 6 */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Organizar dados em tabelas permite descobrir padrões e responder a perguntas com precisão.</li>
+              <li>Comparar números ajuda a identificar o que é mais ou menos frequente num grupo.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Excelente análise! Agora vamos aprender a caçar bugs escondidos no código!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('w4-t6')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para o Tema 6: Debugging</span>
+              <span>👉 Próxima Missão: 6. Caça aos Bugs 🐞</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1403,87 +1465,84 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* TEMA 6: DEBUGGING (DEPURAÇÃO) */}
+      {/* MISSÃO 6: DEBUGGING (DEPURAÇÃO) */}
       {/* ========================================================= */}
       {activeTopicId === 'w4-t6' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Bug className="w-6 h-6" />
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                <Bug className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black text-amber-600 tracking-wider block">
-                  Tema 6 do Mundo 4
+                <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
+                  🎯 MISSÃO 6/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {topic6?.title || 'Debugging (Depuração)'}
+                  Caça aos Bugs 🐞
                 </h3>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  Hoje vais vestir a pele de detetive do código e caçar os bugs escondidos!
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {getSimProg('sim-debugging')?.completed ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Concluído ({getSimProg('sim-debugging')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
+                  <span>Recompensa: +100 XP</span>
                 </span>
               )}
             </div>
           </div>
 
-          {/* 📖 1. APRENDE */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-2.5 text-amber-700">
-              <BookOpen className="w-5 h-5" />
-              <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                1. APRENDE: ENCONTRAR E CORRIGIR ERROS (DEBUGGING)
+          {/* 💡 1. APRENDE */}
+          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-700">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h4 className="text-sm font-black uppercase tracking-wide">
+                💡 1. Aprende: A Arte de Caçar Bugs
               </h4>
             </div>
 
-            <div className="text-sm sm:text-[15px] text-slate-700 space-y-4 leading-relaxed font-normal">
-              {topic6?.paragraphs?.map((p, idx) => (
-                <p key={idx} className="border-l-2 border-amber-300 pl-3">
-                  {p}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🐞</div>
+                <h5 className="text-xs font-black text-rose-900">O que é um Bug?</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Bug é um erro num programa que faz com que o robô faça disparates ou encrave. Até os melhores programadores têm bugs!
                 </p>
-              )) || (
-                <>
-                  <p className="border-l-2 border-amber-300 pl-3">
-                    Quando um algoritmo ou programa não funciona como esperado, existe um erro ou anomalia lógica (designado habitualmente por "bug").
-                  </p>
-                  <p className="border-l-2 border-amber-300 pl-3">
-                    Debugging é o processo metódico de testar passo a passo, identificar onde ocorreu a falha e corrigir as instruções.
-                  </p>
-                  <p className="border-l-2 border-amber-300 pl-3">
-                    Errar faz parte natural da programação; analisar e corrigir erros torna-nos melhores engenheiros digitais.
-                  </p>
-                </>
-              )}
+              </div>
+
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
+                <div className="text-xl">🔍</div>
+                <h5 className="text-xs font-black text-emerald-900">Depurar (Debugging)</h5>
+                <p className="text-xs text-slate-600 leading-snug">
+                  Encontrar o bug e corrigi-lo chama-se depuração. Não fiques triste quando errares: testar e corrigir é o coração da programação!
+                </p>
+              </div>
             </div>
 
-            <TopicIllustrationCard
-              topicId="w4-t6"
-              title="A Arte do Debugging: Detetar, Analisar e Corrigir"
-              caption="Em engenharia de software, ler o código com espírito crítico e testar cada hipótese é o segredo para construir programas fiáveis."
-              theme="amber"
-            />
+            <TopicIllustrationCard topicId="w4-t6" />
           </div>
 
           {/* 🎮 2. PRATICA (Simulador de Debugging) */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-amber-700">
                 <Sparkles className="w-5 h-5" />
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-wide">
-                  2. PRATICA: SIMULADOR DE DEBUGGING E CORREÇÃO
+                <h4 className="text-base font-black uppercase tracking-wide">
+                  🎮 2. Experimenta: Simulador de Debugging e Correção
                 </h4>
               </div>
-              <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                Missão de Laboratório (+100 XP)
+              <span className="text-xs font-bold text-slate-500">
+                Deteta o erro e escolhe a instrução certa
               </span>
             </div>
 
@@ -1569,13 +1628,29 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* 🎯 Conclusão / Avaliação */}
-          <div className="flex justify-end pt-2">
+          {/* ⭐ 3. O QUE APRENDESTE? */}
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
+            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>⭐ O que aprendeste nesta missão?</span>
+            </h5>
+            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
+              <li>Os erros no código são normais: analisar passo a passo ajuda a encontrar o problema.</li>
+              <li>Testar com frequência permite corrigir erros pequenos antes que se tornem gigantes.</li>
+            </ul>
+          </div>
+
+          {/* 👉 4. PRÓXIMA MISSÃO */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500 fill-current" />
+              <span>Completaste todas as missões de Engenharia! O grande desafio está à tua espera!</span>
+            </div>
             <button
               onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Avançar para a Avaliação Final do Mundo 4</span>
+              <span>🏆 Ir para a Avaliação Final: Quiz do Engenheiro</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1586,17 +1661,17 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
       {/* SEPARADOR 7: AVALIAÇÃO FINAL */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
-            <Award className="w-8 h-8" />
+        <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-10 shadow-sm max-w-3xl mx-auto space-y-6 text-center">
+          <div className="w-20 h-20 rounded-3xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+            <Award className="w-10 h-10" />
           </div>
 
           <div>
             <span className="text-xs font-black text-amber-600 uppercase tracking-wider block">
-              {world.title}
+              🏆 MISSÃO 7/7 · O DESAFIO FINAL
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Avaliação Final de 10 Perguntas
+              Quiz do Engenheiro do Código 🤖
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
               Comprova a tua destreza em algoritmos, condições, ciclos, dados e depuração para desbloquear o Mundo 5!
@@ -1616,9 +1691,9 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           <div>
             <button
               onClick={onOpenAssessment}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all hover:scale-105 inline-flex items-center gap-2 cursor-pointer"
             >
-              <span>Começar Avaliação Final (10 Perguntas)</span>
+              <span>Começar Desafio Final (10 Perguntas)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
