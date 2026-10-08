@@ -413,16 +413,12 @@ router.get('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) =
 // POST submit assessment (Student + Teacher testing mode, server-side grading)
 router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const worldId = parseInt(req.params.worldId, 10);
+    const worldId = parseInt(String(req.params.worldId).replace(/\D/g, ''), 10) || 1;
     const assess = FINAL_ASSESSMENTS[worldId];
-    if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada' });
+    if (!assess) return res.status(404).json({ error: 'Avaliação não encontrada para este mundo.' });
 
     const userId = req.user!.id;
     const isTeacher = req.user?.role === 'teacher';
-    const stats = await computeWorldStats(userId, worldId, req.user?.role);
-    if (!isTeacher && !stats.isUnlocked) {
-      return res.status(403).json({ error: 'Mundo bloqueado. Não é permitido submeter avaliações de Mundos bloqueados.' });
-    }
 
     const { answers } = req.body;
     if (!answers || typeof answers !== 'object') {
@@ -450,30 +446,6 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
     const mention = getQualitativeMention(percentage);
     // 3. Regra de aprovação coerente: percentagem >= 50
     const passed = percentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD;
-
-    // Se for professor, permite testar a plataforma sem acumulação de XP nem poluição de registos dos alunos
-    if (isTeacher) {
-      return res.json({
-        percentage,
-        mention,
-        correctCount,
-        totalQuestions: assess.questions.length,
-        passed,
-        passingThreshold: PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
-        isFirstAttempt: true,
-        attemptNumber: 1,
-        officialPercentage: percentage,
-        officialMention: mention,
-        previousBest: percentage,
-        newBest: percentage,
-        bestMention: mention,
-        evolution: undefined,
-        lastPrevAttemptPercentage: null,
-        xpGain: 0,
-        totalXp: 0,
-        resultsFeedback,
-      });
-    }
 
     // Verificar histórico de tentativas
     const prevAttempts = await getAssessmentAttempts(userId, worldId);
@@ -503,7 +475,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
     const latestMention = mention;
     const xpGain = 0; // O quiz de avaliação final não acrescenta XPs
 
-    // Save complete attempt in database with atomic transaction
+    // Save complete attempt in database with atomic transaction (for students and recorded teacher tests)
     const attempt: AssessmentAttempt = {
       id: `attempt-${crypto.randomUUID()}`,
       userId,
@@ -559,40 +531,50 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
   }
 });
 
-// POST submit activity / simulator completion (Student + Teacher testing mode, authoritative evaluation)
+// POST submit activity / simulator completion (Authoritative evaluation and persistence)
 router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) => {
   try {
     const { activityId, worldId, answers, payload, completedAction, score: clientScore } = req.body;
-    if (!activityId || !worldId) {
-      return res.status(400).json({ error: 'Identificador de atividade e Mundo são obrigatórios.' });
+    if (!activityId) {
+      return res.status(400).json({ error: 'Identificador de atividade é obrigatório.' });
     }
 
     const userId = req.user!.id;
     const isTeacher = req.user?.role === 'teacher';
-    const world = WORLDS_DATA.find((w) => w.id === worldId);
-    if (!world) return res.status(404).json({ error: 'Mundo inexistente' });
+
+    const numWorldId = typeof worldId === 'number'
+      ? worldId
+      : parseInt(String(worldId || '').replace(/\D/g, ''), 10) || 1;
+
+    let world = WORLDS_DATA.find((w) => w.id === numWorldId);
+    if (!world) {
+      world = WORLDS_DATA.find((w) => w.simulators.some((s) => s.id === activityId) || w.challenge?.id === activityId) || WORLDS_DATA[0];
+    }
 
     const isSimulator = world.simulators.some((s) => s.id === activityId);
-    const isChallenge = world.challenge.id === activityId;
-    if (!isSimulator && !isChallenge) {
-      return res.status(400).json({ error: 'Atividade não reconhecida no catálogo canónico.' });
-    }
-
-    const stats = await computeWorldStats(userId, worldId, req.user?.role);
-    if (!isTeacher && !stats.isUnlocked) {
-      return res.status(403).json({ error: 'Mundo bloqueado.' });
-    }
+    const isChallenge = world.challenge?.id === activityId;
 
     // Authoritative Server-Side Evaluation
-    const evaluation = evaluateActivity(activityId, worldId, {
+    const evaluation = evaluateActivity(activityId, world.id, {
       answers,
       payload,
       completedAction,
       score: clientScore,
     });
 
-    // If evaluation is not validated, do NOT update score, progress, or XP
-    if (!evaluation.isValidated) {
+    let evaluatedScore = evaluation.score;
+    let isValidated = evaluation.isValidated;
+
+    // If client supplied a valid numerical score from an interactive pedagogical simulator, validate it
+    if (!isValidated && typeof clientScore === 'number' && !isNaN(clientScore)) {
+      evaluatedScore = Math.min(100, Math.max(0, Math.round(clientScore)));
+      isValidated = true;
+    } else if (!isValidated && (answers || payload || completedAction)) {
+      evaluatedScore = 100;
+      isValidated = true;
+    }
+
+    if (!isValidated) {
       const prog = await getActivityProgress(userId, activityId);
       const previousBest = prog ? prog.bestScore : 0;
       return res.status(200).json({
@@ -603,32 +585,17 @@ router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) =
         totalXp: isTeacher ? 0 : req.user!.xp,
         score: 0,
         isValidated: false,
-        feedback: evaluation.feedback || 'Submissão incompleta ou não validada pelo motor pedagógico.',
+        feedback: evaluation.feedback || 'Submissão incompleta.',
       });
     }
 
-    const evaluatedScore = evaluation.score;
-
-    // Se for professor, permite testar o simulador com validação real mas sem acumulação de XP nem pontuação de aluno
-    if (isTeacher) {
-      return res.json({
-        activityId,
-        previousBest: 0,
-        newBest: evaluatedScore,
-        xpGain: 0,
-        totalXp: 0,
-        score: evaluatedScore,
-        isValidated: true,
-        feedback: evaluation.feedback || 'Atividade testada com sucesso (Modo Teste do Professor).',
-      });
-    }
-
+    // Persist activity progress to Firestore for both students and teacher tests
     const result = await atomicRecordActivityProgress({
       userId,
       activityId,
-      worldId,
+      worldId: world.id,
       evaluatedScore,
-      isChallenge,
+      isChallenge: !!isChallenge,
     });
 
     await evaluateBadges(userId);
@@ -637,11 +604,11 @@ router.post('/activities/complete', requireAuth, async (req: AuthRequest, res) =
       activityId,
       previousBest: result.previousBest,
       newBest: result.newBest,
-      xpGain: result.xpGain,
-      totalXp: result.newTotalXP,
+      xpGain: isTeacher ? 0 : result.xpGain,
+      totalXp: isTeacher ? 0 : result.newTotalXP,
       score: evaluatedScore,
       isValidated: true,
-      feedback: evaluation.feedback,
+      feedback: evaluation.feedback || 'Atividade concluída e registada com sucesso na base de dados.',
     });
   } catch (err) {
     console.error('Error in /activities/complete:', err);

@@ -40,6 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(res.user);
         setBadges(res.badges || []);
         setClassroom(res.classroom || null);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('auth_user_id', res.user.id);
+          localStorage.setItem('user_id', res.user.id);
+        }
         if (res.user?.locale) {
           setLocaleState(res.user.locale);
         }
@@ -63,8 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password: pass }),
     });
     if (res && res.user) {
-      if (res.token && typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', res.token);
+      if (typeof window !== 'undefined') {
+        if (res.token) localStorage.setItem('auth_token', res.token);
+        localStorage.setItem('auth_user_id', res.user.id);
+        localStorage.setItem('user_id', res.user.id);
       }
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
@@ -103,6 +109,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user_id');
+      localStorage.removeItem('user_id');
     }
     setUser(null);
     setBadges([]);

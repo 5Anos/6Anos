@@ -88,9 +88,50 @@ export function setActiveClientUserId(userId: string | null) {
 }
 
 export function getActiveClientUserId(): string | null {
-  if (activeClientUserId) return activeClientUserId;
+  if (activeClientUserId && !activeClientUserId.startsWith('sess-')) return activeClientUserId;
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('auth_token') || null;
+    const directUserId = localStorage.getItem('auth_user_id') || localStorage.getItem('user_id');
+    if (directUserId && !directUserId.startsWith('sess-')) {
+      activeClientUserId = directUserId;
+      return directUserId;
+    }
+    const token = localStorage.getItem('auth_token');
+    if (token && !token.startsWith('sess-')) return token;
+  }
+  return activeClientUserId;
+}
+
+export async function resolveClientUserId(): Promise<string | null> {
+  const syncId = getActiveClientUserId();
+  if (syncId && !syncId.startsWith('sess-')) return syncId;
+
+  if (typeof window !== 'undefined') {
+    const direct = localStorage.getItem('auth_user_id') || localStorage.getItem('user_id');
+    if (direct && !direct.startsWith('sess-')) {
+      activeClientUserId = direct;
+      return direct;
+    }
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      if (!token.startsWith('sess-')) {
+        activeClientUserId = token;
+        return token;
+      }
+      try {
+        const db = getClientFirestore();
+        const sessSnap = await getDoc(doc(db, 'sessions', token));
+        if (sessSnap.exists()) {
+          const sessData = sessSnap.data();
+          if (sessData?.userId) {
+            activeClientUserId = sessData.userId;
+            localStorage.setItem('auth_user_id', sessData.userId);
+            return sessData.userId;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not resolve session to user in Firestore:', err);
+      }
+    }
   }
   return null;
 }
@@ -530,8 +571,11 @@ export async function clientGetWorlds() {
 }
 
 export async function clientCompleteActivity(activityId: string, score: number, durationSeconds?: number) {
-  const userId = getActiveClientUserId();
+  const userId = await resolveClientUserId();
   if (!userId) throw new Error('Não autenticado');
+
+  const world = WORLDS_DATA.find((w) => w.simulators.some((s) => s.id === activityId) || w.challenge?.id === activityId);
+  const worldId = world ? world.id : 1;
 
   const db = getClientFirestore();
   const userSnap = await getDoc(doc(db, 'users', userId));
@@ -589,6 +633,7 @@ export async function clientCompleteActivity(activityId: string, score: number, 
         id: progDocId,
         userId,
         activityId,
+        worldId,
         completed: completed || existingCompleted,
         score: clampedScore,
         bestScore: newBest,
@@ -658,7 +703,7 @@ export async function clientSubmitAssessment(
   answers: Record<string, number>,
   durationSeconds?: number
 ) {
-  const userId = getActiveClientUserId();
+  const userId = await resolveClientUserId();
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();

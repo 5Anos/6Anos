@@ -36,14 +36,8 @@ import { TeacherStudentsTab } from './teacher/TeacherStudentsTab';
 import { StudentDossierModal } from './teacher/StudentDossierModal';
 import { TeacherPautasTab } from './teacher/TeacherPautasTab';
 import { TeacherClassesTab } from './teacher/TeacherClassesTab';
-import { TeacherMissionsTab } from './teacher/TeacherMissionsTab';
 import {
-  TeacherAssessmentsTab,
   TeacherActivitiesTab,
-  TeacherChallengesTab,
-  TeacherXPTab,
-  TeacherGrandeMissaoTab,
-  TeacherBadgesTab,
   TeacherAuditTab,
   TeacherCleanupTab,
 } from './teacher/TeacherDetailedViews';
@@ -57,15 +51,8 @@ export const TeacherArea: React.FC = () => {
     | 'overview'
     | 'students'
     | 'pautas'
-    | 'classes'
-    | 'missions'
-    | 'assessments'
     | 'activities'
-    | 'challenges'
-    | 'xp'
-    | 'grande-missao'
-    | 'badges'
-    | 'audit'
+    | 'classes'
     | 'cleanup'
   >('overview');
 
@@ -73,14 +60,8 @@ export const TeacherArea: React.FC = () => {
   const [dashboardStats, setDashboardStats] = useState<any>(null);
   const [students, setStudents] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
-  const [missions, setMissions] = useState<any[]>([]);
   const [pautaData, setPautaData] = useState<any>(null);
-  const [assessmentsData, setAssessmentsData] = useState<any>(null);
   const [activitiesData, setActivitiesData] = useState<any>(null);
-  const [challengesData, setChallengesData] = useState<any>(null);
-  const [xpData, setXpData] = useState<any>(null);
-  const [gmData, setGmData] = useState<any>(null);
-  const [badgesData, setBadgesData] = useState<any>(null);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
   // Filters
@@ -110,14 +91,8 @@ export const TeacherArea: React.FC = () => {
         apiRequest('/api/teacher/dashboard-stats'),
         apiRequest(`/api/teacher/students?classId=${selectedClass}`),
         apiRequest('/api/teacher/classes'),
-        apiRequest('/api/teacher/missions'),
         apiRequest(`/api/teacher/pauta?classId=${selectedClass}`),
-        apiRequest(`/api/teacher/assessments-summary?classId=${selectedClass}`),
         apiRequest('/api/teacher/activities-summary'),
-        apiRequest('/api/teacher/challenges-summary'),
-        apiRequest('/api/teacher/xp-breakdown'),
-        apiRequest('/api/teacher/grande-missao-summary'),
-        apiRequest('/api/teacher/badges-summary'),
         apiRequest('/api/teacher/audit-logs'),
       ]);
 
@@ -125,28 +100,16 @@ export const TeacherArea: React.FC = () => {
         statsRes,
         studentsRes,
         classesRes,
-        missionsRes,
         pautaRes,
-        assessRes,
         actRes,
-        chalRes,
-        xpRes,
-        gmRes,
-        badgeRes,
         auditRes,
       ] = results;
 
       if (statsRes.status === 'fulfilled') setDashboardStats(statsRes.value);
       if (studentsRes.status === 'fulfilled') setStudents(studentsRes.value.students || []);
       if (classesRes.status === 'fulfilled') setClasses(classesRes.value.classes || []);
-      if (missionsRes.status === 'fulfilled') setMissions(missionsRes.value.missions || []);
       if (pautaRes.status === 'fulfilled') setPautaData(pautaRes.value);
-      if (assessRes.status === 'fulfilled') setAssessmentsData(assessRes.value.worldsAssessments || []);
       if (actRes.status === 'fulfilled') setActivitiesData(actRes.value.worldsActivities || []);
-      if (chalRes.status === 'fulfilled') setChallengesData(chalRes.value);
-      if (xpRes.status === 'fulfilled') setXpData(xpRes.value);
-      if (gmRes.status === 'fulfilled') setGmData(gmRes.value);
-      if (badgeRes.status === 'fulfilled') setBadgesData(badgeRes.value);
       if (auditRes.status === 'fulfilled') setAuditLogs(auditRes.value.auditLogs || []);
 
     } catch (err: any) {
@@ -406,14 +369,14 @@ export const TeacherArea: React.FC = () => {
 
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                <span>Missões por Corrigir</span>
-                <Clock className="w-4 h-4 text-amber-600" />
+                <span>Simuladores Concluídos</span>
+                <Layers className="w-4 h-4 text-blue-600" />
               </div>
-              <div className="text-2xl font-black text-amber-600 font-mono mt-2">
-                {dashboardStats.pendingMissionsCount}
+              <div className="text-2xl font-black text-blue-600 font-mono mt-2">
+                {dashboardStats.totalSimulatorsCompleted ?? 0}
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                Submissões práticas a aguardar nota
+                {dashboardStats.totalQuizzesAttempted ? `${dashboardStats.totalQuizzesAttempted} testes de avaliação realizados` : 'Atividades e desafios práticos'}
               </div>
             </div>
 
@@ -426,7 +389,7 @@ export const TeacherArea: React.FC = () => {
                 {dashboardStats.globalAverageScore}%
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                Critério de desbloqueio: &gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%
+                Critério de aprovação: &gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%
               </div>
             </div>
           </div>
@@ -436,18 +399,11 @@ export const TeacherArea: React.FC = () => {
         <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex overflow-x-auto gap-1 shadow-xs">
           {[
             { id: 'overview', label: 'Visão Geral', icon: Sparkles },
-            { id: 'students', label: `Alunos (${students?.length || 0})`, icon: Users },
-            { id: 'pautas', label: 'Pautas & Notas', icon: FileSpreadsheet },
+            { id: 'students', label: `Alunos & Acessos (${students?.length || 0})`, icon: Users },
+            { id: 'pautas', label: 'Pautas & Avaliações', icon: FileSpreadsheet },
+            { id: 'activities', label: 'Simuladores Curriculares', icon: Layers },
             { id: 'classes', label: `Turmas (${classes?.length || 0})`, icon: GraduationCap },
-            { id: 'missions', label: `Missões Reais (${missions?.length || 0})`, icon: FileText },
-            { id: 'assessments', label: 'Avaliações Finais', icon: CheckCircle2 },
-            { id: 'activities', label: 'Simuladores', icon: Layers },
-            { id: 'challenges', label: 'Desafios & Semanal', icon: Zap },
-            { id: 'xp', label: 'Extrato de XP', icon: Sparkles },
-            { id: 'grande-missao', label: 'Grande Missão', icon: Compass },
-            { id: 'badges', label: 'Conquistas', icon: Award },
-            { id: 'audit', label: 'Auditoria', icon: History },
-            { id: 'cleanup', label: 'Transição / Reset', icon: RotateCcw },
+            { id: 'cleanup', label: 'Transição & Auditoria', icon: RotateCcw },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -481,7 +437,7 @@ export const TeacherArea: React.FC = () => {
                     <Compass className="w-5 h-5 text-amber-600" />
                     Desempenho Médio por Mundo (Critério &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
                   </h3>
-                  <span className="text-xs text-slate-500">5 Mundos Temáticos</span>
+                  <span className="text-xs text-slate-500">5 Mundos Temáticos TIC</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -545,12 +501,12 @@ export const TeacherArea: React.FC = () => {
                     </button>
 
                     <button
-                      onClick={() => setActiveTab('missions')}
+                      onClick={() => setActiveTab('activities')}
                       className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between text-xs font-bold text-slate-800 transition-colors"
                     >
                       <span className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-amber-600" />
-                        Corrigir Missões Pendentes ({dashboardStats.pendingMissionsCount})
+                        <Layers className="w-4 h-4 text-amber-600" />
+                        Progresso dos Simuladores Curriculares
                       </span>
                       <span className="text-slate-400">→</span>
                     </button>
@@ -561,7 +517,7 @@ export const TeacherArea: React.FC = () => {
                     >
                       <span className="flex items-center gap-2">
                         <FileSpreadsheet className="w-4 h-4 text-amber-600" />
-                        Consultar e Exportar Pautas Gerais
+                        Consultar e Exportar Pautas Oficiais
                       </span>
                       <span className="text-slate-400">→</span>
                     </button>
@@ -587,7 +543,7 @@ export const TeacherArea: React.FC = () => {
                       Últimos Registos de Auditoria
                     </h3>
                     <button
-                      onClick={() => setActiveTab('audit')}
+                      onClick={() => setActiveTab('cleanup')}
                       className="text-xs text-amber-600 font-bold hover:underline"
                     >
                       Ver todos ({auditLogs?.length || 0})
@@ -603,7 +559,7 @@ export const TeacherArea: React.FC = () => {
                         <div>
                           <div className="font-bold text-slate-800">{log.action}</div>
                           <div className="text-[11px] text-slate-500">
-                            {new Date(log.timestamp).toLocaleString('pt-PT')}
+                            {new Date(log.timestamp || log.createdAt).toLocaleString('pt-PT')}
                           </div>
                         </div>
                         {log.targetUserName && (
@@ -666,6 +622,11 @@ export const TeacherArea: React.FC = () => {
             />
           )}
 
+          {/* TAB: ACTIVITIES */}
+          {activeTab === 'activities' && (
+            <TeacherActivitiesTab activitiesData={activitiesData} />
+          )}
+
           {/* TAB: CLASSES */}
           {activeTab === 'classes' && (
             <TeacherClassesTab
@@ -680,54 +641,12 @@ export const TeacherArea: React.FC = () => {
             />
           )}
 
-          {/* TAB: MISSIONS */}
-          {activeTab === 'missions' && (
-            <TeacherMissionsTab
-              missions={missions}
-              classes={classes}
-              selectedClass={selectedClass}
-              setSelectedClass={setSelectedClass}
-              onRefresh={loadAllData}
-            />
-          )}
-
-          {/* TAB: ASSESSMENTS */}
-          {activeTab === 'assessments' && (
-            <TeacherAssessmentsTab
-              assessmentsData={assessmentsData}
-              classes={classes}
-              selectedClass={selectedClass}
-              setSelectedClass={setSelectedClass}
-            />
-          )}
-
-          {/* TAB: ACTIVITIES */}
-          {activeTab === 'activities' && (
-            <TeacherActivitiesTab activitiesData={activitiesData} />
-          )}
-
-          {/* TAB: CHALLENGES */}
-          {activeTab === 'challenges' && (
-            <TeacherChallengesTab challengesData={challengesData} />
-          )}
-
-          {/* TAB: XP */}
-          {activeTab === 'xp' && <TeacherXPTab xpData={xpData} />}
-
-          {/* TAB: GRANDE MISSAO */}
-          {activeTab === 'grande-missao' && (
-            <TeacherGrandeMissaoTab gmData={gmData} />
-          )}
-
-          {/* TAB: BADGES */}
-          {activeTab === 'badges' && <TeacherBadgesTab badgesData={badgesData} />}
-
-          {/* TAB: AUDIT */}
-          {activeTab === 'audit' && <TeacherAuditTab logs={auditLogs} />}
-
-          {/* TAB: CLEANUP */}
+          {/* TAB: CLEANUP & AUDIT */}
           {activeTab === 'cleanup' && (
-            <TeacherCleanupTab classes={classes} onRefresh={loadAllData} />
+            <div className="space-y-6">
+              <TeacherCleanupTab classes={classes} onRefresh={loadAllData} />
+              <TeacherAuditTab logs={auditLogs} />
+            </div>
           )}
         </div>
       </div>

@@ -281,10 +281,9 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider font-semibold">
                   <th className="py-3.5 px-4">Aluno</th>
                   <th className="py-3.5 px-4">Turma</th>
-                  <th className="py-3.5 px-4 text-center">Simuladores</th>
-                  <th className="py-3.5 px-4 text-center">Desafio</th>
-                  <th className="py-3.5 px-4 text-center">Missão Real</th>
-                  <th className="py-3.5 px-4 text-center">Avaliação Final</th>
+                  <th className="py-3.5 px-4 text-center">Simuladores Concluídos</th>
+                  <th className="py-3.5 px-4 text-center">Desafio Integrador</th>
+                  <th className="py-3.5 px-4 text-center">Quiz de Avaliação</th>
                   <th className="py-3.5 px-4 text-center">Média do Mundo</th>
                   <th className="py-3.5 px-4 text-center">Mundo Seguinte</th>
                 </tr>
@@ -292,13 +291,15 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
               <tbody className="divide-y divide-slate-100">
                 {filteredWorldStudents.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-slate-500">
+                    <td colSpan={7} className="py-12 text-center text-slate-500">
                       Nenhum aluno encontrado para esta turma.
                     </td>
                   </tr>
                 ) : (
                   filteredWorldStudents.map((st: any) => {
                     const isWorldPassed = st.worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                    const simsDone = st.simulatorsCount ?? st.simulatorsCompleted ?? 0;
+                    const simsTotal = st.simulatorsTotal ?? 5;
 
                     return (
                       <tr
@@ -322,20 +323,20 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         </td>
 
                         <td className="py-3 px-4 text-center font-mono text-xs text-slate-700">
-                          {st.simulatorsCompleted} concluído(s)
+                          <span className={`px-2 py-0.5 rounded font-bold ${
+                            simsDone >= simsTotal
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : simsDone > 0
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'text-slate-400'
+                          }`}>
+                            {simsDone} / {simsTotal}
+                          </span>
                         </td>
 
                         <td className="py-3 px-4 text-center font-mono text-xs">
-                          {st.challengeCompleted ? (
-                            <span className="text-emerald-700 font-bold">{st.challengeScore} XP</span>
-                          ) : (
-                            <span className="text-slate-400">—</span>
-                          )}
-                        </td>
-
-                        <td className="py-3 px-4 text-center font-mono text-xs">
-                          {st.missionScore > 0 ? (
-                            <span className="text-amber-700 font-bold">{st.missionScore}/100</span>
+                          {st.challengeScore > 0 || st.challengeCompleted ? (
+                            <span className="text-emerald-700 font-bold">{st.challengeScore || 100} XP</span>
                           ) : (
                             <span className="text-slate-400">—</span>
                           )}
@@ -344,11 +345,13 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         <td className="py-3 px-4 text-center font-mono text-xs">
                           {st.assessmentScore > 0 ? (
                             <span
-                              className={`font-bold ${
-                                st.assessmentScore >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-rose-700'
+                              className={`px-2 py-0.5 rounded font-bold ${
+                                st.assessmentScore >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
                               }`}
                             >
-                              {st.assessmentScore}%
+                              {st.assessmentScore}% {st.assessmentMention ? `(${st.assessmentMention})` : ''}
                             </span>
                           ) : (
                             <span className="text-slate-400">—</span>
@@ -360,9 +363,9 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                             className={`inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${
                               st.worldAverage > 0
                                 ? isWorldPassed
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  : 'bg-rose-50 text-rose-700 border-rose-200'
-                                : 'bg-slate-100 text-slate-500 border-slate-200'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200'
                             }`}
                           >
                             {st.worldAverage > 0 ? `${st.worldAverage}%` : '—'}

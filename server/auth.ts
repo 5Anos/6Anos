@@ -66,7 +66,21 @@ export async function getSessionFromRequest(req: Request): Promise<Session | nul
   // Explicitly do NOT accept session tokens from URL query parameters (req.query.token)
   if (!sessionId) return null;
 
-  return await getFirestoreSession(sessionId);
+  const session = await getFirestoreSession(sessionId);
+  if (session) return session;
+
+  // Fallback: If token is a valid userId directly (e.g. from clientDispatcher/localStorage)
+  const user = await getUserById(sessionId);
+  if (user && !user.blocked) {
+    return {
+      id: sessionId,
+      userId: user.id,
+      createdAt: user.createdAt || new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+    };
+  }
+
+  return null;
 }
 
 export async function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {

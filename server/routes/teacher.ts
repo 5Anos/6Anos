@@ -92,56 +92,87 @@ async function logTeacherAction(
 // -------------------------------------------------------------
 router.get('/dashboard-stats', async (req: AuthRequest, res) => {
   try {
-    const [allUsers, classes, pendingMissions, allAssessments] = await Promise.all([
+    const [allUsers, classes, allAssessments, allProgress] = await Promise.all([
       getAllUsers(),
       getAllClasses(),
-      getMissionSubmissions({ status: 'pending' }),
       getAssessmentAttempts('all'),
+      getAllActivityProgress(),
     ]);
 
     const students = allUsers.filter((u) => u.role === 'student');
     const totalStudents = students.length;
     const activeStudents = students.filter((s) => !s.blocked).length;
-    const totalXP = students.reduce((acc, s) => acc + s.xp, 0);
+    const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
     const avgXP = totalStudents > 0 ? Math.round(totalXP / totalStudents) : 0;
+    const totalSimulatorsCompleted = allProgress.filter((p) => p.completed).length;
+    const totalQuizzesAttempted = allAssessments.length;
 
-    // World stats across all students
-    const worldStats = await Promise.all(
-      WORLDS_DATA.map(async (w) => {
-        let sumAvg = 0;
-        let count = 0;
-        let passedCount = 0;
-        for (const s of students) {
-          const stats = await computeWorldStats(s.id, w.id);
-          if (stats.completedCount > 0) {
-            sumAvg += stats.average;
-            count++;
-          }
-          if (stats.isWorldCompleted || stats.average > PROGRESSION_CONFIG.PASSING_THRESHOLD) {
-            passedCount++;
+    let totalScoreSum = 0;
+    let totalScoreCount = 0;
+
+    const worldPerformance = WORLDS_DATA.map((w) => {
+      let sumAvg = 0;
+      let count = 0;
+      let completedCount = 0;
+
+      for (const s of students) {
+        const worldSims = w.simulators;
+        const studentSims = allProgress.filter(
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+        );
+        const attempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
+
+        const components: number[] = [];
+        if (studentSims.length > 0) {
+          const simAvg = studentSims.reduce((sum, p) => sum + (p.bestScore || 0), 0) / studentSims.length;
+          components.push(simAvg);
+        }
+        if (attempts.length > 0) {
+          const quizBest = Math.max(...attempts.map((a) => a.percentage || 0));
+          components.push(quizBest);
+        }
+
+        if (components.length > 0) {
+          const studentWorldAvg = Math.round(components.reduce((a, b) => a + b, 0) / components.length);
+          sumAvg += studentWorldAvg;
+          count++;
+          totalScoreSum += studentWorldAvg;
+          totalScoreCount++;
+          if (studentWorldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
+            completedCount++;
           }
         }
-        return {
-          worldId: w.id,
-          title: w.title,
-          classAverage: count > 0 ? Number((sumAvg / count).toFixed(1)) : 0,
-          studentsActive: count,
-          studentsUnlockedNext: passedCount,
-        };
-      })
-    );
+      }
 
-    // Students needing support
+      const averageScore = count > 0 ? Math.round(sumAvg / count) : 0;
+      return {
+        worldId: w.id,
+        title: w.title,
+        averageScore,
+        studentsAttempted: count,
+        studentsCompleted: completedCount,
+        classAverage: averageScore,
+        studentsActive: count,
+        studentsUnlockedNext: completedCount,
+      };
+    });
+
+    const globalAverageScore =
+      totalScoreCount > 0 ? Math.round(totalScoreSum / totalScoreCount) : 0;
     const studentsNeedingHelp = students.filter((s) => s.needsHelp).length;
 
     return res.json({
       totalStudents,
       activeStudents,
-      pendingMissions: pendingMissions.length,
+      totalClasses: classes.length,
+      classes,
+      totalQuizzesAttempted,
+      totalSimulatorsCompleted,
+      globalAverageScore,
       avgXP,
       studentsNeedingHelp,
-      classes,
-      worldStats,
+      worldPerformance,
+      worldStats: worldPerformance,
     });
   } catch (err) {
     console.error('Error in /dashboard-stats:', err);
@@ -1864,7 +1895,167 @@ router.get('/audit-logs', async (req: AuthRequest, res) => {
 });
 
 // -------------------------------------------------------------
-// 17. EXPORT DATA (CSV & XLSX)
+// 17. PAUTA COMPLETA (GERAL E POR MUNDO)
+// -------------------------------------------------------------
+router.get('/pauta', async (req: AuthRequest, res: Response) => {
+  try {
+    const { classId } = req.query;
+    const [allUsers, classes, allAssessments, allProgress] = await Promise.all([
+      getAllUsers(),
+      getAllClasses(),
+      getAssessmentAttempts('all'),
+      getAllActivityProgress(),
+    ]);
+
+    let students = allUsers.filter((u) => u.role === 'student');
+    if (classId && typeof classId === 'string' && classId !== 'all') {
+      students = students.filter((s) => s.classId === classId);
+    }
+
+    students.sort((a, b) => {
+      if (a.studentNumber && b.studentNumber) return a.studentNumber - b.studentNumber;
+      return a.name.localeCompare(b.name);
+    });
+
+    // 1. Pauta Geral
+    const pautaGeral = students.map((s, idx) => {
+      const classroom = classes.find((c) => c.id === s.classId);
+      const levelInfo = calculateLevel(s.xp || 0);
+
+      const worldScores: number[] = [];
+      for (const w of WORLDS_DATA) {
+        const worldSims = w.simulators;
+        const studentSims = allProgress.filter(
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+        );
+        const simAvg =
+          studentSims.length > 0
+            ? studentSims.reduce((sum, p) => sum + (p.bestScore || 0), 0) / studentSims.length
+            : 0;
+
+        const worldAttempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
+        const bestQuiz =
+          worldAttempts.length > 0 ? Math.max(...worldAttempts.map((a) => a.percentage || 0)) : null;
+
+        let worldScore = 0;
+        if (studentSims.length > 0 && bestQuiz !== null) {
+          worldScore = Math.round((simAvg + bestQuiz) / 2);
+        } else if (bestQuiz !== null) {
+          worldScore = Math.round(bestQuiz);
+        } else if (studentSims.length > 0) {
+          worldScore = Math.round(simAvg);
+        }
+
+        worldScores.push(worldScore);
+      }
+
+      const activeScores = worldScores.filter((sc) => sc > 0);
+      const globalAverage =
+        activeScores.length > 0
+          ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
+          : 0;
+
+      return {
+        studentId: s.id,
+        studentName: s.fullName || s.name,
+        studentNickname: s.nickname || s.username,
+        classId: s.classId,
+        className: classroom ? classroom.name : 'Sem Turma',
+        studentNumber: s.studentNumber || idx + 1,
+        worldScores,
+        globalAverage,
+        totalXP: s.xp || 0,
+        level: levelInfo.level,
+        levelName: levelInfo.name,
+      };
+    });
+
+    // 2. Pautas por Mundo
+    const pautasPorMundo = WORLDS_DATA.map((w) => {
+      const worldStudents = students.map((s, idx) => {
+        const classroom = classes.find((c) => c.id === s.classId);
+
+        // Simulators
+        const worldSims = w.simulators;
+        const studentSims = allProgress.filter(
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+        );
+        const simulatorsAvg =
+          studentSims.length > 0
+            ? Math.round(studentSims.reduce((sum, p) => sum + (p.bestScore || 0), 0) / studentSims.length)
+            : 0;
+
+        // Challenge
+        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge.id);
+        const challengeScore = chalProg && chalProg.completed ? chalProg.bestScore : 0;
+
+        // Quizzes (Assessments)
+        const attempts = allAssessments
+          .filter((a) => a.userId === s.id && a.worldId === w.id)
+          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+        const firstAttempt = attempts.length > 0 ? attempts[0] : null;
+        const bestAttempt =
+          attempts.length > 0
+            ? attempts.reduce((max, a) => (a.percentage > max.percentage ? a : max), attempts[0])
+            : null;
+
+        const assessmentScore = bestAttempt ? bestAttempt.percentage : 0;
+        const officialAssessmentScore = firstAttempt ? firstAttempt.percentage : null;
+        const assessmentMention = bestAttempt
+          ? (bestAttempt.mention || getQualitativeMention(bestAttempt.percentage))
+          : '—';
+
+        // World Average
+        const components: number[] = [];
+        if (studentSims.length > 0) components.push(simulatorsAvg);
+        if (challengeScore > 0) components.push(challengeScore);
+        if (bestAttempt) components.push(bestAttempt.percentage);
+
+        const worldAverage =
+          components.length > 0
+            ? Math.round(components.reduce((a, b) => a + b, 0) / components.length)
+            : 0;
+
+        const isWorldPassed = worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+
+        return {
+          studentId: s.id,
+          studentName: s.fullName || s.name,
+          studentNickname: s.nickname || s.username,
+          classId: s.classId,
+          className: classroom ? classroom.name : 'Sem Turma',
+          studentNumber: s.studentNumber || idx + 1,
+          simulatorsCount: studentSims.length,
+          simulatorsTotal: worldSims.length,
+          simulatorsAvg,
+          challengeScore,
+          missionScore: 0,
+          assessmentScore,
+          officialAssessmentScore,
+          assessmentMention,
+          worldAverage,
+          isWorldPassed,
+          isNextUnlocked: isWorldPassed,
+        };
+      });
+
+      return {
+        worldId: w.id,
+        worldTitle: w.title,
+        students: worldStudents,
+      };
+    });
+
+    return res.json({ pautaGeral, pautasPorMundo });
+  } catch (err) {
+    console.error('Error in /pauta:', err);
+    return res.status(500).json({ error: 'Erro ao gerar pautas escolares.' });
+  }
+});
+
+// -------------------------------------------------------------
+// 18. EXPORT DATA (CSV & XLSX)
 // -------------------------------------------------------------
 router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: Response) => {
   try {

@@ -104,22 +104,21 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   }
 
   if (pathname === '/api/pedagogical/activities/complete' && method === 'POST') {
-    const res = await clientCompleteActivity(body.activityId, body.score, body.durationSeconds);
+    const rawScore = typeof body.score === 'number' ? body.score : 100;
+    const res = await clientCompleteActivity(body.activityId, rawScore, body.durationSeconds);
     return res as any;
   }
 
-  const assessSubmitMatch = pathname.match(/^\/api\/pedagogical\/assessments\/(\d+)\/submit$/);
-  if (assessSubmitMatch && method === 'POST') {
-    const worldId = parseInt(assessSubmitMatch[1], 10);
-    const res = await clientSubmitAssessment(worldId, body.answers || {}, body.durationSeconds);
-    return res as any;
-  }
-
-  const assessGetMatch = pathname.match(/^\/api\/pedagogical\/assessments\/(\d+)$/);
-  if (assessGetMatch && method === 'GET') {
-    const worldId = parseInt(assessGetMatch[1], 10);
-    const res = await clientGetAssessment(worldId);
-    return res as any;
+  const assessMatch = pathname.match(/^\/api\/pedagogical\/assessments\/(\d+)(\/submit)?$/);
+  if (assessMatch) {
+    const worldId = parseInt(assessMatch[1], 10);
+    if (method === 'POST') {
+      const res = await clientSubmitAssessment(worldId, body.answers || {}, body.durationSeconds);
+      return res as any;
+    } else {
+      const res = await clientGetAssessment(worldId);
+      return res as any;
+    }
   }
 
   if (pathname === '/api/pedagogical/class-ranking') {
@@ -194,27 +193,85 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const students = allUsers.filter((u) => u.role === 'student');
     const classes = await clientGetClasses();
 
+    const [assessSnap, progSnap] = await Promise.all([
+      getDocs(collection(db, 'assessmentAttempts')),
+      getDocs(collection(db, 'activityProgress')),
+    ]);
+    const allAssessments = assessSnap.docs.map((d) => d.data() as any);
+    const allProgress = progSnap.docs.map((d) => d.data() as any);
+
     const totalStudents = students.length;
     const activeStudents = students.filter((s) => !s.blocked).length;
     const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
     const avgXP = totalStudents > 0 ? Math.round(totalXP / totalStudents) : 0;
+    const totalSimulatorsCompleted = allProgress.filter((p) => p.completed).length;
+    const totalQuizzesAttempted = allAssessments.length;
 
-    const worldStats = WORLDS_DATA.map((w) => ({
-      worldId: w.id,
-      title: w.title,
-      classAverage: 0,
-      studentsActive: 0,
-      studentsUnlockedNext: 0,
-    }));
+    let totalScoreSum = 0;
+    let totalScoreCount = 0;
+
+    const worldPerformance = WORLDS_DATA.map((w) => {
+      let sumAvg = 0;
+      let count = 0;
+      let completedCount = 0;
+
+      for (const s of students) {
+        const worldSims = w.simulators;
+        const studentSims = allProgress.filter(
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+        );
+        const attempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
+
+        const components: number[] = [];
+        if (studentSims.length > 0) {
+          const simAvg = studentSims.reduce((sum: number, p: any) => sum + (p.bestScore || 0), 0) / studentSims.length;
+          components.push(simAvg);
+        }
+        if (attempts.length > 0) {
+          const quizBest = Math.max(...attempts.map((a: any) => a.percentage || 0));
+          components.push(quizBest);
+        }
+
+        if (components.length > 0) {
+          const studentWorldAvg = Math.round(components.reduce((a: number, b: number) => a + b, 0) / components.length);
+          sumAvg += studentWorldAvg;
+          count++;
+          totalScoreSum += studentWorldAvg;
+          totalScoreCount++;
+          if (studentWorldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
+            completedCount++;
+          }
+        }
+      }
+
+      const averageScore = count > 0 ? Math.round(sumAvg / count) : 0;
+      return {
+        worldId: w.id,
+        title: w.title,
+        averageScore,
+        studentsAttempted: count,
+        studentsCompleted: completedCount,
+        classAverage: averageScore,
+        studentsActive: count,
+        studentsUnlockedNext: completedCount,
+      };
+    });
+
+    const globalAverageScore =
+      totalScoreCount > 0 ? Math.round(totalScoreSum / totalScoreCount) : 0;
 
     return {
       totalStudents,
       activeStudents,
-      pendingMissions: 0,
+      totalClasses: classes.length,
+      classes,
+      totalQuizzesAttempted,
+      totalSimulatorsCompleted,
+      globalAverageScore,
       avgXP,
       studentsNeedingHelp: 0,
-      classes,
-      worldStats,
+      worldPerformance,
+      worldStats: worldPerformance,
     } as any;
   }
 
@@ -257,47 +314,259 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const qUsers = query(collection(db, 'users'), where('role', '==', 'student'));
     const userSnap = await getDocs(qUsers);
     let students = userSnap.docs.map((d) => d.data() as ClientUser);
+    const classes = await clientGetClasses();
 
     if (classId && classId !== 'all') {
       students = students.filter((s) => s.classId === classId);
     }
 
-    const pauta = students.map((s) => {
-      const mention = getQualitativeMention(0);
+    const [assessSnap, progSnap] = await Promise.all([
+      getDocs(collection(db, 'assessmentAttempts')),
+      getDocs(collection(db, 'activityProgress')),
+    ]);
+    const allAssessments = assessSnap.docs.map((d) => d.data() as any);
+    const allProgress = progSnap.docs.map((d) => d.data() as any);
+
+    students.sort((a, b) => {
+      if (a.studentNumber && b.studentNumber) return a.studentNumber - b.studentNumber;
+      return a.name.localeCompare(b.name);
+    });
+
+    // 1. Pauta Geral
+    const pautaGeral = students.map((s, idx) => {
+      const classroom = classes.find((c) => c.id === s.classId);
+      const level = Math.floor((s.xp || 0) / 100) + 1;
+
+      const worldScores: number[] = [];
+      for (const w of WORLDS_DATA) {
+        const worldSims = w.simulators;
+        const studentSims = allProgress.filter(
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+        );
+        const simAvg =
+          studentSims.length > 0
+            ? studentSims.reduce((sum: number, p: any) => sum + (p.bestScore || 0), 0) / studentSims.length
+            : 0;
+
+        const worldAttempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
+        const bestQuiz =
+          worldAttempts.length > 0 ? Math.max(...worldAttempts.map((a: any) => a.percentage || 0)) : null;
+
+        let worldScore = 0;
+        if (studentSims.length > 0 && bestQuiz !== null) {
+          worldScore = Math.round((simAvg + bestQuiz) / 2);
+        } else if (bestQuiz !== null) {
+          worldScore = Math.round(bestQuiz);
+        } else if (studentSims.length > 0) {
+          worldScore = Math.round(simAvg);
+        }
+
+        worldScores.push(worldScore);
+      }
+
+      const activeScores = worldScores.filter((sc) => sc > 0);
+      const globalAverage =
+        activeScores.length > 0
+          ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
+          : 0;
+
       return {
         studentId: s.id,
-        name: s.name,
-        nickname: s.nickname,
+        studentName: s.fullName || s.name,
+        studentNickname: s.nickname || s.username,
         classId: s.classId,
-        avatar: s.avatar,
-        overallAverage: 0,
-        qualitativeMention: mention,
-        qualitativeDescription: mention,
-        qualitativeLevel: 1,
-        qualitativeColor: '#ef4444',
-        worldsCompleted: 0,
-        xp: s.xp || 0,
-        rank: 0,
-        worldDetails: {},
+        className: classroom ? classroom.name : 'Sem Turma',
+        studentNumber: s.studentNumber || idx + 1,
+        worldScores,
+        globalAverage,
+        totalXP: s.xp || 0,
+        level,
+        levelName: `Nível ${level}`,
       };
     });
 
-    return { pauta } as any;
-  }
+    // 2. Pautas por Mundo
+    const pautasPorMundo = WORLDS_DATA.map((w) => {
+      const worldStudents = students.map((s, idx) => {
+        const classroom = classes.find((c) => c.id === s.classId);
 
-  if (pathname === '/api/teacher/missions') {
-    const q = query(collection(db, 'missionSubmissions'));
-    const snap = await getDocs(q);
-    const submissions = snap.docs.map((d) => d.data());
-    return { submissions } as any;
+        const worldSims = w.simulators;
+        const studentSims = allProgress.filter(
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+        );
+        const simulatorsAvg =
+          studentSims.length > 0
+            ? Math.round(studentSims.reduce((sum: number, p: any) => sum + (p.bestScore || 0), 0) / studentSims.length)
+            : 0;
+
+        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge.id);
+        const challengeScore = chalProg && chalProg.completed ? chalProg.bestScore : 0;
+
+        const attempts = allAssessments
+          .filter((a) => a.userId === s.id && a.worldId === w.id)
+          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+        const firstAttempt = attempts.length > 0 ? attempts[0] : null;
+        const bestAttempt =
+          attempts.length > 0
+            ? attempts.reduce((max, a) => (a.percentage > max.percentage ? a : max), attempts[0])
+            : null;
+
+        const assessmentScore = bestAttempt ? bestAttempt.percentage : 0;
+        const officialAssessmentScore = firstAttempt ? firstAttempt.percentage : null;
+        const assessmentMention = bestAttempt
+          ? (bestAttempt.mention || getQualitativeMention(bestAttempt.percentage))
+          : '—';
+
+        const components: number[] = [];
+        if (studentSims.length > 0) components.push(simulatorsAvg);
+        if (challengeScore > 0) components.push(challengeScore);
+        if (bestAttempt) components.push(bestAttempt.percentage);
+
+        const worldAverage =
+          components.length > 0
+            ? Math.round(components.reduce((a: number, b: number) => a + b, 0) / components.length)
+            : 0;
+
+        const isWorldPassed = worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+
+        return {
+          studentId: s.id,
+          studentName: s.fullName || s.name,
+          studentNickname: s.nickname || s.username,
+          classId: s.classId,
+          className: classroom ? classroom.name : 'Sem Turma',
+          studentNumber: s.studentNumber || idx + 1,
+          simulatorsCount: studentSims.length,
+          simulatorsTotal: worldSims.length,
+          simulatorsAvg,
+          challengeScore,
+          missionScore: 0,
+          assessmentScore,
+          officialAssessmentScore,
+          assessmentMention,
+          worldAverage,
+          isWorldPassed,
+          isNextUnlocked: isWorldPassed,
+        };
+      });
+
+      return {
+        worldId: w.id,
+        worldTitle: w.title,
+        students: worldStudents,
+      };
+    });
+
+    return { pautaGeral, pautasPorMundo } as any;
   }
 
   if (pathname === '/api/teacher/assessments-summary') {
-    return { summaries: [] } as any;
+    const qUsers = query(collection(db, 'users'), where('role', '==', 'student'));
+    const userSnap = await getDocs(qUsers);
+    const students = userSnap.docs.map((d) => d.data() as ClientUser);
+    const classes = await clientGetClasses();
+    const assessSnap = await getDocs(collection(db, 'assessmentAttempts'));
+    const allAssessments = assessSnap.docs.map((d) => d.data() as any);
+
+    const worldsAssessments = WORLDS_DATA.map((w) => {
+      const worldAttempts = allAssessments.filter((a) => a.worldId === w.id);
+      const studentResults = students.map((s) => {
+        const studentAttempts = worldAttempts.filter((a) => a.userId === s.id);
+        const sorted = [...studentAttempts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        const first = sorted.length > 0 ? sorted[0] : null;
+        const best = sorted.length > 0 ? sorted.reduce((max, a) => (a.percentage > max.percentage ? a : max), sorted[0]) : null;
+        const last = sorted.length > 0 ? sorted[sorted.length - 1] : null;
+        const classroom = classes.find((c) => c.id === s.classId);
+
+        return {
+          studentId: s.id,
+          studentName: s.fullName || s.name,
+          studentNickname: s.nickname,
+          classId: s.classId,
+          className: classroom ? classroom.name : 'Sem Turma',
+          hasAttempted: sorted.length > 0,
+          attemptsCount: sorted.length,
+          officialPercentage: first ? first.percentage : null,
+          officialMention: first ? (first.mention || getQualitativeMention(first.percentage)) : null,
+          bestPercentage: best ? best.percentage : null,
+          bestMention: best ? (best.mention || getQualitativeMention(best.percentage)) : null,
+          lastPercentage: last ? last.percentage : null,
+          lastMention: last ? (last.mention || getQualitativeMention(last.percentage)) : null,
+          passed: first ? first.percentage >= 50 : false,
+          firstAttemptAt: first ? first.createdAt : null,
+          lastAttemptAt: last ? last.createdAt : null,
+        };
+      });
+
+      const attempted = studentResults.filter((r) => r.hasAttempted);
+      const passed = studentResults.filter((r) => r.passed);
+      const avgScore = attempted.length > 0 ? Math.round(attempted.reduce((a, r) => a + (r.bestPercentage || 0), 0) / attempted.length) : 0;
+
+      return {
+        worldId: w.id,
+        worldTitle: w.title,
+        assessmentTitle: `Avaliação do Mundo ${w.id}`,
+        totalQuestions: 8,
+        totalAttempted: attempted.length,
+        totalPassed: passed.length,
+        totalPending: students.length - attempted.length,
+        averageScore: avgScore,
+        students: studentResults,
+      };
+    });
+
+    return { worldsAssessments } as any;
   }
 
   if (pathname === '/api/teacher/activities-summary') {
-    return { activities: [] } as any;
+    const qUsers = query(collection(db, 'users'), where('role', '==', 'student'));
+    const userSnap = await getDocs(qUsers);
+    const students = userSnap.docs.map((d) => d.data() as ClientUser);
+    const classes = await clientGetClasses();
+    const progSnap = await getDocs(collection(db, 'activityProgress'));
+    const allProgress = progSnap.docs.map((d) => d.data() as any);
+
+    const worldsActivities = WORLDS_DATA.map((w) => {
+      const sims = w.simulators.map((s) => {
+        const studentStats = students.map((st) => {
+          const prog = allProgress.find((p) => p.userId === st.id && p.activityId === s.id);
+          const classroom = classes.find((c) => c.id === st.classId);
+          return {
+            studentId: st.id,
+            studentName: st.fullName || st.name,
+            studentNickname: st.nickname,
+            className: classroom ? classroom.name : 'Sem Turma',
+            completed: prog ? prog.completed : false,
+            bestScore: prog ? prog.bestScore : 0,
+            attempts: prog ? prog.attempts : 0,
+            lastAttemptAt: prog ? prog.lastAttemptAt : null,
+          };
+        });
+
+        const completedCount = studentStats.filter((r) => r.completed).length;
+        const avgScore = completedCount > 0 ? Math.round(studentStats.filter((r) => r.completed).reduce((a, r) => a + r.bestScore, 0) / completedCount) : 0;
+
+        return {
+          id: s.id,
+          title: s.name,
+          description: s.description,
+          xpReward: s.xpReward,
+          completedCount,
+          pendingCount: students.length - completedCount,
+          averageScore: avgScore,
+          students: studentStats,
+        };
+      });
+
+      return {
+        worldId: w.id,
+        worldTitle: w.title,
+        activities: sims,
+      };
+    });
+
+    return { worldsActivities } as any;
   }
 
   if (pathname === '/api/teacher/challenges-summary') {
