@@ -348,7 +348,7 @@ export async function deleteUser(userId: string): Promise<void> {
 
 export async function resetStudentProgressInFirestore(userId: string): Promise<void> {
   const db = getFirestore();
-  await updateUser(userId, { xp: 100 });
+  await updateUser(userId, { xp: 0 });
 
   const [progSnap, assessSnap, misSnap, xpSnap, badgeSnap, dtSnap, wcSnap] = await Promise.all([
     getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),

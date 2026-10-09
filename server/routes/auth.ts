@@ -131,7 +131,7 @@ router.post('/register', async (req, res) => {
     const { hash, salt } = hashPassword(password);
     const userId = `student-${crypto.randomUUID()}`;
 
-    // Initial student user starts at Level 1 with 100 base welcome XP
+    // Initial student user starts at Level 1 with 0 base XP
     const newUser: User = {
       id: userId,
       name: name.trim(),
@@ -143,7 +143,7 @@ router.post('/register', async (req, res) => {
       role: 'student',
       classId: classroom.id,
       locale: locale === 'en' ? 'en' : 'pt',
-      xp: 100, // Starts at 100 XP base welcome
+      xp: 0, // Starts at 0 XP
       blocked: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -151,14 +151,6 @@ router.post('/register', async (req, res) => {
     };
 
     await saveUser(newUser);
-
-    // Record welcome XP transaction
-    await atomicAwardXP(newUser.id, 0, {
-      sourceType: 'registration',
-      sourceId: 'welcome-100-xp',
-      previousBest: 0,
-      newBest: 100,
-    }).catch(() => {});
 
     // Award initial welcome badge 'primeiros-passos' in Cloud Firestore
     await awardBadge(newUser.id, 'primeiros-passos');
@@ -169,7 +161,7 @@ router.post('/register', async (req, res) => {
     return res.status(201).json({
       user: sanitizeUser(newUser),
       token: session.id,
-      message: 'Conta criada com sucesso! Ganhaste +100 XP e a badge Primeiros Passos!',
+      message: 'Conta criada com sucesso! Bem-vindo à Missão TIC!',
     });
   } catch (err: any) {
     console.error('Error in /register:', err);
@@ -233,12 +225,6 @@ router.post('/login', async (req, res) => {
 
     if (!valid) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
-    }
-
-    // Ensure student has at least 100 base welcome XP
-    if (user.role === 'student' && (!user.xp || user.xp < 100)) {
-      user.xp = 100;
-      await updateUser(user.id, { xp: 100 });
     }
 
     await updateUser(user.id, { lastLoginAt: new Date().toISOString() });

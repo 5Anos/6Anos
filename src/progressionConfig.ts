@@ -15,7 +15,7 @@ export const PROGRESSION_CONFIG = {
 
   // Standard Milestone XP Rewards
   XP_REWARDS: {
-    INITIAL_WELCOME: 100,
+    INITIAL_WELCOME: 0,
     GRANDE_MISSAO: 150,
     WEEKLY_CHALLENGE: 30,
     DAILY_TIP: 20,

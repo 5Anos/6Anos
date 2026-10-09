@@ -606,7 +606,7 @@ router.post('/students', async (req: AuthRequest, res) => {
       role: 'student',
       classId: assignedClassId,
       locale: 'pt',
-      xp: 100,
+      xp: 0,
       blocked: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -703,7 +703,7 @@ router.post('/students/batch-import', async (req: AuthRequest, res) => {
         role: 'student',
         classId: classObj.id,
         locale: 'pt',
-        xp: 100,
+        xp: 0,
         blocked: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -902,7 +902,7 @@ router.post('/students/:studentId/reset-progress', async (req: AuthRequest, res)
 
     return res.json({
       success: true,
-      message: 'O progresso do aluno foi reiniciado para o estado inicial na nuvem com 100 XP base.',
+      message: 'O progresso do aluno foi reiniciado para o estado inicial na nuvem com 0 XP.',
     });
   } catch (err) {
     console.error('Error in reset-progress:', err);
