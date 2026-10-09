@@ -74,10 +74,14 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
   }
 
   // Include Bearer authorization token if present for cross-device authentication
-  if (typeof window !== 'undefined' && !headers.has('Authorization')) {
+  if (typeof window !== 'undefined') {
     const token = localStorage.getItem('auth_token');
-    if (token) {
+    if (token && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${token}`);
+    }
+    const directUserId = localStorage.getItem('auth_user_id') || localStorage.getItem('user_id');
+    if (directUserId && !headers.has('x-user-id')) {
+      headers.set('x-user-id', directUserId);
     }
   }
 
@@ -97,8 +101,8 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
     }
   }
 
-  // If server returns 405 (Method Not Allowed - static hosting like GitHub Pages) or 404
-  if (response.status === 405 || response.status === 404) {
+  // If server returns 405 (Method Not Allowed - static hosting like GitHub Pages), 404, or 401 with local fallback
+  if (response.status === 405 || response.status === 404 || (response.status === 401 && typeof window !== 'undefined' && (localStorage.getItem('auth_user_id') || localStorage.getItem('user_id')))) {
     console.warn(`[API HTTP ${response.status}] ${endpoint}, executing directly against Firebase Firestore...`);
     try {
       return await clientDispatch<T>(endpoint, options);

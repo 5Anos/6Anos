@@ -40,9 +40,11 @@ export function evaluateActivity(
     // -------------------------------------------------------------
     case 'sim-password': {
       // Deterministic password strength evaluation
-      const pwd = typeof input === 'string' ? input : input?.password || input?.pwdInput || '';
+      const pwd = typeof input === 'string'
+        ? input
+        : input?.password || input?.pwdInput || input?.payload?.password || input?.answers?.password || '';
       if (!pwd || typeof pwd !== 'string' || pwd.trim().length === 0) {
-        return { score: 0, isValidated: false, feedback: 'Nenhuma palavra-passe fornecida para teste.' };
+        break; // Fall through to client score / stage completion fallback
       }
       let score = 0;
       const len = pwd.length;

@@ -309,32 +309,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </button>
         </div>
 
-        {/* Informative Banner for non-registered users */}
-        {!user && (
-          <div className="mb-6 p-4.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 shadow-xs">
-                <Lock className="w-5 h-5 text-amber-700" />
-              </div>
-              <div>
-                <h4 className="text-sm font-black text-slate-900 leading-snug">
-                  Mundos Bloqueados — Acesso Exclusivo com Início de Sessão
-                </h4>
-                <p className="text-xs text-slate-600 font-medium mt-0.5">
-                  Para aceder aos 5 Mundos, utiliza o nome de utilizador e a palavra-passe do teu cartão escolar fornecido pela tua Professora.
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => onOpenLoginModal?.()}
-              className="shrink-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span>Iniciar Sessão</span>
-            </button>
-          </div>
-        )}
-
         {/* Panorama Illustrated Archipelago Canvas */}
         <div className="relative bg-gradient-to-b from-sky-100/40 via-blue-50/20 to-white rounded-3xl p-6 border border-blue-100/80">
           {/* Subtle Background Sky Clouds & Seagulls */}
@@ -365,30 +339,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 1: Guardião Digital */}
             {(() => {
               const w1 = worlds.find((w) => w.id === 1);
-              const isUnlocked = Boolean(user);
-              const avg = user ? Math.round(w1?.average || 0) : 0;
+              const avg = Math.round(w1?.average || 0);
               return (
                 <div
                   id="world-island-1"
                   onClick={() => {
-                    if (!user) {
-                      onOpenLoginModal?.();
-                      return;
-                    }
                     onSelectWorld(1);
                   }}
-                  className={`group cursor-pointer flex flex-col items-center text-center transition-transform ${
-                    user ? 'hover:-translate-y-1.5' : 'opacity-90'
-                  }`}
-                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
+                  className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
-                    <Island1Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-25' : ''}`} />
-                    {!user && (
-                      <div className="absolute top-2 right-2 bg-slate-900/80 text-amber-300 p-1.5 rounded-xl backdrop-blur-xs shadow-xs border border-white/20">
-                        <Lock className="w-3.5 h-3.5" />
-                      </div>
-                    )}
+                    <Island1Artwork className="w-full h-full drop-shadow-sm" />
                   </div>
 
                   <div className="w-full bg-white rounded-2xl p-3.5 border border-blue-200/90 shadow-sm mt-1 flex flex-col justify-between">
@@ -415,24 +376,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
-                        !user
-                          ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                        avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'bg-emerald-100 text-emerald-800'
                           : avg > 0
                           ? 'bg-blue-100 text-blue-800'
-                          : 'bg-slate-100 text-slate-600'
+                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       }`}
                     >
-                      {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
-                        {!user
-                          ? 'Sessão Obrigatória'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                        {avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
                           ? 'Em progresso'
-                          : 'Por iniciar'}
+                          : 'Explorar Mundo 1'}
                       </span>
                     </div>
                   </div>

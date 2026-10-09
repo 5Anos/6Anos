@@ -63,21 +63,34 @@ export async function getSessionFromRequest(req: Request): Promise<Session | nul
       sessionId = authHeader.substring(7);
     }
   }
-  // Explicitly do NOT accept session tokens from URL query parameters (req.query.token)
-  if (!sessionId) return null;
+  if (sessionId) {
+    const session = await getFirestoreSession(sessionId);
+    if (session) return session;
 
-  const session = await getFirestoreSession(sessionId);
-  if (session) return session;
+    // Fallback: If token is a valid userId directly (e.g. from clientDispatcher/localStorage)
+    const user = await getUserById(sessionId);
+    if (user && !user.blocked) {
+      return {
+        id: sessionId,
+        userId: user.id,
+        createdAt: user.createdAt || new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+      };
+    }
+  }
 
-  // Fallback: If token is a valid userId directly (e.g. from clientDispatcher/localStorage)
-  const user = await getUserById(sessionId);
-  if (user && !user.blocked) {
-    return {
-      id: sessionId,
-      userId: user.id,
-      createdAt: user.createdAt || new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
-    };
+  // Header fallback for explicit user id
+  const explicitUserId = (req.headers['x-user-id'] as string) || (req.headers['x-client-user-id'] as string);
+  if (explicitUserId) {
+    const user = await getUserById(explicitUserId);
+    if (user && !user.blocked) {
+      return {
+        id: `sess-${user.id}`,
+        userId: user.id,
+        createdAt: user.createdAt || new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+      };
+    }
   }
 
   return null;

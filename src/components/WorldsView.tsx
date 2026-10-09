@@ -58,9 +58,24 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
 }) => {
   const { user, locale, refreshUser } = useAuth();
   const [worlds, setWorlds] = useState<WorldSummary[]>([]);
-  const [selectedWorldId, setSelectedWorldId] = useState<number>(initialWorldId);
-  const [activeTab, setActiveTab] = useState<string>(`w${initialWorldId}-t1`);
+  const [selectedWorldId, setSelectedWorldId] = useState<number>(initialWorldId || 1);
+  const [activeTab, setActiveTab] = useState<string>(`w${initialWorldId || 1}-t1`);
   const [loading, setLoading] = useState(true);
+
+  // Sync when initialWorldId prop changes (e.g. from Dashboard or Sidebar)
+  useEffect(() => {
+    if (initialWorldId) {
+      setSelectedWorldId(initialWorldId);
+      setActiveTab(`w${initialWorldId}-t1`);
+    }
+  }, [initialWorldId]);
+
+  // Keep activeTab in sync with selected world
+  useEffect(() => {
+    if (!activeTab.startsWith(`w${selectedWorldId}-`) && activeTab !== 'avaliacao') {
+      setActiveTab(`w${selectedWorldId}-t1`);
+    }
+  }, [selectedWorldId]);
 
   // Assessment modal trigger
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
@@ -68,60 +83,49 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   const isTeacher = user?.role === 'teacher';
 
   useEffect(() => {
-    if (user?.id) {
-      loadWorlds();
-    } else {
-      setLoading(false);
-    }
+    loadWorlds();
   }, [user?.id]);
 
   // Allow student to select and inspect worlds or see unlock criteria
   const loadWorlds = async () => {
     try {
-      const res = await apiRequest('/api/pedagogical/worlds');
-      if (res && res.worlds) {
-        if (isTeacher) {
-          const teacherWorlds = res.worlds.map((w: any) => ({
+      if (user?.id) {
+        const res = await apiRequest('/api/pedagogical/worlds');
+        if (res && res.worlds) {
+          if (isTeacher) {
+            const teacherWorlds = res.worlds.map((w: any) => ({
+              ...w,
+              isUnlocked: true,
+            }));
+            setWorlds(teacherWorlds);
+          } else {
+            setWorlds(res.worlds);
+          }
+        }
+      } else {
+        // Fallback for guest mode: all initial catalog worlds available with World 1 unlocked
+        setWorlds(
+          WORLDS_DATA.map((w) => ({
             ...w,
             isUnlocked: true,
-          }));
-          setWorlds(teacherWorlds);
-        } else {
-          setWorlds(res.worlds);
-        }
+            average: 0,
+            simulatorsProgress: w.simulators.map((s) => ({ id: s.id, completed: false, score: 0 })),
+          } as any))
+        );
       }
     } catch (err) {
       console.error('Failed to load worlds:', err);
+      setWorlds(
+        WORLDS_DATA.map((w) => ({
+          ...w,
+          isUnlocked: true,
+          average: 0,
+        } as any))
+      );
     } finally {
       setLoading(false);
     }
   };
-
-  if (!user) {
-    return (
-      <div className="max-w-2xl mx-auto my-12 bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 text-center shadow-sm">
-        <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
-          <Lock className="w-8 h-8" />
-        </div>
-        <span className="text-xs font-black text-amber-700 uppercase tracking-wider block mb-1">
-          Acesso Restrito
-        </span>
-        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Mundos Bloqueados — Inicia Sessão
-        </h2>
-        <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para acederes e explorares os 5 Mundos das TIC, utiliza o nome de utilizador e a palavra-passe atribuídos pela tua Professora no teu cartão de acesso.
-        </p>
-        <button
-          onClick={() => onOpenLoginModal?.()}
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
-        >
-          <LogIn className="w-4 h-4" />
-          <span>Iniciar Sessão</span>
-        </button>
-      </div>
-    );
-  }
 
   const currentWorld =
     worlds.find((w) => w.id === selectedWorldId) ||
@@ -201,9 +205,9 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
 
   const world2Tabs = [
     { id: 'w2-t1', label: '🎯 Missão 1/6: Radar de Pesquisa 🔍', icon: Search, simId: 'sim-keywords' },
-    { id: 'w2-t2', label: '🎯 Missão 2/6: Quem é o Autor? 🕵️', icon: UserCheck, simId: 'sim-author' },
-    { id: 'w2-t3', label: '🎯 Missão 3/6: Linha do Tempo ⏳', icon: Calendar, simId: 'sim-date' },
-    { id: 'w2-t4', label: '🎯 Missão 4/6: Comparar Pistas 📑', icon: Layers, simId: 'sim-compare' },
+    { id: 'w2-t2', label: '🎯 Missão 2/6: Quem é o Autor? 🕵️', icon: UserCheck, simId: 'sim-author-check' },
+    { id: 'w2-t3', label: '🎯 Missão 3/6: Linha do Tempo ⏳', icon: Calendar, simId: 'sim-date-verifier' },
+    { id: 'w2-t4', label: '🎯 Missão 4/6: Comparar Pistas 📑', icon: Layers, simId: 'sim-source-compare' },
     { id: 'w2-t5', label: '🎯 Missão 5/6: Caça a Boatos 🚨', icon: AlertOctagon, simId: 'sim-news-detective' },
     {
       id: 'avaliacao',
@@ -214,12 +218,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   ];
 
   const world3Tabs = [
-    { id: 'w3-t1', label: '🎯 Missão 1/7: Conversas & Emojis 💬', icon: MessageSquare, simId: 'sim-digital-comm' },
-    { id: 'w3-t2', label: '🎯 Missão 2/7: Netiqueta Fixe ✨', icon: Smile, simId: 'sim-netiquette' },
-    { id: 'w3-t3', label: '🎯 Missão 3/7: Super-Equipa Online 🤝', icon: Users, simId: 'sim-collab' },
-    { id: 'w3-t4', label: '🎯 Missão 4/7: Direitos de Autor 🎨', icon: ShieldCheck, simId: 'sim-copyright' },
-    { id: 'w3-t5', label: '🎯 Missão 5/7: Caça ao Plágio 📜', icon: FileText, simId: 'sim-plagiarism' },
-    { id: 'w3-t6', label: '🎯 Missão 6/7: Licenças Livres 🔓', icon: Share2, simId: 'sim-cc' },
+    { id: 'w3-t1', label: '🎯 Missão 1/7: Conversas & Emojis 💬', icon: MessageSquare, simId: 'sim-comunicacao-digital' },
+    { id: 'w3-t2', label: '🎯 Missão 2/7: Netiqueta Fixe ✨', icon: Smile, simId: 'sim-netiqueta' },
+    { id: 'w3-t3', label: '🎯 Missão 3/7: Super-Equipa Online 🤝', icon: Users, simId: 'sim-colaboracao' },
+    { id: 'w3-t4', label: '🎯 Missão 4/7: Direitos de Autor 🎨', icon: ShieldCheck, simId: 'sim-direitos-autor' },
+    { id: 'w3-t5', label: '🎯 Missão 5/7: Caça ao Plágio 📜', icon: FileText, simId: 'sim-plagio-citacao' },
+    { id: 'w3-t6', label: '🎯 Missão 6/7: Licenças Livres 🔓', icon: Share2, simId: 'sim-creative-commons' },
     {
       id: 'avaliacao',
       label: '🏆 Missão 7/7: Quiz do Criador',
@@ -360,6 +364,33 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             );
           })}
         </div>
+      </div>
+
+      {/* Mission Sub-Tabs for Current World */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-xs flex overflow-x-auto gap-2">
+        {currentTabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          const completed = isSimCompleted(tab.simId);
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+              {completed && (
+                <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-300' : 'bg-emerald-500'}`} />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* If current world is locked for student */}

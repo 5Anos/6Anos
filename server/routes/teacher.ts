@@ -104,7 +104,7 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
     const activeStudents = students.filter((s) => !s.blocked).length;
     const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
     const avgXP = totalStudents > 0 ? Math.round(totalXP / totalStudents) : 0;
-    const totalSimulatorsCompleted = allProgress.filter((p) => p.completed).length;
+    const totalSimulatorsCompleted = allProgress.filter((p) => p.completed || (p.bestScore && p.bestScore > 0)).length;
     const totalQuizzesAttempted = allAssessments.length;
 
     let totalScoreSum = 0;
@@ -118,7 +118,7 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
       for (const s of students) {
         const worldSims = w.simulators;
         const studentSims = allProgress.filter(
-          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
         const attempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
 
@@ -1566,7 +1566,7 @@ router.get('/activities-summary', async (req: AuthRequest, res) => {
             studentName: st.name,
             studentNickname: st.nickname,
             className: classroom ? classroom.name : 'Sem Turma',
-            completed: prog ? prog.completed : false,
+            completed: prog ? (prog.completed || (typeof prog.bestScore === 'number' && prog.bestScore > 0)) : false,
             bestScore: prog ? prog.bestScore : 0,
             attempts: prog ? prog.attempts : 0,
             lastAttemptAt: prog ? prog.lastAttemptAt : null,
@@ -1926,7 +1926,7 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
       for (const w of WORLDS_DATA) {
         const worldSims = w.simulators;
         const studentSims = allProgress.filter(
-          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
         const simAvg =
           studentSims.length > 0
@@ -1937,15 +1937,15 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
         const bestQuiz =
           worldAttempts.length > 0 ? Math.max(...worldAttempts.map((a) => a.percentage || 0)) : null;
 
-        let worldScore = 0;
-        if (studentSims.length > 0 && bestQuiz !== null) {
-          worldScore = Math.round((simAvg + bestQuiz) / 2);
-        } else if (bestQuiz !== null) {
-          worldScore = Math.round(bestQuiz);
-        } else if (studentSims.length > 0) {
-          worldScore = Math.round(simAvg);
-        }
+        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge?.id);
+        const challengeScore = chalProg && (chalProg.completed || (chalProg.bestScore && chalProg.bestScore > 0)) ? chalProg.bestScore : null;
 
+        const comps: number[] = [];
+        if (studentSims.length > 0) comps.push(simAvg);
+        if (challengeScore !== null) comps.push(challengeScore);
+        if (bestQuiz !== null) comps.push(bestQuiz);
+
+        const worldScore = comps.length > 0 ? Math.round(comps.reduce((a, b) => a + b, 0) / comps.length) : 0;
         worldScores.push(worldScore);
       }
 
@@ -1978,7 +1978,7 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
         // Simulators
         const worldSims = w.simulators;
         const studentSims = allProgress.filter(
-          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
         const simulatorsAvg =
           studentSims.length > 0
@@ -1987,7 +1987,7 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
 
         // Challenge
         const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge.id);
-        const challengeScore = chalProg && chalProg.completed ? chalProg.bestScore : 0;
+        const challengeScore = chalProg && (chalProg.completed || (chalProg.bestScore && chalProg.bestScore > 0)) ? chalProg.bestScore : 0;
 
         // Quizzes (Assessments)
         const attempts = allAssessments

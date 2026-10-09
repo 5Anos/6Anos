@@ -16,14 +16,11 @@ import { LoginModal } from './components/LoginModal';
 const MainLayout: React.FC = () => {
   const { user, loading, welcomeGreeting, dismissGreeting } = useAuth();
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
-  const [selectedWorldId, setSelectedWorldId] = useState<number>(2);
+  const [selectedWorldId, setSelectedWorldId] = useState<number>(1);
   const [activeSimulatorId, setActiveSimulatorId] = useState<string>('sim-password');
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
   React.useEffect(() => {
-    if (!user && currentTab !== 'dashboard') {
-      setCurrentTab('dashboard');
-    }
     if (currentTab === 'teacher' && user?.role !== 'teacher') {
       setCurrentTab('dashboard');
     }
@@ -45,45 +42,25 @@ const MainLayout: React.FC = () => {
   }
 
   const handleSelectWorld = (worldId: number) => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
     setSelectedWorldId(worldId);
     setCurrentTab('worlds');
   };
 
   const handleOpenSimulator = (worldId: number, simId: string) => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
     setSelectedWorldId(worldId);
     setActiveSimulatorId(simId);
     setCurrentTab('simulators');
   };
 
   const handleOpenWeeklyChallenge = () => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
     setCurrentTab('challenges');
   };
 
   const handleOpenGrandeMissao = () => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
     setCurrentTab('grande_missao');
   };
 
   const handleSelectTab = (tab: string) => {
-    if (!user && tab !== 'dashboard') {
-      setShowLoginModal(true);
-      return;
-    }
     if (tab === 'teacher' && user?.role !== 'teacher') {
       return;
     }

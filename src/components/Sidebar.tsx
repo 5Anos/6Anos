@@ -85,7 +85,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = currentTab === item.id;
-            const isProtected = !user && item.id !== 'dashboard';
             return (
               <button
                 key={item.id}
@@ -105,11 +104,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
                   />
                   <span>{item.label}</span>
                 </div>
-                {isProtected && (
-                  <span className="text-[10px] bg-amber-100 text-amber-800 font-extrabold px-1.5 py-0.5 rounded-md flex items-center gap-1">
-                    <Lock className="w-2.5 h-2.5" />
-                  </span>
-                )}
               </button>
             );
           })}

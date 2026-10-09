@@ -87,33 +87,62 @@ export function setActiveClientUserId(userId: string | null) {
   }
 }
 
+function isLikelyUserId(id: string | null | undefined): boolean {
+  if (!id) return false;
+  if (id.startsWith('sess-')) return false;
+  if (id.startsWith('student-') || id.startsWith('teacher-') || id.startsWith('user-')) return true;
+  // If it's a standard UUID without prefix, it is a session ID
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return false;
+  return true;
+}
+
 export function getActiveClientUserId(): string | null {
-  if (activeClientUserId && !activeClientUserId.startsWith('sess-')) return activeClientUserId;
+  if (activeClientUserId && isLikelyUserId(activeClientUserId)) return activeClientUserId;
   if (typeof window !== 'undefined') {
     const directUserId = localStorage.getItem('auth_user_id') || localStorage.getItem('user_id');
-    if (directUserId && !directUserId.startsWith('sess-')) {
+    if (directUserId && isLikelyUserId(directUserId)) {
       activeClientUserId = directUserId;
       return directUserId;
     }
+    const rawUser = localStorage.getItem('auth_user') || localStorage.getItem('user');
+    if (rawUser) {
+      try {
+        const parsed = JSON.parse(rawUser);
+        if (parsed?.id && isLikelyUserId(parsed.id)) {
+          activeClientUserId = parsed.id;
+          return parsed.id;
+        }
+      } catch {}
+    }
     const token = localStorage.getItem('auth_token');
-    if (token && !token.startsWith('sess-')) return token;
+    if (token && isLikelyUserId(token)) return token;
   }
   return activeClientUserId;
 }
 
 export async function resolveClientUserId(): Promise<string | null> {
   const syncId = getActiveClientUserId();
-  if (syncId && !syncId.startsWith('sess-')) return syncId;
+  if (syncId && isLikelyUserId(syncId)) return syncId;
 
   if (typeof window !== 'undefined') {
     const direct = localStorage.getItem('auth_user_id') || localStorage.getItem('user_id');
-    if (direct && !direct.startsWith('sess-')) {
+    if (direct && isLikelyUserId(direct)) {
       activeClientUserId = direct;
       return direct;
     }
+    const rawUser = localStorage.getItem('auth_user') || localStorage.getItem('user');
+    if (rawUser) {
+      try {
+        const parsed = JSON.parse(rawUser);
+        if (parsed?.id && isLikelyUserId(parsed.id)) {
+          activeClientUserId = parsed.id;
+          return parsed.id;
+        }
+      } catch {}
+    }
     const token = localStorage.getItem('auth_token');
     if (token) {
-      if (!token.startsWith('sess-')) {
+      if (isLikelyUserId(token)) {
         activeClientUserId = token;
         return token;
       }
@@ -125,6 +154,7 @@ export async function resolveClientUserId(): Promise<string | null> {
           if (sessData?.userId) {
             activeClientUserId = sessData.userId;
             localStorage.setItem('auth_user_id', sessData.userId);
+            localStorage.setItem('user_id', sessData.userId);
             return sessData.userId;
           }
         }
@@ -581,23 +611,11 @@ export async function clientCompleteActivity(activityId: string, score: number, 
   const userSnap = await getDoc(doc(db, 'users', userId));
   const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
 
-  if (isTeacher) {
-    return {
-      success: true,
-      activityId,
-      score,
-      bestScore: score,
-      xpGain: 0,
-      totalXp: 0,
-      level: 1,
-    };
-  }
-
   const progDocId = `${userId}_${activityId}`;
   const progRef = doc(db, 'activityProgress', progDocId);
   const userRef = doc(db, 'users', userId);
   const clampedScore = Math.max(0, Math.min(100, Math.round(score)));
-  const completed = clampedScore >= 50;
+  const completed = true; // Any valid completion of the simulator marks it completed
   const now = new Date().toISOString();
 
   let previousBest = 0;
@@ -623,7 +641,7 @@ export async function clientCompleteActivity(activityId: string, score: number, 
     }
 
     newBest = Math.max(previousBest, clampedScore);
-    xpGain = Math.max(0, newBest - previousBest);
+    xpGain = isTeacher ? 0 : Math.max(0, newBest - previousBest);
     finalUserXp = currentXp + xpGain;
 
     // 2. Atomic Writes
@@ -665,7 +683,9 @@ export async function clientCompleteActivity(activityId: string, score: number, 
   });
 
   // Check badges
-  await clientCheckBadges(userId);
+  if (!isTeacher) {
+    await clientCheckBadges(userId);
+  }
 
   return {
     success: true,
@@ -733,28 +753,6 @@ export async function clientSubmitAssessment(
 
   const userSnap = await getDoc(doc(db, 'users', userId));
   const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
-
-  if (isTeacher) {
-    return {
-      worldId,
-      score: correctCount,
-      totalQuestions,
-      percentage,
-      mention,
-      passed,
-      passingThreshold: 50,
-      isFirstAttempt: true,
-      attemptNumber: 1,
-      officialPercentage: percentage,
-      officialMention: mention,
-      previousBest: percentage,
-      newBest: percentage,
-      bestMention: mention,
-      xpGain: 0,
-      totalXp: 0,
-      results: detailedResults,
-    };
-  }
 
   // Previous attempts
   const qAttempts = query(

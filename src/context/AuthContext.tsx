@@ -43,6 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (typeof window !== 'undefined') {
           localStorage.setItem('auth_user_id', res.user.id);
           localStorage.setItem('user_id', res.user.id);
+          localStorage.setItem('auth_user', JSON.stringify(res.user));
+          localStorage.setItem('user', JSON.stringify(res.user));
         }
         if (res.user?.locale) {
           setLocaleState(res.user.locale);
@@ -71,6 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.token) localStorage.setItem('auth_token', res.token);
         localStorage.setItem('auth_user_id', res.user.id);
         localStorage.setItem('user_id', res.user.id);
+        localStorage.setItem('auth_user', JSON.stringify(res.user));
+        localStorage.setItem('user', JSON.stringify(res.user));
       }
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
@@ -90,8 +94,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(data),
     });
     if (res && res.user) {
-      if (res.token && typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', res.token);
+      if (typeof window !== 'undefined') {
+        if (res.token) localStorage.setItem('auth_token', res.token);
+        localStorage.setItem('auth_user_id', res.user.id);
+        localStorage.setItem('user_id', res.user.id);
+        localStorage.setItem('auth_user', JSON.stringify(res.user));
+        localStorage.setItem('user', JSON.stringify(res.user));
       }
       setUser(res.user);
       if (res.user?.locale) setLocaleState(res.user.locale);
@@ -111,6 +119,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user_id');
       localStorage.removeItem('user_id');
+      localStorage.removeItem('auth_user');
+      localStorage.removeItem('user');
     }
     setUser(null);
     setBadges([]);

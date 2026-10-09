@@ -1,339 +1,309 @@
 import React, { useState } from 'react';
 import {
   FileText,
-  Filter,
+  Award,
   CheckCircle2,
   Clock,
-  Send,
-  Sparkles,
-  Award,
-  X,
-  Save,
+  Filter,
+  Search,
   MessageSquare,
-  AlertCircle,
+  Sparkles,
+  Layers,
+  X,
+  Send,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
-import { PROGRESSION_CONFIG } from '../../progressionConfig';
 
 interface TeacherMissionsTabProps {
   missions: any[];
   classes: any[];
-  selectedClass: string;
-  setSelectedClass: (val: string) => void;
   onRefresh: () => void;
 }
 
 export const TeacherMissionsTab: React.FC<TeacherMissionsTabProps> = ({
   missions = [],
   classes = [],
-  selectedClass,
-  setSelectedClass,
   onRefresh,
 }) => {
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'graded'>('pending');
-  const [worldFilter, setWorldFilter] = useState<number | 'all'>('all');
+  const [selectedWorld, setSelectedWorld] = useState<number | 'all'>('all');
+  const [selectedClass, setSelectedClass] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'graded'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [gradingMission, setGradingMission] = useState<any | null>(null);
   const [score, setScore] = useState<number>(85);
   const [feedback, setFeedback] = useState<string>('');
-  const [submitting, setSubmitting] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [submittingGrade, setSubmittingGrade] = useState(false);
 
   const missionList = Array.isArray(missions) ? missions : [];
-  const classList = Array.isArray(classes) ? classes : [];
 
   const filteredMissions = missionList.filter((m) => {
-    const matchesClass = selectedClass === 'all' || m.classId === selectedClass;
-    const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
-    const matchesWorld = worldFilter === 'all' || m.worldId === worldFilter;
-    return matchesClass && matchesStatus && matchesWorld;
+    if (selectedWorld !== 'all' && m.worldId !== selectedWorld) return false;
+    if (selectedClass !== 'all' && m.classId !== selectedClass) return false;
+    if (statusFilter !== 'all' && m.status !== statusFilter) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchName = m.studentName?.toLowerCase().includes(q);
+      const matchTitle = m.title?.toLowerCase().includes(q);
+      if (!matchName && !matchTitle) return false;
+    }
+    return true;
   });
 
   const pendingCount = missionList.filter((m) => m.status === 'pending').length;
 
-  const handleOpenGrade = (m: any) => {
+  const handleOpenGradeModal = (m: any) => {
     setGradingMission(m);
     setScore(m.score || 85);
-    setFeedback(m.feedback || '');
-    setErrorMsg(null);
+    setFeedback(m.feedback || 'Bom trabalho na aplicação prática dos conhecimentos de TIC!');
   };
 
   const handleSaveGrade = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!gradingMission) return;
-    if (score < 0 || score > 100) {
-      alert('A pontuação deve estar entre 0 e 100.');
-      return;
-    }
-
     try {
-      setSubmitting(true);
+      setSubmittingGrade(true);
       await apiRequest(`/api/teacher/missions/${gradingMission.id}/grade`, {
         method: 'POST',
-        body: JSON.stringify({
-          score: Number(score),
-          feedback: feedback.trim(),
-        }),
+        body: JSON.stringify({ score, feedback }),
       });
       setGradingMission(null);
       onRefresh();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Erro ao gravar classificação.');
+      alert(err.message || 'Erro ao guardar avaliação da missão.');
     } finally {
-      setSubmitting(false);
+      setSubmittingGrade(false);
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Top Filter Bar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
-        {/* Status switcher */}
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
-          <button
-            onClick={() => setStatusFilter('pending')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              statusFilter === 'pending'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span>Pendentes ({pendingCount})</span>
-          </button>
-          <button
-            onClick={() => setStatusFilter('graded')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              statusFilter === 'graded'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Já Corrigidas</span>
-          </button>
-          <button
-            onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              statusFilter === 'all'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Todas ({missions.length})
-          </button>
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <FileText className="w-4 h-4 text-amber-600" />
+              Submissões de Missões Reais
+            </h3>
+            {pendingCount > 0 && (
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                {pendingCount} pendentes
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                statusFilter === 'all'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              Todas ({missionList.length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('pending')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                statusFilter === 'pending'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              Pendentes ({pendingCount})
+            </button>
+            <button
+              onClick={() => setStatusFilter('graded')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                statusFilter === 'graded'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              Avaliadas ({missionList.length - pendingCount})
+            </button>
+          </div>
         </div>
 
-        {/* Dropdown Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <select
-              value={worldFilter}
-              onChange={(e) =>
-                setWorldFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
-              }
-              aria-label="Filtrar por mundo nas missões"
-              className="bg-transparent text-slate-800 text-xs focus:outline-none cursor-pointer pr-2"
-            >
-              <option value="all" className="bg-white text-slate-800">Todos os Mundos</option>
-              <option value="1" className="bg-white text-slate-800">Mundo 1: Segurança</option>
-              <option value="2" className="bg-white text-slate-800">Mundo 2: Computadores</option>
-              <option value="3" className="bg-white text-slate-800">Mundo 3: Algoritmos</option>
-              <option value="4" className="bg-white text-slate-800">Mundo 4: IA</option>
-              <option value="5" className="bg-white text-slate-800">Mundo 5: Cidadania</option>
-            </select>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100 text-xs">
+          <input
+            type="text"
+            placeholder="Pesquisar por aluno ou título..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-amber-500"
+          />
 
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-            <select
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              aria-label="Filtrar por turma nas missões"
-              className="bg-transparent text-slate-800 text-xs focus:outline-none cursor-pointer pr-2"
-            >
-              <option value="all" className="bg-white text-slate-800">Todas as Turmas</option>
-              {classes.map((c) => (
-                <option key={c.id} value={c.id} className="bg-white text-slate-800">
-                  Turma {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={selectedWorld}
+            onChange={(e) => setSelectedWorld(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-amber-500"
+          >
+            <option value="all">Todos os Mundos</option>
+            <option value="1">Mundo 1: Guardião Digital</option>
+            <option value="2">Mundo 2: Detetive da Informação</option>
+            <option value="3">Mundo 3: Criador Digital</option>
+            <option value="4">Mundo 4: Engenheiro de Algoritmos</option>
+            <option value="5">Mundo 5: Cidadão da IA</option>
+          </select>
+
+          <select
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-amber-500"
+          >
+            <option value="all">Todas as Turmas</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>Turma {c.name}</option>
+            ))}
+          </select>
         </div>
       </div>
 
       {/* Missions Grid/List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredMissions.length === 0 ? (
-          <div className="col-span-2 bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 shadow-xs">
-            <FileText className="w-12 h-12 mx-auto mb-2 opacity-30 text-slate-400" />
-            <p className="font-semibold text-slate-700">Nenhuma submissão de Missão Real encontrada.</p>
-            <p className="text-xs text-slate-500 mt-1">
-              Quando os alunos realizarem e enviarem as suas missões práticas nos mundos, as propostas aparecerão aqui para validação docente.
-            </p>
-          </div>
-        ) : (
-          filteredMissions.map((m) => {
+      {filteredMissions.length === 0 ? (
+        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 space-y-2">
+          <FileText className="w-8 h-8 mx-auto text-slate-300" />
+          <p className="font-semibold text-slate-700">Nenhuma submissão de Missão Real encontrada.</p>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
+            Quando os alunos realizarem e enviarem as suas missões práticas nos mundos, as propostas aparecerão aqui para validação docente.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredMissions.map((m) => {
             const isGraded = m.status === 'graded';
-
             return (
               <div
                 key={m.id}
-                className="bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xs transition-all"
+                className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between"
               >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-black text-[11px]">
-                          Mundo {m.worldId}
-                        </span>
-                        <span className="text-xs text-slate-500 font-mono">
-                          Turma {m.className || 'Sem Turma'}
-                        </span>
-                      </div>
-                      <h4 className="text-base font-bold text-slate-900 mt-1">{m.title}</h4>
-                    </div>
-
-                    {isGraded ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        {m.score}/100
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
-                        <Clock className="w-3.5 h-3.5" />
-                        Por Corrigir
-                      </span>
-                    )}
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+                      Mundo {m.worldId}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        isGraded
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
+                      }`}
+                    >
+                      {isGraded ? `Avaliado: ${m.score}/100` : 'Pendente de Avaliação'}
+                    </span>
                   </div>
 
-                  <div className="text-xs text-slate-700 font-medium">
-                    Aluno: <strong className="text-slate-900">{m.studentName}</strong> <span className="text-slate-400">(@{m.studentNickname})</span>
+                  <h4 className="font-bold text-slate-900 text-sm">{m.title}</h4>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Aluno: <strong>{m.studentName}</strong> • Turma {m.className}
                   </div>
 
                   {/* Submission text preview */}
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 max-h-32 overflow-y-auto whitespace-pre-wrap font-sans leading-relaxed">
-                    {m.submissionText || m.content || '(Sem texto na submissão)'}
+                  <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-mono line-clamp-3">
+                    {m.submissionText || m.submission || m.content || '(Sem texto na submissão)'}
                   </div>
 
                   {isGraded && m.feedback && (
-                    <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
-                      <MessageSquare className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                      <span>Feedback: "{m.feedback}"</span>
+                    <div className="mt-2 text-xs text-slate-500 italic bg-amber-50/50 p-2.5 rounded-xl border border-amber-100">
+                      Feedback: "{m.feedback}"
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
-                  <span>Enviado a {new Date(m.submittedAt).toLocaleDateString('pt-PT')}</span>
-
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">
+                    {new Date(m.submittedAt || m.createdAt).toLocaleDateString('pt-PT')}
+                  </span>
                   <button
-                    onClick={() => handleOpenGrade(m)}
-                    className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-xs"
+                    onClick={() => handleOpenGradeModal(m)}
+                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                   >
+                    <Award className="w-3.5 h-3.5" />
                     <span>{isGraded ? 'Editar Nota / Feedback' : 'Avaliar Missão'}</span>
-                    <Send className="w-3 h-3" />
                   </button>
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* Grading Modal */}
       {gradingMission && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 shadow-xl space-y-5 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <span className="text-xs font-bold text-amber-700 uppercase">
+                <span className="text-xs font-bold text-amber-800">
                   Avaliação Docente — Mundo {gradingMission.worldId}
                 </span>
-                <h3 className="text-lg font-bold text-slate-900 mt-0.5">
+                <h3 className="text-base font-bold text-slate-900">
                   {gradingMission.title}
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <div className="text-xs text-slate-500">
                   Aluno: <strong>{gradingMission.studentName}</strong> • Turma {gradingMission.className}
-                </p>
+                </div>
               </div>
-
               <button
                 onClick={() => setGradingMission(null)}
-                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-800"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
-                {errorMsg}
-              </div>
-            )}
-
             {/* Submission Content */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700">
-                Resposta / Trabalho do Aluno:
-              </label>
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-                {gradingMission.submissionText || gradingMission.content || 'Sem conteúdo.'}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Trabalho do Aluno:</label>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 max-h-36 overflow-y-auto font-mono whitespace-pre-wrap">
+                {gradingMission.submissionText || gradingMission.submission || gradingMission.content || 'Sem conteúdo.'}
               </div>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSaveGrade} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-1">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Nota (0 a 100):
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={score}
-                    onChange={(e) => setScore(Number(e.target.value))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono font-bold text-amber-700 focus:outline-none focus:border-amber-500"
-                  />
-                  <div className="text-[10px] text-slate-500">
-                    {score >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? `✓ Aprovado (>=${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`
-                      : `✗ Insuficiente (<${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)`}
-                  </div>
-                </div>
+            <form onSubmit={handleSaveGrade} className="space-y-4 pt-2">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span>Classificação (0 a 100):</span>
+                  <span className="font-mono text-amber-800 font-bold">{score} / 100</span>
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={score}
+                  onChange={(e) => setScore(Number(e.target.value))}
+                  className="w-full accent-amber-500"
+                />
+              </div>
 
-                <div className="space-y-1 sm:col-span-2">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Feedback Pedagógico para o Aluno:
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Escreve uma mensagem de orientação, pontos fortes ou sugestões de melhoria..."
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 resize-none"
-                  />
-                </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Feedback Formativo:</label>
+                <textarea
+                  rows={3}
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Escreve uma apreciação pedagógica para o aluno..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setGradingMission(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-xs"
+                  disabled={submittingGrade}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5"
                 >
-                  <Save className="w-3.5 h-3.5" />
-                  {submitting ? 'A gravar...' : 'Gravar Classificação & Atribuir XP'}
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{submittingGrade ? 'A guardar...' : 'Confirmar e Atribuir Nota'}</span>
                 </button>
               </div>
             </form>

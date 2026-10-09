@@ -35,6 +35,7 @@ import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { TeacherStudentsTab } from './teacher/TeacherStudentsTab';
 import { StudentDossierModal } from './teacher/StudentDossierModal';
 import { TeacherPautasTab } from './teacher/TeacherPautasTab';
+import { TeacherMissionsTab } from './teacher/TeacherMissionsTab';
 import { TeacherClassesTab } from './teacher/TeacherClassesTab';
 import {
   TeacherActivitiesTab,
@@ -51,6 +52,7 @@ export const TeacherArea: React.FC = () => {
     | 'overview'
     | 'students'
     | 'pautas'
+    | 'missions'
     | 'activities'
     | 'classes'
     | 'cleanup'
@@ -63,6 +65,7 @@ export const TeacherArea: React.FC = () => {
   const [pautaData, setPautaData] = useState<any>(null);
   const [activitiesData, setActivitiesData] = useState<any>(null);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [missionsData, setMissionsData] = useState<any[]>([]);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,6 +97,7 @@ export const TeacherArea: React.FC = () => {
         apiRequest(`/api/teacher/pauta?classId=${selectedClass}`),
         apiRequest('/api/teacher/activities-summary'),
         apiRequest('/api/teacher/audit-logs'),
+        apiRequest(`/api/teacher/missions?classId=${selectedClass}`),
       ]);
 
       const [
@@ -103,6 +107,7 @@ export const TeacherArea: React.FC = () => {
         pautaRes,
         actRes,
         auditRes,
+        missionsRes,
       ] = results;
 
       if (statsRes.status === 'fulfilled') setDashboardStats(statsRes.value);
@@ -111,6 +116,7 @@ export const TeacherArea: React.FC = () => {
       if (pautaRes.status === 'fulfilled') setPautaData(pautaRes.value);
       if (actRes.status === 'fulfilled') setActivitiesData(actRes.value.worldsActivities || []);
       if (auditRes.status === 'fulfilled') setAuditLogs(auditRes.value.auditLogs || []);
+      if (missionsRes.status === 'fulfilled') setMissionsData(missionsRes.value.missions || []);
 
     } catch (err: any) {
       console.error('Backend API request returned error:', err?.message);
@@ -401,6 +407,7 @@ export const TeacherArea: React.FC = () => {
             { id: 'overview', label: 'Visão Geral', icon: Sparkles },
             { id: 'students', label: `Alunos & Acessos (${students?.length || 0})`, icon: Users },
             { id: 'pautas', label: 'Pautas & Avaliações', icon: FileSpreadsheet },
+            { id: 'missions', label: `Missões Reais (${missionsData?.length || 0})`, icon: FileText },
             { id: 'activities', label: 'Simuladores Curriculares', icon: Layers },
             { id: 'classes', label: `Turmas (${classes?.length || 0})`, icon: GraduationCap },
             { id: 'cleanup', label: 'Transição & Auditoria', icon: RotateCcw },
@@ -619,6 +626,15 @@ export const TeacherArea: React.FC = () => {
               onOpenStudent={(s) => setSelectedStudentForDossier(s)}
               onExportCSV={handleExportCSV}
               onExportXLSX={handleExportXLSX}
+            />
+          )}
+
+          {/* TAB: MISSIONS */}
+          {activeTab === 'missions' && (
+            <TeacherMissionsTab
+              missions={missionsData}
+              classes={classes}
+              onRefresh={loadAllData}
             />
           )}
 

@@ -3,44 +3,25 @@ import {
   Search,
   UserCheck,
   Calendar,
-  GitCompare,
-  Eye,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
-  Award,
-  BookOpen,
-  Sparkles,
-  ShieldAlert,
-  HelpCircle,
-  Clock,
   Layers,
-  Star,
-  Zap,
   AlertOctagon,
-  Users,
-  Megaphone,
+  CheckCircle2,
   Trophy,
-  Target,
-  Check,
-  X,
-  XCircle,
-  Lightbulb,
-  FlaskConical,
-  PawPrint,
-  ChevronRight,
-  ExternalLink,
+  Sparkles,
+  ArrowRight,
+  Flame,
+  Clock,
+  Filter,
 } from 'lucide-react';
-import { DetectiveBoyHero, StudyStackIllustration } from './DetectiveMascot';
-import { AudioReaderButton } from './AudioReaderButton';
-import { GlossaryTerm } from './PedagogicalGlossary';
-import { MetacognitionWidget } from './MetacognitionWidget';
-import { ScaffoldingClueCard } from './ScaffoldingClueCard';
-import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { TopicIllustrationCard } from './TopicIllustrationCard';
+import { GameHeader } from './gameEngine/GameHeader';
+import { GameFeedbackBanner } from './gameEngine/GameFeedbackBanner';
+import { GameClassificationBoard } from './gameEngine/GameClassificationBoard';
+import { GameDetectiveInspector } from './gameEngine/GameDetectiveInspector';
+import { GameDecisionScenario } from './gameEngine/GameDecisionScenario';
+import { GameMatchingPairs } from './gameEngine/GameMatchingPairs';
 
 interface World2ThematicViewProps {
   world: WorldSummary;
@@ -57,357 +38,50 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   onOpenAssessment,
   onRefreshWorld,
 }) => {
-  const { user, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
 
-  // Completed feedback banner
-  const [completedFeedback, setCompletedFeedback] = useState<{
-    score: number;
-    xpGain: number;
-    newBest: number;
-    activityTitle: string;
-  } | null>(null);
-
-  // -------------------------------------------------------------
-  // 1. KEYWORDS SIMULATOR STATE
-  // -------------------------------------------------------------
-  const [activeSearchScenarioIndex, setActiveSearchScenarioIndex] = useState(0);
-  const [selectedSearchQueries, setSelectedSearchQueries] = useState<Record<number, string>>({});
-  const [keywordFeedback, setKeywordFeedback] = useState<{
-    score: number;
+  const [stage, setStage] = useState<number>(1);
+  const [lives, setLives] = useState<number>(3);
+  const [feedback, setFeedback] = useState<{
+    status: 'correct' | 'wrong' | 'victory' | 'gameover';
     title: string;
-    description: string;
+    message: string;
+    xpGain?: number;
   } | null>(null);
 
-  const searchScenarios = [
-    {
-      id: 'scen-animais',
-      theme: 'Trabalho de Ciências: Animais em risco',
-      prompt: 'O professor pediu para identificares animais em perigo de extinção em Portugal para um trabalho de grupo. Qual destas pesquisas te dá os resultados mais diretos?',
-      queries: [
-        {
-          id: 'q1-a',
-          query: 'animais',
-          label: 'Pesquisa A',
-          score: 30,
-          title: 'Demasiado vaga.',
-          description: 'Apresenta milhões de páginas gerais sobre animais de todo o mundo, sem responder à pergunta.',
-        },
-        {
-          id: 'q1-b',
-          query: 'animais em perigo',
-          label: 'Pesquisa B',
-          score: 65,
-          title: 'Já é mais específica, mas ainda muito ampla.',
-          description: 'Devolve espécies de outros continentes sem focar a fauna protegida em território português.',
-        },
-        {
-          id: 'q1-c',
-          query: 'animais em perigo de extinção em Portugal',
-          label: 'Pesquisa C',
-          score: 100,
-          title: 'Excelente escolha de palavras-chave!',
-          description: 'Indica claramente o tema e o contexto geográfico, ajudando a encontrar informação relevante sem perder tempo.',
-        },
-      ],
-    },
-    {
-      id: 'scen-jogos',
-      theme: 'Dicas de TIC: Segurança em videojogos online',
-      prompt: 'Queres encontrar orientações para proteger a tua conta de videojogos online contra roubos. Qual destas pesquisas é a mais adequada?',
-      queries: [
-        {
-          id: 'q2-a',
-          query: 'jogos',
-          label: 'Pesquisa A',
-          score: 25,
-          title: 'Demasiado vaga.',
-          description: 'Vai mostrar lojas de jogos e vídeos de jogabilidade em vez de regras de segurança.',
-        },
-        {
-          id: 'q2-b',
-          query: 'como proteger conta de videojogos autenticação dois fatores',
-          label: 'Pesquisa B',
-          score: 100,
-          title: 'Excelente pesquisa com termos precisos!',
-          description: 'Utiliza termos técnicos corretos (proteger conta, autenticação) que levam a guias de segurança oficiais.',
-        },
-        {
-          id: 'q2-c',
-          query: 'coisas para não ser roubado na internet',
-          label: 'Pesquisa C',
-          score: 55,
-          title: 'Compreensível, mas pouco técnica.',
-          description: 'Pode trazer fóruns informais com sugestões pouco seguras em vez de manuais oficiais.',
-        },
-      ],
-    },
-    {
-      id: 'scen-espaco',
-      theme: 'Trabalho de Estudo do Meio: Sistema Solar',
-      prompt: 'Precisas de saber a distância média entre a Terra e a Lua para um projeto escolar. Que pesquisa deves fazer?',
-      queries: [
-        {
-          id: 'q3-a',
-          query: 'distancia media da Terra a Lua em quilometros',
-          label: 'Pesquisa A',
-          score: 100,
-          title: 'Pesquisa perfeita!',
-          description: 'Especifica o objeto (Terra e Lua), a grandeza (distância média) e a unidade de medida desejada.',
-        },
-        {
-          id: 'q3-b',
-          query: 'lua',
-          label: 'Pesquisa B',
-          score: 30,
-          title: 'Demasiado vaga.',
-          description: 'Pesquisar apenas "lua" traz fases da lua, imagens e poesias sem o dado numérico que procuras.',
-        },
-        {
-          id: 'q3-c',
-          query: 'o espaco e as estrelas',
-          label: 'Pesquisa C',
-          score: 30,
-          title: 'Fora do assunto.',
-          description: 'Abrange todo o universo em vez de focar o sistema Terra-Lua.',
-        },
-      ],
-    },
-  ];
+  // Simulator Search State for Topic 1
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOutput, setSearchOutput] = useState<{ title: string; count: string; hint: string; score: number } | null>(null);
 
-  // -------------------------------------------------------------
-  // 2. AUTHOR CHECK SIMULATOR STATE
-  // -------------------------------------------------------------
-  const [authorChoices, setAuthorChoices] = useState<Record<string, 'credibilidade' | 'verificacao'>>({});
-  const [authorSubmitted, setAuthorSubmitted] = useState(false);
-  const [authorScore, setAuthorScore] = useState<number | null>(null);
-
-  const authorScenarios = [
-    {
-      id: 'auth-1',
-      origin: 'Instituto de Conservação da Natureza e das Florestas (ICNF)',
-      author: 'Equipa de Biólogos e Investigadores Oficiais',
-      snippet: 'Relatório técnico oficial com inventário das populações de Lince-Ibérico em Portugal, com metodologia de amostragem e dados verificáveis no terreno.',
-      clues: 'Pistas: Entidade pública oficial, equipa técnica especializada, dados recolhidos com metodologia científica clara.',
-      correct: 'credibilidade' as const,
-      feedback: 'Muito bem! A autoria é transparente, pertence a uma instituição especializada e apresenta relatórios com dados e explicações que apoiam a informação.',
-    },
-    {
-      id: 'auth-2',
-      origin: 'Blogue Pessoal "O Meu Cantinho dos Animais"',
-      author: 'Tiago (aluno de 12 anos)',
-      snippet: 'Na minha opinião pessoal, o lince-ibérico já não está em perigo nenhum porque vi uma foto bonita na internet ontem.',
-      clues: 'Pistas: O autor está identificado com nome, mas apresenta apenas uma opinião pessoal baseada numa foto solta, sem dados nem fontes.',
-      correct: 'verificacao' as const,
-      feedback: 'Excelente observação! Ter um autor com nome identificado não é suficiente. Uma opinião pessoal sem dados ou evidências precisa de ser verificada.',
-    },
-    {
-      id: 'auth-3',
-      origin: 'Loja Online de Rações & Acessórios',
-      author: 'Departamento Comercial da Marca',
-      snippet: 'O nosso suplemento alimentar é cientificamente o melhor do mundo e cura todas as doenças dos animais domésticos.',
-      clues: 'Pistas: O texto foi criado com objetivo comercial para vender um produto, recorrendo a adjetivos exagerados ("o melhor do mundo") sem estudos clínicos independentes.',
-      correct: 'verificacao' as const,
-      feedback: 'Correto! Páginas comerciais têm interesse em vender. Isso exige procurar confirmação independente junto de médicos veterinários ou instituições científicas.',
-    },
-    {
-      id: 'auth-4',
-      origin: 'Canal Anónimo de Vídeos Curtos',
-      author: 'Perfil sem nome ("@segredos_revelados_99")',
-      snippet: 'Cientistas descobriram uma criatura gigante no fundo do rio Tejo mas o governo não quer que saibas! Vê o vídeo antes que apaguem!',
-      clues: 'Pistas: Autor anónimo, título em tom de conspiração/urgência ("não quer que saibas"), sem qualquer referência a instituições científicas.',
-      correct: 'verificacao' as const,
-      feedback: 'Exato! Perfis anónimos que usam urgência e conspiração tentam obter cliques. Deves sempre verificar quem publicou e procurar fontes credíveis.',
-    },
-  ];
-
-  // -------------------------------------------------------------
-  // 3. DATE VERIFIER SIMULATOR STATE
-  // -------------------------------------------------------------
-  const [dateChoices, setDateChoices] = useState<Record<string, 'sim' | 'nao'>>({});
-  const [dateSubmitted, setDateSubmitted] = useState(false);
-  const [dateScore, setDateScore] = useState<number | null>(null);
-
-  const dateScenarios = [
-    {
-      id: 'date-1',
-      title: 'Calendário das Férias Escolares',
-      info: 'Notícia publicada em outubro de 2021 com o horário do 2.º período.',
-      question: 'Queres confirmar quando começam as férias da Páscoa deste ano letivo. Esta informação antiga serve?',
-      optSim: 'Sim, as datas são sempre iguais',
-      optNao: 'Não, preciso do calendário do ano letivo atual',
-      correct: 'nao' as const,
-      feedback: 'Correto! Os calendários escolares e horários mudam todos os anos. Para uma pergunta atual, precisas de dados do ano letivo em curso.',
-    },
-    {
-      id: 'date-2',
-      title: 'História: A Chegada à Lua em 1969',
-      info: 'Enciclopédia digital com artigo revisto em 2015 sobre a missão Apollo 11.',
-      question: 'O facto de o artigo ter sido escrito em 2015 torna a informação sobre 1969 inválida?',
-      optSim: 'Sim, tudo o que tem mais de 2 anos é inútil',
-      optNao: 'Não, acontecimentos históricos consolidados continuam válidos',
-      correct: 'nao' as const,
-      feedback: 'Muito bem! Acontecimentos históricos não mudam de data. Uma informação não é inútil só por ter alguns anos; a adequação da data depende da tua pergunta.',
-    },
-    {
-      id: 'date-3',
-      title: 'Notícia de Chuva Intensa com Inundações',
-      info: 'Fotografia de cheias de 2016 partilhada hoje numa rede social com a frase: “Aconteceu há 10 minutos na nossa cidade!”.',
-      question: 'Deves aceitar esta publicação como um alerta do que está a acontecer neste momento?',
-      optSim: 'Sim, a foto é real logo está a acontecer agora',
-      optNao: 'Não, é uma foto antiga partilhada fora do contexto temporal',
-      correct: 'nao' as const,
-      feedback: 'Exato! A fotografia pode ser real, mas está a ser usada fora do contexto original. Notícias antigas recicladas criam falsos alarmes.',
-    },
-    {
-      id: 'date-4',
-      title: 'Boato Recente Publicado Há 5 Minutos',
-      info: 'Mensagem publicada há 5 minutos num grupo: "Amanhã os testes foram cancelados em todo o país!".',
-      question: 'Por ser uma publicação publicada há apenas 5 minutos (muito recente), é automaticamente verdadeira?',
-      optSim: 'Sim, tudo o que é muito recente é verdade',
-      optNao: 'Não, ser recente não garante veracidade; é preciso confirmar',
-      correct: 'nao' as const,
-      feedback: 'Excelente espírito crítico! A data recente NÃO prova a verdade da notícia. Uma informação pode ser acabada de publicar e ser completamente falsa. É sempre preciso verificar!',
-    },
-  ];
-
-  // -------------------------------------------------------------
-  // 4. SOURCE COMPARE SIMULATOR STATE (Comparação real entre Fonte A e Fonte B)
-  // -------------------------------------------------------------
-  const [sourceCompareAnswers, setSourceCompareAnswers] = useState<Record<string, string>>({});
-  const [compareSubmitted, setCompareSubmitted] = useState(false);
-  const [compareScore, setCompareScore] = useState<number | null>(null);
-
-  const sourceA = {
-    title: 'Como os robôs podem ajudar a aprender?',
-    origin: 'Portal de Ciência e Educação',
-    author: 'Equipa de investigadores em educação',
-    date: '12 de Outubro de 2024',
-    content: 'Um pequeno estudo realizado em duas escolas analisou a utilização de robôs educativos durante algumas aulas. Os investigadores observaram como os alunos utilizaram os robôs e explicaram os resultados do estudo.',
-    evidence: 'O artigo identifica os investigadores, as escolas participantes e explica como a experiência foi realizada.',
+  const resetGame = () => {
+    setLives(3);
+    setFeedback(null);
   };
 
-  const sourceB = {
-    title: 'BOMBA: Os robôs vão substituir os professores!',
-    origin: 'Página de vídeos "SuperNovidadesTIC"',
-    author: 'Perfil sem nome',
-    date: '19 de Outubro de 2024',
-    content: 'Todos os alunos vão deixar de ter professores porque os robôs conseguem ensinar tudo melhor! Acontecerá já no próximo mês!',
-    evidence: 'Não apresenta estudos, escolas, investigadores ou outras fontes que confirmem a afirmação.',
+  const handleLoseLife = (pedagogicalReason: string) => {
+    const nextLives = Math.max(0, lives - 1);
+    setLives(nextLives);
+    if (nextLives === 0) {
+      setFeedback({
+        status: 'gameover',
+        title: '💔 Sem Vidas de Detetive!',
+        message: `${pedagogicalReason} Clica em Jogar de Novo para recarregar as energias e tentar outra vez!`,
+      });
+    } else {
+      setFeedback({
+        status: 'wrong',
+        title: '⚠️ Pista Incorreta!',
+        message: `${pedagogicalReason} Restam-te ${nextLives} vidas.`,
+      });
+    }
   };
 
-  const compareQuestions = [
-    {
-      id: 'cmp-1',
-      facet: '1. Origem e Transparência',
-      question: 'Ao comparar a origem das duas fontes, o que concluis?',
-      options: [
-        { id: 'a', text: 'A Fonte A tem origem num portal de ciência e educação; a Fonte B é uma página de vídeos sem identificação.', isCorrect: true },
-        { id: 'b', text: 'As duas fontes são iguais porque estão ambas na Internet.', isCorrect: false },
-        { id: 'c', text: 'A Fonte B é melhor porque tem um título com exclamações e emojis.', isCorrect: false },
-      ],
-      explanation: 'Quando sabemos quem publicou a informação, é mais fácil perceber de onde veio e confirmar se é de confiança.',
-    },
-    {
-      id: 'cmp-2',
-      facet: '2. Autoria e Responsabilidade',
-      question: 'Ao analisar quem escreveu os textos, que pista encontras?',
-      options: [
-        { id: 'a', text: 'Nenhuma tem autor.', isCorrect: false },
-        { id: 'b', text: 'A Fonte A identifica uma equipa de investigadores; a Fonte B tem um perfil sem nome.', isCorrect: true },
-        { id: 'c', text: 'Um perfil anónimo garante que o autor é um especialista secreto.', isCorrect: false },
-      ],
-      explanation: 'Saber quem escreveu ou publicou a informação ajuda-nos a perceber quem está por trás dela e a confirmar a informação.',
-    },
-    {
-      id: 'cmp-3',
-      facet: '3. Cronologia e Relação entre Fontes',
-      question: 'Observando as datas (12 de Outubro vs 19 de Outubro), qual é a relação entre as duas?',
-      options: [
-        { id: 'a', text: 'A Fonte A fez o estudo original; a Fonte B apareceu dias depois distorcendo o estudo original com exageros.', isCorrect: true },
-        { id: 'b', text: 'A Fonte B inventou o estudo e a Fonte A apenas copiou.', isCorrect: false },
-        { id: 'c', text: 'As duas fontes foram escritas por pessoas que trabalharam juntas.', isCorrect: false },
-      ],
-      explanation: 'Muitas publicações sensacionalistas pegam em notícias reais e distorcem os factos dias depois para conseguir visualizações e partilhas.',
-    },
-    {
-      id: 'cmp-4',
-      facet: '4. Independência e Provas Apresentadas',
-      question: 'Se dois sites dizem a mesma coisa, mas um apenas copiou o outro, isso prova a verdade?',
-      options: [
-        { id: 'a', text: 'Sim, se dois sites dizem o mesmo é garantido que é verdade absoluta.', isCorrect: false },
-        { id: 'b', text: 'Não. Se um site apenas copiou o outro, continuas a ter apenas uma fonte original; é preciso procurar fontes independentes e provas reais.', isCorrect: true },
-        { id: 'c', text: 'Quantos mais sites copiarem o mesmo texto, menos provas são necessárias.', isCorrect: false },
-      ],
-      explanation: 'Copiar ou republicar o mesmo texto não cria uma nova prova. Duas páginas que repetem a mesma cópia não são fontes independentes.',
-    },
-    {
-      id: 'cmp-5',
-      facet: '5. Distinção de Factos vs Exageros',
-      question: 'Ao comparar o conteúdo concreto das duas publicações sobre os robôs:',
-      options: [
-        { id: 'a', text: 'A Fonte A descreve uma experiência educativa em duas escolas; a Fonte B exagera dizendo que vão substituir os professores.', isCorrect: true },
-        { id: 'b', text: 'Ambas dizem exatamente o mesmo com as mesmas palavras.', isCorrect: false },
-        { id: 'c', text: 'A Fonte B tem razão porque é mais fácil substituir professores.', isCorrect: false },
-      ],
-      explanation: 'A publicação sensacionalista pegou numa experiência real de apoio às aulas e transformou-a num disparate exagerado.',
-    },
-    {
-      id: 'cmp-6',
-      facet: '6. Regra Operacional do Detetive',
-      question: 'Antes de partilhares a notícia da Fonte B num grupo de colegas, qual é a atitude correta?',
-      options: [
-        { id: 'a', text: 'Partilhar com aviso de URGENTE.', isCorrect: false },
-        { id: 'b', text: 'Não partilhar; verificar a informação numa fonte oficial e avisar os colegas que se trata de uma afirmação sem provas.', isCorrect: true },
-        { id: 'c', text: 'Acreditar porque os robôs são giros.', isCorrect: false },
-      ],
-      explanation: 'Regra de ouro: Para, Verifica e Compara. Não espalhes boatos ou informações não confirmadas.',
-    },
-  ];
-
-  // -------------------------------------------------------------
-  // 5. NEWS DETECTIVE (DISTINÇÃO: FACTO, OPINIÃO, NOTÍCIA, ENGANADORA)
-  // -------------------------------------------------------------
-  const [newsDetectiveAudit, setNewsDetectiveAudit] = useState({
-    checkedAuthor: false,
-    checkedDate: false,
-    checkedEvidence: false,
-    checkedOtherSources: false,
-  });
-  const [classifiedStatements, setClassifiedStatements] = useState<Record<string, 'facto' | 'opiniao' | 'noticia' | 'enganadora'>>({});
-  const [newsDecision, setNewsDecision] = useState<'verificar' | 'partilhar' | null>(null);
-  const [newsScore, setNewsScore] = useState<number | null>(null);
-
-  const statementItems = [
-    {
-      id: 'st-1',
-      text: '“O lince-ibérico é um mamífero carnívoro que habita a Península Ibérica.”',
-      correct: 'facto' as const,
-      explanation: 'FACTO: É uma afirmação científica objetiva que pode ser comprovada.',
-    },
-    {
-      id: 'st-2',
-      text: '“Acho que as aulas de Ciências Naturais são as mais divertidas de todo o 6.º ano.”',
-      correct: 'opiniao' as const,
-      explanation: 'OPINIÃO: Exprime o gosto ou ponto de vista pessoal de quem fala.',
-    },
-    {
-      id: 'st-3',
-      text: '“Ontem à tarde, os alunos do 6.º B participaram na plantação de 50 árvores no parque da cidade.”',
-      correct: 'noticia' as const,
-      explanation: 'NOTÍCIA: Relato informativo sobre um acontecimento real recente.',
-    },
-    {
-      id: 'st-4',
-      text: '“Foto de cheias de há 10 anos partilhada hoje com o texto: Inundação misteriosa destrói todas as escolas hoje!”',
-      correct: 'enganadora' as const,
-      explanation: 'INFORMAÇÃO ENGANADORA: Utiliza imagens reais fora do contexto temporal para alarmar as pessoas.',
-    },
-  ];
-
-  // -------------------------------------------------------------
-  // PROGRESS & SCORE REPORTING
-  // -------------------------------------------------------------
-  const reportCompletion = async (simId: string, activityTitle: string, payloadData?: any, score?: number) => {
+  const reportCompletion = async (
+    simId: string,
+    activityTitle: string,
+    payloadData?: any,
+    score: number = 100
+  ) => {
     try {
       const res = await apiRequest('/api/pedagogical/activities/complete', {
         method: 'POST',
@@ -416,2136 +90,878 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
           worldId: 2,
           answers: payloadData?.answers || payloadData,
           payload: payloadData,
-          completedAction: payloadData?.completedAction || (typeof payloadData === 'string' ? payloadData : undefined),
+          completedAction: payloadData?.completedAction || 'completed',
           score,
         }),
       });
-      setCompletedFeedback({
-        score: res.score,
-        xpGain: res.xpGain,
-        newBest: res.newBest,
-        activityTitle,
+
+      setFeedback({
+        status: score >= 70 ? 'victory' : 'correct',
+        title: score >= 70 ? '🏆 Caso Resolvido com Distinção!' : '✓ Pista Registada!',
+        message: `Excelente raciocínio de Detetive da Informação! Pontuação: ${score}/100.`,
+        xpGain: res.xpGain || 30,
       });
+
       await refreshUser();
       await onRefreshWorld();
     } catch (err: any) {
-      console.error('Failed to report activity completion', err);
+      console.error('Failed to report completion:', err);
     }
   };
 
-  // 1. Submit Keywords
-  const handleKeywordSelect = (scenarioIndex: number, qId: string) => {
-    const updated = { ...selectedSearchQueries, [scenarioIndex]: qId };
-    setSelectedSearchQueries(updated);
+  const evaluateSearchQuery = () => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return;
 
-    const currentScenario = searchScenarios[scenarioIndex];
-    const item = currentScenario.queries.find((q) => q.id === qId);
-    if (!item) return;
+    let score = 30;
+    let title = 'Pesquisa Vaga 🌫️';
+    let count = '14.200.000 resultados';
+    let hint = 'Usaste palavras demasiado gerais. O motor de busca traz páginas de todo o mundo sem resolver a dúvida!';
 
-    setKeywordFeedback({
-      score: item.score,
-      title: item.title,
-      description: item.description,
-    });
-
-    // Calculate total score across answered scenarios
-    const scores = Object.entries(updated).map(([sIdx, queryId]) => {
-      const scen = searchScenarios[Number(sIdx)];
-      const matched = scen?.queries.find((q) => q.id === queryId);
-      return matched ? matched.score : 0;
-    });
-    const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / searchScenarios.length);
-
-    if (Object.keys(updated).length === searchScenarios.length) {
-      reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', { answers: updated }, avgScore);
+    if (q.includes('"') || (q.includes('portugal') && q.includes('lince'))) {
+      score = 100;
+      title = 'Pesquisa Científica Lendária 🎯';
+      count = '3.420 resultados ultra-precisos';
+      hint = 'Perfeito! Usaste termos específicos e delimitaste o país e a espécie em perigo.';
+    } else if (q.includes('lince') || q.includes('extinção') || q.includes('perigo')) {
+      score = 75;
+      title = 'Boa Pesquisa, mas pode ser melhor! 🔍';
+      count = '450.000 resultados';
+      hint = 'Bom caminho! Se adicionares "Portugal" ou colocares a expressão entre aspas " ", chegas logo aos artigos científicos.';
     }
+
+    setSearchOutput({ title, count, hint, score });
+    reportCompletion('sim-keywords', 'Simulador de Pesquisa Inteligente', { query: q }, score);
   };
-
-  // 2. Submit Authors
-  const handleAuthorSubmit = () => {
-    let correctCount = 0;
-    authorScenarios.forEach((scen) => {
-      if (authorChoices[scen.id] === scen.correct) correctCount++;
-    });
-    const score = Math.round((correctCount / authorScenarios.length) * 100);
-    setAuthorSubmitted(true);
-    setAuthorScore(score);
-    reportCompletion('sim-author-check', 'Simulador de Autoria & Origem', { answers: authorChoices }, score);
-  };
-
-  // 3. Submit Dates
-  const handleDateSubmit = () => {
-    let correctCount = 0;
-    dateScenarios.forEach((scen) => {
-      if (dateChoices[scen.id] === scen.correct) correctCount++;
-    });
-    const score = Math.round((correctCount / dateScenarios.length) * 100);
-    setDateSubmitted(true);
-    setDateScore(score);
-    reportCompletion('sim-date-verifier', 'Simulador de Linha Temporal & Data', { answers: dateChoices }, score);
-  };
-
-  // 4. Submit Compare
-  const handleCompareSubmit = () => {
-    let correctCount = 0;
-    compareQuestions.forEach((q) => {
-      const selected = sourceCompareAnswers[q.id];
-      const opt = q.options.find((o) => o.id === selected);
-      if (opt?.isCorrect) correctCount++;
-    });
-    const score = Math.round((correctCount / compareQuestions.length) * 100);
-    setCompareSubmitted(true);
-    setCompareScore(score);
-    reportCompletion('sim-source-compare', 'Simulador de Comparação de Fontes', { answers: sourceCompareAnswers }, score);
-  };
-
-  // 5. Submit News Detective & Classification
-  const handleNewsDecision = (decision: 'verificar' | 'partilhar') => {
-    setNewsDecision(decision);
-    const checksCount = Object.values(newsDetectiveAudit).filter(Boolean).length;
-    let statementsCorrect = 0;
-    statementItems.forEach((st) => {
-      if (classifiedStatements[st.id] === st.correct) statementsCorrect++;
-    });
-
-    let finalScore = 0;
-    if (decision === 'verificar') {
-      finalScore = Math.min(100, Math.round((checksCount / 4) * 40 + (statementsCorrect / statementItems.length) * 60));
-    } else {
-      finalScore = 25;
-    }
-    setNewsScore(finalScore);
-    reportCompletion(
-      'sim-news-detective',
-      'DETETIVE DE NOTÍCIAS',
-      { decision, audit: newsDetectiveAudit, classifiedStatements },
-      finalScore
-    );
-  };
-
-  // Helpers
-  const getSimProg = (simId: string) => {
-    return world.simulatorsProgress?.find((p) => p.id === simId);
-  };
-
-  const topic1 = world.topics.find((t) => t.id === 'w2-t1');
-  const topic2 = world.topics.find((t) => t.id === 'w2-t2');
-  const topic3 = world.topics.find((t) => t.id === 'w2-t3');
-  const topic4 = world.topics.find((t) => t.id === 'w2-t4');
-  const topic5 = world.topics.find((t) => t.id === 'w2-t5');
 
   return (
     <div className="space-y-6">
-      {/* Global Completed Feedback Banner */}
-      {completedFeedback && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-3xl flex items-center justify-between text-emerald-950 shadow-xs animate-in fade-in">
-          <div className="flex items-center gap-3">
-            <Award className="w-7 h-7 text-emerald-600 shrink-0" />
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 block">
-                Atividade Registada com Sucesso: {completedFeedback.activityTitle}
-              </span>
-              <p className="text-sm font-black">
-                Pontuação Obtida: {completedFeedback.score}/100{' '}
-                {completedFeedback.xpGain > 0 && (
-                  <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md ml-1">
-                    +{completedFeedback.xpGain} XP Ganho!
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
-          <span className="text-xs font-black bg-emerald-200 text-emerald-900 px-3 py-1.5 rounded-xl">
-            Melhor Recorde: {completedFeedback.newBest}/100
-          </span>
-        </div>
-      )}
-
       {/* ========================================================= */}
-      {/* 🕵️ HERO BANNER DETETIVE DIGITAL (Exact Match to image.png) */}
-      {/* ========================================================= */}
-      <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#87d2ff] via-[#bfe6ff] to-[#e4f4ff] border border-[#a3dcff] p-6 sm:p-8 lg:p-9 shadow-sm">
-        {/* Soft background clouds and radial highlights */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-sky-200/40 rounded-full blur-2xl pointer-events-none" />
-
-        {/* Top Breadcrumb & Route Progress (Matching image.png) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-center gap-2 text-xs font-black text-[#0a3871] tracking-wide uppercase">
-            <span className="w-5 h-5 rounded-full bg-white text-blue-600 flex items-center justify-center text-xs shadow-2xs">
-              🌐
-            </span>
-            <span>MUNDO 2</span>
-            <span className="text-blue-500 font-bold">&gt;</span>
-            <span>DETETIVE DIGITAL</span>
-            <span className="text-base">🕵️</span>
-          </div>
-
-          <div className="bg-white/95 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
-            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-800 tracking-wider">
-              <span className="text-amber-500 text-sm">👑</span>
-              <span>A TUA ROTA NO MUNDO</span>
-            </div>
-            <div className="w-24 sm:w-28 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200/80">
-              <div
-                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                style={{
-                  width: '100%',
-                }}
-              />
-            </div>
-            <span className="text-xs font-black text-slate-900 tabular-nums">
-              100%
-            </span>
-          </div>
-        </div>
-
-        {/* Middle Hero: Headline, Subtitle, Detective Mascot */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 my-6 relative z-10">
-          <div className="max-w-xl space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-slate-950 tracking-tight leading-[1.12]">
-              A Lupa da Verdade:<br />
-              Caça a Pistas, Fontes Seguras<br />
-              e Notícias Falsas!
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed max-w-lg">
-              A tua missão de detetive: investigar pistas, confirmar factos e nunca morder o isco de notícias falsas! 🔎
-            </p>
-          </div>
-          <div className="shrink-0 flex justify-center lg:justify-end">
-            <DetectiveBoyHero className="w-64 sm:w-72 lg:w-[350px] h-auto drop-shadow-md" />
-          </div>
-        </div>
-
-        {/* 6 Mission Cards Grid (Row 1: 4 cards, Row 2: 2 cards) */}
-        <div className="space-y-3 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* Missão 1: Radar de Palavras */}
-            <button
-              onClick={() => onNavigateTopic('w2-t1')}
-              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                activeTopicId === 'w2-t1'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeTopicId === 'w2-t1' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
-                  }`}
-                >
-                  <Search className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      activeTopicId === 'w2-t1' ? 'text-blue-100' : 'text-slate-400'
-                    }`}
-                  >
-                    Missão 1/6
-                  </span>
-                  <span className="text-xs sm:text-sm font-black truncate">
-                    Radar de Palavras
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 ${
-                  activeTopicId === 'w2-t1' ? 'text-white' : 'text-blue-500'
-                }`}
-              />
-            </button>
-
-            {/* Missão 2: Quem é o Autor? */}
-            <button
-              onClick={() => onNavigateTopic('w2-t2')}
-              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                activeTopicId === 'w2-t2'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeTopicId === 'w2-t2' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
-                  }`}
-                >
-                  <Users className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      activeTopicId === 'w2-t2' ? 'text-blue-100' : 'text-slate-400'
-                    }`}
-                  >
-                    Missão 2/6
-                  </span>
-                  <span className="text-xs sm:text-sm font-black truncate">
-                    Quem é o Autor?
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 ${
-                  activeTopicId === 'w2-t2' ? 'text-white' : 'text-blue-500'
-                }`}
-              />
-            </button>
-
-            {/* Missão 3: Linha do Tempo */}
-            <button
-              onClick={() => onNavigateTopic('w2-t3')}
-              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                activeTopicId === 'w2-t3'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeTopicId === 'w2-t3' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-500'
-                  }`}
-                >
-                  <Calendar className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      activeTopicId === 'w2-t3' ? 'text-blue-100' : 'text-slate-400'
-                    }`}
-                  >
-                    Missão 3/6
-                  </span>
-                  <span className="text-xs sm:text-sm font-black truncate">
-                    Linha do Tempo
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 ${
-                  activeTopicId === 'w2-t3' ? 'text-white' : 'text-blue-500'
-                }`}
-              />
-            </button>
-
-            {/* Missão 4: Comparar Pistas */}
-            <button
-              onClick={() => onNavigateTopic('w2-t4')}
-              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                activeTopicId === 'w2-t4'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeTopicId === 'w2-t4' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
-                  }`}
-                >
-                  <Layers className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      activeTopicId === 'w2-t4' ? 'text-blue-100' : 'text-slate-400'
-                    }`}
-                  >
-                    Missão 4/6
-                  </span>
-                  <span className="text-xs sm:text-sm font-black truncate">
-                    Comparar Pistas
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 ${
-                  activeTopicId === 'w2-t4' ? 'text-white' : 'text-blue-500'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Row 2: Missões 5 e 6 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* Missão 5: Caça a Boatos */}
-            <button
-              onClick={() => onNavigateTopic('w2-t5')}
-              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                activeTopicId === 'w2-t5'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeTopicId === 'w2-t5' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-500'
-                  }`}
-                >
-                  <Megaphone className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      activeTopicId === 'w2-t5' ? 'text-blue-100' : 'text-slate-400'
-                    }`}
-                  >
-                    Missão 5/6
-                  </span>
-                  <span className="text-xs sm:text-sm font-black truncate">
-                    Caça a Boatos
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 ${
-                  activeTopicId === 'w2-t5' ? 'text-white' : 'text-blue-500'
-                }`}
-              />
-            </button>
-
-            {/* Missão 6: Guia do Detetive (Quiz) */}
-            <button
-              onClick={() => onNavigateTopic('avaliacao')}
-              className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                activeTopicId === 'avaliacao'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                  : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeTopicId === 'avaliacao' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'
-                  }`}
-                >
-                  <Trophy className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-left">
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      activeTopicId === 'avaliacao' ? 'text-blue-100' : 'text-slate-400'
-                    }`}
-                  >
-                    Missão 6/6
-                  </span>
-                  <span className="text-xs sm:text-sm font-black truncate">
-                    Guia do Detetive
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                className={`w-4 h-4 shrink-0 ${
-                  activeTopicId === 'avaliacao' ? 'text-white' : 'text-blue-500'
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================= */}
-      {/* MISSÃO 1: RADAR DE PALAVRAS-CHAVE (Exact Match image.png)  */}
+      {/* 1. SEPARADOR: RADAR DE PALAVRAS-CHAVE                     */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t1' && (
-        <div className="space-y-6">
-          {/* Active Mission Header Card (Matching image.png) */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
-                <Search className="w-7 h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" /> MISSÃO 1/6
-                  </span>
-                  <AudioReaderButton
-                    textToRead="Missão 1: Radar de Palavras-Chave. Hoje vais descobrir como fazer pesquisas certeiras como um cientista. Aprende a usar termos específicos e evitar palavras vagas para encontrar a melhor informação rapidamente!"
-                    label="Ouvir Missão"
-                  />
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
-                  Radar de Palavras-Chave 🎯
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                  Hoje vais descobrir como fazer pesquisas certeiras usando <GlossaryTerm term="palavras-chave">palavras-chave</GlossaryTerm> precisas.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-black text-xs sm:text-sm px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100" />
-                <span>Concluída (100%)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 💡 1. APRENDE: PESQUISAR COM PRECISÃO (Matching image.png) */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
-                <span className="text-lg">💡</span>
-                <span>1. APRENDE: PESQUISAR COM PRECISÃO</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>Dicas do detetive</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Left Card: Palavras Pecisas (Matching image.png typo & style) */}
-              <div className="bg-[#f0f7ff] border border-[#cbe4fe] rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-2xs">
-                <div className="space-y-2">
-                  <div className="w-9 h-9 rounded-xl bg-white border border-blue-200 text-blue-900 flex items-center justify-center">
-                    <Search className="w-5 h-5 text-blue-900 stroke-[2.5]" />
-                  </div>
-                  <h4 className="text-base font-black text-slate-900">Palavras Pecisas</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                    Se pesquisares apenas "jogar", o motor de busca perde-se.<br />
-                    Se pesquisares termos específicos, encontras logo a resposta certa!
-                  </p>
-                </div>
-
-                {/* Mock Browser Search Bar with 3 dots & typing cursor */}
-                <div className="bg-white rounded-xl border border-slate-200/90 p-3 shadow-xs space-y-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                  </div>
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 sm:p-2.5 flex items-center justify-between gap-2">
-                    <div className="flex items-center text-xs sm:text-sm font-mono text-slate-800 font-bold truncate">
-                      <span>animais em perigo de extinção em Portugal</span>
-                      <span className="inline-block w-0.5 h-4 bg-blue-600 animate-pulse ml-0.5" />
-                    </div>
-                    <button
-                      type="button"
-                      className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg flex items-center justify-center shrink-0 shadow-xs cursor-pointer"
-                    >
-                      <Search className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Card: Regra do Detetive (Matching image.png with Post-It) */}
-              <div className="bg-[#fffdf0] border border-[#fde68a] rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between gap-4 shadow-2xs">
-                <div className="space-y-2">
-                  <div className="w-9 h-9 rounded-xl bg-white border border-amber-200 text-rose-600 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-rose-600 stroke-[2.5]" />
-                  </div>
-                  <h4 className="text-base font-black text-slate-900">Regra do Detetive</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                    Usa termos técnicos e claros (ex.: "declínio da fénix à Lua em km") e evita perguntas vagas de conversa.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                  <div className="space-y-2.5 text-xs font-bold text-slate-800">
-                    <div className="flex items-center gap-2 text-emerald-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 shrink-0" />
-                      <span>Usa palavras específicas</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-emerald-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 shrink-0" />
-                      <span>Inclui o contexto (onde? quando? como?)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-rose-700">
-                      <XCircle className="w-4 h-4 text-rose-500 fill-rose-100 shrink-0" />
-                      <span>Evita termos vagos como "coisas" ou "jogos"</span>
-                    </div>
-                  </div>
-
-                  {/* Yellow Post-It Note with Red Pushpin (Matching image.png) */}
-                  <div className="relative self-center sm:self-auto bg-gradient-to-br from-[#fef08a] via-[#fde047] to-[#facc15] border border-amber-300 rounded-2xl p-4 shadow-md transform rotate-3 max-w-[145px] text-center shrink-0">
-                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 border-2 border-white shadow-xs" />
-                    <p className="text-[11px] font-black text-amber-950 uppercase leading-snug tracking-tight">
-                      SER<br />
-                      PRECISO<br />
-                      É O PODER<br />
-                      DO DETETIVE!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 🧪 2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE */}
-          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-900 font-black text-sm sm:text-base tracking-wide">
-                <FlaskConical className="w-5 h-5 text-blue-600" />
-                <span>2. EXPERIMENTA: SIMULADOR DE PESQUISA INTELIGENTE</span>
-              </div>
-              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-slate-400" />
-                <span>3 Situações Reais de Estudo</span>
-              </span>
-            </div>
-
-            {/* Situations Selector Buttons */}
-            <div className="flex flex-wrap gap-2.5">
-              {searchScenarios.map((scen, sIdx) => {
-                const isCurrent = activeSearchScenarioIndex === sIdx;
-                const isAnswered = selectedSearchQueries[sIdx] !== undefined;
-                return (
-                  <button
-                    key={scen.id}
-                    onClick={() => {
-                      setActiveSearchScenarioIndex(sIdx);
-                      const chosen = selectedSearchQueries[sIdx];
-                      if (chosen) {
-                        const qObj = scen.queries.find((q) => q.id === chosen);
-                        if (qObj) {
-                          setKeywordFeedback({
-                            score: qObj.score,
-                            title: qObj.title,
-                            description: qObj.description,
-                          });
-                        }
-                      } else {
-                        setKeywordFeedback(null);
-                      }
-                    }}
-                    className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                      isCurrent
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : isAnswered
-                        ? 'bg-sky-50 text-blue-800 border border-blue-200'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    <span>Situação {sIdx + 1}</span>
-                    {isAnswered && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 inline" />}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Active Scenario Card */}
-            {(() => {
-              const currentScenario = searchScenarios[activeSearchScenarioIndex];
-              const selectedQId = selectedSearchQueries[activeSearchScenarioIndex];
-
-              return (
-                <div className="space-y-4">
-                  {/* Scenario Prompt Card */}
-                  <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs text-2xl">
-                      {activeSearchScenarioIndex === 0 ? '🐾' : activeSearchScenarioIndex === 1 ? '🎮' : '🚀'}
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs sm:text-sm font-black text-blue-900 uppercase tracking-wide">
-                        {currentScenario.theme}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
-                        {currentScenario.prompt}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* 3 Queries Rows */}
-                  <div className="space-y-2.5">
-                    {currentScenario.queries.map((sq) => {
-                      const isSelected = selectedQId === sq.id;
-                      return (
-                        <div
-                          key={sq.id}
-                          onClick={() => handleKeywordSelect(activeSearchScenarioIndex, sq.id)}
-                          className={`p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                            isSelected
-                              ? sq.score === 100
-                                ? 'bg-emerald-50/80 border-emerald-400 shadow-xs'
-                                : 'bg-amber-50/80 border-amber-400 shadow-xs'
-                              : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-sky-50/30'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs font-black text-blue-800 bg-sky-100 px-3 py-1.5 rounded-xl shrink-0">
-                              {sq.label}
-                            </span>
-                            <span className="font-mono text-xs sm:text-sm font-bold text-slate-900">
-                              "{sq.query}"
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shrink-0 transition-all ${
-                              isSelected
-                                ? sq.score === 100
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'bg-amber-600 text-white'
-                                : 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-50 shadow-2xs'
-                            }`}
-                          >
-                            <Search className="w-3.5 h-3.5" />
-                            <span>{isSelected ? '✓ Testada' : 'Clica para testar esta pesquisa'}</span>
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Feedback Drawer */}
-                  {keywordFeedback && (
-                    <div
-                      className={`p-4 rounded-2xl border text-xs font-medium space-y-1 animate-in fade-in duration-200 ${
-                        keywordFeedback.score === 100
-                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
-                          : 'bg-amber-50 border-amber-300 text-amber-950'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 font-black text-sm">
-                        {keywordFeedback.score === 100 ? (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                        ) : (
-                          <AlertTriangle className="w-5 h-5 text-amber-600" />
-                        )}
-                        <span>
-                          {keywordFeedback.title} (Pontuação: {keywordFeedback.score}/100)
-                        </span>
-                      </div>
-                      <p className="text-xs leading-relaxed opacity-90">{keywordFeedback.description}</p>
-                    </div>
-                  )}
-
-                  {/* Bottom Line */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <span className="text-xs font-bold text-slate-500">
-                      Situações concluídas: {Object.keys(selectedSearchQueries).length} de {searchScenarios.length}
-                    </span>
-                    {activeSearchScenarioIndex < searchScenarios.length - 1 ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextIdx = activeSearchScenarioIndex + 1;
-                          setActiveSearchScenarioIndex(nextIdx);
-                          const chosen = selectedSearchQueries[nextIdx];
-                          if (chosen) {
-                            const qObj = searchScenarios[nextIdx].queries.find((q) => q.id === chosen);
-                            if (qObj) {
-                              setKeywordFeedback({
-                                score: qObj.score,
-                                title: qObj.title,
-                                description: qObj.description,
-                              });
-                            }
-                          } else {
-                            setKeywordFeedback(null);
-                          }
-                        }}
-                        className="bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 font-black text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                      >
-                        <span>Próxima Situação</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    ) : (
-                      <span className="text-xs font-black text-emerald-600 flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" /> Todas as situações testadas!
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Pesquisas precisas com palavras-chave certas encontram respostas muito mais depressa.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Evita termos vagos como "coisas" ou "jogos" para não te perderes em anúncios e vídeos soltos.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PESQUISAR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>ANALISAR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>DESCOBRIR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PENSAR CRITICAMENTE</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
-          <MetacognitionWidget
-            missionId="w2-t1"
-            worldThemeColor="blue"
-            questionPrompt="Como te sentes a formular pesquisas com palavras-chave exatas na Internet?"
-            options={[
-              'Já sei evitar termos vagos como "coisas" e ir direto ao assunto!',
-              'Vou praticar pesquisas mais detalhadas nos trabalhos de grupo.',
-              'Aprendi a combinar o tema com o país ou contexto certo!',
-            ]}
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <GameHeader
+            title="🔍 Missão 1: O Radar de Palavras-Chave"
+            subtitle="Aprende a pesquisar como um cientista: termos específicos vencem perguntas compridas e vagas!"
+            lives={lives}
+            xpReward={30}
+            currentStage={stage}
+            totalStages={3}
+            stagesLabels={['Fase 1: Classificador de Pesquisas', 'Fase 2: Motor de Busca Interativo', 'Fase 3: Decisão de Detetive']}
+            onSelectStage={(s) => {
+              setStage(s);
+              setFeedback(null);
+            }}
+            onResetGame={resetGame}
           />
 
-          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
-          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-3">
-              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
-              <span className="text-xs sm:text-sm font-black text-indigo-950">
-                Excelente pesquisa! Agora vamos descobrir quem escreveu os artigos!
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateTopic('w2-t2')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
-            >
-              <span>Próxima Missão: 2. Quem é o Autor?</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
+          {feedback && (
+            <GameFeedbackBanner
+              status={feedback.status}
+              title={feedback.title}
+              message={feedback.message}
+              xpGain={feedback.xpGain}
+              onRetry={resetGame}
+              onNext={stage < 3 ? () => setStage(stage + 1) : undefined}
+            />
+          )}
 
-      {/* ========================================================= */}
-      {/* MISSÃO 2: QUEM CRIOU A INFORMAÇÃO?                       */}
-      {/* ========================================================= */}
-      {activeTopicId === 'w2-t2' && (
-        <div className="space-y-6">
-          {/* Active Mission Header Card */}
-          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
-                <Users className="w-7 h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> MISSÃO 2/6
+          {stage === 1 && (
+            <GameClassificationBoard
+              title="Classificador de Termos de Busca"
+              instruction="Classifica cada pesquisa como 'Pesquisa Vaga / Fraca 😴' ou 'Pesquisa Precisa / Eficaz 🎯'."
+              items={[
+                {
+                  id: 'item-q1',
+                  text: 'Animais',
+                  emoji: '🐾',
+                  category: 'vaga',
+                  explanation: 'Demasiado genérica: traz milhões de páginas sem responder à tua pergunta específica.',
+                },
+                {
+                  id: 'item-q2',
+                  text: '"lince ibérico" extinção Portugal',
+                  emoji: '🐱',
+                  category: 'precisa',
+                  explanation: 'Excelente! Usa aspas para a espécie exata e especifica o país e a temática.',
+                },
+                {
+                  id: 'item-q3',
+                  text: 'Como é que eu faço para saber as coisas da história',
+                  emoji: '📜',
+                  category: 'vaga',
+                  explanation: 'Escrever frases de conversa com pronomes e verbos enche os motores de busca de ruído.',
+                },
+                {
+                  id: 'item-q4',
+                  text: 'Batalha de Aljubarrota 1385 resumo',
+                  emoji: '⚔️',
+                  category: 'precisa',
+                  explanation: 'Perfeito! Junta acontecimento histórico, ano e o formato pretendido.',
+                },
+              ]}
+              categories={[
+                { id: 'vaga', name: 'Pesquisa Vaga 🌫️', colorClass: 'text-amber-700', borderClass: 'border-amber-300', bgClass: 'bg-amber-100', icon: '😴' },
+                { id: 'precisa', name: 'Pesquisa Precisa 🎯', colorClass: 'text-emerald-700', borderClass: 'border-emerald-300', bgClass: 'bg-emerald-100', icon: '🎯' },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-keywords', 'Classificador de Pesquisas', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 2 && (
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xs">
+              <div className="space-y-1">
+                <span className="text-xs font-black uppercase tracking-wider text-blue-600">
+                  Laboratório Prático
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Quem é o Autor? 🕵️
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                  🧪 Simulador de Motor de Busca Inteligente
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                  Hoje vais aprender a verificar quem escreveu a informação antes de confiar.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {getSimProg('sim-author-check')?.completed ? (
-                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluída ({getSimProg('sim-author-check')?.score}%)</span>
-                </div>
-              ) : (
-                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 💡 1. APRENDE: A PISTA DA AUTORIA */}
-          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
-                <span className="text-lg">💡</span>
-                <span>1. APRENDE: A PISTA DA AUTORIA</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>Dicas do detetive</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
-                  <UserCheck className="w-5 h-5 text-blue-600 stroke-[2.5]" />
-                </div>
-                <h4 className="text-sm font-black text-slate-900">Quem Escreveu?</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Qualquer pessoa pode criar um blog ou vídeo. Procura sempre o nome do autor e a sua profissão ou especialidade no assunto!
+                <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                  <strong>Desafio:</strong> Queres descobrir informação sobre o <em>Lince Ibérico em Portugal</em>.
+                  Experimenta escrever palavras-chave na barra abaixo e clica em <strong>Analisar Eficácia</strong>!
                 </p>
               </div>
 
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-emerald-600 stroke-[2.5]" />
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <div className="relative flex-1">
+                  <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder='ex: "lince ibérico" Portugal ou apenas lince...'
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-300 font-semibold text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
                 </div>
-                <h4 className="text-sm font-black text-slate-900">Fontes Oficiais & Credíveis</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Sites de universidades, museus, escolas e enciclopédias têm especialistas e equipas editoriais que confirmam os factos.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE AUTORIA */}
-          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-900 font-black text-sm sm:text-base tracking-wide">
-                <FlaskConical className="w-5 h-5 text-blue-600" />
-                <span>2. EXPERIMENTA: SIMULADOR DE AUTORIA & ORIGEM</span>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Analisa as 4 situações observando as pistas
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {authorScenarios.map((scen) => (
-                <div
-                  key={scen.id}
-                  className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider block">
-                        Origem: {scen.origin}
-                      </span>
-                      <h5 className="text-xs sm:text-sm font-black text-slate-900">
-                        Autor: {scen.author}
-                      </h5>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() =>
-                          setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'credibilidade' }))
-                        }
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                          authorChoices[scen.id] === 'credibilidade'
-                            ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        Há bons sinais de credibilidade
-                      </button>
-                      <button
-                        onClick={() =>
-                          setAuthorChoices((prev) => ({ ...prev, [scen.id]: 'verificacao' }))
-                        }
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                          authorChoices[scen.id] === 'verificacao'
-                            ? 'bg-amber-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        Precisa de mais verificação
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-800 font-medium italic bg-white p-3 rounded-xl border border-slate-200/80">
-                    "{scen.snippet}"
-                  </p>
-
-                  <div className="p-3 bg-sky-50/70 border border-sky-100 rounded-xl text-xs text-blue-950 font-medium flex items-center gap-2">
-                    <span className="text-base">🔎</span>
-                    <span>{scen.clues}</span>
-                  </div>
-
-                  {authorSubmitted && (
-                    <div
-                      className={`p-3.5 rounded-xl border text-xs font-medium ${
-                        authorChoices[scen.id] === scen.correct
-                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
-                          : 'bg-amber-50 border-amber-300 text-amber-950'
-                      }`}
-                    >
-                      <p className="font-black text-sm">
-                        {authorChoices[scen.id] === scen.correct
-                          ? '✓ Avaliação correta!'
-                          : 'ℹ️ Observação do Detetive:'}
-                      </p>
-                      <p className="mt-0.5 leading-relaxed">{scen.feedback}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={handleAuthorSubmit}
-                disabled={Object.keys(authorChoices).length < authorScenarios.length}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black text-xs px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
-              >
-                Validar Avaliação de Autores
-              </button>
-            </div>
-
-            {authorScore !== null && (
-              <div className="p-4 bg-sky-50 border border-sky-200 rounded-2xl text-xs text-blue-950 font-medium space-y-1">
-                <p className="font-black text-blue-900 text-sm">
-                  Pontuação da Auditoria: {authorScore}/100
-                </p>
-                <p className="leading-relaxed">
-                  Saber quem criou a informação é uma pista importante, mas não é a única coisa que devemos verificar. Procura sempre saber quem criou e verifica se existem dados e evidências que a apoiem.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Verifica sempre quem é o autor e se representa uma entidade credível.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Saber quem escreveu é essencial, mas confirma se a informação tem provas e referências.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>IDENTIFICAR O AUTOR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>VERIFICAR CREDENCIAIS</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>CONFIRMAR FONTES</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PENSAR CRITICAMENTE</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
-          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-3">
-              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
-              <span className="text-xs sm:text-sm font-black text-indigo-950">
-                Ótimo olho para os autores! Vamos verificar as datas das notícias?
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateTopic('w2-t3')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
-            >
-              <span>Próxima Missão: 3. Linha do Tempo</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================= */}
-      {/* MISSÃO 3: VERIFICAR A DATA                               */}
-      {/* ========================================================= */}
-      {activeTopicId === 'w2-t3' && (
-        <div className="space-y-6">
-          {/* Active Mission Header Card */}
-          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-amber-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/25">
-                <Calendar className="w-7 h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> MISSÃO 3/6
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Linha do Tempo ⏳
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                  Hoje vais descobrir por que razão a data da notícia faz toda a diferença.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {getSimProg('sim-date-verifier')?.completed ? (
-                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluída ({getSimProg('sim-date-verifier')?.score}%)</span>
-                </div>
-              ) : (
-                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 💡 1. APRENDE: A PISTA DO TEMPO */}
-          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
-                <span className="text-lg">💡</span>
-                <span>1. APRENDE: A PISTA DO TEMPO</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>Dicas do detetive</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-blue-600 stroke-[2.5]" />
-                </div>
-                <h4 className="text-sm font-black text-slate-900">O Mundo Muda</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Uma notícia sobre ciência ou regras escolares de há 10 anos pode já não ser válida hoje. A tecnologia e a ciência avançam depressa!
-                </p>
-              </div>
-
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-amber-600 stroke-[2.5]" />
-                </div>
-                <h4 className="text-sm font-black text-slate-900">Olho na Data</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Antes de partilhar ou citar num trabalho escolar, procura sempre o dia, mês e ano em que o artigo foi originalmente publicado.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Simulador de Linha Temporal & Data
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Avalia a adequação da data
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {dateScenarios.map((scen) => (
-                <div
-                  key={scen.id}
-                  className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider block">
-                        Título: {scen.title}
-                      </span>
-                      <p className="text-xs font-bold text-slate-600">
-                        Informação: {scen.info}
-                      </p>
-                      <p className="text-xs sm:text-sm font-black text-slate-900 mt-1">
-                        {scen.question}
-                      </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
-                      <button
-                        onClick={() =>
-                          setDateChoices((prev) => ({ ...prev, [scen.id]: 'sim' }))
-                        }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          dateChoices[scen.id] === 'sim'
-                            ? 'bg-blue-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {scen.optSim}
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDateChoices((prev) => ({ ...prev, [scen.id]: 'nao' }))
-                        }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          dateChoices[scen.id] === 'nao'
-                            ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {scen.optNao}
-                      </button>
-                    </div>
-                  </div>
-
-                  {dateSubmitted && (
-                    <div
-                      className={`p-3 rounded-xl border text-xs font-medium ${
-                        dateChoices[scen.id] === scen.correct
-                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                          : 'bg-amber-50 border-amber-200 text-amber-950'
-                      }`}
-                    >
-                      <p className="font-bold">
-                        {dateChoices[scen.id] === scen.correct
-                          ? '✓ Resposta correta!'
-                          : 'ℹ️ Explicação:'}
-                      </p>
-                      <p>{scen.feedback}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={handleDateSubmit}
-                disabled={Object.keys(dateChoices).length < dateScenarios.length}
-                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
-              >
-                Verificar Linha Temporal
-              </button>
-            </div>
-
-            {dateScore !== null && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-950 font-medium">
-                Avaliação Concluída: {dateScore}/100. Lembra-te: uma informação pode ser verdadeira e, mesmo assim, estar desatualizada para a pergunta que estás a fazer.
-              </div>
-            )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>A ciência e a tecnologia evoluem: uma notícia antiga pode já não ser verdadeira hoje.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Antes de usar dados num trabalho escolar, confirma sempre o ano em que foram publicados.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>VER DATA DO ARTIGO</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>AVALIAR ATUALIDADE</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>DESCOBRIR REVISÕES</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PENSAR CRITICAMENTE</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
-          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-3">
-              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
-              <span className="text-xs sm:text-sm font-black text-indigo-950">
-                Excelente! Agora vamos aprender a cruzar fontes e comparar pistas!
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateTopic('w2-t4')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
-            >
-              <span>Próxima Missão: 4. Comparar Pistas</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================= */}
-      {/* MISSÃO 4: COMPARAR FONTES                                */}
-      {/* ========================================================= */}
-      {activeTopicId === 'w2-t4' && (
-        <div className="space-y-6">
-          {/* Active Mission Header Card */}
-          <div className="bg-white border border-blue-100/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25">
-                <Layers className="w-7 h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> MISSÃO 4/6
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Comparar Pistas 📑
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                  Hoje vais aprender a não confiar no primeiro resultado e a cruzar fontes.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {getSimProg('sim-source-compare')?.completed ? (
-                <div className="bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluída ({getSimProg('sim-source-compare')?.score}%)</span>
-                </div>
-              ) : (
-                <div className="bg-blue-50 border-2 border-blue-400 text-blue-800 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 💡 1. APRENDE: CRUZAR INFORMAÇÃO */}
-          <div className="bg-white border border-blue-100/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-sm sm:text-base tracking-wide">
-                <span className="text-lg">💡</span>
-                <span>1. APRENDE: CRUZAR INFORMAÇÃO</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>Dicas do detetive</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-sky-100 text-blue-600 flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-blue-600 stroke-[2.5]" />
-                </div>
-                <h4 className="text-sm font-black text-slate-900">Nunca Fiques Pela Primeira</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Compara sempre duas ou três fontes diferentes para ver se todos dizem o mesmo facto. Se só um site estranho diz, desconfia!
-                </p>
-              </div>
-
-              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-5 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-purple-600 stroke-[2.5]" />
-                </div>
-                <h4 className="text-sm font-black text-slate-900">Facto vs Opinião</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Um facto é uma verdade comprovada ("A Terra gira à volta do Sol"). Uma opinião é o que alguém acha ("Este jogo é o melhor!").
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  2. Experimenta: Comparação Real de Duas Fontes Independentes
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Auditoria de Origem, Autoria, Data, Evidências e Contrariedades
-              </span>
-            </div>
-
-            {/* Apresentação das Duas Fontes Independentes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Fonte A */}
-              <div className="p-5 rounded-3xl border-2 border-blue-300 bg-blue-50/50 space-y-3 shadow-xs">
-                <div className="flex items-center justify-between gap-2 border-b border-blue-200/80 pb-2">
-                  <span className="text-xs font-black uppercase tracking-wider bg-blue-600 text-white px-2.5 py-1 rounded-lg">
-                    Fonte A
-                  </span>
-                  <span className="text-[11px] font-bold text-blue-800">
-                    Portal de Divulgação Científica
-                  </span>
-                </div>
-                <div>
-                  <h5 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
-                    {sourceA.title}
-                  </h5>
-                </div>
-                <div className="space-y-1.5 text-xs text-slate-700 bg-white/80 p-3 rounded-2xl border border-blue-100">
-                  <p>
-                    <strong className="text-blue-900 font-black">Origem:</strong> {sourceA.origin}
-                  </p>
-                  <p>
-                    <strong className="text-blue-900 font-black">Autor:</strong> {sourceA.author}
-                  </p>
-                  <p>
-                    <strong className="text-blue-900 font-black">Data:</strong> {sourceA.date}
-                  </p>
-                  <p className="pt-1 text-slate-800 leading-relaxed">
-                    <strong className="text-blue-900 font-black">Informação Apresentada:</strong> "{sourceA.content}"
-                  </p>
-                  <p className="pt-1 text-emerald-800 font-medium">
-                    <strong className="text-emerald-950 font-black">Evidências:</strong> {sourceA.evidence}
-                  </p>
-                </div>
-              </div>
-
-              {/* Fonte B */}
-              <div className="p-5 rounded-3xl border-2 border-amber-300 bg-amber-50/50 space-y-3 shadow-xs">
-                <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-2">
-                  <span className="text-xs font-black uppercase tracking-wider bg-amber-600 text-white px-2.5 py-1 rounded-lg">
-                    Fonte B
-                  </span>
-                  <span className="text-[11px] font-bold text-amber-900">
-                    Rede Social / Blogue Pessoal
-                  </span>
-                </div>
-                <div>
-                  <h5 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
-                    {sourceB.title}
-                  </h5>
-                </div>
-                <div className="space-y-1.5 text-xs text-slate-700 bg-white/80 p-3 rounded-2xl border border-amber-100">
-                  <p>
-                    <strong className="text-amber-900 font-black">Origem:</strong> {sourceB.origin}
-                  </p>
-                  <p>
-                    <strong className="text-amber-900 font-black">Autor:</strong> {sourceB.author}
-                  </p>
-                  <p>
-                    <strong className="text-amber-900 font-black">Data:</strong> {sourceB.date}
-                  </p>
-                  <p className="pt-1 text-slate-800 leading-relaxed">
-                    <strong className="text-amber-900 font-black">Informação Apresentada:</strong> "{sourceB.content}"
-                  </p>
-                  <p className="pt-1 text-rose-800 font-medium">
-                    <strong className="text-rose-950 font-black">Evidências:</strong> {sourceB.evidence}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Perguntas de Comparação Cruzada */}
-            <div className="space-y-5 pt-2">
-              <div className="border-b border-slate-200 pb-2">
-                <h5 className="text-sm sm:text-base font-black text-slate-900">
-                  Responde às 6 Dimensões de Comparação Entre as Fontes:
-                </h5>
-                <p className="text-xs text-slate-600">
-                  Analisa as duas publicações em simultâneo para identificar credibilidade, contradições e riscos antes de partilhar.
-                </p>
-              </div>
-
-              {compareQuestions.map((q, qIndex) => {
-                const selected = sourceCompareAnswers[q.id];
-                return (
-                  <div
-                    key={q.id}
-                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0">
-                        {qIndex + 1}
-                      </span>
-                      <span className="text-xs font-black uppercase text-blue-700 tracking-wider">
-                        {q.facet}
-                      </span>
-                    </div>
-                    <p className="text-xs sm:text-sm font-black text-slate-900">
-                      {q.question}
-                    </p>
-
-                    <div className="space-y-2">
-                      {q.options.map((opt) => {
-                        const isChosen = selected === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            onClick={() =>
-                              setSourceCompareAnswers((prev) => ({ ...prev, [q.id]: opt.id }))
-                            }
-                            className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-                              isChosen
-                                ? 'bg-blue-600 text-white border-blue-700 shadow-xs font-bold'
-                                : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-800'
-                            }`}
-                          >
-                            <span className="font-bold mr-2 uppercase">{opt.id})</span>
-                            <span>{opt.text}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {compareSubmitted && (
-                      <div
-                        className={`p-3 rounded-xl border text-xs font-medium ${
-                          q.options.find((o) => o.id === selected)?.isCorrect
-                            ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                            : 'bg-amber-50 border-amber-200 text-amber-950'
-                        }`}
-                      >
-                        <p className="font-black mb-0.5">
-                          {q.options.find((o) => o.id === selected)?.isCorrect
-                            ? '✓ Resposta Correta!'
-                            : '⚠️ Observação Pedagógica:'}
-                        </p>
-                        <p>{q.explanation}</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <span className="text-xs font-bold text-slate-500">
-                  Respondidas: {Object.keys(sourceCompareAnswers).length} de {compareQuestions.length}
-                </span>
-
                 <button
-                  type="button"
-                  onClick={handleCompareSubmit}
-                  disabled={Object.keys(sourceCompareAnswers).length < compareQuestions.length}
-                  className={`px-6 py-3 rounded-xl text-xs sm:text-sm font-black transition-all ${
-                    Object.keys(sourceCompareAnswers).length >= compareQuestions.length
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
+                  onClick={evaluateSearchQuery}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer shrink-0"
                 >
-                  Validar Comparação de Fontes
+                  Analisar Eficácia
                 </button>
               </div>
 
-              {compareSubmitted && compareScore !== null && (
-                <div className="space-y-4 pt-2">
-                  <div
-                    className={`p-4 rounded-2xl border text-xs font-medium ${
-                      compareScore >= 70
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                        : 'bg-amber-50 border-amber-200 text-amber-950'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 font-black text-sm mb-1">
-                      {compareScore >= 70 ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                      ) : (
-                        <AlertTriangle className="w-5 h-5 text-amber-600" />
-                      )}
-                      <span>Pontuação Final da Comparação: {compareScore}%</span>
-                    </div>
-                    <p>
-                      {compareScore >= 70
-                        ? 'Parabéns! Demonstraste espírito crítico rigoroso ao cruzar autoria, cronologia, evidências e distinguir factos reais de exageros sensacionalistas.'
-                        : 'Revê as explicações acima para aprofundares como comparar origens, dados metodológicos e identificar afirmações suspeitas.'}
-                    </p>
+              {searchOutput && (
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-black text-base text-slate-900">{searchOutput.title}</h4>
+                    <span className="text-xs font-mono font-bold text-slate-500">{searchOutput.count}</span>
                   </div>
-
-                  {/* Feedback Pedagógico Requerido */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-950 text-xs sm:text-sm space-y-2">
-                    <h6 className="font-black text-indigo-900 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-indigo-600" />
-                      Conclusão Pedagógica Essencial:
-                    </h6>
-                    <p className="leading-relaxed">
-                      Mesmo que uma notícia ou artigo pareça credível, utilize vocabulário técnico ou fale de um assunto verdadeiro (como robôs educativos), pode conter distorções graves, promessas irreais ou custos falsos. Uma fonte nunca deve ser aceite cegamente: cruzar com outras <strong>fontes independentes</strong> e verificar <strong>quem assina, quando publicou e que provas apresenta</strong> é indispensável antes de acreditar ou partilhar.
-                    </p>
+                  <p className="text-xs text-slate-700 leading-relaxed font-semibold">
+                    {searchOutput.hint}
+                  </p>
+                  <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 ${searchOutput.score >= 70 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                      style={{ width: `${searchOutput.score}%` }}
+                    />
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          )}
 
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Nunca confies apenas numa fonte: cruza com outros sites para ver se os factos coincidem.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Distingue factos reais e científicos de opiniões ou boatos sensacionalistas.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>CRUZAR FONTES</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>FACTO VS OPINIÃO</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>COMPARAR EVIDÊNCIAS</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PENSAR CRITICAMENTE</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 👉 4. PRÓXIMA MISSÃO ACTION BAR */}
-          <div className="bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-pink-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-3">
-              <Star className="w-6 h-6 text-amber-400 fill-current shrink-0 filter drop-shadow-xs" />
-              <span className="text-xs sm:text-sm font-black text-indigo-950">
-                Espetacular! Falta apenas o treino de caça a boatos e notícias falsas!
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateTopic('w2-t5')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 active:scale-95"
-            >
-              <span>Próxima Missão: 5. Caça a Boatos</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+          {stage === 3 && (
+            <GameDecisionScenario
+              scenario={{
+                id: 'dec-keywords',
+                title: 'O Trabalho de Ciências com Prazo Apertado',
+                situation: 'Tens 30 minutos para encontrar as 3 principais causas da poluição dos oceanos por plásticos. O que deves escrever no motor de busca?',
+                choices: [
+                  {
+                    id: 'c1',
+                    text: 'Escrever: "porque é que o mar fica tão sujo com lixo e plástico e faz mal aos peixes"',
+                    isBest: false,
+                    explanation: 'Frases compridas contêm palavras desnecessárias que confundem o algoritmo do motor de busca.',
+                  },
+                  {
+                    id: 'c2',
+                    text: 'Escrever: "poluição oceanos" plástico causas estatísticas',
+                    isBest: true,
+                    explanation: 'Excelente! Usaste termos-chave objetivos, aspas na expressão principal e delimitaste os factos pretendidos.',
+                  },
+                  {
+                    id: 'c3',
+                    text: 'Escrever apenas: "plástico"',
+                    isBest: false,
+                    explanation: 'Apenas uma palavra dá resultados sobre fábricas de plástico, reciclagem genérica ou brinquedos, sem foco.',
+                  },
+                ],
+              }}
+              onChoice={(isCorrect, choice) => {
+                if (isCorrect) {
+                  reportCompletion('sim-keywords', 'Decisão de Palavras-Chave', { choice: choice.id }, 100);
+                } else {
+                  handleLoseLife(choice.explanation);
+                }
+              }}
+            />
+          )}
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* MISSÃO 5: CAÇA A BOATOS & FAKE NEWS                       */}
+      {/* 2. SEPARADOR: QUEM É O AUTOR?                             */}
+      {/* ========================================================= */}
+      {activeTopicId === 'w2-t2' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <GameHeader
+            title="🕵️ Missão 2: Quem Escreveu Isto? O Selo do Autor"
+            subtitle="Qualquer pessoa pode publicar na web! Aprende a verificar a identidade e credibilidade de quem escreve."
+            lives={lives}
+            xpReward={30}
+            currentStage={stage}
+            totalStages={3}
+            stagesLabels={['Fase 1: Detetive de Autoria', 'Fase 2: Classificador de Fontes', 'Fase 3: Dilema do Post']}
+            onSelectStage={(s) => {
+              setStage(s);
+              setFeedback(null);
+            }}
+            onResetGame={resetGame}
+          />
+
+          {feedback && (
+            <GameFeedbackBanner
+              status={feedback.status}
+              title={feedback.title}
+              message={feedback.message}
+              xpGain={feedback.xpGain}
+              onRetry={resetGame}
+              onNext={stage < 3 ? () => setStage(stage + 1) : undefined}
+            />
+          )}
+
+          {stage === 1 && (
+            <GameDetectiveInspector
+              title="O Artigo Científico Sem Rosto"
+              missionBrief="Clica nas 3 pistas sospeitas que provam que esta página tem autoria duvidosa e pouco fiável!"
+              contentCard={{
+                header: 'Blog: Segredos-Ocultos-Espaco.blogspot.com | Publicado: Hoje',
+                bodyText:
+                  'Novo planeta descoberto com aliens gigantes! Artigo escrito por "Utilizador_Gamer_99". Não temos contacto institucional nem biografia, mas garantimos que a NASA nos confirmou tudo em segredo. Clica no nosso anúncio para comprar o telescópio mágico!',
+              }}
+              clues={[
+                {
+                  id: 'c-autor',
+                  targetText: 'Utilizador_Gamer_99',
+                  hint: 'Pseudónimo anónimo',
+                  isSuspicious: true,
+                  explanation: 'O autor usa um nickname anónimo e não apresenta qualificações científicas reais.',
+                },
+                {
+                  id: 'c-sobre',
+                  targetText: 'Não temos contacto institucional nem biografia',
+                  hint: 'Falta de transparência',
+                  isSuspicious: true,
+                  explanation: 'Sites credíveis possuem secção "Sobre nós", ficha técnica e meios de contacto oficiais.',
+                },
+                {
+                  id: 'c-venda',
+                  targetText: 'Clica no nosso anúncio para comprar o telescópio',
+                  hint: 'Conflito de interesses',
+                  isSuspicious: true,
+                  explanation: 'O texto serve apenas para vender um produto, manipulando a curiosidade do leitor.',
+                },
+                {
+                  id: 'c-planeta',
+                  targetText: 'Novo planeta descoberto',
+                  hint: 'O tema abordado',
+                  isSuspicious: false,
+                  explanation: 'A descoberta de planetas é um tema astronómico comum, mas precisa de fontes de observatórios oficiais.',
+                },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-author-check', 'Detetive de Autoria', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 2 && (
+            <GameClassificationBoard
+              title="Avaliador de Credibilidade de Fontes"
+              instruction="Classifica cada entidade como 'Fonte Credenciada / Confiável 🏛️' ou 'Fonte Duvidosa / Sem Validação ❓'."
+              items={[
+                {
+                  id: 'auth-1',
+                  text: 'Universidade de Coimbra - Departamento de Biologia',
+                  emoji: '🎓',
+                  category: 'confiavel',
+                  explanation: 'Instituição de ensino superior de referência com revisores e cientistas reconhecidos.',
+                },
+                {
+                  id: 'auth-2',
+                  text: 'Comentário anónimo num fórum do Reddit',
+                  emoji: '💬',
+                  category: 'duvidosa',
+                  explanation: 'Qualquer pessoa pode publicar opiniões ou desinformação sem moderação nem validação.',
+                },
+                {
+                  id: 'auth-3',
+                  text: 'Instituto Português do Mar e da Atmosfera (IPMA)',
+                  emoji: '🌦️',
+                  category: 'confiavel',
+                  explanation: 'Organismo público oficial com técnicos especialistas em meteorologia e sismologia.',
+                },
+                {
+                  id: 'auth-4',
+                  text: 'Canal de TikTok chamado "Verdades_Secretas_2026"',
+                  emoji: '📱',
+                  category: 'duvidosa',
+                  explanation: 'Sem ficha técnica, sem fontes citadas e com foco em sensacionalismo para cliques.',
+                },
+              ]}
+              categories={[
+                { id: 'confiavel', name: 'Fonte Credenciada 🏛️', colorClass: 'text-emerald-700', borderClass: 'border-emerald-300', bgClass: 'bg-emerald-100', icon: '🏛️' },
+                { id: 'duvidosa', name: 'Fonte Duvidosa ❓', colorClass: 'text-rose-700', borderClass: 'border-rose-300', bgClass: 'bg-rose-100', icon: '❓' },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-author-check', 'Classificador de Fontes', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 3 && (
+            <GameDecisionScenario
+              scenario={{
+                id: 'dec-author',
+                title: 'O Conselho Médico nas Redes Sociais',
+                situation: 'Encontras um vídeo viral a afirmar que beber sumo de cebola cura qualquer gripe em 2 horas. O autor é um influenciador de videojogos. Como deves agir?',
+                choices: [
+                  {
+                    id: 'c1',
+                    text: 'Acreditar logo e partilhar no grupo da família porque o vídeo tem 1 milhão de gostos.',
+                    isBest: false,
+                    explanation: 'Milhões de visualizações não tornam uma dica médica verdadeira. A saúde exige validação médica oficial.',
+                  },
+                  {
+                    id: 'c2',
+                    text: 'Verificar no portal do Serviço Nacional de Saúde (SNS) ou consultar um médico/farmacêutico.',
+                    isBest: true,
+                    explanation: 'Excelente! A informação de saúde deve vir sempre de profissionais médicos e fontes de saúde oficiais.',
+                  },
+                  {
+                    id: 'c3',
+                    text: 'Comentar no vídeo a pedir para o influenciador receitar outros sumos.',
+                    isBest: false,
+                    explanation: 'Um criador de conteúdos de jogos não tem formação para orientar tratamentos de saúde.',
+                  },
+                ],
+              }}
+              onChoice={(isCorrect, choice) => {
+                if (isCorrect) {
+                  reportCompletion('sim-author-check', 'Decisão de Autoria', { choice: choice.id }, 100);
+                } else {
+                  handleLoseLife(choice.explanation);
+                }
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 3. SEPARADOR: A MÁQUINA DO TEMPO (DATAS)                  */}
+      {/* ========================================================= */}
+      {activeTopicId === 'w2-t3' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <GameHeader
+            title="⏳ Missão 3: A Máquina do Tempo: A Data Conta Muito!"
+            subtitle="Uma notícia verdadeira de há 10 anos pode ser totalmente enganadora se for partilhada como sendo de hoje!"
+            lives={lives}
+            xpReward={30}
+            currentStage={stage}
+            totalStages={3}
+            stagesLabels={['Fase 1: Inspetor da Data', 'Fase 2: Classificador Temporal', 'Fase 3: Alerta da Tempestade']}
+            onSelectStage={(s) => {
+              setStage(s);
+              setFeedback(null);
+            }}
+            onResetGame={resetGame}
+          />
+
+          {feedback && (
+            <GameFeedbackBanner
+              status={feedback.status}
+              title={feedback.title}
+              message={feedback.message}
+              xpGain={feedback.xpGain}
+              onRetry={resetGame}
+              onNext={stage < 3 ? () => setStage(stage + 1) : undefined}
+            />
+          )}
+
+          {stage === 1 && (
+            <GameDetectiveInspector
+              title="A Notícia Reencaminhada com Pistas Ocultas"
+              missionBrief="Clica nas 3 pistas que mostram que este artigo é antigo e já não reflete a realidade!"
+              contentCard={{
+                header: 'Jornal Online | Secção Educação',
+                bodyText:
+                  'Atenção alunos: "Todas as escolas vão fechar amanhã devido a greve geral de transportes". Ao fundo da página, em letra pequena, surge: Publicado a 14 de março de 2012. Além disso, a notícia menciona o Ministério da Educação que já mudou de nome e preços em escudos!',
+              }}
+              clues={[
+                {
+                  id: 'c-date',
+                  targetText: 'Publicado a 14 de março de 2012',
+                  hint: 'Ano de publicação antigo',
+                  isSuspicious: true,
+                  explanation: 'O artigo tem mais de uma década! Partilhá-lo hoje cria alarme falso sobre as aulas.',
+                },
+                {
+                  id: 'c-ministerio',
+                  targetText: 'Ministério da Educação que já mudou de nome',
+                  hint: 'Entidade desatualizada',
+                  isSuspicious: true,
+                  explanation: 'Nomes de organismos e ministérios antigos provam que a notícia não é atual.',
+                },
+                {
+                  id: 'c-moeda',
+                  targetText: 'preços em escudos',
+                  hint: 'Referência temporal caducada',
+                  isSuspicious: true,
+                  explanation: 'Referências económicas ou regras antigas denunciam de imediato o ano do documento.',
+                },
+                {
+                  id: 'c-escolas',
+                  targetText: 'Todas as escolas vão fechar amanhã',
+                  hint: 'O título alarmante',
+                  isSuspicious: false,
+                  explanation: 'Títulos dramáticos são usados de propósito para que as pessoas não leiam a data com calma.',
+                },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-date-verifier', 'Inspetor da Data', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 2 && (
+            <GameClassificationBoard
+              title="Classificador de Atualidade e Validade"
+              instruction="Classifica se a informação está 'Válida / Atualizada 📅' ou 'Caducada / Requer Confirmação ⚠️'."
+              items={[
+                {
+                  id: 'tmp-1',
+                  text: 'Previsão do estado do tempo emitida esta manhã às 08h00 pelo IPMA',
+                  emoji: '☀️',
+                  category: 'valida',
+                  explanation: 'Informação meteorológica recente e emitida poucas horas antes.',
+                },
+                {
+                  id: 'tmp-2',
+                  text: 'Guia de segurança informática para telemóveis publicado em 2008',
+                  emoji: '📟',
+                  category: 'caducada',
+                  explanation: 'Em tecnologia, 18 anos tornam os conselhos obsoletos e sem proteção para as ameaças atuais.',
+                },
+                {
+                  id: 'tmp-3',
+                  text: 'Calendário de exames e avaliações do ano letivo em curso',
+                  emoji: '📅',
+                  category: 'valida',
+                  explanation: 'Documento oficial respeitante ao ano escolar atual.',
+                },
+                {
+                  id: 'tmp-4',
+                  text: 'Vídeo partilhado no WhatsApp a dizer que há um tsunami a caminho gravado em 2011',
+                  emoji: '🌊',
+                  category: 'caducada',
+                  explanation: 'Imagens reais de catástrofes antigas são frequentemente recicladas para espalhar pânico.',
+                },
+              ]}
+              categories={[
+                { id: 'valida', name: 'Válida e Atual 📅', colorClass: 'text-emerald-700', borderClass: 'border-emerald-300', bgClass: 'bg-emerald-100', icon: '📅' },
+                { id: 'caducada', name: 'Caducada / Antiga ⚠️', colorClass: 'text-rose-700', borderClass: 'border-rose-300', bgClass: 'bg-rose-100', icon: '⚠️' },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-date-verifier', 'Classificador Temporal', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 3 && (
+            <GameDecisionScenario
+              scenario={{
+                id: 'dec-date',
+                title: 'O Alerta de Furacão no Grupo de Turma',
+                situation: 'Um colega envia um link com a manchete "ALERTA VERMELHO: Tempestade destrói telhados e cancela aulas". Todos começam a festejar. O que deves fazer?',
+                choices: [
+                  {
+                    id: 'c1',
+                    text: 'Começar a arrumar os livros e não estudar para o teste de amanhã.',
+                    isBest: false,
+                    explanation: 'Agir por impulso sem confirmar a data da notícia pode levar a faltas e notas negativas.',
+                  },
+                  {
+                    id: 'c2',
+                    text: 'Abrir o link, verificar a data da publicação e consultar a página oficial da escola ou da Proteção Civil.',
+                    isBest: true,
+                    explanation: 'Excelente atitude de detetive! Verificar a data evita espalhar falsos alarmes.',
+                  },
+                  {
+                    id: 'c3',
+                    text: 'Encaminhar o aviso para os teus primos noutra cidade.',
+                    isBest: false,
+                    explanation: 'Reencaminhar sem validar a data alimenta o ciclo de desinformação.',
+                  },
+                ],
+              }}
+              onChoice={(isCorrect, choice) => {
+                if (isCorrect) {
+                  reportCompletion('sim-date-verifier', 'Decisão de Linha Temporal', { choice: choice.id }, 100);
+                } else {
+                  handleLoseLife(choice.explanation);
+                }
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 4. SEPARADOR: O SUPER-PODER DE COMPARAR FONTES            */}
+      {/* ========================================================= */}
+      {activeTopicId === 'w2-t4' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <GameHeader
+            title="📑 Missão 4: O Super-Poder de Comparar Fontes"
+            subtitle="Regra de Ouro do Detetive: Nunca confies num único site! Compara 2 ou 3 fontes antes de apresentar."
+            lives={lives}
+            xpReward={30}
+            currentStage={stage}
+            totalStages={3}
+            stagesLabels={['Fase 1: O Jogo dos 3 Artigos', 'Fase 2: Caça ao Intruso', 'Fase 3: O Trabalho Escolar']}
+            onSelectStage={(s) => {
+              setStage(s);
+              setFeedback(null);
+            }}
+            onResetGame={resetGame}
+          />
+
+          {feedback && (
+            <GameFeedbackBanner
+              status={feedback.status}
+              title={feedback.title}
+              message={feedback.message}
+              xpGain={feedback.xpGain}
+              onRetry={resetGame}
+              onNext={stage < 3 ? () => setStage(stage + 1) : undefined}
+            />
+          )}
+
+          {stage === 1 && (
+            <GameMatchingPairs
+              title="Triangulação de Fontes da Missão"
+              instruction="Associa cada tipo de fonte ao seu papel na investigação pedagógica."
+              pairs={[
+                {
+                  id: 'p1',
+                  leftText: 'Fonte Primária',
+                  rightText: 'Documento original ou cientista que fez a descoberta',
+                  leftEmoji: '📜',
+                  rightEmoji: '🔬',
+                  explanation: 'É a fonte mais direta e pura, sem interpretações de terceiros.',
+                },
+                {
+                  id: 'p2',
+                  leftText: 'Fonte Secundária',
+                  rightText: 'Jornal ou enciclopédia que resume e explica a descoberta',
+                  leftEmoji: '📰',
+                  rightEmoji: '📚',
+                  explanation: 'Ajuda a compreender o assunto com linguagem acessível ao público.',
+                },
+                {
+                  id: 'p3',
+                  leftText: 'Triangulação',
+                  rightText: 'Cruzar 3 fontes independentes para confirmar os factos',
+                  leftEmoji: '📐',
+                  rightEmoji: '✅',
+                  explanation: 'Se 3 fontes sérias e diferentes confirmam o facto, a probabilidade de erro é mínima.',
+                },
+                {
+                  id: 'p4',
+                  leftText: 'Cópia em Espelho',
+                  rightText: 'Sites diferentes que apenas copiaram o mesmo texto sem verificar',
+                  leftEmoji: '🪞',
+                  rightEmoji: '⚠️',
+                  explanation: 'Repetir o mesmo erro em 10 blogs não transforma uma mentira em verdade.',
+                },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-source-compare', 'Triangulação de Fontes', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 2 && (
+            <GameDetectiveInspector
+              title="A Caça à Informação Falsa Entre as Fontes"
+              missionBrief="Três jornais sérios dizem a verdade, mas um site inventou um detalhe impossível. Clica no detalhe falso!"
+              contentCard={{
+                header: 'Quadro Comparativo de 3 Fontes Oficiais sobre o Robô em Marte',
+                bodyText:
+                  'Fonte A (NASA): O rover recolheu amostras de rocha mineral em Marte. Fonte B (Agência Espacial Europeia): As rochas foram analisadas por lasers científicos. Fonte C (Blog Misterioso): "O robô foi atacado por polvos gigantes marcianos que destruíram as câmaras".',
+              }}
+              clues={[
+                {
+                  id: 'c-nasa',
+                  targetText: 'amostras de rocha mineral em Marte',
+                  hint: 'Facto confirmado por cientistas',
+                  isSuspicious: false,
+                  explanation: 'Corresponde à missão real dos rovers de exploração geológica.',
+                },
+                {
+                  id: 'c-polvos',
+                  targetText: 'atacado por polvos gigantes marcianos',
+                  hint: 'Invenção sem suporte científico',
+                  isSuspicious: true,
+                  explanation: 'Nenhuma outra fonte refere este absurdo. É uma invenção flagrante de ficção para atrair cliques!',
+                },
+                {
+                  id: 'c-lasers',
+                  targetText: 'analisadas por lasers científicos',
+                  hint: 'Tecnologia real comprovada',
+                  isSuspicious: false,
+                  explanation: 'Os instrumentos dos rovers usam espetrómetros e lasers para vaporizar pequenas pedras.',
+                },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-source-compare', 'Caça ao Intruso de Fontes', { score }, score);
+              }}
+            />
+          )}
+
+          {stage === 3 && (
+            <GameDecisionScenario
+              scenario={{
+                id: 'dec-compare',
+                title: 'A Preparação da Apresentação de TIC',
+                situation: 'Estás a fazer uma pesquisa e o primeiro link do motor de busca tem exatamente a frase que querias. Deves fechar o computador e dar o trabalho por terminado?',
+                choices: [
+                  {
+                    id: 'c1',
+                    text: 'Sim, se apareceu em primeiro lugar no Google é garantido que está 100% certo.',
+                    isBest: false,
+                    explanation: 'A primeira posição pode ser um anúncio pago ou ter bom SEO, mas conter imprecisões.',
+                  },
+                  {
+                    id: 'c2',
+                    text: 'Não! Devo abrir mais 1 ou 2 fontes de instituições diferentes para confirmar os dados principais.',
+                    isBest: true,
+                    explanation: 'Perfeito! Comparar fontes é a marca de um estudante rigoroso e detetive da verdade.',
+                  },
+                  {
+                    id: 'c3',
+                    text: 'Mudar apenas 2 palavras para o professor não notar que só li um site.',
+                    isBest: false,
+                    explanation: 'O problema não é o professor notar, é aprenderes dados incorretos sem validação.',
+                  },
+                ],
+              }}
+              onChoice={(isCorrect, choice) => {
+                if (isCorrect) {
+                  reportCompletion('sim-source-compare', 'Decisão de Comparar Fontes', { choice: choice.id }, 100);
+                } else {
+                  handleLoseLife(choice.explanation);
+                }
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 5. SEPARADOR: NOTÍCIAS FALSAS: FACTO VS OPINIÃO           */}
       {/* ========================================================= */}
       {activeTopicId === 'w2-t5' && (
-        <div className="space-y-6">
-          {/* Header Card */}
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
-                <AlertOctagon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-black tracking-wider uppercase text-rose-600 bg-rose-50 border border-rose-200/60 px-2.5 py-0.5 rounded-full inline-block">
-                  MISSÃO 5/6
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Caça a Boatos & Fake News 🚨
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  Aprende a desmascarar notícias falsas, boatos de redes sociais e títulos armadilha sensacionalistas.
-                </p>
-              </div>
-            </div>
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <GameHeader
+            title="🚨 Missão 5: Caça às Notícias Falsas: Facto vs Opinião"
+            subtitle="Desvenda os truques dos boatos: títulos sensacionalistas, afirmações sem provas e confusão entre facto e opinião."
+            lives={lives}
+            xpReward={30}
+            currentStage={stage}
+            totalStages={3}
+            stagesLabels={['Fase 1: Facto vs Opinião', 'Fase 2: Detetive de Fake News', 'Fase 3: O Dilema Viral']}
+            onSelectStage={(s) => {
+              setStage(s);
+              setFeedback(null);
+            }}
+            onResetGame={resetGame}
+          />
 
-            <div className="flex items-center gap-2 self-start sm:self-center">
-              {getSimProg('sim-news-detective')?.completed ? (
-                <div className="bg-emerald-500 text-white text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-2 shadow-xs">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Missão Concluída ({getSimProg('sim-news-detective')?.score}%)</span>
-                </div>
-              ) : (
-                <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black text-xs px-4 py-2 rounded-2xl flex items-center gap-1.5 shadow-xs">
-                  <Zap className="w-4 h-4 fill-current text-slate-950" />
-                  <span>Recompensa: +100 XP</span>
-                </div>
-              )}
-            </div>
-          </div>
+          {feedback && (
+            <GameFeedbackBanner
+              status={feedback.status}
+              title={feedback.title}
+              message={feedback.message}
+              xpGain={feedback.xpGain}
+              onRetry={resetGame}
+              onNext={stage < 3 ? () => setStage(stage + 1) : undefined}
+            />
+          )}
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-900">
-              <Sparkles className="w-5 h-5 text-amber-500 fill-current" />
-              <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider">
-                1. APRENDE: PÁRA, ANALISA E PENSA ANTES DE PARTILHAR!
-              </h4>
-            </div>
+          {stage === 1 && (
+            <GameClassificationBoard
+              title="O Separador Científico: Facto vs Opinião"
+              instruction="Classifica cada frase: 'Facto Comprovável 🔬' ou 'Opinião Pessoal / Ponto de Vista 💭'."
+              items={[
+                {
+                  id: 'f-1',
+                  text: 'A água ferve a 100 °C ao nível do mar.',
+                  emoji: '🌡️',
+                  category: 'facto',
+                  explanation: 'É uma verdade científica verificável através de experiências repetíveis.',
+                },
+                {
+                  id: 'f-2',
+                  text: 'O outono é a estação mais bonita e relaxante do ano.',
+                  emoji: '🍂',
+                  category: 'opiniao',
+                  explanation: 'Depende do gosto e sentimento de cada pessoa. Não é universal nem mensurável.',
+                },
+                {
+                  id: 'f-3',
+                  text: 'A Terra demora aproximadamente 365 dias e 6 horas a dar uma volta ao Sol.',
+                  emoji: '🌍',
+                  category: 'facto',
+                  explanation: 'Dado astronómico comprovado por observações e cálculos matemáticos.',
+                },
+                {
+                  id: 'f-4',
+                  text: 'Os jogos de computador de estratégia são muito mais divertidos que os de futebol.',
+                  emoji: '🎮',
+                  category: 'opiniao',
+                  explanation: 'É uma preferência de jogador, não uma lei da ciência.',
+                },
+              ]}
+              categories={[
+                { id: 'facto', name: 'Facto Comprovável 🔬', colorClass: 'text-blue-700', borderClass: 'border-blue-300', bgClass: 'bg-blue-100', icon: '🔬' },
+                { id: 'opiniao', name: 'Opinião Pessoal 💭', colorClass: 'text-purple-700', borderClass: 'border-purple-300', bgClass: 'bg-purple-100', icon: '💭' },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-news-detective', 'Classificador de Facto vs Opinião', { score }, score);
+              }}
+            />
+          )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gradient-to-br from-rose-50/70 to-pink-50/40 border border-rose-200/80 rounded-2xl p-5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🎣</span>
-                  <h5 className="text-xs sm:text-sm font-black text-rose-950">Títulos Armadilha (Clickbait)</h5>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Títulos exagerados e dramáticos ("Não vais acreditar no que aconteceu!") querem apenas cliques para ganhar dinheiro de publicidade. Desconfia sempre!
-                </p>
-              </div>
+          {stage === 2 && (
+            <GameDetectiveInspector
+              title="A Manchete Sensacionalista (Clickbait)"
+              missionBrief="Clica nas 3 pistas típicas de Fake News e sensacionalismo nesta notícia viral!"
+              contentCard={{
+                header: 'Site: NotíciasBombásticas-SuperFixe.net',
+                bodyText:
+                  'URGENTE!!! DESCOBERTA CHOCANTE QUE NENHUM PROFESSOR QUER QUE SAIAS: Comer 3 chocolates antes do teste dá nota 100 garantida sem estudar nada! Cientistas anónimos provaram tudo num laboratório secreto!',
+              }}
+              clues={[
+                {
+                  id: 'c-caps',
+                  targetText: 'URGENTE!!! DESCOBERTA CHOCANTE',
+                  hint: 'Título alarmista e maiúsculas',
+                  isSuspicious: true,
+                  explanation: 'Uso de pontos de exclamação múltiplos e maiúsculas para apelar à emoção sem dados sérios.',
+                },
+                {
+                  id: 'c-promessa',
+                  targetText: 'nota 100 garantida sem estudar nada',
+                  hint: 'Promessa milagrosa irrealista',
+                  isSuspicious: true,
+                  explanation: 'Promessas mágicas sem esforço são a armadilha mais antiga da internet.',
+                },
+                {
+                  id: 'c-anonimo',
+                  targetText: 'Cientistas anónimos num laboratório secreto',
+                  hint: 'Fontes fantasmas',
+                  isSuspicious: true,
+                  explanation: 'A ciência verdadeira publica estudos assinados com nomes de investigadores e universidades.',
+                },
+                {
+                  id: 'c-teste',
+                  targetText: 'antes do teste',
+                  hint: 'A situação escolar',
+                  isSuspicious: false,
+                  explanation: 'A menção aos testes é usada como isco para o público-alvo jovem.',
+                },
+              ]}
+              onComplete={(score) => {
+                reportCompletion('sim-news-detective', 'Detetive de Fake News', { score }, score);
+              }}
+            />
+          )}
 
-              <div className="bg-gradient-to-br from-emerald-50/70 to-teal-50/40 border border-emerald-200/80 rounded-2xl p-5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🛑</span>
-                  <h5 className="text-xs sm:text-sm font-black text-emerald-950">Não Espalhes Dúvidas</h5>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Se tens a mínima dúvida se uma notícia é real, nunca a reencaminhes para o grupo da turma ou família. Pergunta primeiro a um professor ou adulto!
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-2">
-              <div className="flex items-center gap-2.5 text-blue-900">
-                <Sparkles className="w-5 h-5 text-blue-600" />
-                <h4 className="text-sm sm:text-base font-black uppercase tracking-wide">
-                  2. EXPERIMENTA: AUDITORIA DE NOTÍCIAS & CLASSIFICAÇÃO
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-200/70">
-                Treino de Detetive
-              </span>
-            </div>
-
-            {/* Atividade A: Classificar Afirmações */}
-            <div className="space-y-4 p-5 sm:p-6 rounded-2xl border border-blue-200/70 bg-gradient-to-b from-blue-50/40 to-slate-50/40">
-              <div className="border-b border-blue-200/60 pb-3">
-                <h5 className="text-xs sm:text-sm font-black text-blue-950 uppercase tracking-wide">
-                  Parte A: Classifica cada afirmação no tipo correto
-                </h5>
-                <p className="text-xs text-slate-600 font-medium mt-1">
-                  Identifica se é um Facto com dados, uma Opinião pessoal, uma Notícia com base ou uma Informação enganadora:
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {statementItems.map((item) => {
-                  const currentChoice = classifiedStatements[item.id];
-                  const isCorrect = currentChoice === item.correct;
-                  return (
-                    <div
-                      key={item.id}
-                      className="p-4 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs"
-                    >
-                      <p className="text-xs sm:text-sm font-bold text-slate-900">
-                        {item.text}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          { id: 'facto' as const, label: 'Facto com dados' },
-                          { id: 'opiniao' as const, label: 'Opinião' },
-                          { id: 'noticia' as const, label: 'Notícia com base' },
-                          { id: 'enganadora' as const, label: 'Informação enganadora' },
-                        ].map((cat) => (
-                          <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() =>
-                              setClassifiedStatements((prev) => ({
-                                ...prev,
-                                [item.id]: cat.id,
-                              }))
-                            }
-                            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                              currentChoice === cat.id
-                                ? 'bg-blue-600 text-white shadow-xs'
-                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                            }`}
-                          >
-                            {cat.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      {currentChoice && (
-                        <div
-                          className={`p-3 rounded-xl text-xs font-medium ${
-                            isCorrect
-                              ? 'bg-emerald-50 text-emerald-950 border border-emerald-200'
-                              : 'bg-amber-50 text-amber-950 border border-amber-200'
-                          }`}
-                        >
-                          <span className="font-black">
-                            {isCorrect ? '✓ Correto!' : 'ℹ️ Análise do Detetive:'}{' '}
-                          </span>
-                          {item.explanation}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Atividade B: Auditoria de Publicação Viral */}
-            <div className="space-y-4">
-              <div className="border-b border-slate-100 pb-2">
-                <h5 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
-                  Parte B: Auditoria de Publicação Viral
-                </h5>
-                <p className="text-xs text-slate-600 font-medium">
-                  Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura evidências e compara outras fontes.
-                </p>
-              </div>
-
-              {/* Publicação Viral */}
-              <div className="p-5 rounded-2xl border border-rose-200/90 bg-rose-50/50 space-y-2.5">
-                <div className="flex items-center gap-2 text-rose-700 text-xs font-black">
-                  <ShieldAlert className="w-4 h-4" />
-                  <span>Publicação viral muito partilhada nas redes sociais</span>
-                </div>
-                <h4 className="text-sm sm:text-base font-black text-slate-900">
-                  "Descoberta extraordinária na serra revoluciona a ciência mundial! As autoridades tentaram esconder este segredo!"
-                </h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Publicação com milhares de partilhas nas redes sociais, imagem desfocada com cores artificiais, sem indicação de autor cientista, sem data original e sem links para relatórios ou instituições.
-                </p>
-              </div>
-
-              {/* Checklist de Auditoria */}
-              <div className="space-y-2.5">
-                <span className="text-xs font-black text-slate-700 block uppercase tracking-wide">
-                  Passos de Investigação do Detetive (Marca o que verificaste):
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={newsDetectiveAudit.checkedAuthor}
-                      onChange={(e) =>
-                        setNewsDetectiveAudit((prev) => ({
-                          ...prev,
-                          checkedAuthor: e.target.checked,
-                        }))
-                      }
-                      className="w-4 h-4 text-blue-600 rounded-md"
-                    />
-                    <span>1. Verifiquei quem publicou</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={newsDetectiveAudit.checkedDate}
-                      onChange={(e) =>
-                        setNewsDetectiveAudit((prev) => ({
-                          ...prev,
-                          checkedDate: e.target.checked,
-                        }))
-                      }
-                      className="w-4 h-4 text-blue-600 rounded-md"
-                    />
-                    <span>2. Verifiquei a data</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={newsDetectiveAudit.checkedEvidence}
-                      onChange={(e) =>
-                        setNewsDetectiveAudit((prev) => ({
-                          ...prev,
-                          checkedEvidence: e.target.checked,
-                        }))
-                      }
-                      className="w-4 h-4 text-blue-600 rounded-md"
-                    />
-                    <span>3. Procurei evidências reais</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer text-xs font-bold text-slate-800 hover:bg-slate-100/70 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={newsDetectiveAudit.checkedOtherSources}
-                      onChange={(e) =>
-                        setNewsDetectiveAudit((prev) => ({
-                          ...prev,
-                          checkedOtherSources: e.target.checked,
-                        }))
-                      }
-                      className="w-4 h-4 text-blue-600 rounded-md"
-                    />
-                    <span>4. Comparei com outras fontes</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Decisão Final */}
-              <div className="space-y-2 pt-2">
-                <span className="text-xs font-black text-slate-700 block uppercase tracking-wide">
-                  Agora decide: partilhar ou continuar a verificar?
-                </span>
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <button
-                    onClick={() => handleNewsDecision('verificar')}
-                    className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm py-3.5 rounded-2xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Continuar a verificar (Não partilhar)</span>
-                  </button>
-                  <button
-                    onClick={() => handleNewsDecision('partilhar')}
-                    className="w-full sm:w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm py-3.5 rounded-2xl shadow-md shadow-rose-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-                  >
-                    <AlertTriangle className="w-4 h-4" />
-                    <span>Partilhar imediatamente</span>
-                  </button>
-                </div>
-              </div>
-
-              {newsScore !== null && (
-                <div
-                  className={`p-4 sm:p-5 rounded-2xl border text-xs sm:text-sm font-medium ${
-                    newsDecision === 'verificar'
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                      : 'bg-rose-50 border-rose-200 text-rose-950'
-                  }`}
-                >
-                  <p className="font-black mb-1 flex items-center gap-2">
-                    {newsDecision === 'verificar' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                    ) : (
-                      <AlertTriangle className="w-5 h-5 text-rose-600" />
-                    )}
-                    <span>Resultado da Auditoria: {newsScore}/100</span>
-                  </p>
-                  <p className="leading-relaxed">
-                    {newsDecision === 'verificar'
-                      ? 'Excelente atitude de Detetive Digital! Não partilhaste um boato sem antes confirmar as provas e comparar fontes. O teu lema de ouro é: Pára, Verifica, Compara. Só depois decide!'
-                      : 'Atenção! Ainda não tens informação suficiente nem fontes confirmadas para partilhar com segurança. Partilhar sem verificar apenas espalha boatos e desinformação.'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Pára, verifica e compara antes de clicar em partilhar com amigos ou familiares.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Títulos alarmantes ou milagrosos querem apenas cliques para publicidade, não a verdade.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PÁRA E PENSA</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>VERIFICA ANTES</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>ZERO CLICKBAIT</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>DETETIVE ATENTO</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 👉 4. PRÓXIMA MISSÃO */}
-          <div className="bg-gradient-to-r from-amber-50/80 via-orange-50/60 to-amber-50/80 border border-amber-200/90 rounded-3xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-xs">
-            <div className="space-y-1">
-              <span className="text-xs font-black text-amber-700 uppercase tracking-wider block">
-                🎉 Todas as 5 Micro-Missões de Investigação Concluídas!
-              </span>
-              <h4 className="text-lg sm:text-xl font-black text-slate-900">
-                Pronto para o Desafio Final: Quiz do Detetive (10 Perguntas)? 🏆
-              </h4>
-            </div>
-            <button
-              onClick={() => onNavigateTopic('avaliacao')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm px-8 py-3.5 rounded-2xl shadow-md shadow-blue-500/25 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer shrink-0"
-            >
-              <span>👉 Fazer Missão 6: Quiz do Detetive</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+          {stage === 3 && (
+            <GameDecisionScenario
+              scenario={{
+                id: 'dec-fakenews',
+                title: 'O Boato no Grupo de WhatsApp da Turma',
+                situation: 'Recebes uma mensagem alarmista a dizer que amanhã a cantina da escola vai ser encerrada para sempre por falta de comida. Todos estão indignados. Qual é o procedimento do Detetive?',
+                choices: [
+                  {
+                    id: 'c1',
+                    text: 'Partilhar com todos os contactos e protestar nas redes sociais imediatamente.',
+                    isBest: false,
+                    explanation: 'Espalhar sem verificar alimenta pânico injustificado.',
+                  },
+                  {
+                    id: 'c2',
+                    text: 'Pedir calma ao grupo, procurar um aviso na caderneta/página oficial do agrupamento e perguntar ao Delegado de Turma ou Professor.',
+                    isBest: true,
+                    explanation: 'Excelente! Travar a corrente e consultar as entidades responsáveis é a marca de um cidadão digital consciente.',
+                  },
+                  {
+                    id: 'c3',
+                    text: 'Inventar outro rumor ainda maior para acalmar os colegas.',
+                    isBest: false,
+                    explanation: 'Criar mais desinformação agrava a confusão geral.',
+                  },
+                ],
+              }}
+              onChoice={(isCorrect, choice) => {
+                if (isCorrect) {
+                  reportCompletion('sim-news-detective', 'Decisão Anti-Boato', { choice: choice.id }, 100);
+                } else {
+                  handleLoseLife(choice.explanation);
+                }
+              }}
+            />
+          )}
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* SEPARADOR 6: AVALIAÇÃO FINAL                              */}
+      {/* 6. AVALIAÇÃO OFICIAL DO MUNDO 2                           */}
       {/* ========================================================= */}
       {activeTopicId === 'avaliacao' && (
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-12 shadow-sm max-w-3xl mx-auto space-y-6 text-center">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 text-white flex items-center justify-center mx-auto shadow-lg shadow-orange-500/25">
-            <Award className="w-10 h-10 sm:w-12 sm:h-12 stroke-[2.2]" />
+        <div className="bg-white border-2 border-blue-200 rounded-3xl p-8 sm:p-10 text-center shadow-lg space-y-6">
+          <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 to-sky-500 text-white rounded-3xl flex items-center justify-center mx-auto shadow-md">
+            <Trophy className="w-10 h-10" />
           </div>
-
-          <div className="space-y-2">
-            <span className="text-[11px] uppercase font-black text-amber-600 tracking-wider bg-amber-50 border border-amber-200/60 px-3 py-1 rounded-full inline-block">
-              🏆 MISSÃO 6/6 · O GRANDE TESTE
+          <div className="space-y-2 max-w-lg mx-auto">
+            <span className="text-xs font-black uppercase tracking-wider text-blue-600">
+              Desafio Final de Validação do Mundo 2
             </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Quiz do Detetive Digital 🔍
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed font-medium">
-              Demonstra que sabes pesquisar com palavras-chave exatas, identificar autores credíveis, verificar a data e comparar fontes. Acerta mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}% para desbloquear o Mundo 3!
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              🏆 O Grande Teste do Detetive Digital
+            </h2>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed">
+              Mostra que dominas as palavras-chave, verificação de autoria, análise de datas, comparação de fontes e deteção de Fake News!
+              Precisas de <strong>mais de 70%</strong> para concluir o Mundo 2 e desbloquear o Mundo 3!
             </p>
           </div>
 
-          <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-blue-50/70 border border-blue-200/80 rounded-2xl max-w-md mx-auto text-xs sm:text-sm text-blue-950 font-bold space-y-1.5 shadow-xs">
-            <p className="flex items-center justify-center gap-1.5 text-blue-800">
-              <Trophy className="w-4 h-4 text-amber-500" />
-              <span>Requisito para desbloquear Mundo 3: Média &ge; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</span>
-            </p>
-            <p className="text-slate-600 font-medium">
-              Melhor resultado registado:{' '}
-              <span className="font-black text-slate-900">
-                {world.bestAssessmentPercentage !== null
-                  ? `${world.bestAssessmentPercentage}%`
-                  : 'Ainda não realizado'}
-              </span>
-            </p>
-          </div>
-
-          <div className="pt-2">
-            <button
-              onClick={onOpenAssessment}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-black text-sm sm:text-base px-10 py-4 rounded-2xl shadow-lg shadow-blue-500/30 transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-3 cursor-pointer"
-            >
-              <span>Começar Avaliação Final (10 Perguntas)</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={onOpenAssessment}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-black text-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all cursor-pointer inline-flex items-center gap-2 transform active:scale-95"
+          >
+            <Sparkles className="w-5 h-5" />
+            <span>Iniciar o Quiz Oficial do Detetive Digital</span>
+            <ArrowRight className="w-5 h-5 ml-1" />
+          </button>
         </div>
       )}
     </div>
