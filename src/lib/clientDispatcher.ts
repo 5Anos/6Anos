@@ -665,7 +665,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         role: 'student',
         classId: classObj.id,
         locale: 'pt',
-        xp: 100,
+        xp: 0,
         blocked: false,
         createdAt: now,
         updatedAt: now,
@@ -742,7 +742,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       role: 'student',
       classId: finalClassId,
       locale: 'pt',
-      xp: 100,
+      xp: 0,
       blocked: false,
       createdAt: now,
       updatedAt: now,
@@ -821,7 +821,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const snap = await getDocs(qStudents);
     for (const sDoc of snap.docs) {
       const sId = sDoc.id;
-      await updateDoc(sDoc.ref, { xp: 100, updatedAt: new Date().toISOString() });
+      await updateDoc(sDoc.ref, { xp: 0, updatedAt: new Date().toISOString() });
       const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
       const snapProg = await getDocs(qProg);
       for (const p of snapProg.docs) await deleteDoc(p.ref);
@@ -842,7 +842,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const snap = await getDocs(qStudents);
     for (const sDoc of snap.docs) {
       const sId = sDoc.id;
-      await updateDoc(sDoc.ref, { xp: 100, updatedAt: new Date().toISOString() });
+      await updateDoc(sDoc.ref, { xp: 0, updatedAt: new Date().toISOString() });
       const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
       const snapProg = await getDocs(qProg);
       for (const p of snapProg.docs) await deleteDoc(p.ref);
@@ -969,7 +969,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   if (resetStudentProgMatch && method === 'POST') {
     const sId = resetStudentProgMatch[1];
     const sRef = doc(db, 'users', sId);
-    await updateDoc(sRef, { xp: 100, updatedAt: new Date().toISOString() });
+    await updateDoc(sRef, { xp: 0, updatedAt: new Date().toISOString() });
     const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
     const snapProg = await getDocs(qProg);
     for (const p of snapProg.docs) await deleteDoc(p.ref);

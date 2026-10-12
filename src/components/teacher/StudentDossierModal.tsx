@@ -171,7 +171,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
       });
       setActionMessage({
         type: 'success',
-        text: 'Progresso pedagógico do aluno reiniciado para o estado base (100 XP).',
+        text: 'Progresso pedagógico do aluno reiniciado para o estado base (0 XP).',
       });
       setShowResetConfirm(false);
       await loadDossier();
@@ -1058,7 +1058,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
               <div className="text-center space-y-1">
                 <h3 className="text-lg font-bold text-slate-900">Reiniciar Progresso do Aluno?</h3>
                 <p className="text-xs text-slate-600">
-                  Esta ação irá apagar todas as tentativas, notas de simuladores, avaliações finais e missões do aluno <strong>{student.name}</strong>, restaurando o XP base inicial para 100 XP.
+                  Esta ação irá apagar todas as tentativas, notas de simuladores, avaliações finais e missões do aluno <strong>{student.name}</strong>, restaurando o XP base inicial para 0 XP.
                 </p>
               </div>
               <div className="flex items-center justify-end gap-3 pt-3">

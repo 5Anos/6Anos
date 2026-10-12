@@ -261,10 +261,7 @@ export async function clientLogin(identifier: string, password: string) {
     lastLoginAt: now,
   }).catch(() => {});
 
-  if (userDoc.role === 'student' && (!userDoc.xp || userDoc.xp < 100)) {
-    userDoc.xp = 100;
-    await updateDoc(doc(db, 'users', userDoc.id), { xp: 100, updatedAt: now }).catch(() => {});
-  }
+  userDoc.xp = Number(userDoc.xp) || 0;
 
   userDoc.lastLoginAt = now;
   setActiveClientUserId(userDoc.id);
@@ -336,7 +333,7 @@ export async function clientRegister(params: {
     role: 'student',
     classId: classId || 'class-6a',
     locale: locale === 'en' ? 'en' : 'pt',
-    xp: 100, // 100 base welcome XP
+    xp: 0, // Starts at 0 XP (sem pontos de iniciacao)
     blocked: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

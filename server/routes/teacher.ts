@@ -460,7 +460,7 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
 
     // XP Breakdown by source
     const xpBreakdown = {
-      initial: 100,
+      initial: 0,
       activities: xpHistory
         .filter((t) => t.sourceType === 'activity')
         .reduce((sum, t) => sum + t.xpGain, 0),

@@ -623,7 +623,7 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
           Preparar Plataforma para Novo Ano Letivo (Reset Global)
         </h4>
         <p className="text-xs text-slate-600 leading-relaxed">
-          Esta operação restaura o progresso pedagógico de <strong>todos os alunos</strong> de todas as turmas para 100 XP base e limpa tentativas, permitindo que os mesmos alunos comecem um novo ciclo escolar do 6.º ano.
+          Esta operação restaura o progresso pedagógico de <strong>todos os alunos</strong> de todas as turmas para 0 XP inicial e limpa tentativas, permitindo que os mesmos alunos comecem um novo ciclo escolar do 6.º ano.
         </p>
 
         <button
@@ -648,7 +648,7 @@ export const TeacherCleanupTab: React.FC<{ classes: any[]; onRefresh: () => void
             <div className="text-center space-y-1">
               <h3 className="text-lg font-bold text-slate-900">Reiniciar Progresso da Turma?</h3>
               <p className="text-xs text-slate-600">
-                Todas as tentativas e notas dos alunos da <strong>Turma {selectedClassObj?.name}</strong> serão repostas a 100 XP inicial. As contas de login serão mantidas.
+                Todas as tentativas e notas dos alunos da <strong>Turma {selectedClassObj?.name}</strong> serão repostas a 0 XP inicial. As contas de login serão mantidas.
               </p>
             </div>
             <div className="flex items-center justify-end gap-3 pt-2">
