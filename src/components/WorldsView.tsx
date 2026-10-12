@@ -429,7 +429,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       ) : (
         <>
           {/* Progression Banner: Requirement to unlock the next world */}
-          {currentWorld.id !== 2 && !isTeacher && currentWorld.id < 5 && (
+          {!isTeacher && currentWorld.id < 5 && (
             <div
               className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs ${
                 currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD

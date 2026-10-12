@@ -108,6 +108,183 @@ export const GuardianKidHero: React.FC<{ className?: string }> = ({
 };
 
 /**
+ * MUNDO 2: DETETIVE DIGITAL MASCOT (DETETIVE DA INFORMAÇÃO)
+ * Pixar 3D style cute boy detective with fedora hat, camel trench coat, cute tie,
+ * holding a giant gleaming high-gloss 3D magnifying glass, with floating newspaper
+ * "NOTÍCIA FALSA?", floating question bubble, and verified checkmark badge!
+ */
+export const DetectiveKidHero: React.FC<{ className?: string }> = ({
+  className = 'w-full h-auto max-w-[350px]',
+}) => {
+  return (
+    <div className={`relative select-none pointer-events-none ${className}`}>
+      <svg viewBox="0 0 460 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full filter drop-shadow-md">
+        <defs>
+          <linearGradient id="dCoatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#d97706" />
+            <stop offset="40%" stopColor="#b45309" />
+            <stop offset="100%" stopColor="#78350f" />
+          </linearGradient>
+          <linearGradient id="dHatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#a16207" />
+            <stop offset="50%" stopColor="#854d0e" />
+            <stop offset="100%" stopColor="#583101" />
+          </linearGradient>
+          <linearGradient id="dHatRibbon" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#451a03" />
+            <stop offset="100%" stopColor="#290e02" />
+          </linearGradient>
+          <linearGradient id="dSkinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#fee0cb" />
+            <stop offset="100%" stopColor="#f8b894" />
+          </linearGradient>
+          <linearGradient id="dGlassRim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="45%" stopColor="#0284c7" />
+            <stop offset="100%" stopColor="#0369a1" />
+          </linearGradient>
+          <linearGradient id="dGlassLens" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#e0f2fe" stopOpacity="0.85" />
+            <stop offset="45%" stopColor="#bae6fd" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.25" />
+          </linearGradient>
+          <linearGradient id="dHandleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#64748b" />
+            <stop offset="50%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#1e293b" />
+          </linearGradient>
+          <linearGradient id="dGoldTrim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fef08a" />
+            <stop offset="50%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#b45309" />
+          </linearGradient>
+        </defs>
+
+        {/* Ambient background clouds */}
+        <ellipse cx="60" cy="80" rx="45" ry="24" fill="#ffffff" opacity="0.6" />
+        <ellipse cx="400" cy="210" rx="55" ry="28" fill="#ffffff" opacity="0.6" />
+
+        {/* Floating Newspaper "NOTÍCIA FALSA?" (Left Side) */}
+        <g transform="translate(75, 45) rotate(-12)">
+          <rect x="0" y="0" width="70" height="52" rx="7" fill="#ffffff" stroke="#93c5fd" strokeWidth="2" />
+          <rect x="8" y="7" width="54" height="11" rx="2.5" fill="#e2e8f0" />
+          <text x="35" y="15" textAnchor="middle" fill="#1e293b" fontSize="8" fontWeight="900" fontFamily="sans-serif">
+            NOTÍCIA
+          </text>
+          {/* Red Stamp Badge "FALSA?" */}
+          <g transform="translate(14, 21) rotate(4)">
+            <rect x="0" y="0" width="44" height="15" rx="3" fill="#ef4444" />
+            <text x="22" y="11" textAnchor="middle" fill="#ffffff" fontSize="8.5" fontWeight="900" fontFamily="sans-serif">
+              FALSA?
+            </text>
+          </g>
+          <line x1="8" y1="41" x2="62" y2="41" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" />
+          <line x1="8" y1="46" x2="48" y2="46" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round" />
+        </g>
+
+        {/* Floating Blue Question & Verified Badge (Right Side) */}
+        <g transform="translate(370, 55) rotate(14)">
+          <circle cx="25" cy="25" r="22" fill="#ffffff" stroke="#38bdf8" strokeWidth="2.5" />
+          <circle cx="25" cy="25" r="16" fill="#0284c7" />
+          <text x="25" y="32" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="900" fontFamily="sans-serif">
+            ?
+          </text>
+          {/* Little green verification badge */}
+          <circle cx="40" cy="10" r="8" fill="#10b981" />
+          <path d="M 37 10 L 39 12 L 43 8" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+
+        {/* Detective Body & Trench Coat */}
+        <path d="M225 240 C220 215, 375 215, 370 240 L395 380 L205 380 Z" fill="url(#dCoatGrad)" />
+        {/* Shirt Collar */}
+        <path d="M280 225 L300 265 L320 225 Z" fill="#ffffff" />
+        {/* Dark Tie */}
+        <path d="M295 230 L300 260 L305 230 Z" fill="#451a03" />
+        <polygon points="297,260 303,260 304,285 300,290 296,285" fill="#381903" />
+        {/* Lapels */}
+        <path d="M245 230 L285 270 L275 315 L235 245 Z" fill="#b45309" />
+        <path d="M355 230 L315 270 L325 315 L365 245 Z" fill="#b45309" />
+        {/* Buttons */}
+        <circle cx="308" cy="310" r="4" fill="#451a03" />
+        <circle cx="308" cy="335" r="4" fill="#451a03" />
+
+        {/* Head & Neck */}
+        <rect x="280" y="190" width="40" height="32" rx="10" fill="#f8b894" />
+        <ellipse cx="300" cy="165" rx="55" ry="60" fill="url(#dSkinGrad)" />
+        <ellipse cx="245" cy="165" rx="10" ry="14" fill="url(#dSkinGrad)" />
+        <ellipse cx="355" cy="165" rx="10" ry="14" fill="url(#dSkinGrad)" />
+
+        {/* Cheerful Hair Peeking Under Hat */}
+        <path d="M250 142 C260 120, 340 120, 350 142 C338 135, 325 145, 310 138 C295 145, 280 138, 265 145 Z" fill="#673510" />
+
+        {/* Classic Fedora Hat with Ribbon */}
+        <g transform="translate(0, -5)">
+          {/* Hat Crown */}
+          <path d="M255 125 C258 65, 342 65, 345 125 Z" fill="url(#dHatGrad)" />
+          {/* Crown Crease Indentation */}
+          <path d="M280 75 Q300 90 320 75" stroke="#451a03" strokeWidth="4" strokeLinecap="round" fill="none" />
+          {/* Ribbon Band */}
+          <path d="M250 125 C265 105, 335 105, 350 125 L348 136 C335 126, 265 126, 252 136 Z" fill="url(#dHatRibbon)" />
+          {/* Curved Brim */}
+          <path d="M225 136 C240 115, 360 115, 375 136 C345 150, 255 150, 225 136 Z" fill="url(#dHatGrad)" stroke="#451a03" strokeWidth="1.5" />
+        </g>
+
+        {/* Face Features */}
+        {/* Eyebrows */}
+        <path d="M268 134 Q280 126 292 132" stroke="#451a03" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+        <path d="M308 132 Q320 126 332 134" stroke="#451a03" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+
+        {/* Right Eye (Sparkly Oceanic Blue with Highlights) */}
+        <ellipse cx="280" cy="152" rx="10" ry="13" fill="#ffffff" />
+        <ellipse cx="280" cy="152" rx="7.5" ry="10.5" fill="#0284c7" />
+        <circle cx="280" cy="152" r="5" fill="#0f172a" />
+        <circle cx="277" cy="148" r="3" fill="#ffffff" />
+        <circle cx="282" cy="155" r="1.5" fill="#ffffff" />
+
+        {/* Left Eye (Playful Wink 😉) */}
+        <path d="M312 152 Q324 163 336 152" stroke="#0f172a" strokeWidth="4" strokeLinecap="round" fill="none" />
+        <path d="M334 154 L339 151" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
+
+        {/* Rosy Cheeks */}
+        <ellipse cx="266" cy="166" rx="8" ry="5" fill="#f43f5e" opacity="0.35" />
+        <ellipse cx="334" cy="166" rx="8" ry="5" fill="#f43f5e" opacity="0.35" />
+
+        {/* Cheerful Grin Smile with Top Teeth */}
+        <path d="M285 174 Q300 193 315 174 Z" fill="#be123c" />
+        <path d="M288 174 Q300 180 312 174 Z" fill="#ffffff" />
+
+        {/* GIANT 3D HIGH-GLOSS MAGNIFYING GLASS HELD IN FRONT */}
+        <g transform="translate(185, 145)">
+          {/* Arm holding handle */}
+          <path d="M110 90 C85 85, 60 70, 45 45" stroke="url(#dCoatGrad)" strokeWidth="22" strokeLinecap="round" fill="none" />
+          {/* Hand */}
+          <ellipse cx="45" cy="42" rx="13" ry="11" fill="url(#dSkinGrad)" />
+          {/* Handle */}
+          <g transform="translate(45, 42) rotate(-38)">
+            <rect x="-6" y="0" width="12" height="48" rx="6" fill="url(#dHandleGrad)" stroke="#0f172a" strokeWidth="1.5" />
+            <rect x="-3" y="4" width="6" height="40" rx="3" fill="#94a3b8" opacity="0.6" />
+          </g>
+
+          {/* Glistening Magnifying Glass Frame */}
+          <g transform="translate(20, -15)">
+            {/* Outer Blue Metallic Rim */}
+            <circle cx="46" cy="46" r="44" fill="none" stroke="url(#dGlassRim)" strokeWidth="8" />
+            <circle cx="46" cy="46" r="40" fill="none" stroke="url(#dGoldTrim)" strokeWidth="1.5" />
+            {/* Translucent Glass Lens */}
+            <circle cx="46" cy="46" r="39" fill="url(#dGlassLens)" />
+            {/* Glare Reflection Arc */}
+            <path d="M20 32 A 32 32 0 0 1 65 18 A 28 28 0 0 0 24 48 Z" fill="#ffffff" opacity="0.8" />
+            <circle cx="68" cy="68" r="4.5" fill="#ffffff" opacity="0.65" />
+          </g>
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+export const DetectiveBoyHero = DetectiveKidHero;
+
+/**
  * MUNDO 3: CRIADOR COLABORATIVO MASCOT
  * Pixar 3D style cute creative artist kid with purple hoodie, artist beret,
  * holding a glowing magic digital stylus, with floating emojis, paint palette,
