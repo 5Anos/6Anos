@@ -4,33 +4,11 @@ import {
   Search,
   Palette,
   Terminal,
+  Brain,
   Sparkles,
   Lock,
-  LogIn,
   CheckCircle2,
   Award,
-  Key,
-  Mail,
-  ShieldCheck,
-  Footprints,
-  Heart,
-  UserCheck,
-  Calendar,
-  Layers,
-  AlertOctagon,
-  MessageSquare,
-  Smile,
-  Users,
-  FileText,
-  Share2,
-  Code,
-  GitBranch,
-  Repeat,
-  BarChart2,
-  Cpu,
-  Wand2,
-  AlertCircle,
-  Brain,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
@@ -158,134 +136,11 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     );
   }
 
-  const isSimCompleted = (simId: string) => {
-    if (simId === 'assessment') {
-      return (
-        currentWorld.bestAssessmentPercentage !== null &&
-        currentWorld.bestAssessmentPercentage > PROGRESSION_CONFIG.PASSING_THRESHOLD
-      );
-    }
-    if (simId === 'mission') {
-      return (
-        currentWorld.missionProgress !== null &&
-        (currentWorld.missionProgress.status === 'graded' || currentWorld.missionProgress.status === 'pending')
-      );
-    }
-    return currentWorld.simulatorsProgress?.some((s) => s.id === simId && s.completed);
-  };
-
-  const world1Tabs = [
-    { id: 'w1-t1', label: '🎯 Missão 1/6: Palavras-passe 🗝️', icon: Key, simId: 'sim-password' },
-    { id: 'w1-t2', label: '🎯 Missão 2/6: Caça ao Phishing 🎣', icon: Mail, simId: 'sim-phishing' },
-    {
-      id: 'w1-t3',
-      label: '🎯 Missão 3/6: Privacidade 🛡️',
-      icon: ShieldCheck,
-      simId: 'sim-privacy',
-    },
-    {
-      id: 'w1-t4',
-      label: '🎯 Missão 4/6: Rasto Digital 👣',
-      icon: Footprints,
-      simId: 'sim-digital-footprint',
-    },
-    {
-      id: 'w1-t5',
-      label: '🎯 Missão 5/6: Super-Corpo 🕹️',
-      icon: Heart,
-      simId: 'sim-digital-wellbeing',
-    },
-    {
-      id: 'avaliacao',
-      label: '🏆 Missão 6/6: Quiz do Guardião',
-      icon: CheckCircle2,
-      simId: 'assessment',
-    },
-  ];
-
-  const world2Tabs = [
-    { id: 'w2-t1', label: '🎯 Missão 1/6: Radar de Pesquisa 🔍', icon: Search, simId: 'sim-keywords' },
-    { id: 'w2-t2', label: '🎯 Missão 2/6: Quem é o Autor? 🕵️', icon: UserCheck, simId: 'sim-author-check' },
-    { id: 'w2-t3', label: '🎯 Missão 3/6: Linha do Tempo ⏳', icon: Calendar, simId: 'sim-date-verifier' },
-    { id: 'w2-t4', label: '🎯 Missão 4/6: Comparar Pistas 📑', icon: Layers, simId: 'sim-source-compare' },
-    { id: 'w2-t5', label: '🎯 Missão 5/6: Caça a Boatos 🚨', icon: AlertOctagon, simId: 'sim-news-detective' },
-    {
-      id: 'avaliacao',
-      label: '🏆 Missão 6/6: Quiz do Detetive',
-      icon: CheckCircle2,
-      simId: 'assessment',
-    },
-  ];
-
-  const world3Tabs = [
-    { id: 'w3-t1', label: '🎯 Missão 1/7: Conversas & Emojis 💬', icon: MessageSquare, simId: 'sim-comunicacao-digital' },
-    { id: 'w3-t2', label: '🎯 Missão 2/7: Netiqueta Fixe ✨', icon: Smile, simId: 'sim-netiqueta' },
-    { id: 'w3-t3', label: '🎯 Missão 3/7: Super-Equipa Online 🤝', icon: Users, simId: 'sim-colaboracao' },
-    { id: 'w3-t4', label: '🎯 Missão 4/7: Direitos de Autor 🎨', icon: ShieldCheck, simId: 'sim-direitos-autor' },
-    { id: 'w3-t5', label: '🎯 Missão 5/7: Caça ao Plágio 📜', icon: FileText, simId: 'sim-plagio-citacao' },
-    { id: 'w3-t6', label: '🎯 Missão 6/7: Licenças Livres 🔓', icon: Share2, simId: 'sim-creative-commons' },
-    {
-      id: 'avaliacao',
-      label: '🏆 Missão 7/7: Quiz do Criador',
-      icon: CheckCircle2,
-      simId: 'assessment',
-    },
-  ];
-
-  const world4Tabs = [
-    { id: 'w4-t1', label: '🎯 Missão 1/7: Fatiar Problemas 🧩', icon: Layers, simId: 'sim-decomposicao' },
-    { id: 'w4-t2', label: '🎯 Missão 2/7: O Robô dos Algoritmos 🤖', icon: Code, simId: 'sim-block-coding' },
-    { id: 'w4-t3', label: '🎯 Missão 3/7: Decisões: SE e SENÃO 🔀', icon: GitBranch, simId: 'sim-algoritmos' },
-    { id: 'w4-t4', label: '🎯 Missão 4/7: Super-Ciclos 🔁', icon: Repeat, simId: 'sim-ciclos' },
-    { id: 'w4-t5', label: '🎯 Missão 5/7: Caçadores de Dados 📊', icon: BarChart2, simId: 'sim-dados' },
-    { id: 'w4-t6', label: '🎯 Missão 6/7: Caça aos Bugs 🐞', icon: AlertOctagon, simId: 'sim-debugging' },
-    {
-      id: 'avaliacao',
-      label: '🏆 Missão 7/7: Quiz do Engenheiro',
-      icon: CheckCircle2,
-      simId: 'assessment',
-    },
-  ];
-
-  const world5Tabs = [
-    { id: 'w5-t1', label: '🎯 Missão 1/7: O que é a IA? 🧠', icon: Cpu, simId: 'sim-ia-concepts' },
-    { id: 'w5-t2', label: '🎯 Missão 2/7: Máquinas que Criam 🎨', icon: Wand2, simId: 'sim-ai-generation' },
-    { id: 'w5-t3', label: '🎯 Missão 3/7: Prompts Mágicos ✨', icon: Sparkles, simId: 'sim-prompt' },
-    { id: 'w5-t4', label: '🎯 Missão 4/7: Quando a IA Falha 🔎', icon: AlertCircle, simId: 'sim-hallucination' },
-    { id: 'w5-t5', label: '🎯 Missão 5/7: Cofre & Privacidade 🔐', icon: Lock, simId: 'sim-ai-responsibility' },
-    { id: 'w5-t6', label: '🎯 Missão 6/7: O Humano é Quem Manda! 🚀', icon: Brain, simId: 'sim-recommendation' },
-    {
-      id: 'avaliacao',
-      label: '🏆 Missão 7/7: Quiz da IA',
-      icon: CheckCircle2,
-      simId: 'assessment',
-    },
-  ];
-
-  const getCurrentWorldTabs = () => {
-    switch (currentWorld.id) {
-      case 1:
-        return world1Tabs;
-      case 2:
-        return world2Tabs;
-      case 3:
-        return world3Tabs;
-      case 4:
-        return world4Tabs;
-      case 5:
-        return world5Tabs;
-      default:
-        return world1Tabs;
-    }
-  };
-
   // Progression gating:
   // All worlds are unlocked for interactive exploration and learning
   const visibleWorlds = worlds.length > 0
     ? worlds.map((w) => ({ ...w, isUnlocked: true }))
     : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any));
-
-  const currentTabs = getCurrentWorldTabs();
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -364,33 +219,6 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             );
           })}
         </div>
-      </div>
-
-      {/* Mission Sub-Tabs for Current World */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-xs flex overflow-x-auto gap-2">
-        {currentTabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          const completed = isSimCompleted(tab.simId);
-
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-              {completed && (
-                <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-300' : 'bg-emerald-500'}`} />
-              )}
-            </button>
-          );
-        })}
       </div>
 
       {/* If current world is locked for student */}
