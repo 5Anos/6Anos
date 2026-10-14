@@ -182,7 +182,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
       id: 'cpr-3',
       case: 'O Diogo copiou uma ilustração de um artista da Internet, apagou a assinatura e colocou na capa como se fosse um desenho dele.',
       correct: 'proibido',
-      explanation: 'Apresentar a criação de outra pessoa como nossa viola os direitos de autor e é plágio.',
+      explanation: 'Copiar o trabalho de outra pessoa e dizer que foste tu que fizeste não vale: chama-se plágio e desrespeita quem o criou.',
     },
     {
       id: 'cpr-4',
@@ -1525,7 +1525,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 <div className="text-xl">🚫</div>
                 <h5 className="text-xs font-black text-rose-900">O que é Plágio?</h5>
                 <p className="text-xs text-slate-600 leading-snug">
-                  Copiar frases ou trabalhos de outras pessoas e fingir que foram feitos por ti é plágio. É desonesto e não te ensina nada!
+                  Copiar o trabalho de outra pessoa e dizer que foste tu que fizeste não vale: chama-se plágio e desrespeita quem o criou.
                 </p>
               </div>
 

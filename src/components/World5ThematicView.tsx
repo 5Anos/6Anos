@@ -1466,7 +1466,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             </div>
 
             <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
-              Chamamos <strong>"alucinação"</strong> quando a IA inventa factos falsos ou fontes inexistentes com um tom tão confiante que parece a maior verdade do mundo!
+              Às vezes, os robôs de inteligência artificial inventam histórias que parecem reais, mas são falsas. Nunca te esqueças de verificar!
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

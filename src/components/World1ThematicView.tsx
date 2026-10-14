@@ -597,7 +597,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 <div className="text-2xl">🤫</div>
                 <h5 className="font-black text-blue-950 text-sm">Segredo Estritamente Pessoal</h5>
                 <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  A tua palavra-passe é como a escova de dentes: pessoal e intransmissível. Nunca a partilhes com amigos!
+                  A tua palavra-passe é como a tua escova de dentes: é só tua e de mais ninguém. Não a emprestes a nenhum amigo!
                 </p>
               </div>
             </div>

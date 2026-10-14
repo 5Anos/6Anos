@@ -72,11 +72,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
             </svg>
           </div>
 
-          <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-none">
-            MISSÃO <span className="text-blue-600">TIC</span>
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-none">
+              MISSÃO <span className="text-blue-600">TIC</span>
+            </h1>
+            <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
+              6.º ANO
+            </span>
+          </div>
           <span className="text-[10px] font-bold text-slate-500 tracking-tight mt-1.5">
-            Aprende. Experimenta. Resolve. Cria.
+            6.º Ano • 2.º Ciclo do Ensino Básico
           </span>
         </div>
 

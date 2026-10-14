@@ -40,7 +40,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
     },
     {
       id: 'pr-2',
-      title: 'Prompt B: "Atua como um tutor de História do 6.º ano. Explica em 3 pontos simples o Tratado de Zamora e sugere 2 perguntas para testar a minha compreensão. Cita factos verificáveis e não uses dados pessoais."',
+      title: 'Prompt B: "Atua como um tutor de História e Geografia de Portugal do 6.º ano. Explica em 3 pontos simples o Tratado de Zamora e sugere 2 perguntas para testar a minha compreensão. Cita factos verificáveis e não uses dados pessoais."',
       isCorrect: true,
       tag: 'Prompt Ético & Eficaz',
       explanation: 'Excelente! Define o papel da IA, dá instruções claras e estruturadas, pede verificação e protege a privacidade.',

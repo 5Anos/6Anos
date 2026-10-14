@@ -9,6 +9,7 @@ import {
   Trophy,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   ChevronRight,
   Award,
   Zap,
@@ -35,6 +36,7 @@ import { GlossaryTerm } from './PedagogicalGlossary';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
 import { MetacognitionWidget } from './MetacognitionWidget';
 import { ScaffoldingClueCard } from './ScaffoldingClueCard';
+import { MissionPhaseSwitcher, MissionPhase } from './MissionPhaseSwitcher';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World2ThematicViewProps {
@@ -53,6 +55,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   onRefreshWorld,
 }) => {
   const { refreshUser } = useAuth();
+
+  const [missionPhase, setMissionPhase] = useState<MissionPhase>('theory');
+
+  React.useEffect(() => {
+    setMissionPhase('theory');
+  }, [activeTopicId]);
 
   // Completed feedback banner at top
   const [completedFeedback, setCompletedFeedback] = useState<{
@@ -286,7 +294,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
         { id: 'src-1b', label: 'Acreditar porque o site tem uma fotografia muito convincente gerada por computador.', correct: false },
         { id: 'src-1c', label: 'Partilhar logo no grupo da turma para perguntar a toda a gente.', correct: false },
       ],
-      explanation: 'A regra da triangulação exige que afirmações extraordinárias sejam confirmadas por múltiplas fontes independentes e reputadas.',
+      explanation: 'A regra dos 3 detetives: antes de acreditares numa notícia, confirma se 3 jornais ou sites de confiança dizem o mesmo.',
     },
     {
       id: 'src-2',
@@ -631,255 +639,310 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Arte da Pesquisa Científica Eficaz
-              </h4>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
-                <div className="text-2xl">🎯</div>
-                <h5 className="font-black text-blue-950 text-sm">Termos Específicos Vencem</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Em vez de frases compridas de conversa, junta os termos essenciais: tema + espécie + país.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
-                <div className="text-2xl">✨</div>
-                <h5 className="font-black text-amber-950 text-sm">O Super-Poder das Aspas (" ")</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Coloca expressões entre aspas (ex.: <em>"lince ibérico"</em>) para procurar o termo exato sem dispersão.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">🔎</div>
-                <h5 className="font-black text-emerald-950 text-sm">Não Cliques Sem Ler</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Lê o resumo antes de abrir. O primeiro resultado nem sempre é o mais rigoroso ou científico.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w2-t1" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PALAVRAS-CHAVE */}
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Motor de Busca & Desafios
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Laboratório Prático
-              </span>
-            </div>
-
-            {/* Test search query field */}
-            <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-wider text-slate-700 block">
-                🧪 Teste de Eficácia de Pesquisa: Lince Ibérico em Portugal
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                <div className="relative flex-1">
-                  <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder='ex: "lince ibérico" Portugal extinção ou apenas lince...'
-                    className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-300 font-semibold text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
-                </div>
-                <button
-                  onClick={evaluateSearchQuery}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer shrink-0"
-                >
-                  Analisar Eficácia
-                </button>
-              </div>
-
-              {/* Quick suggestions chips */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600 font-semibold">
-                <span className="text-slate-400">Sugestões rápidas:</span>
-                <button
-                  onClick={() => {
-                    setSearchQuery('"lince ibérico" Portugal extinção');
-                  }}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-200 transition-colors"
-                >
-                  "lince ibérico" Portugal extinção
-                </button>
-                <button
-                  onClick={() => {
-                    setSearchQuery('lince');
-                  }}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-200 transition-colors"
-                >
-                  lince
-                </button>
-                <button
-                  onClick={() => {
-                    setSearchQuery('porque é que os animais desaparecem na floresta');
-                  }}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-200 transition-colors"
-                >
-                  frase longa de conversa
-                </button>
-              </div>
-
-              {searchOutput && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2.5 animate-in fade-in">
-                  <div className="flex items-center justify-between">
-                    <h5 className="font-black text-sm sm:text-base text-blue-950">{searchOutput.title}</h5>
-                    <span className="text-xs font-mono font-bold text-blue-700 bg-white px-2.5 py-1 rounded-lg border border-blue-200">
-                      {searchOutput.count}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-700 leading-relaxed font-semibold">
-                    {searchOutput.hint}
-                  </p>
-                  <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-500 ${
-                        searchOutput.score >= 80 ? 'bg-emerald-500' : searchOutput.score >= 50 ? 'bg-amber-500' : 'bg-rose-500'
-                      }`}
-                      style={{ width: `${searchOutput.score}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Practical Scenarios */}
-            <div className="space-y-4 pt-3 border-t border-slate-100">
-              <h5 className="text-xs font-black uppercase tracking-wider text-slate-800">
-                Desafio de Detetive: Escolhe a Melhor Estratégia de Pesquisa
-              </h5>
-
-              <div className="space-y-4">
-                {keywordScenarios.map((scen, idx) => {
-                  return (
-                    <div
-                      key={scen.id}
-                      className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0">
-                          {idx + 1}
-                        </span>
-                        <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
-                          {scen.situation}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-2 pt-1 pl-9">
-                        {scen.options.map((opt) => {
-                          const isSelected = keywordChoices[scen.id] === opt.id;
-                          return (
-                            <button
-                              key={opt.id}
-                              onClick={() => setKeywordChoices((prev) => ({ ...prev, [scen.id]: opt.id }))}
-                              className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer flex items-center justify-between ${
-                                isSelected
-                                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                                  : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-200'
-                              }`}
-                            >
-                              <span>{opt.label}</span>
-                              {isSelected && <Check className="w-4 h-4 shrink-0 text-white" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {keywordScore !== null && (
-                        <div className="pl-9 text-xs text-slate-600 font-medium">
-                          {scen.explanation}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <button
-                  onClick={handleKeywordSubmit}
-                  disabled={Object.keys(keywordChoices).length < keywordScenarios.length}
-                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Validar Estratégias de Pesquisa</span>
-                </button>
-
-                {keywordScore !== null && (
-                  <div className="text-xs font-black text-emerald-800 bg-emerald-100 px-4 py-2 rounded-xl border border-emerald-200">
-                    Pontuação: {keywordScore}% • {keywordScore >= 70 ? '🎯 Excelente Detetive!' : '⚠️ Pratica mais!'}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-blue-50/90 border border-blue-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Substituir perguntas compridas de conversa por termos técnicos e objetivos.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Usar aspas (" ") para prender expressões exatas sem dispersão.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Ler os resumos antes de clicar para poupar tempo e evitar desinformação.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <ScaffoldingClueCard
-            clues={[
-              'Usa aspas para manter palavras unidas na pesquisa: "D. Afonso Henriques".',
-              'Substitui verbos e perguntas por substantivos e nomes concretos.',
-              'Adiciona o ano ou o formato do ficheiro (ex.: filetype:pdf) para chegar a documentos sérios.',
-            ]}
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="blue"
+            simulatorCompleted={Boolean(getSimProg('sim-keywords')?.completed)}
+            score={getSimProg('sim-keywords')?.score}
           />
 
-          <MetacognitionWidget worldId={2} topicId="w2-t1" />
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: A Arte da Pesquisa Científica Eficaz
+                  </h4>
+                </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={() => onNavigateTopic('w2-t2')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <span>Próxima Missão: 2. Quem é o Autor? 🕵️</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
+                    <div className="text-2xl">🎯</div>
+                    <h5 className="font-black text-blue-950 text-sm">Termos Específicos Vencem</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Em vez de frases compridas de conversa, junta os termos essenciais: tema + espécie + país.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+                    <div className="text-2xl">✨</div>
+                    <h5 className="font-black text-amber-950 text-sm">O Super-Poder das Aspas (" ")</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Coloca expressões entre aspas (ex.: <em>"lince ibérico"</em>) para procurar o termo exato sem dispersão.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">🔎</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Não Cliques Sem Ler</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Lê o resumo antes de abrir. O primeiro resultado nem sempre é o mais rigoroso ou científico.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w2-t1" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-blue-50/90 border border-blue-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Substituir perguntas compridas de conversa por termos técnicos e objetivos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Usar aspas (" ") para prender expressões exatas sem dispersão.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Ler os resumos antes de clicar para poupar tempo e evitar desinformação.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMissionPhase('simulator');
+                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-700 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
+
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PALAVRAS-CHAVE */}
+              <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-blue-700">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Simulador de Motor de Busca & Desafios
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    Laboratório Prático
+                  </span>
+                </div>
+
+                {/* Test search query field */}
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-700 block">
+                    🧪 Teste de Eficácia de Pesquisa: Lince Ibérico em Portugal
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-2.5">
+                    <div className="relative flex-1">
+                      <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder='ex: "lince ibérico" Portugal extinção ou apenas lince...'
+                        className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-300 font-semibold text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      />
+                    </div>
+                    <button
+                      onClick={evaluateSearchQuery}
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer shrink-0"
+                    >
+                      Analisar Eficácia
+                    </button>
+                  </div>
+
+                  {/* Quick suggestions chips */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600 font-semibold">
+                    <span className="text-slate-400">Sugestões rápidas:</span>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('"lince ibérico" Portugal extinção');
+                      }}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-200 transition-colors"
+                    >
+                      "lince ibérico" Portugal extinção
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('lince');
+                      }}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-200 transition-colors"
+                    >
+                      lince
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('porque é que os animais desaparecem na floresta');
+                      }}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 rounded-lg border border-slate-200 transition-colors"
+                    >
+                      frase longa de conversa
+                    </button>
+                  </div>
+
+                  {searchOutput && (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2.5 animate-in fade-in">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-black text-sm sm:text-base text-blue-950">{searchOutput.title}</h5>
+                        <span className="text-xs font-mono font-bold text-blue-700 bg-white px-2.5 py-1 rounded-lg border border-blue-200">
+                          {searchOutput.count}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-700 leading-relaxed font-semibold">
+                        {searchOutput.hint}
+                      </p>
+                      <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-500 ${
+                            searchOutput.score >= 80 ? 'bg-emerald-500' : searchOutput.score >= 50 ? 'bg-amber-500' : 'bg-rose-500'
+                          }`}
+                          style={{ width: `${searchOutput.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Practical Scenarios */}
+                <div className="space-y-4 pt-3 border-t border-slate-100">
+                  <h5 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    Desafio de Detetive: Escolhe a Melhor Estratégia de Pesquisa
+                  </h5>
+
+                  <div className="space-y-4">
+                    {keywordScenarios.map((scen, idx) => {
+                      return (
+                        <div
+                          key={scen.id}
+                          className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0">
+                              {idx + 1}
+                            </span>
+                            <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
+                              {scen.situation}
+                            </p>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2 pt-1 pl-9">
+                            {scen.options.map((opt) => {
+                              const isSelected = keywordChoices[scen.id] === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  onClick={() => setKeywordChoices((prev) => ({ ...prev, [scen.id]: opt.id }))}
+                                  className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer flex items-center justify-between ${
+                                    isSelected
+                                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                      : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-200'
+                                  }`}
+                                >
+                                  <span>{opt.label}</span>
+                                  {isSelected && <Check className="w-4 h-4 shrink-0 text-white" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {keywordScore !== null && (
+                            <div className="pl-9 text-xs text-slate-600 font-medium">
+                              {scen.explanation}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={handleKeywordSubmit}
+                        disabled={Object.keys(keywordChoices).length < keywordScenarios.length}
+                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Validar Estratégias de Pesquisa</span>
+                      </button>
+
+                      {keywordScore !== null && keywordScore < 100 && (
+                        <button
+                          type="button"
+                          onClick={() => setKeywordScore(null)}
+                          className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs rounded-xl border border-amber-300 transition-colors cursor-pointer flex items-center gap-1.5"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Tentar Novamente com Ajuda 🔄</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {keywordScore !== null && (
+                      <div className="text-xs font-black text-emerald-800 bg-emerald-100 px-4 py-2 rounded-xl border border-emerald-200">
+                        Pontuação: {keywordScore}% • {keywordScore >= 70 ? '🎯 Excelente Detetive!' : '⚠️ Pratica mais!'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <ScaffoldingClueCard
+                clues={[
+                  'Usa aspas para manter palavras unidas na pesquisa: "D. Afonso Henriques".',
+                  'Substitui verbos e perguntas por substantivos e nomes concretos.',
+                  'Adiciona o ano ou o formato do ficheiro (ex.: filetype:pdf) para chegar a documentos sérios.',
+                ]}
+              />
+
+              <MetacognitionWidget worldId={2} topicId="w2-t1" />
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => onNavigateTopic('w2-t2')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>Próxima Missão: 2. Quem é o Autor? 🕵️‍♂️</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -928,180 +991,235 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-indigo-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-indigo-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: O Selo de Confiança e Credibilidade
-              </h4>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1.5">
-                <div className="text-2xl">👤</div>
-                <h5 className="font-black text-indigo-950 text-sm">Autores Reais com Rosto</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Artigos credíveis mostram quem escreveu, a profissão ou formação académica e meios de contacto.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
-                <div className="text-2xl">🏛️</div>
-                <h5 className="font-black text-blue-950 text-sm">Entidades Reconhecidas</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Universidades, museus, escolas e organismos oficiais (.edu, .gov, .org) possuem equipas técnicas rigorosas.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
-                <div className="text-2xl">🛑</div>
-                <h5 className="font-black text-rose-950 text-sm">Alerta de Anonimato</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Páginas sem autor ou assinadas com nicknames fictícios sem fontes devem ser vistas com enorme desconfiança.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w2-t2" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE DETETIVE DE AUTORIA */}
-          <div className="bg-white border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-indigo-700">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Avaliação de Autoria e Credibilidade
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Classifica 4 Casos Web
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Classifica cada uma das 4 páginas encontradas online como <strong>Fiável / Oficial 🛡️</strong> ou <strong>Suspeito / Sem Credibilidade ⚠️</strong>:
-            </p>
-
-            <div className="space-y-4">
-              {authorCases.map((c) => {
-                const choice = authorChoices[c.id];
-                return (
-                  <div
-                    key={c.id}
-                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
-                  >
-                    <div className="space-y-1">
-                      <h5 className="font-black text-sm text-slate-900">{c.title}</h5>
-                      <span className="text-xs font-bold text-indigo-700 block">{c.meta}</span>
-                      <p className="text-xs text-slate-600 leading-relaxed">{c.body}</p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2.5 pt-1">
-                      <button
-                        onClick={() => setAuthorChoices((prev) => ({ ...prev, [c.id]: 'confiavel' }))}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                          choice === 'confiavel'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        <ShieldCheck className="w-4 h-4" />
-                        <span>Fiável / Oficial 🛡️</span>
-                      </button>
-
-                      <button
-                        onClick={() => setAuthorChoices((prev) => ({ ...prev, [c.id]: 'suspeito' }))}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                          choice === 'suspeito'
-                            ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        <AlertTriangle className="w-4 h-4" />
-                        <span>Suspeito / Sem Credibilidade ⚠️</span>
-                      </button>
-                    </div>
-
-                    {authorScore !== null && (
-                      <div className="text-xs text-slate-600 font-medium pt-1">
-                        {c.explanation}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-              <button
-                onClick={handleAuthorSubmit}
-                disabled={Object.keys(authorChoices).length < authorCases.length}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Validar Análise de Autores</span>
-              </button>
-
-              {authorScore !== null && (
-                <div className="text-xs font-black text-indigo-900 bg-indigo-100 px-4 py-2 rounded-xl border border-indigo-200">
-                  Pontuação: {authorScore}% • {authorScore >= 70 ? '🏆 Excelente Auditoria!' : '⚠️ Atenção aos Detalhes!'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Procurar a assinatura, profissão e biografia de quem escreve os artigos.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Reconhecer domínios de confiança (.edu, .gov, .org, universidades e museus).</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Desconfiar de autores anónimos e páginas que misturam notícias falsas com vendas.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <ScaffoldingClueCard
-            clues={[
-              'Vai à secção "Sobre Nós" ou "Quem Somos" do site para ver quem é a equipa.',
-              'Pesquisa o nome do autor noutro motor de busca para confirmar se é especialista.',
-              'Se ninguém assina o artigo nem assume responsabilidade, procura noutro site!',
-            ]}
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="blue"
+            simulatorCompleted={Boolean(getSimProg('sim-author-check')?.completed)}
+            score={getSimProg('sim-author-check')?.score}
           />
 
-          <MetacognitionWidget worldId={2} topicId="w2-t2" />
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-indigo-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-indigo-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: O Selo de Confiança e Credibilidade
+                  </h4>
+                </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={() => onNavigateTopic('w2-t3')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <span>Próxima Missão: 3. Linha do Tempo ⏳</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1.5">
+                    <div className="text-2xl">👤</div>
+                    <h5 className="font-black text-indigo-950 text-sm">Autores Reais com Rosto</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Artigos credíveis mostram quem escreveu, a profissão ou formação académica e meios de contacto.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
+                    <div className="text-2xl">🏛️</div>
+                    <h5 className="font-black text-blue-950 text-sm">Entidades Reconhecidas</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Universidades, museus, escolas e organismos oficiais (.edu, .gov, .org) possuem equipas técnicas rigorosas.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
+                    <div className="text-2xl">🛑</div>
+                    <h5 className="font-black text-rose-950 text-sm">Alerta de Anonimato</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Páginas sem autor ou assinadas com nicknames fictícios sem fontes devem ser vistas com enorme desconfiança.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w2-t2" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Procurar a assinatura, profissão e biografia de quem escreve os artigos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Reconhecer domínios de confiança (.edu, .gov, .org, universidades e museus).</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Desconfiar de autores anónimos e páginas que misturam notícias falsas com vendas.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMissionPhase('simulator');
+                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
+
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE DETETIVE DE AUTORIA */}
+              <div className="bg-white border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-indigo-700">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Avaliação de Autoria e Credibilidade
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    Classifica 4 Casos Web
+                  </span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                  Classifica cada uma das 4 páginas encontradas online como <strong>Fiável / Oficial 🛡️</strong> ou <strong>Suspeito / Sem Credibilidade ⚠️</strong>:
+                </p>
+
+                <div className="space-y-4">
+                  {authorCases.map((c) => {
+                    const choice = authorChoices[c.id];
+                    return (
+                      <div
+                        key={c.id}
+                        className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
+                      >
+                        <div className="space-y-1">
+                          <h5 className="font-black text-sm text-slate-900">{c.title}</h5>
+                          <span className="text-xs font-bold text-indigo-700 block">{c.meta}</span>
+                          <p className="text-xs text-slate-600 leading-relaxed">{c.body}</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2.5 pt-1">
+                          <button
+                            onClick={() => setAuthorChoices((prev) => ({ ...prev, [c.id]: 'confiavel' }))}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                              choice === 'confiavel'
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>Fiável / Oficial 🛡️</span>
+                          </button>
+
+                          <button
+                            onClick={() => setAuthorChoices((prev) => ({ ...prev, [c.id]: 'suspeito' }))}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                              choice === 'suspeito'
+                                ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <AlertTriangle className="w-4 h-4" />
+                            <span>Suspeito / Sem Credibilidade ⚠️</span>
+                          </button>
+                        </div>
+
+                        {authorScore !== null && (
+                          <div className="text-xs text-slate-600 font-medium pt-1">
+                            {c.explanation}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleAuthorSubmit}
+                      disabled={Object.keys(authorChoices).length < authorCases.length}
+                      className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Validar Análise de Autores</span>
+                    </button>
+
+                    {authorScore !== null && authorScore < 100 && (
+                      <button
+                        type="button"
+                        onClick={() => setAuthorScore(null)}
+                        className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs rounded-xl border border-amber-300 transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Tentar Novamente com Ajuda 🔄</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {authorScore !== null && (
+                    <div className="text-xs font-black text-indigo-900 bg-indigo-100 px-4 py-2 rounded-xl border border-indigo-200">
+                      Pontuação: {authorScore}% • {authorScore >= 70 ? '🏆 Excelente Auditoria!' : '⚠️ Atenção aos Detalhes!'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <ScaffoldingClueCard
+                clues={[
+                  'Vai à secção "Sobre Nós" ou "Quem Somos" do site para ver quem é a equipa.',
+                  'Pesquisa o nome do autor noutro motor de busca para confirmar se é especialista.',
+                  'Se ninguém assina o artigo nem assume responsabilidade, procura noutro site!',
+                ]}
+              />
+
+              <MetacognitionWidget worldId={2} topicId="w2-t2" />
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => onNavigateTopic('w2-t3')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>Próxima Missão: 3. Linha do Tempo ⏳</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1150,180 +1268,235 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Importância da Data e da Frescura dos Factos
-              </h4>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
-                <div className="text-2xl">📅</div>
-                <h5 className="font-black text-amber-950 text-sm">Data de Criação</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Procura sempre o dia, mês e ano no topo ou rodapé da notícia para saber quando aconteceu.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200 space-y-1.5">
-                <div className="text-2xl">🔄</div>
-                <h5 className="font-black text-orange-950 text-sm">Vídeos Reciclados</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Muitos boatos pegam em vídeos de terramotos ou acidentes de há 6 anos e fingem que são de hoje.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
-                <div className="text-2xl">⚡</div>
-                <h5 className="font-black text-blue-950 text-sm">Ciência em Evolução</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Em saúde, biologia e tecnologia, prefere relatórios recentes para não aprender regras ultrapassadas.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w2-t3" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE VERIFICAÇÃO TEMPORAL */}
-          <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-amber-700">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Detetor de Atualidade e Reciclagem
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Verifica 4 Situações
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Avalia cada caso e decide se a informação é <strong>Atual & Recente ✨</strong> ou se é <strong>Antiga / Reciclada ⚠️</strong>:
-            </p>
-
-            <div className="space-y-4">
-              {dateCases.map((c) => {
-                const choice = dateChoices[c.id];
-                return (
-                  <div
-                    key={c.id}
-                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
-                  >
-                    <div className="space-y-1">
-                      <h5 className="font-black text-sm text-slate-900">{c.title}</h5>
-                      <p className="text-xs text-slate-700 font-bold">{c.claim}</p>
-                      <p className="text-xs text-slate-500 italic">Pista do Detetive: {c.fact}</p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2.5 pt-1">
-                      <button
-                        onClick={() => setDateChoices((prev) => ({ ...prev, [c.id]: 'recente' }))}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                          choice === 'recente'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        <Clock className="w-4 h-4" />
-                        <span>Atual & Recente ✨</span>
-                      </button>
-
-                      <button
-                        onClick={() => setDateChoices((prev) => ({ ...prev, [c.id]: 'antigo_reciclado' }))}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                          choice === 'antigo_reciclado'
-                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                        <span>Antiga / Reciclada ⚠️</span>
-                      </button>
-                    </div>
-
-                    {dateScore !== null && (
-                      <div className="text-xs text-slate-600 font-medium pt-1">
-                        {c.explanation}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-              <button
-                onClick={handleDateSubmit}
-                disabled={Object.keys(dateChoices).length < dateCases.length}
-                className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Validar Verificação Temporal</span>
-              </button>
-
-              {dateScore !== null && (
-                <div className="text-xs font-black text-amber-900 bg-amber-100 px-4 py-2 rounded-xl border border-amber-200">
-                  Pontuação: {dateScore}% • {dateScore >= 70 ? '⏳ Olho de Lince Temporal!' : '⚠️ Cuidado com datas antigas!'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Procurar a data e hora de publicação antes de partilhar notícias urgentes.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Reconhecer que vídeos de tempestades antigas são frequentemente reciclados.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Usar o filtro temporal do motor de busca para aceder a dados recentes.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <ScaffoldingClueCard
-            clues={[
-              'Se o artigo não tiver data visível, desconfia e procura o mesmo facto noutra fonte.',
-              'No Google podes clicar em "Ferramentas" e escolher "Último ano" para ver só atualizações recentes.',
-              'Pesquisa a imagem no motor de busca com "pesquisa reversa" para descobrir quando foi tirada pela 1.ª vez.',
-            ]}
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-date-verifier')?.completed)}
+            score={getSimProg('sim-date-verifier')?.score}
           />
 
-          <MetacognitionWidget worldId={2} topicId="w2-t3" />
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: A Importância da Data e da Frescura dos Factos
+                  </h4>
+                </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={() => onNavigateTopic('w2-t4')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <span>Próxima Missão: 4. Comparar Pistas 📑</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+                    <div className="text-2xl">📅</div>
+                    <h5 className="font-black text-amber-950 text-sm">Data de Criação</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Procura sempre o dia, mês e ano no topo ou rodapé da notícia para saber quando aconteceu.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200 space-y-1.5">
+                    <div className="text-2xl">🔄</div>
+                    <h5 className="font-black text-orange-950 text-sm">Vídeos Reciclados</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Muitos boatos pegam em vídeos de terramotos ou acidentes de há 6 anos e fingem que são de hoje.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
+                    <div className="text-2xl">⚡</div>
+                    <h5 className="font-black text-blue-950 text-sm">Ciência em Evolução</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Em saúde, biologia e tecnologia, prefere relatórios recentes para não aprender regras ultrapassadas.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w2-t3" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Procurar a data e hora de publicação antes de partilhar notícias urgentes.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Reconhecer que vídeos de tempestades antigas são frequentemente reciclados.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Usar o filtro temporal do motor de busca para aceder a dados recentes.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMissionPhase('simulator');
+                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
+
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE VERIFICAÇÃO TEMPORAL */}
+              <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-amber-700">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Detetor de Atualidade e Reciclagem
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    Verifica 4 Situações
+                  </span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                  Avalia cada caso e decide se a informação é <strong>Atual & Recente ✨</strong> ou se é <strong>Antiga / Reciclada ⚠️</strong>:
+                </p>
+
+                <div className="space-y-4">
+                  {dateCases.map((c) => {
+                    const choice = dateChoices[c.id];
+                    return (
+                      <div
+                        key={c.id}
+                        className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
+                      >
+                        <div className="space-y-1">
+                          <h5 className="font-black text-sm text-slate-900">{c.title}</h5>
+                          <p className="text-xs text-slate-700 font-bold">{c.claim}</p>
+                          <p className="text-xs text-slate-500 italic">Pista do Detetive: {c.fact}</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2.5 pt-1">
+                          <button
+                            onClick={() => setDateChoices((prev) => ({ ...prev, [c.id]: 'recente' }))}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                              choice === 'recente'
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <Clock className="w-4 h-4" />
+                            <span>Atual & Recente ✨</span>
+                          </button>
+
+                          <button
+                            onClick={() => setDateChoices((prev) => ({ ...prev, [c.id]: 'antigo_reciclado' }))}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                              choice === 'antigo_reciclado'
+                                ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            <span>Antiga / Reciclada ⚠️</span>
+                          </button>
+                        </div>
+
+                        {dateScore !== null && (
+                          <div className="text-xs text-slate-600 font-medium pt-1">
+                            {c.explanation}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleDateSubmit}
+                      disabled={Object.keys(dateChoices).length < dateCases.length}
+                      className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Validar Verificação Temporal</span>
+                    </button>
+
+                    {dateScore !== null && dateScore < 100 && (
+                      <button
+                        type="button"
+                        onClick={() => setDateScore(null)}
+                        className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs rounded-xl border border-amber-300 transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Tentar Novamente com Ajuda 🔄</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {dateScore !== null && (
+                    <div className="text-xs font-black text-amber-900 bg-amber-100 px-4 py-2 rounded-xl border border-amber-200">
+                      Pontuação: {dateScore}% • {dateScore >= 70 ? '⏳ Olho de Lince Temporal!' : '⚠️ Cuidado com datas antigas!'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <ScaffoldingClueCard
+                clues={[
+                  'Se o artigo não tiver data visível, desconfia e procura o mesmo facto noutra fonte.',
+                  'No Google podes clicar em "Ferramentas" e escolher "Último ano" para ver só atualizações recentes.',
+                  'Pesquisa a imagem no motor de busca com "pesquisa reversa" para descobrir quando foi tirada pela 1.ª vez.',
+                ]}
+              />
+
+              <MetacognitionWidget worldId={2} topicId="w2-t3" />
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => onNavigateTopic('w2-t4')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>Próxima Missão: 4. Comparar Pistas 📑</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1372,172 +1545,214 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-purple-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Técnica da Triangulação de Informação
-              </h4>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-1.5">
-                <div className="text-2xl">📐</div>
-                <h5 className="font-black text-purple-950 text-sm">A Regra dos 3 Pontos</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Tal como um mapa precisa de vários pontos para localizar um tesouro, os factos precisam de 3 confirmações.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1.5">
-                <div className="text-2xl">🔍</div>
-                <h5 className="font-black text-indigo-950 text-sm">Fontes Independentes</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Não contam três sites que copiaram o mesmo texto sem verificar. Devem ser equipas diferentes.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">🎯</div>
-                <h5 className="font-black text-emerald-950 text-sm">Confirmar Números</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Se um artigo diz que morreram 100 pessoas e todos os outros dizem 2 feridos ligeiros, desconfia do primeiro.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w2-t4" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE TRIANGULAÇÃO */}
-          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-purple-700">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Desafio de Triangulação de Fontes
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Cruza Dados Reais
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {sourceScenarios.map((scen, idx) => {
-                return (
-                  <div
-                    key={scen.id}
-                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-black shrink-0">
-                        {idx + 1}
-                      </span>
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
-                        {scen.question}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-2 pt-1 pl-9">
-                      {scen.options.map((opt) => {
-                        const isSelected = sourceChoices[scen.id] === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            onClick={() => setSourceChoices((prev) => ({ ...prev, [scen.id]: opt.id }))}
-                            className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer flex items-center justify-between ${
-                              isSelected
-                                ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
-                                : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-200'
-                            }`}
-                          >
-                            <span>{opt.label}</span>
-                            {isSelected && <Check className="w-4 h-4 shrink-0 text-white" />}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {sourceScore !== null && (
-                      <div className="pl-9 text-xs text-slate-600 font-medium">
-                        {scen.explanation}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-              <button
-                onClick={handleSourceSubmit}
-                disabled={Object.keys(sourceChoices).length < sourceScenarios.length}
-                className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Validar Triangulação</span>
-              </button>
-
-              {sourceScore !== null && (
-                <div className="text-xs font-black text-purple-900 bg-purple-100 px-4 py-2 rounded-xl border border-purple-200">
-                  Pontuação: {sourceScore}% • {sourceScore >= 70 ? '🎯 Excelente Cruzamento de Pistas!' : '⚠️ Compara sempre mais fontes!'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Nunca aceitar um rumor extraordinário vindo de apenas uma página desconhecida.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Cruzar a notícia com jornais de referência e sites científicos reconhecidos.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Comparar números e datas para ver se as histórias são consistentes entre si.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <ScaffoldingClueCard
-            clues={[
-              'Dois factos que concordam dão uma pista; três fontes independentes dão uma confirmação.',
-              'Se nenhum jornal sério fala do assunto, a probabilidade de ser falso é de 99%.',
-              'Cuidado com páginas que só copiam textos umas das outras sem fazer investigação própria.',
-            ]}
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-source-compare')?.completed)}
+            score={getSimProg('sim-source-compare')?.score}
           />
 
-          <MetacognitionWidget worldId={2} topicId="w2-t4" />
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-purple-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: A Técnica da Triangulação de Informação
+                  </h4>
+                </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={() => onNavigateTopic('w2-t5')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <span>Próxima Missão: 5. Caça a Boatos 🚨</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-1.5">
+                    <div className="text-2xl">🕵️‍♂️</div>
+                    <h5 className="font-black text-purple-950 text-sm">A Regra dos 3 Detetives</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      A regra dos 3 detetives: antes de acreditares numa notícia, confirma se 3 jornais ou sites de confiança dizem o mesmo.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1.5">
+                    <div className="text-2xl">🔍</div>
+                    <h5 className="font-black text-indigo-950 text-sm">Fontes Independentes</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Não contam três sites que copiaram o mesmo texto sem verificar. Devem ser equipas diferentes.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">🎯</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Confirmar Números</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Se um artigo diz que morreram 100 pessoas e todos os outros dizem 2 feridos ligeiros, desconfia do primeiro.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w2-t4" />
+              </div>
+
+              {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+              <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Nunca aceitar um rumor extraordinário vindo de apenas uma página desconhecida.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Cruzar a notícia com jornais de referência e sites científicos reconhecidos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Comparar números e datas para ver se as histórias são consistentes entre si.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ScaffoldingClueCard
+                clues={[
+                  'Dois factos que concordam dão uma pista; três fontes independentes dão uma confirmação.',
+                  'Se nenhum jornal sério fala do assunto, a probabilidade de ser falso é de 99%.',
+                  'Cuidado com páginas que só copiam textos umas das outras sem fazer investigação própria.',
+                ]}
+              />
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMissionPhase('simulator');
+                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
+
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE TRIANGULAÇÃO */}
+              <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-purple-700">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Desafio de Triangulação de Fontes
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    Cruza Dados Reais
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {sourceScenarios.map((scen, idx) => {
+                    return (
+                      <div
+                        key={scen.id}
+                        className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-black shrink-0">
+                            {idx + 1}
+                          </span>
+                          <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
+                            {scen.question}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-2 pt-1 pl-9">
+                          {scen.options.map((opt) => {
+                            const isSelected = sourceChoices[scen.id] === opt.id;
+                            return (
+                              <button
+                                key={opt.id}
+                                onClick={() => setSourceChoices((prev) => ({ ...prev, [scen.id]: opt.id }))}
+                                className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer flex items-center justify-between ${
+                                  isSelected
+                                    ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
+                                    : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-200'
+                                }`}
+                              >
+                                <span>{opt.label}</span>
+                                {isSelected && <Check className="w-4 h-4 shrink-0 text-white" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {sourceScore !== null && (
+                          <div className="pl-9 text-xs text-slate-600 font-medium">
+                            {scen.explanation}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                  <button
+                    onClick={handleSourceSubmit}
+                    disabled={Object.keys(sourceChoices).length < sourceScenarios.length}
+                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Validar Triangulação</span>
+                  </button>
+
+                  {sourceScore !== null && (
+                    <div className="text-xs font-black text-purple-900 bg-purple-100 px-4 py-2 rounded-xl border border-purple-200">
+                      Pontuação: {sourceScore}% • {sourceScore >= 70 ? '🎯 Excelente Cruzamento de Pistas!' : '⚠️ Compara sempre mais fontes!'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <MetacognitionWidget worldId={2} topicId="w2-t4" />
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => onNavigateTopic('w2-t5')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>Próxima Missão: 5. Caça a Boatos 🚨</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1586,178 +1801,220 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-rose-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-rose-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Como Reconhecer Notícias Falsas e Clickbait
-              </h4>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
-                <div className="text-2xl">🎣</div>
-                <h5 className="font-black text-rose-950 text-sm">O Isco do Clickbait</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Títulos em MAIÚSCULAS com "NÃO VAIS ACREDITAR!" servem apenas para roubar cliques e ganhar dinheiro com anúncios.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
-                <div className="text-2xl">🛑</div>
-                <h5 className="font-black text-amber-950 text-sm">Travão de Partilha</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Não sejas o transmissor de boatos. Se sentires medo ou raiva imediata ao ler, para e pensa antes de partilhar.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">🔎</div>
-                <h5 className="font-black text-emerald-950 text-sm">Fact-Checking Oficial</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Plataformas como o Polígrafo analisam boatos virais e mostram aos leitores se a história é verdadeira ou falsa.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w2-t5" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE CAÇA A BOATOS */}
-          <div className="bg-white border-2 border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-rose-700">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Radar Caçador de Fake News
-                </h4>
-              </div>
-              <span className="text-xs font-bold text-slate-500">
-                Inspeciona 4 Manchetes
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Classifica cada uma das manchetes como <strong>Notícia Séria & Verificada 📰</strong> ou <strong>Boato / Clickbait Perigoso 🚨</strong>:
-            </p>
-
-            <div className="space-y-4">
-              {newsCases.map((c) => {
-                const choice = newsChoices[c.id];
-                return (
-                  <div
-                    key={c.id}
-                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
-                  >
-                    <p className="text-xs sm:text-sm font-black text-slate-900 leading-relaxed">
-                      "{c.headline}"
-                    </p>
-
-                    <div className="flex flex-wrap gap-2.5 pt-1">
-                      <button
-                        onClick={() => setNewsChoices((prev) => ({ ...prev, [c.id]: 'noticia_real' }))}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                          choice === 'noticia_real'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Notícia Séria & Verificada 📰</span>
-                      </button>
-
-                      <button
-                        onClick={() => setNewsChoices((prev) => ({ ...prev, [c.id]: 'boato_clickbait' }))}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                          choice === 'boato_clickbait'
-                            ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        <AlertOctagon className="w-4 h-4" />
-                        <span>Boato / Clickbait Perigoso 🚨</span>
-                      </button>
-                    </div>
-
-                    {newsScore !== null && (
-                      <div className="text-xs text-slate-600 font-medium pt-1">
-                        {c.explanation}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-              <button
-                onClick={handleNewsSubmit}
-                disabled={Object.keys(newsChoices).length < newsCases.length}
-                className="px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Validar Caça a Boatos</span>
-              </button>
-
-              {newsScore !== null && (
-                <div className="text-xs font-black text-rose-900 bg-rose-100 px-4 py-2 rounded-xl border border-rose-200">
-                  Pontuação: {newsScore}% • {newsScore >= 70 ? '🛡️ Super-Escudo Anti-Fake News!' : '⚠️ Analisa com mais calma!'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-rose-50/90 via-red-50/60 to-rose-50/90 border border-rose-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-rose-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Travar impulsos de partilha quando um título tenta provocar pânico ou raiva.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Consultar plataformas jornalísticas de verificação de factos (fact-checking).</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Contribuir para uma Internet limpa e saudável sem espalhar mentiras na turma.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <ScaffoldingClueCard
-            clues={[
-              'Palavras como "NÃO VAIS ACREDITAR" ou "CHOCANTE" são bandeiras vermelhas de clickbait.',
-              'Antes de partilhares qualquer mensagem num grupo, pergunta-te: "Tenho a certeza de que é verdade?".',
-              'Se descobrires que um colega partilhou um boato, explica com educação onde está o erro.',
-            ]}
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="rose"
+            simulatorCompleted={Boolean(getSimProg('sim-news-detective')?.completed)}
+            score={getSimProg('sim-news-detective')?.score}
           />
 
-          <MetacognitionWidget worldId={2} topicId="w2-t5" />
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-rose-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-rose-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Como Reconhecer Notícias Falsas e Clickbait
+                  </h4>
+                </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={() => onNavigateTopic('avaliacao')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              <span>Ir para a Avaliação Final: Quiz do Detetive 🏆</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
+                    <div className="text-2xl">🎣</div>
+                    <h5 className="font-black text-rose-950 text-sm">O Isco do Clickbait</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Títulos em MAIÚSCULAS com "NÃO VAIS ACREDITAR!" servem apenas para roubar cliques e ganhar dinheiro com anúncios.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+                    <div className="text-2xl">🛑</div>
+                    <h5 className="font-black text-amber-950 text-sm">Travão de Partilha</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Não sejas o transmissor de boatos. Se sentires medo ou raiva imediata ao ler, para e pensa antes de partilhar.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">🔎</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Fact-Checking Oficial</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Plataformas como o Polígrafo analisam boatos virais e mostram aos leitores se a história é verdadeira ou falsa.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w2-t5" />
+              </div>
+
+              {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
+              <div className="bg-gradient-to-r from-rose-50/90 via-red-50/60 to-rose-50/90 border border-rose-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-rose-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Travar impulsos de partilha quando um título tenta provocar pânico ou raiva.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Consultar plataformas jornalísticas de verificação de factos (fact-checking).</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Contribuir para uma Internet limpa e saudável sem espalhar mentiras na turma.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ScaffoldingClueCard
+                clues={[
+                  'Palavras como "NÃO VAIS ACREDITAR" ou "CHOCANTE" são bandeiras vermelhas de clickbait.',
+                  'Antes de partilhares qualquer mensagem num grupo, pergunta-te: "Tenho a certeza de que é verdade?".',
+                  'Se descobrires que um colega partilhou um boato, explica com educação onde está o erro.',
+                ]}
+              />
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMissionPhase('simulator');
+                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-rose-700 bg-slate-100 hover:bg-rose-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
+
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE CAÇA A BOATOS */}
+              <div className="bg-white border-2 border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-rose-700">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Radar Caçador de Fake News
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    Inspeciona 4 Manchetes
+                  </span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                  Classifica cada uma das manchetes como <strong>Notícia Séria & Verificada 📰</strong> ou <strong>Boato / Clickbait Perigoso 🚨</strong>:
+                </p>
+
+                <div className="space-y-4">
+                  {newsCases.map((c) => {
+                    const choice = newsChoices[c.id];
+                    return (
+                      <div
+                        key={c.id}
+                        className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
+                      >
+                        <p className="text-xs sm:text-sm font-black text-slate-900 leading-relaxed">
+                          "{c.headline}"
+                        </p>
+
+                        <div className="flex flex-wrap gap-2.5 pt-1">
+                          <button
+                            onClick={() => setNewsChoices((prev) => ({ ...prev, [c.id]: 'noticia_real' }))}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                              choice === 'noticia_real'
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Notícia Séria & Verificada 📰</span>
+                          </button>
+
+                          <button
+                            onClick={() => setNewsChoices((prev) => ({ ...prev, [c.id]: 'boato_clickbait' }))}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                              choice === 'boato_clickbait'
+                                ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <AlertOctagon className="w-4 h-4" />
+                            <span>Boato / Clickbait Perigoso 🚨</span>
+                          </button>
+                        </div>
+
+                        {newsScore !== null && (
+                          <div className="text-xs text-slate-600 font-medium pt-1">
+                            {c.explanation}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                  <button
+                    onClick={handleNewsSubmit}
+                    disabled={Object.keys(newsChoices).length < newsCases.length}
+                    className="px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Validar Caça a Boatos</span>
+                  </button>
+
+                  {newsScore !== null && (
+                    <div className="text-xs font-black text-rose-900 bg-rose-100 px-4 py-2 rounded-xl border border-rose-200">
+                      Pontuação: {newsScore}% • {newsScore >= 70 ? '🛡️ Super-Escudo Anti-Fake News!' : '⚠️ Analisa com mais calma!'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <MetacognitionWidget worldId={2} topicId="w2-t5" />
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => onNavigateTopic('avaliacao')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>Ir para a Avaliação Final: Quiz do Detetive 🏆</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

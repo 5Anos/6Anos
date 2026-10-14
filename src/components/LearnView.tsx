@@ -502,7 +502,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
           </p>
 
           <div className="pt-2 flex flex-wrap gap-2 text-xs font-bold text-blue-100">
-            <span className="bg-white/10 px-3 py-1 rounded-lg">🎯 Para Alunos do 5.º e 6.º Ano (~11 anos)</span>
+            <span className="bg-white/10 px-3 py-1 rounded-lg">🎯 Para Alunos do 6.º Ano (~11-12 anos)</span>
             <span className="bg-white/10 px-3 py-1 rounded-lg">💡 Aprendizagem Autónoma</span>
             <span className="bg-white/10 px-3 py-1 rounded-lg">⭐ Ferramentas Gratuitas & Seguras</span>
           </div>
