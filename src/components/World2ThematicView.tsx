@@ -334,7 +334,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     },
     {
       id: 'nw-2',
-      headline: 'Ministério da Educação divulga calendário das provas de aferição para o 5.º e 6.º anos de escolaridade.',
+      headline: 'Ministério da Educação divulga calendário das provas de aferição para o 6.º ano de escolaridade.',
       correct: 'noticia_real',
       explanation: 'Tom informativo sóbrio, fonte oficial identificada e sem apelo a emoções extremas.',
     },

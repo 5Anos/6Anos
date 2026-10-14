@@ -6,7 +6,7 @@ export type MissionPhase = 'theory' | 'simulator';
 interface MissionPhaseSwitcherProps {
   currentPhase: MissionPhase;
   onPhaseChange: (phase: MissionPhase) => void;
-  accentColor?: 'emerald' | 'blue' | 'purple' | 'amber' | 'indigo';
+  accentColor?: 'emerald' | 'blue' | 'purple' | 'amber' | 'indigo' | 'rose' | 'teal' | 'sky' | 'orange';
   simulatorCompleted?: boolean;
   score?: number | null;
 }
@@ -18,7 +18,7 @@ export const MissionPhaseSwitcher: React.FC<MissionPhaseSwitcherProps> = ({
   simulatorCompleted = false,
   score = null,
 }) => {
-  const colorStyles = {
+  const colorStylesMap = {
     emerald: {
       activeTheory: 'bg-emerald-600 text-white shadow-md shadow-emerald-500/25 ring-2 ring-emerald-400',
       activeSim: 'bg-emerald-600 text-white shadow-md shadow-emerald-500/25 ring-2 ring-emerald-400',
@@ -49,7 +49,33 @@ export const MissionPhaseSwitcher: React.FC<MissionPhaseSwitcherProps> = ({
       badge: 'bg-indigo-100 text-indigo-800',
       banner: 'bg-indigo-50/80 border-indigo-200 text-indigo-900',
     },
-  }[accentColor];
+    rose: {
+      activeTheory: 'bg-rose-600 text-white shadow-md shadow-rose-500/25 ring-2 ring-rose-400',
+      activeSim: 'bg-rose-600 text-white shadow-md shadow-rose-500/25 ring-2 ring-rose-400',
+      badge: 'bg-rose-100 text-rose-800',
+      banner: 'bg-rose-50/80 border-rose-200 text-rose-900',
+    },
+    teal: {
+      activeTheory: 'bg-teal-600 text-white shadow-md shadow-teal-500/25 ring-2 ring-teal-400',
+      activeSim: 'bg-teal-600 text-white shadow-md shadow-teal-500/25 ring-2 ring-teal-400',
+      badge: 'bg-teal-100 text-teal-800',
+      banner: 'bg-teal-50/80 border-teal-200 text-teal-900',
+    },
+    sky: {
+      activeTheory: 'bg-sky-600 text-white shadow-md shadow-sky-500/25 ring-2 ring-sky-400',
+      activeSim: 'bg-sky-600 text-white shadow-md shadow-sky-500/25 ring-2 ring-sky-400',
+      badge: 'bg-sky-100 text-sky-800',
+      banner: 'bg-sky-50/80 border-sky-200 text-sky-900',
+    },
+    orange: {
+      activeTheory: 'bg-orange-600 text-white shadow-md shadow-orange-500/25 ring-2 ring-orange-400',
+      activeSim: 'bg-orange-600 text-white shadow-md shadow-orange-500/25 ring-2 ring-orange-400',
+      badge: 'bg-orange-100 text-orange-800',
+      banner: 'bg-orange-50/80 border-orange-200 text-orange-900',
+    },
+  };
+
+  const colorStyles = colorStylesMap[accentColor] || colorStylesMap.blue;
 
   return (
     <div className="space-y-2">

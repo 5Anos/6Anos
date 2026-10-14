@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowRight,
+  ArrowLeft,
   Award,
   BookOpen,
   Sparkles,
@@ -28,6 +29,7 @@ import { AudioReaderButton } from './AudioReaderButton';
 import { GlossaryTerm } from './PedagogicalGlossary';
 import { MetacognitionWidget } from './MetacognitionWidget';
 import { ScaffoldingClueCard } from './ScaffoldingClueCard';
+import { MissionPhaseSwitcher, MissionPhase } from './MissionPhaseSwitcher';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -50,6 +52,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   onRefreshWorld,
 }) => {
   const { user, refreshUser } = useAuth();
+
+  const [missionPhase, setMissionPhase] = useState<MissionPhase>('theory');
+
+  React.useEffect(() => {
+    setMissionPhase('theory');
+  }, [activeTopicId]);
 
   // Completed feedback banner
   const [completedFeedback, setCompletedFeedback] = useState<{
@@ -679,45 +687,114 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-purple-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Comunicar com Clareza e Empatia
-              </h4>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-comunicacao-digital')?.completed)}
+            score={getSimProg('sim-comunicacao-digital')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-purple-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Comunicar com Clareza e Empatia
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">💬</div>
+                    <h5 className="text-xs font-black text-purple-900">Pessoas Reais</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Do outro lado do ecrã está uma pessoa real com sentimentos. Reler a tua mensagem antes de enviar evita muitas discussões!
+                    </p>
+                  </div>
+
+                  <div className="bg-fuchsia-50/70 border border-fuchsia-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">😊</div>
+                    <h5 className="text-xs font-black text-fuchsia-900">Emojis e Tom de Voz</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Como ninguém ouve a tua voz, usa emojis simpáticos para mostrar o teu tom. Se estiveres chateado, espera 5 minutos antes de responder.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w3-t1" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Reler sempre antes de enviar para garantir respeito e empatia.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Definir prazos concretos e oferecer ajuda nos trabalhos de equipa.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Usar emojis e tom construtivo para evitar conflitos digitais.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">💬</div>
-                <h5 className="text-xs font-black text-purple-900">Pessoas Reais</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Do outro lado do ecrã está uma pessoa real com sentimentos. Reler a tua mensagem antes de enviar evita muitas discussões!
-                </p>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
               </div>
 
-              <div className="bg-fuchsia-50/70 border border-fuchsia-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">😊</div>
-                <h5 className="text-xs font-black text-fuchsia-900">Emojis e Tom de Voz</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Como ninguém ouve a tua voz, usa emojis simpáticos para mostrar o teu tom. Se estiveres chateado, espera 5 minutos antes de responder.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w3-t1" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-purple-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Mensagens
-                </h4>
-              </div>
+              {/* 🎮 2. EXPERIMENTA */}
+              <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-purple-700">
+                    <Sparkles className="w-5 h-5" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Simulador de Mensagens
+                    </h4>
+                  </div>
               <span className="text-xs font-bold text-slate-500">
                 Clareza e respeito na escrita
               </span>
@@ -855,6 +932,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 2: NETIQUETA */}
@@ -894,49 +973,118 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-purple-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: As Boas Maneiras da Rede
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-netiqueta')?.completed)}
+            score={getSimProg('sim-netiqueta')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🌟</div>
-                <h5 className="text-xs font-black text-purple-900">Netiqueta = Respeito</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  É a etiqueta da rede: ouvir os outros, não espalhar boatos e conviver com calma nos grupos de conversas.
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-purple-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: As Boas Maneiras da Rede
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🌟</div>
+                    <h5 className="text-xs font-black text-purple-900">Netiqueta = Respeito</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      É a etiqueta da rede: ouvir os outros, não espalhar boatos e conviver com calma nos grupos de conversas.
+                    </p>
+                  </div>
+
+                  <div className="bg-pink-50/70 border border-pink-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">📢</div>
+                    <h5 className="text-xs font-black text-pink-900">Não Grites com Letras!</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Escrever com TODAS AS MAIÚSCULAS parece que estás a gritar aos ouvidos dos colegas. Usa letras normais!
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w3-t2" />
               </div>
 
-              <div className="bg-pink-50/70 border border-pink-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">📢</div>
-                <h5 className="text-xs font-black text-pink-900">Não Grites com Letras!</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Escrever com TODAS AS MAIÚSCULAS parece que estás a gritar aos ouvidos dos colegas. Usa letras normais!
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-purple-50/90 via-pink-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Tratar todos os colegas com respeito e consideração nos grupos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Evitar maiúsculas excessivas que soam como gritos ou ordens.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Proteger a privacidade dos outros não divulgando mensagens alheias.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
-
-            <TopicIllustrationCard topicId="w3-t2" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA */}
-          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-purple-700">
-                <Sparkles className="w-5 h-5" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Netiqueta
-                </h4>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
               </div>
-              <span className="text-xs font-bold text-slate-500">
-                Avalia comportamentos online
-              </span>
-            </div>
+
+              {/* 🎮 2. EXPERIMENTA */}
+              <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-purple-700">
+                    <Sparkles className="w-5 h-5" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Simulador de Netiqueta
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    Avalia comportamentos online
+                  </span>
+                </div>
 
             <div className="space-y-4">
               {netiquetteScenarios.map((scen) => (
@@ -1146,6 +1294,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 3: TRABALHAR EM EQUIPA */}
@@ -1185,8 +1335,20 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-colaboracao')?.completed)}
+            score={getSimProg('sim-colaboracao')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 text-purple-700">
               <Sparkles className="w-5 h-5 text-amber-500" />
               <h4 className="text-sm font-black uppercase tracking-wide">
@@ -1213,6 +1375,63 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <TopicIllustrationCard topicId="w3-t3" />
+          </div>
+
+          {/* ⭐ SÍNTESE PEDAGÓGICA */}
+          <div className="bg-gradient-to-r from-purple-50/90 via-indigo-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Distribuir tarefas equilibradas para que todos contribuam com valor.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Resolver divergências através de diálogo calmo e construtivo.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Combinar prazos realistas e apoiar quem tem mais dificuldades.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to action to practice */}
+          <div className="pt-2 flex justify-center sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('simulator')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+            >
+              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between pb-1">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('theory')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Rever Guia de Teoria 💡</span>
+            </button>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -1303,6 +1522,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 4: DIREITOS DE AUTOR */}
@@ -1342,8 +1563,20 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-direitos-autor')?.completed)}
+            score={getSimProg('sim-direitos-autor')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 text-purple-700">
               <Sparkles className="w-5 h-5 text-amber-500" />
               <h4 className="text-sm font-black uppercase tracking-wide">
@@ -1370,6 +1603,63 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <TopicIllustrationCard topicId="w3-t4" />
+          </div>
+
+          {/* ⭐ SÍNTESE PEDAGÓGICA */}
+          <div className="bg-gradient-to-r from-purple-50/90 via-rose-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Respeitar a autoria e o esforço de quem cria textos, fotos e músicas.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Compreender que as imagens dos motores de busca têm donos e regras.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Recorrer a licenças abertas e repositórios educativos autorizados.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to action to practice */}
+          <div className="pt-2 flex justify-center sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('simulator')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+            >
+              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between pb-1">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('theory')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Rever Guia de Teoria 💡</span>
+            </button>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -1472,6 +1762,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 5: PLÁGIO E AUTORIA */}
@@ -1511,8 +1803,20 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-plagio-citacao')?.completed)}
+            score={getSimProg('sim-plagio-citacao')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 text-purple-700">
               <Sparkles className="w-5 h-5 text-amber-500" />
               <h4 className="text-sm font-black uppercase tracking-wide">
@@ -1539,6 +1843,63 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <TopicIllustrationCard topicId="w3-t5" />
+          </div>
+
+          {/* ⭐ SÍNTESE PEDAGÓGICA */}
+          <div className="bg-gradient-to-r from-purple-50/90 via-rose-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Nunca apresentar o trabalho ou texto de outros como se fosse teu.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Usar citações com aspas e indicar claramente o autor e a obra original.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Construir uma bibliografia e lista de referências rigorosa e honesta.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to action to practice */}
+          <div className="pt-2 flex justify-center sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('simulator')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+            >
+              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between pb-1">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('theory')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Rever Guia de Teoria 💡</span>
+            </button>
           </div>
 
           {/* 🎮 2. EXPERIMENTA */}
@@ -1636,6 +1997,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 6: CREATIVE COMMONS */}
@@ -1675,8 +2038,20 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="purple"
+            simulatorCompleted={Boolean(getSimProg('sim-creative-commons')?.completed)}
+            score={getSimProg('sim-creative-commons')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 text-purple-700">
               <Sparkles className="w-5 h-5 text-amber-500" />
               <h4 className="text-sm font-black uppercase tracking-wide">
@@ -1703,6 +2078,63 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <TopicIllustrationCard topicId="w3-t6" />
+          </div>
+
+          {/* ⭐ SÍNTESE PEDAGÓGICA */}
+          <div className="bg-gradient-to-r from-purple-50/90 via-emerald-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-7 h-7 stroke-[3]" />
+              </div>
+              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                <span>O QUE APRENDES NESTA MISSÃO?</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Identificar os símbolos Creative Commons (BY, NC, ND, SA).</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Saber que obras podes partilhar, remixar ou usar em projetos escolares.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Licenciar as tuas próprias criações para enriquecer a comunidade educativa.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to action to practice */}
+          <div className="pt-2 flex justify-center sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('simulator')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+            >
+              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between pb-1">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('theory')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Rever Guia de Teoria 💡</span>
+            </button>
           </div>
 
           {/* 🎮 2. EXPERIMENTA (SITUAÇÕES PRÁTICAS) */}
@@ -1800,6 +2232,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* SEPARADOR 7: AVALIAÇÃO FINAL */}

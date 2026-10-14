@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowRight,
+  ArrowLeft,
   Award,
   BookOpen,
   Sparkles,
@@ -28,6 +29,7 @@ import { AudioReaderButton } from './AudioReaderButton';
 import { GlossaryTerm } from './PedagogicalGlossary';
 import { MetacognitionWidget } from './MetacognitionWidget';
 import { ScaffoldingClueCard } from './ScaffoldingClueCard';
+import { MissionPhaseSwitcher, MissionPhase } from './MissionPhaseSwitcher';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -50,6 +52,12 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
   onRefreshWorld,
 }) => {
   const { user, refreshUser } = useAuth();
+
+  const [missionPhase, setMissionPhase] = useState<MissionPhase>('theory');
+
+  React.useEffect(() => {
+    setMissionPhase('theory');
+  }, [activeTopicId]);
 
   // Completed feedback banner
   const [completedFeedback, setCompletedFeedback] = useState<{
@@ -638,37 +646,106 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Arte de Fatiar Desafios
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-decomposicao')?.completed)}
+            score={getSimProg('sim-decomposicao')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🧩</div>
-                <h5 className="text-xs font-black text-amber-900">Fatiar em Pedaços</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Decomposição é dividir uma tarefa grande em passos fáceis. Uma pizza inteira come-se fatia a fatia!
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: A Arte de Fatiar Desafios
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🧩</div>
+                    <h5 className="text-xs font-black text-amber-900">Fatiar em Pedaços</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Decomposição é dividir uma tarefa grande em passos fáceis. Uma pizza inteira come-se fatia a fatia!
+                    </p>
+                  </div>
+
+                  <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🎯</div>
+                    <h5 className="text-xs font-black text-orange-900">Menos Confusão</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Quando resolves uma etapa de cada vez, tudo fica simples e consegues construir projetos sem te baralhares.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w4-t1" />
               </div>
 
-              <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🎯</div>
-                <h5 className="text-xs font-black text-orange-900">Menos Confusão</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Quando resolves uma etapa de cada vez, tudo fica simples e consegues construir projetos sem te baralhares.
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Dividir problemas complexos em etapas mais simples e alcançáveis.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Resolver cada pedaço passo a passo sem stress ou confusão.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Organizar o raciocínio computacional para criar grandes soluções.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
 
-            <TopicIllustrationCard topicId="w4-t1" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA */}
+              {/* 🎮 2. EXPERIMENTA */}
           <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
@@ -825,6 +902,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 2: ALGORITMOS (BLOCK CODING) */}
@@ -864,37 +943,106 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Instruções e Ordem Lógica
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-block-coding')?.completed)}
+            score={getSimProg('sim-block-coding')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🤖</div>
-                <h5 className="text-xs font-black text-amber-900">Robôs Seguem Instruções</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Um computador não adivinha pensamentos! Um algoritmo é uma sequência de instruções exatas, numa ordem rigorosa.
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Instruções e Ordem Lógica
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🤖</div>
+                    <h5 className="text-xs font-black text-amber-900">Robôs Seguem Instruções</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Um computador não adivinha pensamentos! Um algoritmo é uma sequência de instruções exatas, numa ordem rigorosa.
+                    </p>
+                  </div>
+
+                  <div className="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">📐</div>
+                    <h5 className="text-xs font-black text-yellow-900">A Ordem é Tudo</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Se mandares o robô calçar sapatilhas antes de vestir meias, dá disparate! A ordem correta dos passos conta muito.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w4-t2" />
               </div>
 
-              <div className="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">📐</div>
-                <h5 className="text-xs font-black text-yellow-900">A Ordem é Tudo</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Se mandares o robô calçar sapatilhas antes de vestir meias, dá disparate! A ordem correta dos passos conta muito.
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Compreender o conceito de algoritmo como sequência lógica de passos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Construir sequências sem falhas para guiar o robô até ao objetivo.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Testar cada comando antes de executar a rota completa.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
 
-            <TopicIllustrationCard topicId="w4-t2" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: ROBOT SIMULATOR WITH 4 DIRECTIONS AND OBSTACLES */}
+              {/* 🎮 2. EXPERIMENTA: ROBOT SIMULATOR WITH 4 DIRECTIONS AND OBSTACLES */}
           <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
               <div className="flex items-center gap-2.5 text-amber-700">
@@ -1091,6 +1239,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 3: CONDIÇÕES */}
@@ -1130,37 +1280,106 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Tomar Decisões no Código
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-algoritmos')?.completed)}
+            score={getSimProg('sim-algoritmos')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🔀</div>
-                <h5 className="text-xs font-black text-amber-900">Condições Inteligentes</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  SE estiver frio, vestes um casaco; SENÃO, vestes uma t-shirt! É assim que os programas tomam decisões.
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Tomar Decisões no Código
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🔀</div>
+                    <h5 className="text-xs font-black text-amber-900">Condições Inteligentes</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      SE estiver frio, vestes um casaco; SENÃO, vestes uma t-shirt! É assim que os programas tomam decisões.
+                    </p>
+                  </div>
+
+                  <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">💡</div>
+                    <h5 className="text-xs font-black text-orange-900">Caminhos Diferentes</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      O computador avalia uma condição e escolhe o caminho certo a seguir em frações de segundo.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w4-t3" />
               </div>
 
-              <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">💡</div>
-                <h5 className="text-xs font-black text-orange-900">Caminhos Diferentes</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  O computador avalia uma condição e escolhe o caminho certo a seguir em frações de segundo.
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Compreender a lógica condicional SE (condição verdadeira) e SENÃO (falsa).</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Tomar decisões automáticas baseadas em sensores ou escolhas do utilizador.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Construir árvores de decisão simples e seguras sem loops infinitos.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
 
-            <TopicIllustrationCard topicId="w4-t3" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE CONDIÇÕES (SE / ENTÃO / SENÃO) */}
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE CONDIÇÕES (SE / ENTÃO / SENÃO) */}
           <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
@@ -1334,6 +1553,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 4: REPETIÇÕES (CICLOS / LOOPS) */}
@@ -1373,37 +1594,106 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Poupar Código com Repetições
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-ciclos')?.completed)}
+            score={getSimProg('sim-ciclos')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🔁</div>
-                <h5 className="text-xs font-black text-amber-900">Repetir sem Cansaço</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Para dar 10 passos, não precisas de escrever "Avança" 10 vezes. Basta dizer "Repete 10 vezes: Avança"!
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Poupar Código com Repetições
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🔁</div>
+                    <h5 className="text-xs font-black text-amber-900">Repetir sem Cansaço</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Para dar 10 passos, não precisas de escrever "Avança" 10 vezes. Basta dizer "Repete 10 vezes: Avança"!
+                    </p>
+                  </div>
+
+                  <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">⚡</div>
+                    <h5 className="text-xs font-black text-orange-900">Menos Código, Mais Poder</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Os ciclos (loops) tornam o teu programa muito mais curto, limpo e rápido de ler para humanos e robôs.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w4-t4" />
               </div>
 
-              <div className="bg-orange-50/70 border border-orange-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">⚡</div>
-                <h5 className="text-xs font-black text-orange-900">Menos Código, Mais Poder</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Os ciclos (loops) tornam o teu programa muito mais curto, limpo e rápido de ler para humanos e robôs.
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Identificar padrões repetitivos e usar ciclos para poupar código.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Definir contadores e repetições exatas para cada ação.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Criar programas mais elegantes, organizados e eficientes.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
 
-            <TopicIllustrationCard topicId="w4-t4" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: 3 SCENARIOS OF LOOPS */}
+              {/* 🎮 2. EXPERIMENTA: 3 SCENARIOS OF LOOPS */}
           <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
@@ -1526,6 +1816,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 5: DADOS */}
@@ -1565,37 +1857,106 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Informação em Ordem
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-dados')?.completed)}
+            score={getSimProg('sim-dados')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">📊</div>
-                <h5 className="text-xs font-black text-amber-900">Dados em Tabelas</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Dados são números ou escolhas recolhidas. Quando estão organizados em tabelas, podemos tirar conclusões valiosas.
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Informação em Ordem
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">📊</div>
+                    <h5 className="text-xs font-black text-amber-900">Dados em Tabelas</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Dados são números ou escolhas recolhidas. Quando estão organizados em tabelas, podemos tirar conclusões valiosas.
+                    </p>
+                  </div>
+
+                  <div className="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">📈</div>
+                    <h5 className="text-xs font-black text-yellow-900">Gráficos Visuais</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Um gráfico transforma números numa imagem clara e fácil de entender num piscar de olhos.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w4-t5" />
               </div>
 
-              <div className="bg-yellow-50/70 border border-yellow-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">📈</div>
-                <h5 className="text-xs font-black text-yellow-900">Gráficos Visuais</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Um gráfico transforma números numa imagem clara e fácil de entender num piscar de olhos.
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Organizar e categorizar informação e dados em tabelas estruturadas.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Interpretar gráficos visuais para responder a perguntas e tomar decisões.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Comparar dados para tirar conclusões reais e fundamentadas.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
 
-            <TopicIllustrationCard topicId="w4-t5" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE DADOS E TABELAS */}
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE DADOS E TABELAS */}
           <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-amber-700">
@@ -1750,6 +2111,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* MISSÃO 6: DEBUGGING (DEPURAÇÃO) */}
@@ -1789,37 +2152,106 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Arte de Caçar Bugs
-              </h4>
-            </div>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="amber"
+            simulatorCompleted={Boolean(getSimProg('sim-debugging')?.completed)}
+            score={getSimProg('sim-debugging')?.score}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🐞</div>
-                <h5 className="text-xs font-black text-rose-900">O que é um Bug?</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Bug é um erro num programa que faz com que o robô faça disparates ou encrave. Até os melhores programadores têm bugs!
-                </p>
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-amber-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: A Arte de Caçar Bugs
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🐞</div>
+                    <h5 className="text-xs font-black text-rose-900">O que é um Bug?</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Bug é um erro num programa que faz com que o robô faça disparates ou encrave. Até os melhores programadores têm bugs!
+                    </p>
+                  </div>
+
+                  <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
+                    <div className="text-xl">🔍</div>
+                    <h5 className="text-xs font-black text-emerald-900">Depurar (Debugging)</h5>
+                    <p className="text-xs text-slate-600 leading-snug">
+                      Encontrar o bug e corrigi-lo chama-se depuração. Não fiques triste quando errares: testar e corrigir é o coração da programação!
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w4-t6" />
               </div>
 
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 space-y-1">
-                <div className="text-xl">🔍</div>
-                <h5 className="text-xs font-black text-emerald-900">Depurar (Debugging)</h5>
-                <p className="text-xs text-slate-600 leading-snug">
-                  Encontrar o bug e corrigi-lo chama-se depuração. Não fiques triste quando errares: testar e corrigir é o coração da programação!
-                </p>
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Compreender que o erro (bug) faz parte natural da aprendizagem em programação.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Analisar passo a passo para encontrar onde o plano começou a falhar.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Corrigir com paciência e persistência até o programa funcionar perfeitamente.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
+              </div>
 
-            <TopicIllustrationCard topicId="w4-t6" />
-          </div>
-
-          {/* 🎮 2. PRATICA (Simulador de Debugging) */}
+              {/* 🎮 2. PRATICA (Simulador de Debugging) */}
           <div className="bg-white border-2 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5 text-amber-700">
@@ -1943,6 +2375,8 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* SEPARADOR 7: AVALIAÇÃO FINAL */}

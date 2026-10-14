@@ -95,7 +95,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
       date: 'Quarta-feira, 12 de Junho • 14h00',
       location: 'Laboratório de TIC • Sala 14',
       extraShort: 'Experimenta robôs reais e códigos em blocos.',
-      extraLong: 'Todos os alunos do 5.º e 6.º ano estão convidados a aprender comandos de programação, montar circuitos com sensores de luz e de som, construir pequenos carros motorizados que andam sozinhos e competir numa corrida amigável!',
+      extraLong: 'Todos os alunos do 6.º ano estão convidados a aprender comandos de programação, montar circuitos com sensores de luz e de som, construir pequenos carros motorizados que andam sozinhos e competir numa corrida amigável!',
       icon: '🤖',
       accentColor: 'from-blue-500 to-indigo-600',
     },

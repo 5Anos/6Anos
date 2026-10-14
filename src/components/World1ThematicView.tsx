@@ -11,6 +11,7 @@ import {
   Sparkles,
   Trophy,
   ArrowRight,
+  ArrowLeft,
   ChevronRight,
   Award,
   AlertTriangle,
@@ -18,16 +19,19 @@ import {
   Eye,
   Shield,
   ShieldAlert,
+  Lightbulb,
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { GuardianKidHero } from './WorldMascots';
+import { StudyStackIllustration } from './DetectiveMascot';
 import { AudioReaderButton } from './AudioReaderButton';
 import { GlossaryTerm } from './PedagogicalGlossary';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
 import { MetacognitionWidget } from './MetacognitionWidget';
 import { ScaffoldingClueCard } from './ScaffoldingClueCard';
+import { MissionPhaseSwitcher, MissionPhase } from './MissionPhaseSwitcher';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World1ThematicViewProps {
@@ -46,6 +50,12 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   onRefreshWorld,
 }) => {
   const { user, refreshUser } = useAuth();
+
+  const [missionPhase, setMissionPhase] = useState<MissionPhase>('theory');
+
+  React.useEffect(() => {
+    setMissionPhase('theory');
+  }, [activeTopicId]);
 
   // Completed feedback banner
   const [completedFeedback, setCompletedFeedback] = useState<{
@@ -567,7 +577,19 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="emerald"
+            simulatorCompleted={Boolean(getSimProg('sim-password')?.completed)}
+            score={getSimProg('sim-password')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
           <div className="bg-white border-2 border-emerald-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 text-emerald-700">
               <Sparkles className="w-5 h-5 text-amber-500" />
@@ -603,6 +625,32 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
 
             <TopicIllustrationCard topicId="w1-t1" />
+          </div>
+
+          {/* Call to action to practice */}
+          <div className="pt-2 flex justify-center sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('simulator')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+            >
+              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between pb-1">
+            <button
+              type="button"
+              onClick={() => setMissionPhase('theory')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Rever Guia de Teoria 💡</span>
+            </button>
           </div>
 
           {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PALAVRAS-PASSE */}
@@ -765,6 +813,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* 2. SEPARADOR: PHISHING                                    */}
@@ -811,53 +861,122 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: O Radar Anti-Phishing
-              </h4>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="emerald"
+            simulatorCompleted={Boolean(getSimProg('sim-phishing')?.completed)}
+            score={getSimProg('sim-phishing')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-blue-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: O Radar Anti-Phishing
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+                    <div className="text-2xl">🚨</div>
+                    <h5 className="font-black text-amber-950 text-sm">Sentido de Urgência Falso</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Mensagens que dizem "A tua conta será eliminada em 15 minutos!" querem fazer-te agir por impulso sem pensar.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
+                    <div className="text-2xl">🎣</div>
+                    <h5 className="font-black text-rose-950 text-sm">O Isco das Moedas Grátis</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Promessas milagrosas de Robux, V-Bucks ou prémios fáceis servem apenas para pedir o teu email e a tua senha.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">🔎</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Regra de Ouro do Detetive</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Verifica sempre o remetente oficial (.edu.pt ou .gov.pt). Se tiveres dúvidas, pergunta ao professor antes de clicar!
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w1-t2" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-blue-50/90 border border-blue-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Identificar emails com ameaças de encerramento urgente de conta.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Desconfiar de links estranhos com ofertas de moedas e prémios gratuitos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Confirmar o remetente oficial antes de carregar em qualquer botão.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
-                <div className="text-2xl">🚨</div>
-                <h5 className="font-black text-amber-950 text-sm">Sentido de Urgência Falso</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Mensagens que dizem "A tua conta será eliminada em 15 minutos!" querem fazer-te agir por impulso sem pensar.
-                </p>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
               </div>
 
-              <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
-                <div className="text-2xl">🎣</div>
-                <h5 className="font-black text-rose-950 text-sm">O Isco das Moedas Grátis</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Promessas milagrosas de Robux, V-Bucks ou prémios fáceis servem apenas para pedir o teu email e a tua senha.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">🔎</div>
-                <h5 className="font-black text-emerald-950 text-sm">Regra de Ouro do Detetive</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Verifica sempre o remetente oficial (.edu.pt ou .gov.pt). Se tiveres dúvidas, pergunta ao professor antes de clicar!
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w1-t2" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR ANTI-PHISHING */}
-          <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-blue-700">
-                <Sparkles className="w-5 h-5 text-blue-600" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Laboratório Anti-Phishing
-                </h4>
-              </div>
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR ANTI-PHISHING */}
+              <div className="bg-white border-2 border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-blue-700">
+                    <Sparkles className="w-5 h-5 text-blue-600" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Laboratório Anti-Phishing
+                    </h4>
+                  </div>
               <span className="text-xs font-bold text-slate-500">
                 Cenário {phishingStep + 1} de {phishingScenarios.length}
               </span>
@@ -980,6 +1099,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* 3. SEPARADOR: PRIVACIDADE                                 */}
@@ -1026,45 +1147,114 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-emerald-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-emerald-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Cofre Secreto vs. Mural Público
-              </h4>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="emerald"
+            simulatorCompleted={Boolean(getSimProg('sim-privacy')?.completed)}
+            score={getSimProg('sim-privacy')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-emerald-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Cofre Secreto vs. Mural Público
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
+                    <div className="text-2xl">🔒</div>
+                    <h5 className="font-black text-rose-950 text-sm">Cofre Secreto (Nunca Partilhar)</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Morada de casa, número de telemóvel pessoal, rotinas e horários a pé sem adultos, e fotografias que mostrem o símbolo da escola.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">🌍</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Livre para Partilhar com Orgulho</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Trabalhos criativos de TIC, projetos sobre a natureza e reciclagem, desenhos e recomendações de livros ou jogos educativos!
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w1-t3" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-emerald-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Distinguir dados íntimos de identidade daquilo que é seguro divulgar.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Guardar sempre morada, escola e contactos longe de olhares desconhecidos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Pedir consentimento antes de tirar ou publicar imagens de outras pessoas.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1.5">
-                <div className="text-2xl">🔒</div>
-                <h5 className="font-black text-rose-950 text-sm">Cofre Secreto (Nunca Partilhar)</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Morada de casa, número de telemóvel pessoal, rotinas e horários a pé sem adultos, e fotografias que mostrem o símbolo da escola.
-                </p>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
               </div>
 
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">🌍</div>
-                <h5 className="font-black text-emerald-950 text-sm">Livre para Partilhar com Orgulho</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Trabalhos criativos de TIC, projetos sobre a natureza e reciclagem, desenhos e recomendações de livros ou jogos educativos!
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w1-t3" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PRIVACIDADE */}
-          <div className="bg-white border-2 border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-emerald-700">
-                <Sparkles className="w-5 h-5 text-emerald-600" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Laboratório de Privacidade
-                </h4>
-              </div>
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PRIVACIDADE */}
+              <div className="bg-white border-2 border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-emerald-700">
+                    <Sparkles className="w-5 h-5 text-emerald-600" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Laboratório de Privacidade
+                    </h4>
+                  </div>
               <span className="text-xs font-bold text-slate-500">
                 Classifica os 5 tipos de dados
               </span>
@@ -1172,6 +1362,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* 4. SEPARADOR: RASTO DIGITAL                               */}
@@ -1218,45 +1410,114 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-purple-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: A Memória Permanente da Internet
-              </h4>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="emerald"
+            simulatorCompleted={Boolean(getSimProg('sim-digital-footprint')?.completed)}
+            score={getSimProg('sim-digital-footprint')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-purple-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-purple-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: A Memória Permanente da Internet
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-1.5">
+                    <div className="text-2xl">⏳</div>
+                    <h5 className="font-black text-purple-950 text-sm">O Teste dos 10 Anos</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Antes de publicar um vídeo ou comentário, pergunta: "Se o meu professor ou os meus pais vissem isto daqui a 10 anos, eu ficaria orgulhoso?".
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">🌟</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Pegada Brilhante de Herói</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Elogiar colegas, partilhar tutoriais de Scratch e apoiar projetos escolares constrói uma reputação respeitada e admirada!
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w1-t4" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Compreender que as publicações digitais podem ficar guardadas para sempre.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Usar o "Teste dos 10 anos" antes de partilhar imagens ou comentários.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Construir uma reputação digital positiva baseada em empatia e respeito.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-1.5">
-                <div className="text-2xl">⏳</div>
-                <h5 className="font-black text-purple-950 text-sm">O Teste dos 10 Anos</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Antes de publicar um vídeo ou comentário, pergunta: "Se o meu professor ou os meus pais vissem isto daqui a 10 anos, eu ficaria orgulhoso?".
-                </p>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
               </div>
 
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">🌟</div>
-                <h5 className="font-black text-emerald-950 text-sm">Pegada Brilhante de Herói</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Elogiar colegas, partilhar tutoriais de Scratch e apoiar projetos escolares constrói uma reputação respeitada e admirada!
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w1-t4" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PEGADA DIGITAL */}
-          <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-purple-700">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Pegada Digital
-                </h4>
-              </div>
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE PEGADA DIGITAL */}
+              <div className="bg-white border-2 border-purple-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-purple-700">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Simulador de Pegada Digital
+                    </h4>
+                  </div>
               <span className="text-xs font-bold text-slate-500">
                 Classifica o impacto de cada ação
               </span>
@@ -1369,6 +1630,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* 5. SEPARADOR: BEM-ESTAR DIGITAL                           */}
@@ -1415,53 +1678,122 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
           </div>
 
-          {/* 💡 1. APRENDE */}
-          <div className="bg-white border-2 border-rose-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 text-rose-700">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h4 className="text-sm font-black uppercase tracking-wide">
-                💡 1. Aprende: Os Hábitos do Campeão Digital
-              </h4>
+          {/* 2-Phase Switcher */}
+          <MissionPhaseSwitcher
+            currentPhase={missionPhase}
+            onPhaseChange={setMissionPhase}
+            accentColor="emerald"
+            simulatorCompleted={Boolean(getSimProg('sim-digital-wellbeing')?.completed)}
+            score={getSimProg('sim-digital-wellbeing')?.score}
+          />
+
+          {missionPhase === 'theory' ? (
+            /* 💡 FASE 1: DESCOBRIR & APRENDER */
+            <div className="space-y-6">
+              {/* 💡 1. APRENDE */}
+              <div className="bg-white border-2 border-rose-100 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 text-rose-700">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-sm font-black uppercase tracking-wide">
+                    💡 1. Aprende: Os Hábitos do Campeão Digital
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                    <div className="text-2xl">👀</div>
+                    <h5 className="font-black text-emerald-950 text-sm">Regra dos 20-20-20</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      A cada 20 minutos de ecrã, olha 20 segundos para algo a 6 metros de distância para relaxar a visão.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
+                    <div className="text-2xl">💺</div>
+                    <h5 className="font-black text-blue-950 text-sm">Postura de Astronauta</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Costas direitas, pés no chão e topo do monitor ao nível dos teus olhos evitam dores e cansaço.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+                    <div className="text-2xl">🌙</div>
+                    <h5 className="font-black text-amber-950 text-sm">Sono Sagrado</h5>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Desliga os ecrãs 30 a 60 minutos antes de dormir para o cérebro produzir melatonina e descansar profundamente.
+                    </p>
+                  </div>
+                </div>
+
+                <TopicIllustrationCard topicId="w1-t5" />
+              </div>
+
+              {/* ⭐ SÍNTESE PEDAGÓGICA */}
+              <div className="bg-gradient-to-r from-rose-50/90 via-amber-50/60 to-rose-50/90 border border-rose-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-7 h-7 stroke-[3]" />
+                  </div>
+                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 text-rose-900 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
+                    <span>O QUE APRENDES NESTA MISSÃO?</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Aplicar pausas regulares 20-20-20 para prevenir fadiga ocular.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Manter a postura ergonómica e distância saudável dos ecrãs.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Proteger a qualidade do sono desligando dispositivos antes de deitar.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action to practice */}
+              <div className="pt-2 flex justify-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('simulator')}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
+                >
+                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
-                <div className="text-2xl">👀</div>
-                <h5 className="font-black text-emerald-950 text-sm">Regra dos 20-20-20</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  A cada 20 minutos de ecrã, olha 20 segundos para algo a 6 metros de distância para relaxar a visão.
-                </p>
+          ) : (
+            /* 🎮 FASE 2: PRATICAR & DESAFIAR */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={() => setMissionPhase('theory')}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Rever Guia de Teoria 💡</span>
+                </button>
               </div>
 
-              <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
-                <div className="text-2xl">💺</div>
-                <h5 className="font-black text-blue-950 text-sm">Postura de Astronauta</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Costas direitas, pés no chão e topo do monitor ao nível dos teus olhos evitam dores e cansaço.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
-                <div className="text-2xl">🌙</div>
-                <h5 className="font-black text-amber-950 text-sm">Sono Sagrado</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Desliga os ecrãs 30 a 60 minutos antes de dormir para o cérebro produzir melatonina e descansar profundamente.
-                </p>
-              </div>
-            </div>
-
-            <TopicIllustrationCard topicId="w1-t5" />
-          </div>
-
-          {/* 🎮 2. EXPERIMENTA: SIMULADOR DE BEM-ESTAR DIGITAL */}
-          <div className="bg-white border-2 border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-rose-700">
-                <Sparkles className="w-5 h-5 text-rose-600" />
-                <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Laboratório do Gamer Saudável
-                </h4>
-              </div>
+              {/* 🎮 2. EXPERIMENTA: SIMULADOR DE BEM-ESTAR DIGITAL */}
+              <div className="bg-white border-2 border-rose-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5 text-rose-700">
+                    <Sparkles className="w-5 h-5 text-rose-600" />
+                    <h4 className="text-base font-black uppercase tracking-wide">
+                      🎮 2. Experimenta: Laboratório do Gamer Saudável
+                    </h4>
+                  </div>
               <span className="text-xs font-bold text-slate-500">
                 Classifica os 4 hábitos
               </span>
@@ -1574,6 +1906,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
         </div>
       )}
+    </div>
+  )}
 
       {/* ========================================================= */}
       {/* 6. SEPARADOR: AVALIAÇÃO FINAL (QUIZ)                      */}
