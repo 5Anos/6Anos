@@ -166,9 +166,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   }
 
   // Progression gating:
-  const visibleWorlds = worlds.length > 0
-    ? worlds.map((w) => ({ ...w, isUnlocked: true }))
-    : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any));
+  const visibleWorlds = worlds.length > 0 ? worlds : WORLDS_DATA.map((w, idx) => ({ ...w, isUnlocked: idx === 0, average: 0 } as any));
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -250,7 +248,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       </div>
 
       {/* If current world is locked for student */}
-      {!currentWorld.isUnlocked && user?.role !== 'teacher' && currentWorld.isTeacherLocked ? (
+      {!currentWorld.isUnlocked && user?.role !== 'teacher' ? (
         <div className="bg-white rounded-3xl border border-amber-200/90 p-8 sm:p-12 text-center shadow-xs">
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs ${
             currentWorld.isTeacherLocked ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
@@ -268,9 +266,9 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
             {currentWorld.isTeacherLocked
               ? 'A tua Professora reservou temporariamente este Mundo para a próxima aula presencial. Fica atento às instruções na sala de aula!'
-              : `Para acederes e realizares as atividades do Mundo ${currentWorld.id}, precisas de alcançar uma média global superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (dos simuladores e do quiz de avaliação) no Mundo ${currentWorld.id - 1}.`}
+              : `Para acederes e realizares as atividades do Mundo ${currentWorld.id}, precisas de alcançar uma taxa de interação e de sucesso superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (nos simuladores e quiz de avaliação) no Mundo ${currentWorld.id - 1}.`}
           </p>
-          {!currentWorld.isTeacherLocked && currentWorld.id > 1 && (
+          {currentWorld.id > 1 && (
             <button
               onClick={() => {
                 setSelectedWorldId(currentWorld.id - 1);
@@ -288,7 +286,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           {!isTeacher && currentWorld.id < 5 && (
             <div
               className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs ${
-                currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                   ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
                   : 'bg-amber-50/90 border-amber-200 text-amber-950'
               }`}
@@ -296,12 +294,12 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
               <div className="flex items-center gap-3">
                 <div
                   className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                    currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                       ? 'bg-emerald-100 text-emerald-700'
                       : 'bg-amber-100 text-amber-700'
                   }`}
                 >
-                  {currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD ? (
+                  {currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? (
                     <CheckCircle2 className="w-5 h-5" />
                   ) : (
                     <Lock className="w-5 h-5" />
@@ -309,26 +307,26 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                 </div>
                 <div>
                   <div className="font-black text-sm">
-                    {currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                    {currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                       ? `✓ Mundo ${currentWorld.id + 1} Desbloqueado!`
-                      : `Acesso ao Mundo ${currentWorld.id + 1} — Requer Média Global > 70%`}
+                      : `Acesso ao Mundo ${currentWorld.id + 1} — Requer Média Global >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%`}
                   </div>
                   <div className="text-xs opacity-90 mt-0.5">
-                    {currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? `Excelente! A tua média global no Mundo ${currentWorld.id} é de ${currentWorld.average}% (> 70%). O Mundo ${currentWorld.id + 1} já se encontra acessível!`
-                      : `Para desbloquear e ver o Mundo ${currentWorld.id + 1}, a tua média global (dos simuladores e do quiz de avaliação) tem de ser superior a 70%. Média atual: ${currentWorld.average}%.`}
+                    {currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                      ? `Excelente! A tua taxa de sucesso no Mundo ${currentWorld.id} é de ${currentWorld.average}% (>= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%). O Mundo ${currentWorld.id + 1} já se encontra acessível!`
+                      : `Para desbloquear e ver o Mundo ${currentWorld.id + 1}, a tua taxa de sucesso global (dos simuladores e do quiz de avaliação) tem de ser de pelo menos ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%. Média atual: ${currentWorld.average}%.`}
                   </div>
                 </div>
               </div>
               <div className="shrink-0 flex items-center gap-2">
                 <span
                   className={`px-3 py-1.5 rounded-xl font-black text-xs ${
-                    currentWorld.average > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                    currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                       ? 'bg-emerald-600 text-white'
                       : 'bg-amber-200/80 text-amber-950'
                   }`}
                 >
-                  Média: {currentWorld.average}% / &gt; 70%
+                  Média: {currentWorld.average}% / &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
                 </span>
               </div>
             </div>

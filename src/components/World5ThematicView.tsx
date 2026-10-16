@@ -2215,7 +2215,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
           </div>
 
           <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl max-w-md mx-auto text-xs text-indigo-950 font-semibold space-y-1">
-            <p>🏆 Requisito de Conclusão da Missão TIC: Média global &gt; 70%</p>
+            <p>🏆 Requisito de Conclusão da Missão TIC: Média global &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null

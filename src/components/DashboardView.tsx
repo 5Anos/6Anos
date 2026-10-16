@@ -1089,22 +1089,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </h3>
 
             <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
-              Para acederes a este mundo, precisas de atingir uma média global (dos simuladores e do quiz de avaliação) superior a <strong>70%</strong> no <strong>{lockedModalInfo.requiredWorldName}</strong>.
+              Para acederes a este mundo, precisas de atingir uma taxa de interação e sucesso global (dos simuladores e do quiz de avaliação) de pelo menos <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> no <strong>{lockedModalInfo.requiredWorldName}</strong>.
             </p>
 
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 text-left">
               <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                 <span>O teu progresso no {lockedModalInfo.requiredWorldName.split('—')[0]}</span>
-                <span className={`font-black ${lockedModalInfo.prevAvg > 70 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                  {lockedModalInfo.prevAvg}% / &gt; 70%
+                <span className={`font-black ${lockedModalInfo.prevAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {lockedModalInfo.prevAvg}% / &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    lockedModalInfo.prevAvg > 70 ? 'bg-emerald-500' : 'bg-amber-500'
+                    lockedModalInfo.prevAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'bg-emerald-500' : 'bg-amber-500'
                   }`}
-                  style={{ width: `${Math.min(100, (lockedModalInfo.prevAvg / 70) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (lockedModalInfo.prevAvg / PROGRESSION_CONFIG.PASSING_THRESHOLD) * 100)}%` }}
                 />
               </div>
               <p className="text-[11px] text-slate-500 mt-2">

@@ -477,13 +477,13 @@ export async function clientComputeWorldStats(userId: string, worldId: number, u
   const average =
     scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
 
-  // STRICT 70% THRESHOLD: average > 70
+  // STRICT 75% THRESHOLD: average >= 75
   const isWorldCompleted =
     allSimulatorsCompleted &&
     hasAssessment &&
-    average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
-  const isUnlocked = true;
+  const isUnlocked = worldId === 1 || userRole === 'teacher';
 
   return {
     worldId,
@@ -531,50 +531,66 @@ export async function clientGetWorlds() {
 
   const isTeacher = userRole === 'teacher';
 
-  const worldsWithStats = await Promise.all(
-    WORLDS_DATA.map(async (w) => {
-      const stats = userId
-        ? await clientComputeWorldStats(userId, w.id, userRole)
-        : {
-            worldId: w.id,
-            average: 0,
-            completedCount: 0,
-            totalComponents: w.simulators.length + 1,
-            completedSimulatorsCount: 0,
-            totalSimulatorsCount: w.simulators.length,
-            allSimulatorsCompleted: false,
-            hasAssessment: false,
-            bestAssessmentPercentage: null,
-            hasAssessmentPassed: false,
-            isWorldCompleted: false,
-            isUnlocked: true,
-          };
+  const worldsWithStats: any[] = [];
+  let prevUnlocked = true;
+  let prevPassed = true;
 
-      const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
+  for (const w of WORLDS_DATA) {
+    const stats = userId
+      ? await clientComputeWorldStats(userId, w.id, userRole)
+      : {
+          worldId: w.id,
+          average: 0,
+          completedCount: 0,
+          totalComponents: w.simulators.length + 1,
+          completedSimulatorsCount: 0,
+          totalSimulatorsCount: w.simulators.length,
+          allSimulatorsCompleted: false,
+          hasAssessment: false,
+          bestAssessmentPercentage: null,
+          hasAssessmentPassed: false,
+          isWorldCompleted: false,
+          isUnlocked: w.id === 1,
+        };
 
-      return {
-        ...w,
-        isUnlocked: true,
-        isCompleted: isTeacher ? true : stats.isWorldCompleted,
-        allSimulatorsCompleted: isTeacher ? true : stats.allSimulatorsCompleted,
-        hasAssessmentPassed: isTeacher ? true : stats.hasAssessmentPassed,
-        average: isTeacher ? (stats.average > 0 ? stats.average : 100) : stats.average,
-        completedCount: stats.completedCount,
-        totalComponents: stats.totalComponents,
-        challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
-        bestAssessmentPercentage: stats.bestAssessmentPercentage,
-        simulatorsProgress: w.simulators.map((s) => {
-          const prog = userProgress.find((p) => p.activityId === s.id);
-          return {
-            id: s.id,
-            completed: isTeacher ? true : (prog ? prog.completed : false),
-            score: prog ? prog.bestScore : (isTeacher ? 100 : 0),
-          };
-        }),
-        stats: isTeacher ? { ...stats, isUnlocked: true } : stats,
-      };
-    })
-  );
+    let isUnlocked = true;
+    if (!isTeacher) {
+      if (w.id === 1) {
+        isUnlocked = true;
+      } else {
+        isUnlocked = prevUnlocked && prevPassed;
+      }
+    }
+
+    const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
+    const worldAvg = isTeacher ? (stats.average > 0 ? stats.average : 100) : stats.average;
+    const isCompleted = isTeacher ? true : (stats.isWorldCompleted || worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD);
+
+    prevUnlocked = isUnlocked;
+    prevPassed = worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+
+    worldsWithStats.push({
+      ...w,
+      isUnlocked,
+      isCompleted,
+      allSimulatorsCompleted: isTeacher ? true : stats.allSimulatorsCompleted,
+      hasAssessmentPassed: isTeacher ? true : stats.hasAssessmentPassed,
+      average: worldAvg,
+      completedCount: stats.completedCount,
+      totalComponents: stats.totalComponents,
+      challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
+      bestAssessmentPercentage: stats.bestAssessmentPercentage,
+      simulatorsProgress: w.simulators.map((s) => {
+        const prog = userProgress.find((p) => p.activityId === s.id);
+        return {
+          id: s.id,
+          completed: isTeacher ? true : (prog ? prog.completed : false),
+          score: prog ? prog.bestScore : (isTeacher ? 100 : 0),
+        };
+      }),
+      stats: { ...stats, isUnlocked },
+    });
+  }
 
   return { worlds: worldsWithStats };
 }
