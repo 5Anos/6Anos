@@ -10,6 +10,7 @@ import {
   XCircle,
   AlertTriangle,
   ArrowRight,
+  ArrowLeft,
   RefreshCw,
   Award,
   Footprints,

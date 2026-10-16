@@ -4,6 +4,7 @@ import {
   Sparkles,
   CheckCircle2,
   ArrowRight,
+  ArrowLeft,
   Shield,
   Search,
   Palette,

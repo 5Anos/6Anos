@@ -687,37 +687,6 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w2-t1" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-blue-50/90 border border-blue-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Substituir perguntas compridas de conversa por termos técnicos e objetivos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Usar aspas (" ") para prender expressões exatas sem dispersão.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Ler os resumos antes de clicar para poupar tempo e evitar desinformação.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -1039,37 +1008,6 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w2-t2" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Procurar a assinatura, profissão e biografia de quem escreve os artigos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Reconhecer domínios de confiança (.edu, .gov, .org, universidades e museus).</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Desconfiar de autores anónimos e páginas que misturam notícias falsas com vendas.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -1323,37 +1261,6 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w2-t3" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Procurar a data e hora de publicação antes de partilhar notícias urgentes.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Reconhecer que vídeos de tempestades antigas são frequentemente reciclados.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Usar o filtro temporal do motor de busca para aceder a dados recentes.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1612,37 +1519,6 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w2-t4" />
               </div>
 
-              {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-              <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Nunca aceitar um rumor extraordinário vindo de apenas uma página desconhecida.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Cruzar a notícia com jornais de referência e sites científicos reconhecidos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Comparar números e datas para ver se as histórias são consistentes entre si.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <ScaffoldingClueCard
                 clues={[
                   'Dois factos que concordam dão uma pista; três fontes independentes dão uma confirmação.',
@@ -1877,37 +1753,6 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w2-t5" />
-              </div>
-
-              {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-              <div className="bg-gradient-to-r from-rose-50/90 via-red-50/60 to-rose-50/90 border border-rose-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-rose-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Travar impulsos de partilha quando um título tenta provocar pânico ou raiva.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Consultar plataformas jornalísticas de verificação de factos (fact-checking).</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Contribuir para uma Internet limpa e saudável sem espalhar mentiras na turma.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <ScaffoldingClueCard

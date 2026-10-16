@@ -727,37 +727,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w3-t1" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Reler sempre antes de enviar para garantir respeito e empatia.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Definir prazos concretos e oferecer ajuda nos trabalhos de equipa.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Usar emojis e tom construtivo para evitar conflitos digitais.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -839,64 +808,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 Regra de Ouro: Como a outra pessoa não ouve a tua voz nem vê a tua expressão, reler a mensagem e garantir que é clara e respeitosa evita mal-entendidos e resolve problemas com rapidez!
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Trata os outros online exatamente como gostarias que te tratassem a ti, com simpatia e clareza.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Reler as mensagens antes de enviar garante prazos claros e evita discussões desnecessárias.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>CLAREZA</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>EMPATIA</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>RESPONSABILIDADE</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>CRIAR EM EQUIPA</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
@@ -1011,37 +922,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w3-t2" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-purple-50/90 via-pink-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Tratar todos os colegas com respeito e consideração nos grupos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Evitar maiúsculas excessivas que soam como gritos ou ordens.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Proteger a privacidade dos outros não divulgando mensagens alheias.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1266,18 +1146,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>A simpatia e o respeito abrem todas as portas no mundo digital.</li>
-              <li>Nunca uses maiúsculas para barafustar e protege o teu rosto criando um avatar criativo.</li>
-            </ul>
-          </div>
-
           {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
@@ -1377,37 +1245,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             <TopicIllustrationCard topicId="w3-t3" />
           </div>
 
-          {/* ⭐ SÍNTESE PEDAGÓGICA */}
-          <div className="bg-gradient-to-r from-purple-50/90 via-indigo-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Distribuir tarefas equilibradas para que todos contribuam com valor.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Resolver divergências através de diálogo calmo e construtivo.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Combinar prazos realistas e apoiar quem tem mais dificuldades.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Call to action to practice */}
           <div className="pt-2 flex justify-center sm:justify-end">
             <button
@@ -1492,18 +1329,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 Desempenho em Equipa: {collabScore}/100. Uma boa equipa ouve todas as opiniões, divide o esforço com equilíbrio e ajuda quem precisa!
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Trabalhar em grupo requer combinar prazos e respeitar o trabalho dos colegas.</li>
-              <li>Ouvir opiniões diferentes torna os projetos da turma muito mais criativos e completos.</li>
-            </ul>
           </div>
 
           {/* 👉 4. PRÓXIMA MISSÃO */}
@@ -1603,37 +1428,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             </div>
 
             <TopicIllustrationCard topicId="w3-t4" />
-          </div>
-
-          {/* ⭐ SÍNTESE PEDAGÓGICA */}
-          <div className="bg-gradient-to-r from-purple-50/90 via-rose-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Respeitar a autoria e o esforço de quem cria textos, fotos e músicas.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Compreender que as imagens dos motores de busca têm donos e regras.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Recorrer a licenças abertas e repositórios educativos autorizados.</span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Call to action to practice */}
@@ -1736,18 +1530,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Respeita o trabalho de quem cria: não uses criações de outros como se fossem tuas.</li>
-              <li>Para trabalhos escolares, procura bancos de imagens e sons com licença livre para estudantes.</li>
-            </ul>
-          </div>
-
           {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
@@ -1847,37 +1629,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             <TopicIllustrationCard topicId="w3-t5" />
           </div>
 
-          {/* ⭐ SÍNTESE PEDAGÓGICA */}
-          <div className="bg-gradient-to-r from-purple-50/90 via-rose-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Nunca apresentar o trabalho ou texto de outros como se fosse teu.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Usar citações com aspas e indicar claramente o autor e a obra original.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Construir uma bibliografia e lista de referências rigorosa e honesta.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Call to action to practice */}
           <div className="pt-2 flex justify-center sm:justify-end">
             <button
@@ -1969,18 +1720,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 Indicar as fontes e os autores não diminui o teu trabalho: pelo contrário, mostra que pesquisaste bem e respeitas quem criou o conteúdo!
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Citar a fonte dá brilho e credibilidade aos teus trabalhos escolares.</li>
-              <li>Reescreve as ideias por palavras tuas ou usa aspas quando copiares frases exatas.</li>
-            </ul>
           </div>
 
           {/* 👉 4. PRÓXIMA MISSÃO */}
@@ -2082,37 +1821,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
             <TopicIllustrationCard topicId="w3-t6" />
           </div>
 
-          {/* ⭐ SÍNTESE PEDAGÓGICA */}
-          <div className="bg-gradient-to-r from-purple-50/90 via-emerald-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Identificar os símbolos Creative Commons (BY, NC, ND, SA).</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Saber que obras podes partilhar, remixar ou usar em projetos escolares.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Licenciar as tuas próprias criações para enriquecer a comunidade educativa.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Call to action to practice */}
           <div className="pt-2 flex justify-center sm:justify-end">
             <button
@@ -2204,18 +1912,6 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : `Resultado do Simulador: ${ccScore}/100. A licença indica o que podes fazer com este conteúdo.`}
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-purple-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>As licenças Creative Commons facilitam a partilha legal de músicas, fotos e desenhos.</li>
-              <li>Basta ler os símbolos para saber se podes partilhar, alterar ou apenas usar para a escola.</li>
-            </ul>
           </div>
 
           {/* 👉 4. PRÓXIMA MISSÃO */}

@@ -686,37 +686,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w4-t1" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Dividir problemas complexos em etapas mais simples e alcançáveis.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Resolver cada pedaço passo a passo sem stress ou confusão.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Organizar o raciocínio computacional para criar grandes soluções.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -809,64 +778,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                   : `Pontuação: ${decompScore}/100. Lembra-te: primeiro escolhemos o tema, depois pesquisamos, de seguida escrevemos e por fim revimos o trabalho!`}
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Dividir um problema complexo em sub-tarefas simples é a técnica principal de qualquer programador.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Resolver uma etapa de cada vez evita erros, poupa tempo e torna tudo mais fácil de alcançar.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>DECOMPOR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>ORGANIZAR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PROGRAMAR</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>RESOLVER BUGS</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
@@ -981,37 +892,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w4-t2" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender o conceito de algoritmo como sequência lógica de passos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Construir sequências sem falhas para guiar o robô até ao objetivo.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Testar cada comando antes de executar a rota completa.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1209,18 +1089,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Um algoritmo é uma lista de passos precisos para atingir um objetivo.</li>
-              <li>A ordem dos comandos tem de ser exata para o robô não bater contra obstáculos.</li>
-            </ul>
-          </div>
-
           {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
@@ -1318,37 +1186,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w4-t3" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender a lógica condicional SE (condição verdadeira) e SENÃO (falsa).</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Tomar decisões automáticas baseadas em sensores ou escolhas do utilizador.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Construir árvores de decisão simples e seguras sem loops infinitos.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1523,18 +1360,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>As instruções condicionais (SE... SENÃO) permitem que os programas reajam a situações diferentes.</li>
-              <li>Sem condições, os jogos e robôs fariam sempre a mesma coisa sem se adaptarem.</li>
-            </ul>
-          </div>
-
           {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
@@ -1632,37 +1457,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w4-t4" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Identificar padrões repetitivos e usar ciclos para poupar código.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Definir contadores e repetições exatas para cada ação.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Criar programas mais elegantes, organizados e eficientes.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1786,18 +1580,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Os ciclos poupam tempo e evitam escrever dezenas de linhas de código repetido.</li>
-              <li>Repetir blocos de comandos é a melhor forma de criar movimentos e padrões fluídos.</li>
-            </ul>
-          </div>
-
           {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
@@ -1895,37 +1677,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w4-t5" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Organizar e categorizar informação e dados em tabelas estruturadas.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Interpretar gráficos visuais para responder a perguntas e tomar decisões.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Comparar dados para tirar conclusões reais e fundamentadas.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -2081,18 +1832,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Organizar dados em tabelas permite descobrir padrões e responder a perguntas com precisão.</li>
-              <li>Comparar números ajuda a identificar o que é mais ou menos frequente num grupo.</li>
-            </ul>
-          </div>
-
           {/* 👉 4. PRÓXIMA MISSÃO */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
@@ -2190,37 +1929,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w4-t6" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border border-amber-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender que o erro (bug) faz parte natural da aprendizagem em programação.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Analisar passo a passo para encontrar onde o plano começou a falhar.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Corrigir com paciência e persistência até o programa funcionar perfeitamente.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -2343,18 +2051,6 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 )}
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-5 space-y-2">
-            <h5 className="text-xs font-black uppercase text-amber-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </h5>
-            <ul className="text-xs text-slate-700 space-y-1 font-medium list-disc list-inside">
-              <li>Os erros no código são normais: analisar passo a passo ajuda a encontrar o problema.</li>
-              <li>Testar com frequência permite corrigir erros pequenos antes que se tornem gigantes.</li>
-            </ul>
           </div>
 
           {/* 👉 4. PRÓXIMA MISSÃO */}

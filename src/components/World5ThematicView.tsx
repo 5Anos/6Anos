@@ -826,37 +826,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w5-t1" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Diferenciar sistemas baseados em regras rígidas de modelos que aprendem com dados.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender que a IA é um instrumento matemático sem consciência ou sentimentos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Identificar onde a IA está presente no quotidiano (visão, voz, recomendações).</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -999,64 +968,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDES NESTA MISSÃO? */}
-          <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Check className="w-7 h-7 stroke-[3]" />
-              </div>
-              <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-            </div>
-
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                <span>O QUE APRENDES NESTA MISSÃO?</span>
-              </div>
-              <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>A IA aprende procurando padrões estatísticos em milhões de dados e exemplos prévios.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>A IA é uma ferramenta criada por humanos — não tem consciência, sentimentos nem vontade própria.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* White Pinned Notepad Checklist with Pencil */}
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2 min-w-[190px] shrink-0">
-              <div className="space-y-1.5 text-[11px] font-black text-slate-800">
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>EXPLORAR IA</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>VERIFICAR DADOS</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>PENSAR CRÍTICO</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-700">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>ÉTICA & ÉTICA</span>
-                </div>
-              </div>
-
-              {/* Pencil Vector across notepad */}
-              <div className="absolute -bottom-2 -right-3 transform rotate-12">
-                <div className="w-16 h-2.5 bg-yellow-400 border border-yellow-600 rounded-sm flex items-center shadow-xs">
-                  <div className="w-3 h-full bg-red-500 rounded-l-sm" />
-                  <div className="flex-1" />
-                  <div className="w-2.5 h-full bg-stone-700 rounded-r-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* 🧠 3.1 AUTOAVALIAÇÃO METACOGNITIVA */}
           <MetacognitionWidget
             missionId="w5-t1"
@@ -1178,37 +1089,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w5-t2" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender que a IA generativa calcula probabilidades e prevê palavras.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Distinguir entre inspiração criativa e cópia sem espírito crítico.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Validar informações em enciclopédias e manuais antes de as apresentar.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -1328,18 +1208,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
-              <Star className="w-5 h-5 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </div>
-            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
-              <li>A IA generativa constrói novos conteúdos combinando dados aprendidos.</li>
-              <li>A beleza do texto não garante verdade científica: confirma sempre em enciclopédias e livros.</li>
-            </ul>
-          </div>
-
           {/* 👉 Próxima Missão */}
           <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
@@ -1448,37 +1316,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w5-t3" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Estruturar pedidos com contexto, papel e formato de resposta desejado.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Evitar perguntas vagas que resultam em respostas dispersas e pouco úteis.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Refinar o prompt em diálogo construtivo para aperfeiçoar o resultado.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1607,18 +1444,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
-              <Star className="w-5 h-5 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </div>
-            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
-              <li>Um bom prompt inclui quem és, o objetivo concreto e o formato de resposta desejado.</li>
-              <li>Instruções detalhadas poupam tempo e geram respostas muito mais úteis.</li>
-            </ul>
-          </div>
-
           {/* 👉 Próxima Missão */}
           <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
@@ -1727,37 +1552,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w5-t4" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Reconhecer que modelos de linguagem podem inventar factos com total confiança.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Confrontar datas, nomes e acontecimentos com fontes primárias credíveis.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Usar pensamento crítico para detetar alucinações e erros subtis no texto.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1912,18 +1706,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
-              <Star className="w-5 h-5 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </div>
-            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
-              <li>A IA pode inventar datas, citações e fontes com ar convincente (alucinações).</li>
-              <li>Confiança no tom de resposta não é garantia de certeza: desconfia e confirma sempre.</li>
-            </ul>
-          </div>
-
           {/* 👉 Próxima Missão */}
           <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
@@ -2032,37 +1814,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w5-t5" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Manter informações confidenciais fora das caixas de texto públicas de IA.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender que as conversas podem ser usadas para treinar novos sistemas.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Adotar uma postura de privacidade preventiva em qualquer nova tecnologia.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -2192,18 +1943,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
             )}
           </div>
 
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
-              <Star className="w-5 h-5 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </div>
-            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
-              <li>Ferramentas públicas podem guardar o que escreves para treinar modelos futuros.</li>
-              <li>Mantém palavras-passe, contactos e segredos pessoais longe de qualquer assistente de IA.</li>
-            </ul>
-          </div>
-
           {/* 👉 Próxima Missão */}
           <div className="bg-slate-100 border border-slate-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
@@ -2312,37 +2051,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w5-t6" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-indigo-50/90 border border-indigo-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-indigo-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Manter a autoria, criatividade e discernimento pessoal em todos os trabalhos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender os algoritmos de recomendação e evitar o consumo passivo.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Ser o capitão do teu próprio raciocínio: a tecnologia apoia, a mente decide!</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -2460,18 +2168,6 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 Pontuação: <strong>{recommendationScore}/100</strong>. Muito bem! As recomendações da IA podem ser úteis, mas devemos continuar a escolher com curiosidade e autonomia aquilo que queremos explorar.
               </div>
             )}
-          </div>
-
-          {/* ⭐ 3. O QUE APRENDESTE? */}
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 font-black text-sm uppercase tracking-wide">
-              <Star className="w-5 h-5 text-emerald-600" />
-              <span>⭐ O que aprendeste nesta missão?</span>
-            </div>
-            <ul className="text-xs sm:text-sm text-emerald-950 font-medium space-y-1.5 list-disc pl-5">
-              <li>A tecnologia é uma ferramenta fantástica de apoio, mas a decisão final é sempre humana.</li>
-              <li>Pensar pela própria cabeça e compreender o que apresentas é o maior super-poder de todos!</li>
-            </ul>
           </div>
 
           {/* 👉 Conclusão / Avaliação */}

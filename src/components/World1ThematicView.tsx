@@ -909,37 +909,6 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w1-t2" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-blue-50/90 border border-blue-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-blue-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Identificar emails com ameaças de encerramento urgente de conta.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Desconfiar de links estranhos com ofertas de moedas e prémios gratuitos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Confirmar o remetente oficial antes de carregar em qualquer botão.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -1192,37 +1161,6 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 <TopicIllustrationCard topicId="w1-t3" />
               </div>
 
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/60 to-emerald-50/90 border border-emerald-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-emerald-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Distinguir dados íntimos de identidade daquilo que é seguro divulgar.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Guardar sempre morada, escola e contactos longe de olhares desconhecidos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Pedir consentimento antes de tirar ou publicar imagens de outras pessoas.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Call to action to practice */}
               <div className="pt-2 flex justify-center sm:justify-end">
                 <button
@@ -1453,37 +1391,6 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w1-t4" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-purple-50/90 via-fuchsia-50/60 to-purple-50/90 border border-purple-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-purple-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Compreender que as publicações digitais podem ficar guardadas para sempre.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Usar o "Teste dos 10 anos" antes de partilhar imagens ou comentários.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Construir uma reputação digital positiva baseada em empatia e respeito.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
@@ -1729,37 +1636,6 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
 
                 <TopicIllustrationCard topicId="w1-t5" />
-              </div>
-
-              {/* ⭐ SÍNTESE PEDAGÓGICA */}
-              <div className="bg-gradient-to-r from-rose-50/90 via-amber-50/60 to-rose-50/90 border border-rose-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-                  <StudyStackIllustration className="w-24 h-24 sm:w-28 sm:h-28" />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 text-rose-900 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-amber-500 fill-current" />
-                    <span>O QUE APRENDES NESTA MISSÃO?</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Aplicar pausas regulares 20-20-20 para prevenir fadiga ocular.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Manter a postura ergonómica e distância saudável dos ecrãs.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Proteger a qualidade do sono desligando dispositivos antes de deitar.</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Call to action to practice */}
