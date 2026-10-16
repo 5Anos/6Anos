@@ -487,15 +487,14 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       )}
 
       {/* ========================================================= */}
-      {/* 🔍 HERO BANNER DETETIVE DIGITAL (Pixar 3D Theme)          */}
-      {/* ========================================================= */}
-      <div className="relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#f0f9ff] border border-[#38bdf8] p-6 sm:p-8 lg:p-9 shadow-sm">
+      {/* 🔍 HERO BANNER DETETIVE DIGITAL */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#f0f9ff] border border-[#38bdf8] p-3.5 sm:p-4 lg:p-4.5 shadow-sm">
         {/* Soft background clouds and radial highlights */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 left-10 w-80 h-80 bg-blue-200/40 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-white/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 w-70 h-70 bg-blue-200/40 rounded-full blur-2xl pointer-events-none" />
 
         {/* Top Breadcrumb & Route Progress */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 relative z-10">
           <div className="flex items-center gap-2 text-xs font-black text-blue-900 tracking-wide uppercase">
             <span className="w-5 h-5 rounded-full bg-white text-blue-600 flex items-center justify-center text-xs shadow-2xs">
               🌐
@@ -506,12 +505,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
             <span className="text-base">🔍</span>
           </div>
 
-          <div className="bg-white/95 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2 shadow-xs flex items-center gap-3 shrink-0 self-start sm:self-auto">
-            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase text-slate-800 tracking-wider">
-              <span className="text-amber-500 text-sm">👑</span>
-              <span>A TUA ROTA NO MUNDO</span>
+          <div className="bg-white/95 backdrop-blur-md border border-white/90 rounded-xl px-2.5 py-1 shadow-2xs flex items-center gap-2 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-1 text-[10px] font-black uppercase text-slate-800 tracking-wider">
+              <span className="text-amber-500 text-xs">👑</span>
+              <span>ROTA NO MUNDO</span>
             </div>
-            <div className="w-24 sm:w-28 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200/80">
+            <div className="w-16 sm:w-20 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/80">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                 style={{ width: `${routePercent}%` }}
@@ -524,24 +523,22 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
         </div>
 
         {/* Middle Hero: Headline, Subtitle, Detective Mascot */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 my-6 relative z-10">
-          <div className="max-w-xl space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-950 tracking-tight leading-[1.12]">
-              A Lupa da Verdade:<br />
-              Pesquisa Inteligente, Fontes Fiáveis<br />
-              e Caça a Boatos na Rede!
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 my-2 relative z-10">
+          <div className="max-w-xl space-y-0.5">
+            <h1 className="text-base sm:text-lg lg:text-xl font-black text-slate-950 tracking-tight leading-tight">
+              A Lupa da Verdade: Pesquisa Inteligente, Fontes Fiáveis e Caça a Boatos na Rede!
             </h1>
-            <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed max-w-lg">
+            <p className="text-[11px] sm:text-xs text-slate-700 font-medium leading-normal max-w-lg">
               A tua missão de detetive: desmascarar notícias falsas, verificar autores e datas, e navegar com pensamento crítico afiado! 🔎🕵️‍♂️
             </p>
           </div>
-          <div className="shrink-0 flex justify-center lg:justify-end">
-            <DetectiveKidHero className="w-64 sm:w-72 lg:w-[350px] h-auto drop-shadow-md" />
+          <div className="shrink-0 flex justify-center sm:justify-end">
+            <DetectiveKidHero className="w-20 sm:w-24 lg:w-28 h-auto max-h-20 sm:max-h-22 drop-shadow-2xs" />
           </div>
         </div>
 
         {/* 6 Mission Navigation Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2 relative z-10">
           {missionNavList.map((m) => {
             const Icon = m.icon;
             const isActive = effectiveTopicId === m.id;
@@ -551,21 +548,21 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               <button
                 key={m.id}
                 onClick={() => onNavigateTopic(m.id)}
-                className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                className={`p-2 sm:p-2.5 rounded-xl sm:rounded-2xl flex items-center justify-between gap-2 transition-all cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400'
-                    : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
+                    : 'bg-white/95 text-slate-800 border border-white/80 shadow-2xs hover:bg-white hover:shadow-xs'
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       isActive ? 'bg-white/20 text-white' : m.iconBgClass
                     }`}
                   >
-                    <Icon className="w-4 h-4 stroke-[2.5]" />
+                    <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
                   </div>
-                  <div className="text-left">
+                  <div className="text-left truncate">
                     <span
                       className={`text-[10px] font-bold block ${
                         isActive ? 'text-blue-100' : 'text-slate-400'
@@ -573,17 +570,17 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     >
                       {m.stepLabel}
                     </span>
-                    <span className="text-xs sm:text-sm font-black truncate">{m.title}</span>
+                    <span className="text-xs sm:text-sm font-extrabold truncate block">{m.title}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1 shrink-0">
                   {simProg?.completed && (
                     <CheckCircle2
-                      className={`w-4 h-4 ${isActive ? 'text-white' : 'text-emerald-600'}`}
+                      className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-600'}`}
                     />
                   )}
                   <ChevronRight
-                    className={`w-4 h-4 shrink-0 ${
+                    className={`w-3.5 h-3.5 shrink-0 ${
                       isActive ? 'text-white' : 'text-blue-500'
                     }`}
                   />
