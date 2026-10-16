@@ -185,18 +185,25 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
               </span>
             </div>
 
-            {/* Email Message Box */}
+            {/* Email Message Box with highlighted clues */}
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-5 space-y-3 font-sans text-xs">
-              <div className="flex items-center gap-2 text-slate-500 text-[11px] pb-2 border-b border-slate-200/80">
-                <Mail className="w-4 h-4 text-slate-400" />
-                <span>De:</span>
-                <span className="font-mono font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
-                  direcao-alerta@suporte-login-rapido.net
+              <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                <div className="flex items-center gap-2 text-slate-500 text-[11px]">
+                  <Mail className="w-4 h-4 text-slate-400" />
+                  <span>De:</span>
+                  <span className="font-mono text-red-700 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                    direcao-alerta@<strong className="font-black text-rose-950 bg-rose-200/90 px-1 py-0.5 rounded">suporte-login-rapido.net</strong>
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                  🔍 Pistas em destaque
                 </span>
               </div>
               <div className="text-slate-500 text-[11px]">
                 <span>Assunto:</span>{' '}
-                <strong className="text-slate-800">URGENTE: Confirmação de Palavra-passe da Escola</strong>
+                <strong className="text-slate-900 bg-amber-100/80 px-1 py-0.5 rounded">
+                  URGENTE: Confirmação de Palavra-passe da Escola
+                </strong>
               </div>
 
               <div className="text-slate-700 space-y-2 pt-2 leading-relaxed">
@@ -205,18 +212,27 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
                 </p>
                 <p>
                   Detetámos uma falha grave nos computadores escolares. Para manter a tua conta ativa,{' '}
-                  <strong className="text-red-700 bg-red-50 px-1 rounded">
+                  <strong className="text-rose-900 bg-rose-100 px-1 py-0.5 rounded border-b border-rose-400">
                     tens 10 minutos para clicar no botão abaixo
                   </strong>{' '}
-                  e introduzir a tua password e código 2FA. Caso contrário, a tua conta será eliminada permanentemente.
+                  e introduzir a tua{' '}
+                  <strong className="text-rose-900 bg-rose-100 px-1 py-0.5 rounded border-b border-rose-400">
+                    password e código 2FA
+                  </strong>
+                  . Caso contrário, a tua conta será eliminada permanentemente.
                 </p>
 
                 <div className="pt-2 text-center">
                   <div className="inline-block bg-blue-600 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-xs opacity-90 cursor-not-allowed">
-                    🔗 http://login-atualizar-pass.xyz/recuperar
+                    🔗 http://login-atualizar-pass.
+                    <strong className="text-amber-200 underline font-black">xyz</strong>
+                    /recuperar
                   </div>
-                  <div className="text-[10px] text-slate-400 mt-1 font-mono">
-                    Destino: http://login-atualizar-pass.xyz
+                  <div className="text-[10px] text-slate-600 mt-1 font-mono">
+                    Destino:{' '}
+                    <span className="text-rose-700 bg-rose-50 px-1 rounded font-bold">
+                      http://login-atualizar-pass.<strong className="font-black">xyz</strong>
+                    </span>
                   </div>
                 </div>
               </div>

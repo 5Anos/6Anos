@@ -37,6 +37,7 @@ import { TopicIllustrationCard } from './TopicIllustrationCard';
 import { MetacognitionWidget } from './MetacognitionWidget';
 import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { MissionPhaseSwitcher, MissionPhase } from './MissionPhaseSwitcher';
+import { HighlightClues } from '../utils/textHighlight';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World2ThematicViewProps {
@@ -187,32 +188,32 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     {
       id: 'aut-1',
       title: 'Artigo sobre Vulcões e Sismos',
-      meta: 'Portal IPMA (Instituto Português do Mar e da Atmosfera) • Dra. Helena Matos, Geóloga Investigadora',
-      body: 'Artigo técnico com mapas de atividade sísmica recente, referências científicas e contacto institucional da equipa de geologia.',
+      meta: 'Portal IPMA (Instituto Português do Mar e da Atmosfera) • **Dra. Helena Matos, Geóloga Investigadora**',
+      body: 'Artigo técnico com mapas de atividade sísmica recente, **referências científicas** e **contacto institucional** da equipa de geologia.',
       correct: 'confiavel',
       explanation: 'Excelente! Entidade pública reconhecida e autora especialista com credenciais verificadas.',
     },
     {
       id: 'aut-2',
       title: 'Descoberta do Planeta Oculto',
-      meta: 'Blogue gratuito "MisteriosOnline.net" • Autor: "AlienHunter99" (Sem foto nem biografia)',
-      body: 'Texto a garantir que a NASA está a esconder um planeta gigante atrás da Lua, sem apresentar qualquer foto ou estudo oficial.',
+      meta: 'Blogue gratuito "**MisteriosOnline.net**" • Autor: "**AlienHunter99**" (**Sem foto nem biografia**)',
+      body: 'Texto a garantir que a NASA está a esconder um planeta gigante atrás da Lua, **sem apresentar qualquer foto ou estudo oficial**.',
       correct: 'suspeito',
       explanation: 'Cuidado! Autor anónimo com nickname, blogue não oficial e afirmações bombásticas sem provas científicas.',
     },
     {
       id: 'aut-3',
       title: 'História dos Castelos Medievais',
-      meta: 'Universidade de Coimbra - Departamento de História • Prof. Doutor Manuel Silva',
-      body: 'Resumo pedagógico revisto por docentes de História Medieval com bibliografia recomendada para alunos.',
+      meta: 'Universidade de Coimbra - Departamento de História • **Prof. Doutor Manuel Silva**',
+      body: 'Resumo pedagógico revisto por **docentes de História Medieval** com **bibliografia recomendada** para alunos.',
       correct: 'confiavel',
       explanation: 'Muito bem! Domínio universitário (.uc.pt), autoria docente identificada e bibliografia séria.',
     },
     {
       id: 'aut-4',
       title: 'Cura Milagrosa com Sumo de Limão',
-      meta: 'Página de Instagram com link para loja • "Coach de Saúde Natural"',
-      body: 'Alegações de que beber 2 litros de limão cura qualquer constipação, com botão "Compre o nosso ebook por 19€".',
+      meta: 'Página de Instagram com link para loja • "**Coach de Saúde Natural**"',
+      body: 'Alegações de que beber 2 litros de limão cura qualquer constipação, com botão "**Compre o nosso ebook por 19€**".',
       correct: 'suspeito',
       explanation: 'Alerta! Conteúdo comercial que usa conselhos de saúde falsos para vender produtos e sem validação médica.',
     },
@@ -238,16 +239,16 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     {
       id: 'dt-1',
       title: 'Tornado Destruidor em Portugal',
-      claim: 'Vídeo partilhado hoje nas redes sociais com a legenda "ESTÁ A ACONTECER AGORA NO ALGARVE!".',
-      fact: 'Ao pesquisar a imagem no motor de busca, descobre-se que a gravação original é de um tornado de 2017 no Kansas (EUA).',
+      claim: 'Vídeo partilhado **hoje** nas redes sociais com a legenda "**ESTÁ A ACONTECER AGORA NO ALGARVE!**".',
+      fact: 'Ao pesquisar a imagem no motor de busca, descobre-se que a gravação original é de um tornado de **2017 no Kansas (EUA)**.',
       correct: 'antigo_reciclado',
       explanation: 'Boato reciclado! Vídeos de tempestades antigas de outros países são frequentemente reaproveitados para gerar pânico e cliques.',
     },
     {
       id: 'dt-2',
       title: 'Novo Telescópio Espacial James Webb',
-      claim: 'Comunicado de imprensa da Agência Espacial Europeia (ESA) com data de ontem e galeria de imagens em alta resolução.',
-      fact: 'Informação acompanhada de data completa (dia, mês e ano) e confirmada no site principal da NASA.',
+      claim: 'Comunicado de imprensa da Agência Espacial Europeia (ESA) com **data de ontem** e galeria de imagens em alta resolução.',
+      fact: 'Informação acompanhada de **data completa (dia, mês e ano)** e confirmada no site principal da NASA.',
       correct: 'recente',
       explanation: 'Informação fresca e autêntica! Fontes científicas oficiais atualizam relatórios com datas precisas.',
     },
@@ -255,15 +256,15 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       id: 'dt-3',
       title: 'Instalar o Windows 7 para Estudar',
       claim: 'Guia informático num fórum a explicar como configurar computadores para as aulas virtuais.',
-      fact: 'O artigo foi escrito em 2010. O sistema Windows 7 já não recebe atualizações de segurança e está obsoleto.',
+      fact: 'O artigo foi escrito em **2010**. O sistema Windows 7 **já não recebe atualizações de segurança** e está obsoleto.',
       correct: 'antigo_reciclado',
       explanation: 'Informação desatualizada! Em tecnologia, tutoriais com mais de 5 a 10 anos podem conter falhas de segurança graves.',
     },
     {
       id: 'dt-4',
       title: 'Censo do Lince Ibérico em Portugal',
-      claim: 'Relatório do ICNF publicado este ano com a contagem oficial de mais de 1.000 linces na Península Ibérica.',
-      fact: 'Dados estatísticos revistos recentemente pelas equipas de biólogos no terreno.',
+      claim: 'Relatório do ICNF publicado **este ano** com a contagem oficial de mais de 1.000 linces na Península Ibérica.',
+      fact: 'Dados estatísticos **revistos recentemente** pelas equipas de biólogos no terreno.',
       correct: 'recente',
       explanation: 'Excelente! Estatísticas de conservação da natureza devem ser sempre as mais recentes para refletir o estado atual.',
     },
@@ -288,19 +289,19 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const sourceScenarios = [
     {
       id: 'src-1',
-      question: 'Encontraste um site a afirmar que "Cientistas criaram uma árvore que dá batatas fritas prontas a comer". Como verificas se é verdade?',
+      question: 'Encontraste um site a afirmar que "**Cientistas criaram uma árvore que dá batatas fritas prontas a comer**". Como verificas se é verdade?',
       options: [
-        { id: 'src-1a', label: 'Procurar a notícia em 2 a 3 jornais sérios e sites de universidades de Agronomia. Se ninguém mais fala disso, é falso.', correct: true },
-        { id: 'src-1b', label: 'Acreditar porque o site tem uma fotografia muito convincente gerada por computador.', correct: false },
+        { id: 'src-1a', label: 'Procurar a notícia em **2 a 3 jornais sérios e sites de universidades**. Se ninguém mais fala disso, é falso.', correct: true },
+        { id: 'src-1b', label: 'Acreditar porque o site tem uma **fotografia gerada por computador**.', correct: false },
         { id: 'src-1c', label: 'Partilhar logo no grupo da turma para perguntar a toda a gente.', correct: false },
       ],
       explanation: 'A regra dos 3 detetives: antes de acreditares numa notícia, confirma se 3 jornais ou sites de confiança dizem o mesmo.',
     },
     {
       id: 'src-2',
-      question: 'Três jornais nacionais independentes noticiam que amanhã haverá eclipse lunar visível em Portugal às 21h. O que concluis?',
+      question: '**Três jornais nacionais independentes** noticiam que amanhã haverá **eclipse lunar visível em Portugal às 21h**. O que concluis?',
       options: [
-        { id: 'src-2a', label: 'É altamente fiável, pois múltiplos órgãos de comunicação confirmam o mesmo facto de forma independente.', correct: true },
+        { id: 'src-2a', label: 'É altamente fiável, pois **múltiplos órgãos de comunicação confirmam o mesmo facto** de forma independente.', correct: true },
         { id: 'src-2b', label: 'É mentira porque ainda não viste o eclipse com os teus próprios olhos.', correct: false },
         { id: 'src-2c', label: 'Apenas um dos jornais tem razão e os outros dois estão a inventar.', correct: false },
       ],
@@ -328,25 +329,25 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   const newsCases = [
     {
       id: 'nw-1',
-      headline: 'URGENTE: NÃO VAIS ACREDITAR NO QUE DESCOBRIRAM SOBRE A ÁGUA DA TORNEIRA! PARTILHA JÁ ANTES QUE APAGUEM!!',
+      headline: '**URGENTE**: NÃO VAIS ACREDITAR NO QUE DESCOBRIRAM SOBRE A ÁGUA DA TORNEIRA! **PARTILHA JÁ ANTES QUE APAGUEM!!**',
       correct: 'boato_clickbait',
       explanation: 'Típico clickbait: maiúsculas, urgência dramática, emojis de pânico e pedido para partilhar sem ler nem pensar.',
     },
     {
       id: 'nw-2',
-      headline: 'Ministério da Educação divulga calendário das provas de aferição para o 6.º ano de escolaridade.',
+      headline: '**Ministério da Educação** divulga calendário oficial das **provas de aferição** para o 6.º ano de escolaridade.',
       correct: 'noticia_real',
       explanation: 'Tom informativo sóbrio, fonte oficial identificada e sem apelo a emoções extremas.',
     },
     {
       id: 'nw-3',
-      headline: 'Cientistas afirmam que comer chocolate às refeições aumenta a inteligência em 300% de um dia para o outro.',
+      headline: 'Cientistas afirmam que comer chocolate às refeições **aumenta a inteligência em 300%** de um dia para o outro (**sem estudo publicado**).',
       correct: 'boato_clickbait',
       explanation: 'Promessa milagrosa e impossível. Cuidado com manchetes que parecem boas demais para ser verdade!',
     },
     {
       id: 'nw-4',
-      headline: 'Parque Natural da Arrábida implementa novas regras de proteção ambiental para preservar espécies de plantas raras.',
+      headline: '**Parque Natural da Arrábida** implementa novas regras de proteção ambiental para **preservar espécies de plantas raras**.',
       correct: 'noticia_real',
       explanation: 'Comunicação factual sobre conservação da natureza com detalhes e contexto rigoroso.',
     },
@@ -1114,9 +1115,14 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                  Classifica cada uma das 4 páginas encontradas online como <strong>Fiável / Oficial 🛡️</strong> ou <strong>Suspeito / Sem Credibilidade ⚠️</strong>:
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                    Classifica cada uma das 4 páginas encontradas online como <strong>Fiável / Oficial 🛡️</strong> ou <strong>Suspeito / Sem Credibilidade ⚠️</strong>:
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-900 bg-indigo-100/90 px-2.5 py-0.5 rounded-full border border-indigo-300 shrink-0">
+                    🔍 Pistas destacadas a negrito para leitura rápida
+                  </span>
+                </div>
 
                 <div className="space-y-4">
                   {authorCases.map((c) => {
@@ -1128,8 +1134,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                       >
                         <div className="space-y-1">
                           <h5 className="font-black text-sm text-slate-900">{c.title}</h5>
-                          <span className="text-xs font-bold text-indigo-700 block">{c.meta}</span>
-                          <p className="text-xs text-slate-600 leading-relaxed">{c.body}</p>
+                          <span className="text-xs font-bold text-indigo-700 block">
+                            <HighlightClues text={c.meta} variant="blue" />
+                          </span>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            <HighlightClues text={c.body} variant="amber" />
+                          </p>
                         </div>
 
                         <div className="flex flex-wrap gap-2.5 pt-1">
@@ -1391,9 +1401,14 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                  Avalia cada caso e decide se a informação é <strong>Atual & Recente ✨</strong> ou se é <strong>Antiga / Reciclada ⚠️</strong>:
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                    Avalia cada caso e decide se a informação é <strong>Atual & Recente ✨</strong> ou se é <strong>Antiga / Reciclada ⚠️</strong>:
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300 shrink-0">
+                    🔍 Pistas destacadas a negrito para leitura rápida
+                  </span>
+                </div>
 
                 <div className="space-y-4">
                   {dateCases.map((c) => {
@@ -1405,8 +1420,13 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                       >
                         <div className="space-y-1">
                           <h5 className="font-black text-sm text-slate-900">{c.title}</h5>
-                          <p className="text-xs text-slate-700 font-bold">{c.claim}</p>
-                          <p className="text-xs text-slate-500 italic">Pista do Detetive: {c.fact}</p>
+                          <p className="text-xs text-slate-700 font-bold">
+                            <HighlightClues text={c.claim} variant="amber" />
+                          </p>
+                          <p className="text-xs text-slate-600 font-medium bg-amber-50/50 p-2 rounded-xl border border-amber-200/60">
+                            <span className="font-bold text-slate-800">Pista do Detetive: </span>
+                            <HighlightClues text={c.fact} variant="blue" />
+                          </p>
                         </div>
 
                         <div className="flex flex-wrap gap-2.5 pt-1">
@@ -1676,6 +1696,15 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   </span>
                 </div>
 
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                    Analisa cada situação e escolhe a melhor forma de cruzar e confirmar fontes:
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-900 bg-purple-100/90 px-2.5 py-0.5 rounded-full border border-purple-300 shrink-0">
+                    🔍 Pistas destacadas a negrito para leitura rápida
+                  </span>
+                </div>
+
                 <div className="space-y-4">
                   {sourceScenarios.map((scen, idx) => {
                     return (
@@ -1688,7 +1717,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                             {idx + 1}
                           </span>
                           <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
-                            {scen.question}
+                            <HighlightClues text={scen.question} variant="amber" />
                           </p>
                         </div>
 
@@ -1705,7 +1734,9 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                                     : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-200'
                                 }`}
                               >
-                                <span>{opt.label}</span>
+                                <span>
+                                  <HighlightClues text={opt.label} variant={isSelected ? 'amber' : 'amber'} />
+                                </span>
                                 {isSelected && <Check className="w-4 h-4 shrink-0 text-white" />}
                               </button>
                             );
@@ -1932,9 +1963,14 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                  Classifica cada uma das manchetes como <strong>Notícia Séria & Verificada 📰</strong> ou <strong>Boato / Clickbait Perigoso 🚨</strong>:
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                    Classifica cada uma das manchetes como <strong>Notícia Séria & Verificada 📰</strong> ou <strong>Boato / Clickbait Perigoso 🚨</strong>:
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-900 bg-rose-100/90 px-2.5 py-0.5 rounded-full border border-rose-300 shrink-0">
+                    🔍 Pistas destacadas a negrito para leitura rápida
+                  </span>
+                </div>
 
                 <div className="space-y-4">
                   {newsCases.map((c) => {
@@ -1945,7 +1981,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3"
                       >
                         <p className="text-xs sm:text-sm font-black text-slate-900 leading-relaxed">
-                          "{c.headline}"
+                          "<HighlightClues text={c.headline} variant="rose" />"
                         </p>
 
                         <div className="flex flex-wrap gap-2.5 pt-1">

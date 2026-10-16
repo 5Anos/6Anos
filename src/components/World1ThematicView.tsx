@@ -32,6 +32,7 @@ import { TopicIllustrationCard } from './TopicIllustrationCard';
 import { MetacognitionWidget } from './MetacognitionWidget';
 import { ScaffoldingClueCard } from './ScaffoldingClueCard';
 import { MissionPhaseSwitcher, MissionPhase } from './MissionPhaseSwitcher';
+import { HighlightClues } from '../utils/textHighlight';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World1ThematicViewProps {
@@ -154,9 +155,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
   const phishingScenarios = [
     {
-      sender: 'seguranca@conta-escola-verificacao.com',
-      subject: 'A tua conta da escola será bloqueada hoje!',
-      body: 'Olá. Detetámos um problema grave na tua conta escolar. Para evitar que seja eliminada permanentemente, confirma os teus dados e palavra-passe através do seguinte link nos próximos 15 minutos: http://conta-escola-verificacao.com/login',
+      sender: 'seguranca@**conta-escola-verificacao.com**',
+      subject: 'A tua conta da escola **será bloqueada hoje**!',
+      body: 'Olá. Detetámos um problema grave na tua conta escolar. Para evitar que seja **eliminada permanentemente**, confirma os teus dados e **palavra-passe** através do seguinte link **nos próximos 15 minutos**: **http://conta-escola-verificacao.com/login**',
       isPhishing: true,
       explanation:
         'Existem vários sinais clássicos de phishing: a mensagem cria urgência forçada ("nos próximos 15 minutos"), usa um endereço de email falso (.com em vez de .edu.pt ou .gov.pt) e pede que introduzas a tua palavra-passe através de um link desconhecido.',
@@ -168,9 +169,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       ],
     },
     {
-      sender: 'professor.tic@escola.edu.pt',
-      subject: 'Trabalho de Grupo de TIC — Prazo de Entrega',
-      body: 'Olá alunos! Relembramos que o resumo do projeto de TIC deve ser entregue até sexta-feira através da plataforma oficial da nossa escola. Se tiverem alguma dúvida sobre as instruções, podem perguntar na próxima aula.',
+      sender: 'professor.tic@**escola.edu.pt**',
+      subject: 'Trabalho de Grupo de TIC — **Prazo de Entrega**',
+      body: 'Olá alunos! Relembramos que o resumo do projeto de TIC deve ser entregue **até sexta-feira** através da **plataforma oficial da nossa escola**. Se tiverem alguma dúvida sobre as instruções, podem perguntar na **próxima aula**.',
       isPhishing: false,
       explanation:
         'Esta é uma mensagem legítima e segura: vem de um remetente oficial da escola (.edu.pt), aborda um contexto real de aula, não pede nenhuma palavra-passe nem dados privados e remete para a plataforma oficial habitual.',
@@ -182,9 +183,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       ],
     },
     {
-      sender: 'premios@jogos-super-moedas.net',
-      subject: '🎁 Parabéns! Ganhaste 10.000 moedas e skins grátis!',
-      body: 'Parabéns jogador! Foste sorteado num passatempo especial. Para receberes as tuas 10.000 moedas e skins lendárias no teu jogo favorito, basta responderes a este email com o teu nome de utilizador e a tua palavra-passe secreta.',
+      sender: 'premios@**jogos-super-moedas.net**',
+      subject: '🎁 Parabéns! Ganhaste **10.000 moedas e skins grátis**!',
+      body: 'Parabéns jogador! Foste sorteado num passatempo especial. Para receberes as tuas **10.000 moedas e skins lendárias** no teu jogo favorito, basta responderes a este email com o teu nome de utilizador e a tua **palavra-passe secreta**.',
       isPhishing: true,
       explanation:
         'Cuidado com ofertas milagrosas! O pedido da tua palavra-passe é um sinal inequívoco de roubo de conta. Nenhuma plataforma ou jogo oficial alguma vez pede a tua palavra-passe para te atribuir prémios ou recompensas.',
@@ -271,21 +272,21 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     {
       id: 'fp-1',
       title: 'Fotografia com farda da escola e localização GPS ativada',
-      description: 'Publicar nas redes sociais uma fotografia em frente à escola com o logótipo da farda bem visível e localização em tempo real.',
+      description: 'Publicar nas redes sociais uma fotografia em frente à escola com o **logótipo da farda bem visível** e **localização em tempo real ativada**.',
       correct: 'risco',
       explanation: 'Publicar fardas e localização em direto expõe a tua rotina e a tua escola a qualquer pessoa desconhecida na rede.',
     },
     {
       id: 'fp-2',
       title: 'Comentário impulsivo num chat de jogo',
-      description: 'Escrever insultos ou palavras agressivas no chat público de um videojogo depois de perder uma partida importante.',
+      description: 'Escrever **insultos ou palavras agressivas** no **chat público de um videojogo** depois de perder uma partida importante.',
       correct: 'risco',
       explanation: 'Na Internet as palavras ficam gravadas em servidores e capturas de ecrã. Um rasto negativo pode manchar a tua reputação.',
     },
     {
       id: 'fp-3',
       title: 'Artigo educativo sobre reciclagem no blogue da turma',
-      description: 'Partilhar um trabalho de grupo sobre a proteção dos oceanos e reciclagem, assinado apenas pelo primeiro nome.',
+      description: 'Partilhar um trabalho de grupo sobre a proteção dos oceanos e reciclagem, assinado **apenas pelo primeiro nome**.',
       correct: 'positivo',
       explanation: 'Demonstra talento, cidadania digital e cooperação, protegendo simultaneamente a tua identidade completa!',
     },
@@ -986,24 +987,29 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               Analisa cuidadosamente a mensagem de correio eletrónico abaixo. Observa o remetente, o assunto e o texto e decide se é uma tentativa de fraude (Phishing) ou uma mensagem legítima.
             </p>
 
-            {/* Email Card Preview */}
+            {/* Email Card Preview with highlighted clues */}
             <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 space-y-3 font-sans">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2 text-xs">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300">
+                  🔍 Pistas destacadas a negrito para leitura rápida
+                </span>
+              </div>
               <div className="border-b border-slate-200 pb-3 text-xs text-slate-600 space-y-1.5">
                 <div className="flex items-center gap-2">
                   <strong className="text-slate-900 w-16">De:</strong>
                   <span className="font-mono bg-white px-2 py-0.5 rounded border text-slate-800">
-                    {phishingScenarios[phishingStep].sender}
+                    <HighlightClues text={phishingScenarios[phishingStep].sender} variant="rose" />
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <strong className="text-slate-900 w-16">Assunto:</strong>
                   <span className="font-bold text-slate-900">
-                    {phishingScenarios[phishingStep].subject}
+                    <HighlightClues text={phishingScenarios[phishingStep].subject} variant="amber" />
                   </span>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-slate-800 leading-relaxed pt-1">
-                {phishingScenarios[phishingStep].body}
+                <HighlightClues text={phishingScenarios[phishingStep].body} variant="amber" />
               </p>
             </div>
 
@@ -1566,7 +1572,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                    {scen.description}
+                    <HighlightClues text={scen.description} variant="amber" />
                   </p>
                 </div>
               ))}

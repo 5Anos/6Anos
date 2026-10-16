@@ -19,6 +19,7 @@ import {
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
+import { HighlightClues } from '../utils/textHighlight';
 
 interface SimulatorsViewProps {
   worldId?: number;
@@ -175,45 +176,45 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   // 2. Phishing Simulator Scenarios
   const phishingScenarios = [
     {
-      sender: 'seguranca@conta-escola-verificacao.com',
-      subject: 'A tua conta será bloqueada hoje',
-      body: 'Olá. Detetámos um problema na tua conta. Para evitar que seja bloqueada, confirma os teus dados através do seguinte link nas próximas 30 minutos.',
+      sender: 'seguranca@**conta-escola-verificacao.com**',
+      subject: 'A tua conta **será bloqueada hoje**!',
+      body: 'Olá. Detetámos um problema na tua conta. Para evitar que seja bloqueada, confirma os teus dados através do seguinte link **nas próximas 30 minutos** e **introduz a tua palavra-passe**.',
       isPhishing: true,
       explanation:
-        'Existem vários sinais de alerta: a mensagem cria urgência, pede uma ação através de um link e solicita a confirmação de dados. Antes de agir, devemos verificar a informação através de um canal oficial.',
+        'Existem vários sinais de alerta: a mensagem cria urgência com erro gramatical ("nas próximas 30 minutos"), pede a confirmação de palavra-passe por link e usa um domínio suspeito (@conta-escola-verificacao.com).',
       signals: [
-        'Urgência com prazo curto ("nas próximas 30 minutos")',
-        'Pedido de dados através de link',
+        'Urgência com prazo curto e erro de português ("nas próximas 30 minutos")',
+        'Pedido de dados e confirmação de palavra-passe através de link',
         'Ameaça de bloqueio imediato da conta',
         'Remetente não oficial (@conta-escola-verificacao.com)',
       ],
     },
     {
-      sender: 'professor.tic@escola.edu.pt',
-      subject: 'Trabalho de TIC — prazo de entrega',
-      body: 'Olá. Relembramos que o trabalho de TIC deve ser entregue até sexta-feira através da plataforma oficial indicada na aula. Se tiveres dúvidas, fala com o professor.',
+      sender: 'professor.tic@**escola.edu.pt**',
+      subject: 'Trabalho de TIC — **prazo de entrega**',
+      body: 'Olá. Relembramos que o trabalho de TIC deve ser entregue **até sexta-feira** através da **plataforma oficial indicada na aula**. Se tiveres dúvidas, fala com o professor.',
       isPhishing: false,
       explanation:
-        'Neste exemplo não existe um pedido de palavra-passe nem um link suspeito. A mensagem indica um procedimento já conhecido e permite confirmar a informação através do professor ou da plataforma oficial.',
+        'Neste exemplo não existe um pedido de palavra-passe nem um link suspeito. O remetente é o domínio oficial da escola (.edu.pt) e refere o canal habitual da turma.',
       signals: [
         'Contexto conhecido de aula',
         'Canal e domínio oficial da escola (.edu.pt)',
         'Ausência de pedido de palavra-passe ou link estranho',
-        'Possibilidade de confirmação com o professor',
+        'Possibilidade de confirmação presencial com o professor',
       ],
     },
     {
-      sender: 'premios@jogos-oficiais.net',
-      subject: 'Foste selecionado para receber moedas!',
-      body: 'Parabéns! A tua conta foi selecionada para receber 5 000 moedas. Para confirmar a oferta, precisamos do teu nome de utilizador e da tua palavra-passe.',
+      sender: 'premios@**jogos-oficiais.net**',
+      subject: 'Foste selecionado para receber **moedas grátis**!',
+      body: 'Parabéns! A tua conta foi selecionada para receber **5 000 moedas**. Para confirmar a oferta, precisamos do teu nome de utilizador e da tua **palavra-passe**.',
       isPhishing: true,
       explanation:
-        'O pedido da palavra-passe é um sinal muito importante de alerta. Uma entidade legítima não deve pedir a tua palavra-passe desta forma.',
+        'O pedido da palavra-passe e a promessa irrealista de moedas grátis são sinais inequívocos de tentativa de roubo de conta.',
       signals: [
-        'Promessa de prémios e vantagens gratuitas',
+        'Promessa de prémios e vantagens gratuitas demasiado fáceis',
         'Pedido explícito da tua palavra-passe',
-        'Remetente não oficial',
-        'Tentativa de engano',
+        'Remetente não oficial e genérico (.net)',
+        'Tentativa clássica de engano e roubo de credenciais',
       ],
     },
   ];
@@ -285,7 +286,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
       id: 'fp-1',
       title: 'Fotografia com farda e localização',
       description:
-        'Publicar nas redes sociais uma fotografia de grupo em frente à escola com a farda visível e localização GPS ativada.',
+        'Publicar nas redes sociais uma fotografia com a **farda da escola bem visível** e **localização GPS em tempo real ativada**.',
       correct: 'risco',
       explanation:
         'Publicar fardas escolares e localização em tempo real revela rotinas físicas a qualquer pessoa na rede. Pensa no impacto futuro da exposição da tua privacidade.',
@@ -294,7 +295,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
       id: 'fp-2',
       title: 'Comentário impulsivo num jogo',
       description:
-        'Escrever um comentário rude e insultuoso num fórum público de videojogos depois de perder uma partida.',
+        'Escrever um **comentário rude e insultuoso** num **fórum público de videojogos** depois de perder uma partida.',
       correct: 'risco',
       explanation:
         'Palavras impulsivas escritas na internet ficam gravadas em servidores e podem prejudicar a tua reputação perante colegas, professores e futuros projetos.',
@@ -303,7 +304,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
       id: 'fp-3',
       title: 'Artigo educativo sobre reciclagem',
       description:
-        'Partilhar no blogue da turma um projeto escolar sobre reciclagem e ambiente, assinado apenas com o primeiro nome.',
+        'Partilhar no **blogue da turma** um **projeto escolar sobre reciclagem**, assinado **apenas com o primeiro nome**.',
       correct: 'positivo',
       explanation:
         'Demonstra competências de criação, cooperação escolar e responsabilidade ambiental, protegendo simultaneamente a tua identidade completa.',
@@ -628,20 +629,29 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
             </span>
           </div>
 
-          {/* Email Card Preview */}
+          {/* Email Card Preview with highlighted clues for quick scanning */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 font-sans space-y-3">
-            <div className="border-b border-slate-200 pb-2 text-xs text-slate-600 space-y-1">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2 text-xs">
+              <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-md">
+                🔍 Pistas essenciais a negrito para leitura rápida
+              </span>
+            </div>
+            <div className="border-b border-slate-200 pb-2 text-xs text-slate-600 space-y-1.5">
               <div>
                 <strong className="text-slate-900">De: </strong>
-                <span className="font-mono">{phishingScenarios[phishingStep].sender}</span>
+                <span className="font-mono">
+                  <HighlightClues text={phishingScenarios[phishingStep].sender} variant="rose" />
+                </span>
               </div>
               <div>
                 <strong className="text-slate-900">Assunto: </strong>
-                <span>{phishingScenarios[phishingStep].subject}</span>
+                <span>
+                  <HighlightClues text={phishingScenarios[phishingStep].subject} variant="amber" />
+                </span>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-slate-800 leading-relaxed pt-2">
-              {phishingScenarios[phishingStep].body}
+            <p className="text-xs sm:text-sm text-slate-800 leading-relaxed pt-1">
+              <HighlightClues text={phishingScenarios[phishingStep].body} variant="amber" />
             </p>
           </div>
 
@@ -852,7 +862,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
                   </div>
                 </div>
                 <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                  {scen.description}
+                  <HighlightClues text={scen.description} variant="amber" />
                 </p>
                 {footprintScore !== null && (
                   <p className="text-[11px] text-slate-600 italic pt-1 border-t border-slate-200/60">

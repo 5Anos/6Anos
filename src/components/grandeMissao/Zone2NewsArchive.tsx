@@ -11,6 +11,7 @@ import {
   BadgeCheck,
   ShieldCheck,
 } from 'lucide-react';
+import { HighlightClues } from '../../utils/textHighlight';
 
 interface Zone2Props {
   onComplete: (code: string) => void;
@@ -37,31 +38,31 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
   const articles: ArticleItem[] = [
     {
       id: 'art-1',
-      title: '🚨 URGENTE: Robôs com IA vão substituir todos os professores da escola na próxima segunda-feira!',
-      author: 'Utilizador Anónimo @viral_trends_99',
-      source: 'Vídeo curto sem referências numa rede social',
-      date: 'Sem data especificada',
-      snippet: 'Diz-se que a escola comprou 50 androides para dar todas as aulas e os testes serão corrigidos por lasers em 3 segundos. Partilha antes que apaguem!',
+      title: '🚨 **URGENTE**: Robôs com IA vão substituir todos os professores da escola na próxima segunda-feira!',
+      author: 'Utilizador Anónimo **@viral_trends_99**',
+      source: 'Vídeo curto **sem referências** numa rede social',
+      date: '**Sem data especificada**',
+      snippet: 'Diz-se que a escola comprou 50 androides para dar todas as aulas e os testes serão corrigidos por lasers em 3 segundos. **Partilha antes que apaguem!**',
       realClassification: 'fake',
       explanation: 'Título sensacionalista com emojis alarmistas, autor anónimo, sem data e sem qualquer comunicado da Direção da Escola.',
     },
     {
       id: 'art-2',
       title: '🏆 Equipa de Robótica do 6.º Ano conquista 1.º Lugar no Torneio Regional de Sustentabilidade',
-      author: 'Prof.ª Teresa Gonçalves (Coordenação de TIC)',
-      source: 'Jornal Digital Oficial da Escola & Portal DGE',
-      date: '14 de Novembro de 2024',
-      snippet: 'Os alunos desenvolveram uma lixeira inteligente equipada com sensores de triagem automática de plástico e papel. A entrega dos prémios contou com a presença da Direção.',
+      author: '**Prof.ª Teresa Gonçalves** (Coordenação de TIC)',
+      source: '**Jornal Digital Oficial da Escola** & Portal DGE',
+      date: '**14 de Novembro de 2024**',
+      snippet: 'Os alunos desenvolveram uma lixeira inteligente equipada com sensores de triagem automática de plástico e papel. A entrega dos prémios contou com a presença da **Direção da Escola**.',
       realClassification: 'real',
       explanation: 'Notícia redigida por uma professora identificada, publicada em órgão oficial da escola, com dados cruzados e data precisa.',
     },
     {
       id: 'art-3',
-      title: '⚡ DESCOBERTA: Deixar o telemóvel no congelador durante 5 minutos duplica a velocidade da Internet Wi-Fi',
-      author: 'Blog "Dicas Mágicas Rápidas"',
-      source: 'Site sem secção "Quem Somos" e cheio de anúncios suspeitos',
-      date: 'Ontem',
-      snippet: 'Cientistas secretos descobriram que as temperaturas negativas aceleram os fotões do router. Faz já o teste em tua casa!',
+      title: '⚡ **DESCOBERTA**: Deixar o telemóvel no congelador durante 5 minutos **duplica a velocidade da Internet Wi-Fi**',
+      author: 'Blog **"Dicas Mágicas Rápidas"**',
+      source: 'Site **sem secção "Quem Somos"** e cheio de anúncios suspeitos',
+      date: '**Ontem** (sem dia, mês nem ano)',
+      snippet: 'Cientistas secretos descobriram que as temperaturas negativas aceleram os fotões do router. **Faz já o teste em tua casa!**',
       realClassification: 'fake',
       explanation: 'Afirmação cientificamente absurda, sem fontes credíveis e com risco real de estragar o equipamento eletrónico com humidade.',
     },
@@ -209,23 +210,26 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
                   </div>
 
                   <h4 className="text-xs font-black text-slate-900 leading-snug mb-2.5">
-                    {art.title}
+                    <HighlightClues text={art.title} variant="rose" />
                   </h4>
 
                   <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-[11px] text-slate-600 space-y-1 mb-3">
                     <div>
-                      <strong className="text-slate-800">Autor:</strong> {art.author}
+                      <strong className="text-slate-800">Autor:</strong>{' '}
+                      <HighlightClues text={art.author} variant="blue" />
                     </div>
                     <div>
-                      <strong className="text-slate-800">Fonte:</strong> {art.source}
+                      <strong className="text-slate-800">Fonte:</strong>{' '}
+                      <HighlightClues text={art.source} variant="amber" />
                     </div>
                     <div>
-                      <strong className="text-slate-800">Data:</strong> {art.date}
+                      <strong className="text-slate-800">Data:</strong>{' '}
+                      <HighlightClues text={art.date} variant="amber" />
                     </div>
                   </div>
 
                   <p className="text-[11px] text-slate-700 font-medium italic bg-blue-50/40 p-2.5 rounded-xl border border-blue-100 leading-relaxed mb-4">
-                    "{art.snippet}"
+                    "<HighlightClues text={art.snippet} variant="amber" />"
                   </p>
                 </div>
 

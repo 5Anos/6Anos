@@ -122,25 +122,48 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
 
       {/* Challenge Interactive Card */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-        <h3 className="text-base font-extrabold text-slate-900">
-          Cenário de Investigação da Semana
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h3 className="text-base font-extrabold text-slate-900">
+            Cenário de Investigação da Semana
+          </h3>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-900 bg-amber-100/90 px-3 py-1 rounded-full border border-amber-300/80 w-fit">
+            🔍 Pistas destacadas a negrito para leitura rápida
+          </span>
+        </div>
 
         {/* Mock Message Box */}
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 font-sans max-w-2xl">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2 text-xs text-slate-600">
             <span className="font-bold text-slate-800">
-              Remetente: <span className="font-mono text-slate-600">premio-instantaneo@sorteios-rapid0s.xyz</span>
+              Remetente:{' '}
+              <span className="font-mono text-slate-600">
+                premio-instantaneo@
+                <strong className="font-black text-rose-700 bg-rose-100/90 px-1 py-0.5 rounded border-b border-rose-400">
+                  sorteios-rapid0s.xyz
+                </strong>
+              </span>
             </span>
             <span className="text-rose-600 font-bold flex items-center gap-1">
               <AlertTriangle className="w-3.5 h-3.5" /> Urgente
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-800 leading-relaxed">
-            “Parabéns! Foste selecionado para receber uma consola de videojogos de última geração! Para receberes o prémio na tua morada em 24 horas, clica no link abaixo e introduz o teu email e a tua palavra-passe da escola.”
+            “Parabéns! Foste selecionado para receber uma consola de videojogos de última geração! Para receberes o prémio na tua morada{' '}
+            <strong className="font-black text-slate-950 bg-amber-200/90 px-1 py-0.5 rounded border-b-2 border-amber-400">
+              em 24 horas
+            </strong>
+            , clica no link abaixo e introduz o teu email e a tua{' '}
+            <strong className="font-black text-rose-950 bg-rose-200/90 px-1 py-0.5 rounded border-b-2 border-rose-400">
+              palavra-passe da escola
+            </strong>
+            .”
           </p>
-          <div className="font-mono text-xs text-blue-600 bg-blue-50/80 p-2 rounded-lg break-all">
-            http://sorteios-rapid0s.xyz/reclamar-consola?aluno=6ano
+          <div className="font-mono text-xs text-blue-600 bg-blue-50/80 p-2.5 rounded-lg break-all border border-blue-200/60">
+            http://
+            <strong className="font-black text-rose-700 bg-rose-100 px-1 py-0.5 rounded border-b border-rose-400">
+              sorteios-rapid0s.xyz
+            </strong>
+            /reclamar-consola?aluno=6ano
           </div>
         </div>
 

@@ -34,6 +34,7 @@ import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
+import { HighlightClues } from '../utils/textHighlight';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World3ThematicViewProps {
@@ -104,25 +105,25 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const netiquetteScenarios = [
     {
       id: 'net-1',
-      action: 'Num grupo de trabalho, um colega tem uma ideia diferente da tua e tu explicas com calma a tua proposta, ouvindo também a opinião dele.',
+      action: 'Num grupo de trabalho, um colega tem uma ideia diferente e tu **explicas com calma a tua proposta**, **ouvindo também a opinião dele**.',
       correct: 'correto',
       explanation: 'Podemos ter opiniões diferentes e debater ideias mantendo sempre a educação e o respeito mútuo.',
     },
     {
       id: 'net-2',
-      action: 'Criar um grupo ou partilhar mensagens para gozar, excluir ou humilhar um colega da turma.',
+      action: 'Criar um grupo ou partilhar mensagens para **gozar, excluir ou humilhar** um colega da turma.',
       correct: 'incorreto',
       explanation: 'Excluir, gozar ou humilhar colegas viola as regras de respeito e convivência na Internet.',
     },
     {
       id: 'net-3',
-      action: 'Escrever frases inteiras em MAIÚSCULAS para exigir que os colegas respondam imediatamente.',
+      action: 'Escrever frases inteiras em **MAIÚSCULAS** para **exigir resposta imediata** dos colegas.',
       correct: 'incorreto',
       explanation: 'Na Internet, escrever em maiúsculas parece que estamos a gritar e pode criar conflitos desnecessários.',
     },
     {
       id: 'net-4',
-      action: 'Fazer uma captura de ecrã (screenshot) de uma mensagem privada de um colega e publicá-la num grupo público sem a sua autorização.',
+      action: 'Fazer captura de ecrã de uma **mensagem privada** e publicá-la num grupo público **sem a sua autorização**.',
       correct: 'incorreto',
       explanation: 'Partilhar conversas privadas de outras pessoas sem autorização viola a privacidade e a confiança.',
     },
@@ -176,27 +177,27 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const copyrightScenarios = [
     {
       id: 'cpr-1',
-      case: 'A Inês encontrou uma música na Internet e quer usá-la como fundo num vídeo escolar só porque a encontrou online.',
+      case: 'A Inês encontrou uma música na Internet e quer usá-la num vídeo escolar **só porque a encontrou online** (**sem pedir permissão nem verificar licença**).',
       correct: 'proibido',
       explanation: 'Estar na Internet não significa que seja livre para copiar. É preciso verificar se podemos utilizar o conteúdo e quais são as regras.',
     },
     {
       id: 'cpr-2',
-      case: 'O Afonso utilizou uma foto de um banco de imagens gratuito que autoriza o uso em trabalhos escolares e indicou o autor na legenda.',
+      case: 'O Afonso utilizou uma foto de um banco de imagens gratuito que **autoriza o uso escolar** e **indicou o autor na legenda**.',
       correct: 'permitido',
       explanation: 'Utilizou uma imagem com permissão e cumpriu a regra de indicar quem criou a foto.',
     },
     {
       id: 'cpr-3',
-      case: 'O Diogo copiou uma ilustração de um artista da Internet, apagou a assinatura e colocou na capa como se fosse um desenho dele.',
+      case: 'O Diogo copiou uma ilustração de um artista, **apagou a assinatura** e colocou na capa **como se fosse um desenho feito por ele**.',
       correct: 'proibido',
       explanation: 'Copiar o trabalho de outra pessoa e dizer que foste tu que fizeste não vale: chama-se plágio e desrespeita quem o criou.',
     },
     {
       id: 'cpr-4',
-      case: 'A Leonor encontrou uma imagem num site e quer utilizá-la no seu trabalho de TIC. Antes de a colocar no trabalho, verifica se a imagem pode ser utilizada e indica quem a criou.',
+      case: 'A Leonor quer utilizar uma foto: antes de a colocar no trabalho, **verifica se tem licença livre** e **indica claramente quem a criou**.',
       correct: 'permitido',
-      explanation: 'Muito bem! Antes de utilizares um conteúdo encontrado na Internet, deves verificar as regras de utilização e, quando necessário, indicar quem o criou.',
+      explanation: 'Muito bem! Antes de utilizares um conteúdo encontrado na Internet, deves verificar as regras de utilização e indicar a autoria.',
     },
   ];
 
@@ -209,23 +210,23 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
     {
       id: 'copia_sem_credito',
       title: 'Opção A: Copiar o texto diretamente sem indicar a fonte',
-      text: '"Os golfinhos conseguem comunicar através de diferentes sons." (Texto copiado e assinado apenas com o nome do aluno.)',
+      text: '"Os golfinhos conseguem comunicar através de diferentes sons." (**Texto copiado na íntegra e assinado apenas com o nome do aluno, sem fonte**)',
       isCorrect: false,
       feedback: 'Incorreto. Copiar o texto de outra pessoa e colocar o nosso nome não transforma o trabalho em nosso.',
     },
     {
       id: 'palavras_proprias',
       title: 'Opção B: Explicar por palavras próprias e indicar a fonte',
-      text: 'Segundo a informação consultada, os golfinhos utilizam diferentes sons para comunicar. [Fonte: manual de Ciências]',
+      text: '**Explicar por palavras próprias**: "Segundo a informação consultada, os golfinhos utilizam diferentes sons para comunicar." **[Fonte: manual de Ciências]**',
       isCorrect: true,
       feedback: 'Correto! Explicaste a ideia pelas tuas próprias palavras e indicaste de onde veio a informação.',
     },
     {
       id: 'citacao_com_aspas',
       title: 'Opção C: Usar as palavras exatas e indicar a fonte',
-      text: 'No manual de Ciências pode ler-se: "Os golfinhos conseguem comunicar através de diferentes sons." [Fonte: manual de Ciências]',
+      text: '**Usar aspas e citar a fonte**: No manual de Ciências pode ler-se: **"Os golfinhos conseguem comunicar através de diferentes sons."** **[Fonte: manual de Ciências]**',
       isCorrect: true,
-      feedback: 'Correto! Quando utilizamos as palavras exatas de outra fonte, devemos deixar claro que essas palavras não são nossas e indicar a fonte.',
+      feedback: 'Correto! Quando utilizamos as palavras exatas de outra fonte, devemos usar aspas e indicar a fonte.',
     },
   ];
 
@@ -1092,7 +1093,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   key={scen.id}
                   className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-3"
                 >
-                  <p className="text-xs sm:text-sm font-bold text-slate-900">"{scen.action}"</p>
+                  <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
+                    "<HighlightClues text={scen.action} variant="blue" />"
+                  </p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
@@ -1682,7 +1685,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   key={scen.id}
                   className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-3"
                 >
-                  <p className="text-xs sm:text-sm font-bold text-slate-900">"{scen.case}"</p>
+                  <p className="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed">
+                    "<HighlightClues text={scen.case} variant="amber" />"
+                  </p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
@@ -1950,8 +1955,8 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                       {c.isCorrect ? 'Válido' : 'Plágio'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-700">
-                    {c.text}
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                    <HighlightClues text={c.text} variant="emerald" />
                   </p>
                   {plagiarismOption === c.id && (
                     <p className="mt-2 text-xs font-bold text-slate-800">
