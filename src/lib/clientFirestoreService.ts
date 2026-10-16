@@ -483,13 +483,7 @@ export async function clientComputeWorldStats(userId: string, worldId: number, u
     hasAssessment &&
     average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
-  let isUnlocked = worldId === 1;
-  if (userRole === 'teacher') {
-    isUnlocked = true;
-  } else if (worldId > 1) {
-    const prevStats = await clientComputeWorldStats(userId, worldId - 1, userRole);
-    isUnlocked = prevStats.isWorldCompleted;
-  }
+  const isUnlocked = true;
 
   return {
     worldId,
@@ -556,7 +550,7 @@ export async function clientGetWorlds() {
             bestAssessmentPercentage: null,
             hasAssessmentPassed: false,
             isWorldCompleted: false,
-            isUnlocked: w.id === 1,
+            isUnlocked: true,
           };
 
       const mission = allMissions.find((m) => m.worldId === w.id);
@@ -564,7 +558,7 @@ export async function clientGetWorlds() {
 
       return {
         ...w,
-        isUnlocked: isTeacher ? true : stats.isUnlocked,
+        isUnlocked: true,
         isCompleted: isTeacher ? true : stats.isWorldCompleted,
         allSimulatorsCompleted: isTeacher ? true : stats.allSimulatorsCompleted,
         hasAssessmentPassed: isTeacher ? true : stats.hasAssessmentPassed,

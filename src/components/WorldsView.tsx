@@ -136,8 +136,36 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
     );
   }
 
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-white border-2 border-indigo-200 rounded-3xl p-8 sm:p-12 text-center shadow-lg space-y-6 animate-in fade-in">
+        <div className="w-20 h-20 rounded-3xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+          <Lock className="w-10 h-10 stroke-[2.5]" />
+        </div>
+        <div className="space-y-2">
+          <span className="text-xs font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
+            Acesso Reservado a Utilizadores Autenticados
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+            Início de Sessão Obrigatório
+          </h2>
+          <p className="text-sm text-slate-600 font-medium max-w-md mx-auto leading-relaxed">
+            Apenas utilizadores autenticados têm acesso aos 5 Mundos Curriculares da Missão TIC, aos simuladores e ao registo do progresso pedagógico.
+          </p>
+        </div>
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={onOpenLoginModal}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95"
+          >
+            <span>Entrar / Criar Conta 🔐</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Progression gating:
-  // All worlds are unlocked for interactive exploration and learning
   const visibleWorlds = worlds.length > 0
     ? worlds.map((w) => ({ ...w, isUnlocked: true }))
     : WORLDS_DATA.map((w) => ({ ...w, isUnlocked: true, average: 0 } as any));

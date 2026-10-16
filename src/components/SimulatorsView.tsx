@@ -42,17 +42,36 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
   } | null>(null);
 
   React.useEffect(() => {
-    if (user && worldId > 1 && user.role !== 'teacher') {
-      apiRequest('/api/pedagogical/worlds')
-        .then((res: any) => {
-          const w = res.worlds?.find((world: any) => world.id === worldId);
-          if (w && !w.isUnlocked) {
-            setWorldLocked(true);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [user?.id, worldId]);
+    setWorldLocked(false);
+  }, [worldId]);
+
+  if (!user) {
+    return (
+      <div className="max-w-xl mx-auto my-12 bg-white border-2 border-amber-200 rounded-3xl p-8 text-center shadow-lg space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+          <Lock className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <span className="text-xs font-black uppercase tracking-wider text-amber-700 block">
+            Acesso Reservado
+          </span>
+          <h3 className="text-2xl font-black text-slate-900">
+            Início de Sessão Obrigatório
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-md mx-auto">
+            Para praticar nos simuladores dos Mundos TIC e registar a tua pontuação, precisas de ter a sessão iniciada com a tua conta escolar.
+          </p>
+        </div>
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-6 py-3 rounded-xl transition-all cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Voltar ao Painel</span>
+        </button>
+      </div>
+    );
+  }
 
   // --- PASSWORD SIMULATOR STATE ---
   const [pwdInput, setPwdInput] = useState('');
