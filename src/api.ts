@@ -137,6 +137,11 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 }
 
 export async function downloadFile(url: string, defaultFilename: string) {
+  if (isStaticHost() && !getApiBaseUrl()) {
+    const { clientDownloadExport } = await import('./lib/clientDispatcher');
+    return await clientDownloadExport(url, defaultFilename);
+  }
+
   const fullUrl = buildApiUrl(url);
   const headers = new Headers();
 
@@ -151,11 +156,20 @@ export async function downloadFile(url: string, defaultFilename: string) {
   try {
     response = await fetch(fullUrl, { headers, credentials: 'include' });
   } catch (err: any) {
-    console.error(`[Download Network Error] ${url}:`, err);
-    throw new Error('Não foi possível transferir o ficheiro. Verifique a ligação ao servidor.');
+    console.warn(`[Download Network Error] ${url}, falling back to direct export:`, err);
+    try {
+      const { clientDownloadExport } = await import('./lib/clientDispatcher');
+      return await clientDownloadExport(url, defaultFilename);
+    } catch {
+      throw new Error('Não foi possível transferir o ficheiro. Verifique a ligação ao servidor.');
+    }
   }
 
   if (!response.ok) {
+    try {
+      const { clientDownloadExport } = await import('./lib/clientDispatcher');
+      return await clientDownloadExport(url, defaultFilename);
+    } catch {}
     let msg = `Erro ${response.status}: ${response.statusText}`;
     try {
       const err = await response.json();

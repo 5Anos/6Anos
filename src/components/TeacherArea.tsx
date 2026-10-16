@@ -51,7 +51,6 @@ export const TeacherArea: React.FC = () => {
     | 'overview'
     | 'students'
     | 'pautas'
-    | 'missions'
     | 'activities'
     | 'classes'
     | 'cleanup'

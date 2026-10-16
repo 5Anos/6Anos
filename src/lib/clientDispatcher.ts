@@ -780,6 +780,53 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     }
   }
 
+// Helper to completely delete a student and all associated records
+async function deleteStudentCompletely(db: any, sId: string) {
+  await deleteDoc(doc(db, 'users', sId)).catch(() => {});
+  const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
+  const snapProg = await getDocs(qProg);
+  for (const p of snapProg.docs) await deleteDoc(p.ref);
+  const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
+  const snapAssess = await getDocs(qAssess);
+  for (const a of snapAssess.docs) await deleteDoc(a.ref);
+  const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
+  const snapWc = await getDocs(qWc);
+  for (const w of snapWc.docs) await deleteDoc(w.ref);
+  await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+  const qBadge = query(collection(db, 'badges'), where('userId', '==', sId));
+  const snapBadge = await getDocs(qBadge);
+  for (const b of snapBadge.docs) await deleteDoc(b.ref);
+  const qTx = query(collection(db, 'xpTransactions'), where('userId', '==', sId));
+  const snapTx = await getDocs(qTx);
+  for (const t of snapTx.docs) await deleteDoc(t.ref);
+}
+
+// Helper to reset a student's progress and history
+async function resetStudentProgressData(db: any, sId: string) {
+  const sRef = doc(db, 'users', sId);
+  await updateDoc(sRef, {
+    xp: 0,
+    claimedDailyTips: [],
+    updatedAt: new Date().toISOString(),
+  }).catch(() => {});
+  const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
+  const snapProg = await getDocs(qProg);
+  for (const p of snapProg.docs) await deleteDoc(p.ref);
+  const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
+  const snapAssess = await getDocs(qAssess);
+  for (const a of snapAssess.docs) await deleteDoc(a.ref);
+  const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
+  const snapWc = await getDocs(qWc);
+  for (const w of snapWc.docs) await deleteDoc(w.ref);
+  await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+  const qBadge = query(collection(db, 'badges'), where('userId', '==', sId));
+  const snapBadge = await getDocs(qBadge);
+  for (const b of snapBadge.docs) await deleteDoc(b.ref);
+  const qTx = query(collection(db, 'xpTransactions'), where('userId', '==', sId));
+  const snapTx = await getDocs(qTx);
+  for (const t of snapTx.docs) await deleteDoc(t.ref);
+}
+
   // Delete all students of a class
   const classStudentsMatch = pathname.match(/^\/api\/teacher\/classes\/([^\/]+)\/students$/);
   if (classStudentsMatch && method === 'DELETE') {
@@ -787,7 +834,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const qStudents = query(collection(db, 'users'), where('classId', '==', cId), where('role', '==', 'student'));
     const snap = await getDocs(qStudents);
     for (const d of snap.docs) {
-      await deleteDoc(d.ref);
+      await deleteStudentCompletely(db, d.id);
     }
     return { success: true, count: snap.size } as any;
   }
@@ -799,18 +846,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const qStudents = query(collection(db, 'users'), where('classId', '==', cId), where('role', '==', 'student'));
     const snap = await getDocs(qStudents);
     for (const sDoc of snap.docs) {
-      const sId = sDoc.id;
-      await updateDoc(sDoc.ref, { xp: 0, updatedAt: new Date().toISOString() });
-      const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
-      const snapProg = await getDocs(qProg);
-      for (const p of snapProg.docs) await deleteDoc(p.ref);
-      const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
-      const snapAssess = await getDocs(qAssess);
-      for (const a of snapAssess.docs) await deleteDoc(a.ref);
-      const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
-      const snapWc = await getDocs(qWc);
-      for (const w of snapWc.docs) await deleteDoc(w.ref);
-      await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+      await resetStudentProgressData(db, sDoc.id);
     }
     return { success: true, count: snap.size, message: `Progresso reiniciado para ${snap.size} alunos.` } as any;
   }
@@ -820,22 +856,59 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const qStudents = query(collection(db, 'users'), where('role', '==', 'student'));
     const snap = await getDocs(qStudents);
     for (const sDoc of snap.docs) {
-      const sId = sDoc.id;
-      await updateDoc(sDoc.ref, { xp: 0, updatedAt: new Date().toISOString() });
-      const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
-      const snapProg = await getDocs(qProg);
-      for (const p of snapProg.docs) await deleteDoc(p.ref);
-      const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
-      const snapAssess = await getDocs(qAssess);
-      for (const a of snapAssess.docs) await deleteDoc(a.ref);
-      const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
-      const snapWc = await getDocs(qWc);
-      for (const w of snapWc.docs) await deleteDoc(w.ref);
-      await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+      await resetStudentProgressData(db, sDoc.id);
     }
     return { success: true, count: snap.size, message: `Progresso global reiniciado para ${snap.size} alunos.` } as any;
   }
 
+  // Bulk teacher operations
+  if (pathname === '/api/teacher/bulk/move-class' && method === 'POST') {
+    const { studentIds, targetClassId } = body;
+    if (!Array.isArray(studentIds) || !targetClassId) throw new Error('Parâmetros inválidos');
+    const cSnap = await getDoc(doc(db, 'classes', targetClassId));
+    const className = cSnap.exists() ? cSnap.data().name : 'Turma';
+    for (const sId of studentIds) {
+      await updateDoc(doc(db, 'users', sId), {
+        classId: targetClassId,
+        turma: className,
+        updatedAt: new Date().toISOString(),
+      }).catch(() => {});
+    }
+    return { success: true, count: studentIds.length } as any;
+  }
+
+  if (pathname === '/api/teacher/bulk/block' && method === 'POST') {
+    const { studentIds } = body;
+    if (!Array.isArray(studentIds)) throw new Error('Lista de alunos inválida');
+    for (const sId of studentIds) {
+      await updateDoc(doc(db, 'users', sId), {
+        blocked: true,
+        updatedAt: new Date().toISOString(),
+      }).catch(() => {});
+    }
+    return { success: true, count: studentIds.length } as any;
+  }
+
+  if (pathname === '/api/teacher/bulk/unblock' && method === 'POST') {
+    const { studentIds } = body;
+    if (!Array.isArray(studentIds)) throw new Error('Lista de alunos inválida');
+    for (const sId of studentIds) {
+      await updateDoc(doc(db, 'users', sId), {
+        blocked: false,
+        updatedAt: new Date().toISOString(),
+      }).catch(() => {});
+    }
+    return { success: true, count: studentIds.length } as any;
+  }
+
+  if (pathname === '/api/teacher/bulk/delete' && method === 'POST') {
+    const { studentIds } = body;
+    if (!Array.isArray(studentIds)) throw new Error('Lista de alunos inválida');
+    for (const sId of studentIds) {
+      await deleteStudentCompletely(db, sId);
+    }
+    return { success: true, count: studentIds.length } as any;
+  }
 
   // Teacher actions: toggle block, delete student, etc.
   const toggleBlockMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/toggle-block$/);
@@ -888,18 +961,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   const resetStudentProgMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/reset-progress$/);
   if (resetStudentProgMatch && method === 'POST') {
     const sId = resetStudentProgMatch[1];
-    const sRef = doc(db, 'users', sId);
-    await updateDoc(sRef, { xp: 0, updatedAt: new Date().toISOString() });
-    const qProg = query(collection(db, 'activityProgress'), where('userId', '==', sId));
-    const snapProg = await getDocs(qProg);
-    for (const p of snapProg.docs) await deleteDoc(p.ref);
-    const qAssess = query(collection(db, 'assessmentAttempts'), where('userId', '==', sId));
-    const snapAssess = await getDocs(qAssess);
-    for (const a of snapAssess.docs) await deleteDoc(a.ref);
-    const qWc = query(collection(db, 'weeklyChallenges'), where('userId', '==', sId));
-    const snapWc = await getDocs(qWc);
-    for (const w of snapWc.docs) await deleteDoc(w.ref);
-    await deleteDoc(doc(db, 'grandeMissaoProgress', sId)).catch(() => {});
+    await resetStudentProgressData(db, sId);
     return { success: true, message: 'Progresso do aluno reiniciado com sucesso.' } as any;
   }
 
@@ -1048,21 +1110,75 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     if (method === 'PUT') {
       const updates: any = { updatedAt: new Date().toISOString() };
       if (body.nickname) updates.nickname = body.nickname;
+      if (body.username) updates.username = body.username;
+      if (body.fullName) {
+        updates.fullName = body.fullName;
+        if (!body.name) updates.name = body.fullName.trim().split(' ')[0];
+      }
       if (body.name) updates.name = body.name;
-      if (body.fullName) updates.fullName = body.fullName;
       if (body.classId) updates.classId = body.classId;
       if (body.turma) updates.turma = body.turma;
       if (body.studentNumber) updates.studentNumber = Number(body.studentNumber);
       if (typeof body.blocked === 'boolean') updates.blocked = body.blocked;
+      if (typeof body.mustChangePassword === 'boolean') updates.mustChangePassword = body.mustChangePassword;
       await updateDoc(sRef, updates);
       return { success: true } as any;
     }
 
     if (method === 'DELETE') {
-      await deleteDoc(sRef);
+      await deleteStudentCompletely(db, sId);
       return { success: true } as any;
     }
   }
 
   throw new Error(`Rota não encontrada no serviço local: ${pathname}`);
+}
+
+export async function clientDownloadExport(urlStr: string, defaultFilename: string) {
+  const db = getClientFirestore();
+  const urlObj = new URL(urlStr, 'http://localhost');
+  const pathname = urlObj.pathname;
+  const classId = urlObj.searchParams.get('classId') || 'all';
+
+  const qUsers = query(collection(db, 'users'), where('role', '==', 'student'));
+  const userSnap = await getDocs(qUsers);
+  let students = userSnap.docs.map((d) => d.data() as ClientUser);
+
+  if (classId && classId !== 'all') {
+    students = students.filter((s) => s.classId === classId);
+  }
+
+  students.sort((a, b) => (a.studentNumber || 0) - (b.studentNumber || 0) || a.name.localeCompare(b.name));
+
+  let csvContent = '';
+
+  if (pathname.includes('credentials')) {
+    csvContent = 'Número;Nome Completo;Turma;Utilizador (Login);Palavra-passe Inicial\n';
+    students.forEach((s) => {
+      csvContent += `${s.studentNumber || 1};"${s.fullName || s.name}";"${s.turma || '6.º A'}";"${s.username || s.nickname}";"${s.initialPassword || ''}"\n`;
+    });
+  } else if (pathname.includes('pauta')) {
+    csvContent = 'Número;Nome Completo;Utilizador;Turma;XP Total;Nível\n';
+    students.forEach((s) => {
+      const levelInfo = calculateLevel(s.xp || 0);
+      csvContent += `${s.studentNumber || 1};"${s.fullName || s.name}";"${s.username || s.nickname}";"${s.turma || '6.º A'}";${s.xp || 0};"${levelInfo.name}"\n`;
+    });
+  } else {
+    csvContent = 'Número;Nome Completo;Utilizador;Turma;XP Total;Nível;Data de Registo\n';
+    students.forEach((s) => {
+      const levelInfo = calculateLevel(s.xp || 0);
+      const dateStr = s.createdAt ? new Date(s.createdAt).toLocaleDateString('pt-PT') : '-';
+      csvContent += `${s.studentNumber || 1};"${s.fullName || s.name}";"${s.username || s.nickname}";"${s.turma || '6.º A'}";${s.xp || 0};"${levelInfo.name}";"${dateStr}"\n`;
+    });
+  }
+
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = defaultFilename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
 }
