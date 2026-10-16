@@ -514,18 +514,15 @@ export async function clientGetWorlds() {
   }
 
   let userProgress: any[] = [];
-  let allMissions: any[] = [];
   let allAssessments: any[] = [];
 
   if (userId) {
     try {
-      const [snapProg, snapMissions, snapAssess] = await Promise.all([
+      const [snapProg, snapAssess] = await Promise.all([
         getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
-        getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
         getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
       ]);
       userProgress = snapProg.docs.map((d) => d.data());
-      allMissions = snapMissions.docs.map((d) => d.data());
       allAssessments = snapAssess.docs.map((d) => d.data());
     } catch (e) {
       console.error('Error fetching student progress in clientGetWorlds:', e);
@@ -553,7 +550,6 @@ export async function clientGetWorlds() {
             isUnlocked: true,
           };
 
-      const mission = allMissions.find((m) => m.worldId === w.id);
       const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
 
       return {
@@ -566,14 +562,6 @@ export async function clientGetWorlds() {
         completedCount: stats.completedCount,
         totalComponents: stats.totalComponents,
         challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
-        missionProgress: mission
-          ? {
-              status: mission.status,
-              score: mission.score,
-              feedback: mission.feedback,
-              submissionText: mission.submissionText || mission.submission,
-            }
-          : null,
         bestAssessmentPercentage: stats.bestAssessmentPercentage,
         simulatorsProgress: w.simulators.map((s) => {
           const prog = userProgress.find((p) => p.activityId === s.id);
@@ -767,6 +755,7 @@ export async function clientSubmitAssessment(
     : Math.max(...snapAttempts.docs.map((d) => d.data().percentage || 0));
   const newBest = Math.max(prevBest, percentage);
   const bestMention = getQualitativeMention(newBest);
+  const xpGain = isTeacher ? 0 : Math.max(0, newBest - prevBest);
 
   const now = new Date().toISOString();
   const attemptId = `attempt-${crypto.randomUUID()}`;
@@ -777,7 +766,8 @@ export async function clientSubmitAssessment(
   await runTransaction(db, async (txn) => {
     const uSnap = await txn.get(userRef);
     if (!uSnap.exists()) throw new Error('Utilizador não encontrado');
-    finalUserXp = (uSnap.data() as ClientUser).xp || 0;
+    const curXp = (uSnap.data() as ClientUser).xp || 0;
+    finalUserXp = curXp + xpGain;
 
     txn.set(attemptRef, {
       id: attemptId,
@@ -803,11 +793,27 @@ export async function clientSubmitAssessment(
       createdAt: now,
     });
 
-    txn.update(userRef, { updatedAt: now });
-  });
+    if (xpGain > 0) {
+      txn.update(userRef, { xp: finalUserXp, updatedAt: now });
 
-  // Quizzes award 0 XP (purely pedagogical assessment)
-  const xpGain = 0;
+      const txId = `xp-${crypto.randomUUID()}`;
+      const txRef = doc(db, 'xpTransactions', txId);
+      txn.set(txRef, {
+        id: txId,
+        userId,
+        amount: xpGain,
+        reason: `Quiz Mundo ${worldId}: ${percentage}%`,
+        sourceType: 'assessment',
+        sourceId: `world-${worldId}-quiz`,
+        previousBest: prevBest,
+        newBest,
+        xpGain,
+        createdAt: now,
+      });
+    } else {
+      txn.update(userRef, { updatedAt: now });
+    }
+  });
 
   await clientCheckBadges(userId);
 
@@ -827,7 +833,7 @@ export async function clientSubmitAssessment(
     previousBest: prevBest,
     newBest,
     bestMention,
-    xpGain: 0,
+    xpGain,
     totalXp: finalUserXp,
     results: detailedResults,
   };

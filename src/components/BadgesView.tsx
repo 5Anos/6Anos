@@ -67,7 +67,7 @@ export const BadgesView: React.FC = () => {
             {t('nav_badges', locale)} & Galeria de Honra
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Conquista insígnias oficiais ao completares mundos, desafios e missões reais.
+            Conquista insígnias oficiais ao completares mundos, simuladores e desafios.
           </p>
         </div>
         <div className="flex items-center gap-3">

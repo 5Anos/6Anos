@@ -161,27 +161,6 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return res as any;
   }
 
-  const missionSubmitMatch = pathname.match(/^\/api\/pedagogical\/missions\/(\d+)$/);
-  if (missionSubmitMatch && method === 'POST') {
-    const worldId = parseInt(missionSubmitMatch[1], 10);
-    const userId = getActiveClientUserId();
-    if (!userId) throw new Error('Não autenticado');
-
-    const db = getClientFirestore();
-    const subId = `sub-${crypto.randomUUID()}`;
-    const now = new Date().toISOString();
-    await setDoc(doc(db, 'missionSubmissions', subId), {
-      id: subId,
-      userId,
-      worldId,
-      textResponse: body.textResponse || '',
-      fileUrl: body.fileUrl || '',
-      fileName: body.fileName || '',
-      status: 'pending',
-      createdAt: now,
-    });
-    return { success: true, submissionId: subId } as any;
-  }
 
   // 3. TEACHER ROUTES DIRECTLY ON FIRESTORE
   const db = getClientFirestore();
@@ -857,65 +836,6 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return { success: true, count: snap.size, message: `Progresso global reiniciado para ${snap.size} alunos.` } as any;
   }
 
-  // Grade mission
-  const missionGradeMatch = pathname.match(/^\/api\/teacher\/missions\/([^\/]+)\/grade$/);
-  if (missionGradeMatch && method === 'POST') {
-    const subId = missionGradeMatch[1];
-    const subRef = doc(db, 'missionSubmissions', subId);
-    const { score, feedback } = body;
-    const normalizedScore = Math.max(0, Math.min(100, Math.round(Number(score) || 0)));
-    const now = new Date().toISOString();
-
-    let resultingSub: any = null;
-    let xpGain = 0;
-
-    await runTransaction(db, async (txn) => {
-      const subSnap = await txn.get(subRef);
-      if (!subSnap.exists()) throw new Error('Submissão não encontrada');
-      const subData = subSnap.data();
-      const prevScore = Number(subData.score) || 0;
-      const newBest = Math.max(prevScore, normalizedScore);
-      xpGain = Math.max(0, newBest - prevScore);
-
-      resultingSub = {
-        ...subData,
-        score: normalizedScore,
-        feedback: feedback ? String(feedback).trim() : '',
-        status: 'graded',
-        gradedAt: now,
-        updatedAt: now,
-      };
-
-      txn.set(subRef, resultingSub, { merge: true });
-
-      if (xpGain > 0 && subData.userId) {
-        const uRef = doc(db, 'users', subData.userId);
-        const uSnap = await txn.get(uRef);
-        if (uSnap.exists()) {
-          const curXp = Number(uSnap.data().xp) || 0;
-          const newTotalXp = curXp + xpGain;
-          txn.update(uRef, { xp: newTotalXp, updatedAt: now });
-
-          const txId = `xp-${crypto.randomUUID()}`;
-          const txRef = doc(db, 'xpTransactions', txId);
-          txn.set(txRef, {
-            id: txId,
-            userId: subData.userId,
-            amount: xpGain,
-            reason: 'Correção de Missão Real',
-            sourceType: 'mission',
-            sourceId: subData.missionId || subId,
-            previousBest: prevScore,
-            newBest,
-            xpGain,
-            createdAt: now,
-          });
-        }
-      }
-    });
-
-    return { success: true, submission: resultingSub, xpGain } as any;
-  }
 
   // Teacher actions: toggle block, delete student, etc.
   const toggleBlockMatch = pathname.match(/^\/api\/teacher\/students\/([^\/]+)\/toggle-block$/);
@@ -1033,11 +953,10 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       if (!sSnap.exists()) throw new Error('Aluno não encontrado');
       const student = sSnap.data() as ClientUser;
 
-      const [cSnap, progSnap, assessSnap, missionSnap, badgeSnap, txSnap] = await Promise.all([
+      const [cSnap, progSnap, assessSnap, badgeSnap, txSnap] = await Promise.all([
         student.classId ? getDoc(doc(db, 'classes', student.classId)) : Promise.resolve(null as any),
         getDocs(query(collection(db, 'activityProgress'), where('userId', '==', sId))),
         getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', sId))),
-        getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', sId))),
         getDocs(query(collection(db, 'badges'), where('userId', '==', sId))),
         getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', sId))),
       ]);
@@ -1060,14 +979,14 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         simulators: xpHistory
           .filter((t: any) => t.sourceType === 'activity' || t.sourceType === 'simulator')
           .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
+        assessments: xpHistory
+          .filter((t: any) => t.sourceType === 'assessment')
+          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
         challenges: xpHistory
           .filter((t: any) => t.sourceType === 'challenge' || t.sourceType === 'weekly_challenge')
           .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
         grandeMissao: xpHistory
           .filter((t: any) => t.sourceType === 'grande_missao')
-          .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
-        missions: xpHistory
-          .filter((t: any) => t.sourceType === 'mission')
           .reduce((acc: number, t: any) => acc + (t.xpGain || 0), 0),
         dailyTips: xpHistory
           .filter((t: any) => t.sourceType === 'daily_tip')

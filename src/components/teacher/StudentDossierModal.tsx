@@ -469,25 +469,6 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-500">Missão Real:</span>
-                            <span
-                              className={`font-semibold ${
-                                w.mission
-                                  ? w.mission.status === 'graded'
-                                    ? 'text-emerald-700'
-                                    : 'text-amber-800'
-                                  : 'text-slate-400'
-                              }`}
-                            >
-                              {w.mission
-                                  ? w.mission.status === 'graded'
-                                  ? `${w.mission.score}/100`
-                                  : 'Pendente'
-                                : 'Por entregar'}
-                            </span>
-                          </div>
-
                           <div className="pt-2">
                             <span
                               className={`block text-center text-[10px] font-bold px-2 py-1 rounded-lg border ${
@@ -713,14 +694,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                 <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
                   <div className="text-[11px] text-slate-500">Avaliações Finais</div>
                   <div className="text-lg font-bold text-amber-800 font-mono">
-                    {xpBreakdown.assessments} XP
-                  </div>
-                </div>
-
-                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
-                  <div className="text-[11px] text-slate-500">Missões Reais</div>
-                  <div className="text-lg font-bold text-amber-800 font-mono">
-                    {xpBreakdown.missions} XP
+                    {xpBreakdown.assessments || 0} XP
                   </div>
                 </div>
 

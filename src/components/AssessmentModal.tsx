@@ -237,10 +237,12 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   </div>
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
                     <span className="text-[11px] font-bold text-slate-500 uppercase block">Pontos (XP)</span>
-                    <span className="text-base font-black text-slate-500 mt-1 block">
-                      0 XP
+                    <span className={`text-base font-black mt-1 block ${result.xpGain > 0 ? 'text-emerald-700' : 'text-amber-800'}`}>
+                      {result.xpGain > 0 ? `+${result.xpGain} XP` : `${result.percentage} XP`}
                     </span>
-                    <span className="text-[9px] font-semibold text-slate-400 block -mt-0.5">Avaliação pura</span>
+                    <span className="text-[9px] font-semibold text-slate-400 block -mt-0.5">
+                      {result.xpGain > 0 ? 'Novo recorde!' : 'Já acumulado'}
+                    </span>
                   </div>
                 </div>
 
@@ -325,8 +327,8 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
                 <p className="text-xs font-medium text-slate-600 mt-3 max-w-lg mx-auto">
                   {result.isFirstAttempt
-                    ? 'Esta primeira tentativa é a tua Avaliação Oficial. Podes continuar a treinar para consolidar as tuas aprendizagens sem alterar a avaliação inicial.'
-                    : `A tua Avaliação Oficial inicial mantém-se inalterada (${result.officialMention || 'registada'}). Esta sessão serviu para treinares e melhorares sem inflacionar XP.`}
+                    ? 'Esta primeira tentativa é a tua Avaliação Oficial. O teu XP foi acumulado no perfil!'
+                    : `A tua Avaliação Oficial inicial mantém-se inalterada (${result.officialMention || 'registada'}). Esta sessão serviu para treinares e ganhares XP adicional se superaste o recorde anterior.`}
                 </p>
               </div>
 

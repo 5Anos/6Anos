@@ -387,7 +387,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
       setCompletedFeedback({
         score: res.score || score,
-        xpGain: res.xpGain || 30,
+        xpGain: res.xpGain ?? 0,
         newBest: res.newBest || score,
         activityTitle,
       });
