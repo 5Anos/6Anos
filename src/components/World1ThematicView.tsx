@@ -390,7 +390,15 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     return world.simulatorsProgress?.find((p) => p.id === simId);
   };
 
-  const routePercent = world.average > 0 ? Math.round(world.average) : 100;
+  const isAssessmentDone = Boolean(
+    world.hasAssessmentPassed ||
+    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+  );
+
+  const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
+  const completedMissionsCount = completedSimsCount + (isAssessmentDone ? 1 : 0);
+  const totalMissionsCount = 6;
+  const routePercent = Math.min(100, Math.round((completedMissionsCount / totalMissionsCount) * 100));
 
   const missionNavList = [
     { id: 'w1-t1', stepLabel: 'Missão 1/6', title: 'Palavras-passe Secretas', icon: Key, iconBgClass: 'bg-emerald-50 text-emerald-600', simId: 'sim-password' },
@@ -457,7 +465,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               />
             </div>
             <span className="text-xs font-black text-slate-900 tabular-nums">
-              {routePercent}%
+              {routePercent}% ({completedMissionsCount}/{totalMissionsCount})
             </span>
           </div>
         </div>
@@ -482,7 +490,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           {missionNavList.map((m) => {
             const Icon = m.icon;
             const isActive = effectiveTopicId === m.id;
-            const simProg = getSimProg(m.simId);
+            const isDone = m.id === 'avaliacao' ? isAssessmentDone : Boolean(getSimProg(m.simId)?.completed);
 
             return (
               <button
@@ -513,9 +521,20 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     <span className="text-xs sm:text-sm font-extrabold truncate block">{m.title}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  {simProg?.completed && (
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {isDone ? (
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                      isActive ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span>Feito</span>
+                    </span>
+                  ) : (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      Por fazer
+                    </span>
                   )}
                   <ChevronRight
                     className={`w-3.5 h-3.5 shrink-0 ${
@@ -567,9 +586,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-password')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-emerald-600 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -851,9 +870,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-phishing')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-blue-50 text-blue-800 border border-blue-200 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-blue-600 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1111,9 +1130,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-privacy')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-emerald-600 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1343,9 +1362,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-digital-footprint')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-800 border border-purple-200 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-purple-600 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1580,9 +1599,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-digital-wellbeing')?.score} pts)</span>
                 </span>
               ) : (
-                <span className="bg-rose-50 text-rose-800 border border-rose-200 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-rose-600 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>

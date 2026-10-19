@@ -412,6 +412,16 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const topic5 = world.topics.find((t) => t.id === 'w3-t5');
   const topic6 = world.topics.find((t) => t.id === 'w3-t6');
 
+  const isAssessmentDone = Boolean(
+    world.hasAssessmentPassed ||
+    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+  );
+
+  const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
+  const completedMissionsCount = completedSimsCount + (isAssessmentDone ? 1 : 0);
+  const totalMissionsCount = 7;
+  const routePercent = Math.min(100, Math.round((completedMissionsCount / totalMissionsCount) * 100));
+
   return (
     <div className="space-y-6">
       {/* 🚀 BANNER DE SUCESSO DE ATIVIDADE CONCLUÍDA */}
@@ -465,12 +475,12 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                 style={{
-                  width: '100%',
+                  width: `${routePercent}%`,
                 }}
               />
             </div>
             <span className="text-xs font-black text-slate-900 tabular-nums">
-              100%
+              {routePercent}% ({completedMissionsCount}/{totalMissionsCount})
             </span>
           </div>
         </div>
@@ -511,7 +521,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Conversas & Emojis</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t1' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-avatar-challenge')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t1' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t1' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t1' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
 
             {/* Missão 2: Netiqueta */}
@@ -532,7 +554,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Netiqueta Fixe</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t2' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-netiqueta')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t2' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t2' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t2' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
 
             {/* Missão 3: Trabalho em Equipa */}
@@ -553,7 +587,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Super-Equipas</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t3' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-colaboracao')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t3' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t3' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t3' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
 
             {/* Missão 4: Direitos de Autor */}
@@ -574,7 +620,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Direitos de Autor</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t4' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-direitos-autor')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t4' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t4' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t4' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
           </div>
 
@@ -597,7 +655,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Caça ao Plágio</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t5' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-plagio-citacao')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t5' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t5' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t5' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
 
             {/* Missão 6: Licenças Livres */}
@@ -618,7 +688,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Licenças Livres</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t6' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-creative-commons')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t6' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t6' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t6' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
 
             {/* Missão 7: Quiz do Criador */}
@@ -639,7 +721,19 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span className="text-xs sm:text-sm font-black truncate">Quiz do Criador</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'avaliacao' ? 'text-white' : 'text-purple-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {isAssessmentDone ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'avaliacao' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'avaliacao' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'avaliacao' ? 'text-white' : 'text-purple-500'}`} />
+              </div>
             </button>
           </div>
         </div>
@@ -677,9 +771,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-comunicacao-digital')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>A conquistar: até 100 XP</span>
                 </span>
               )}
             </div>
@@ -874,9 +968,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-netiqueta')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1039,8 +1133,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-avatar-challenge')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1195,9 +1290,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-colaboracao')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1380,9 +1475,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-direitos-autor')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1579,9 +1674,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-plagio-citacao')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1771,9 +1866,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-creative-commons')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-purple-100 text-purple-800 border border-purple-300 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-amber-500 fill-current" />
-                  <span>Recompensa: +100 XP</span>
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>

@@ -563,8 +563,8 @@ export async function clientGetWorlds() {
     }
 
     const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
-    const worldAvg = isTeacher ? (stats.average > 0 ? stats.average : 100) : stats.average;
-    const isCompleted = isTeacher ? true : (stats.isWorldCompleted || worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD);
+    const worldAvg = stats.average;
+    const isCompleted = stats.isWorldCompleted || worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
     prevUnlocked = isUnlocked;
     prevPassed = worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
@@ -573,8 +573,8 @@ export async function clientGetWorlds() {
       ...w,
       isUnlocked,
       isCompleted,
-      allSimulatorsCompleted: isTeacher ? true : stats.allSimulatorsCompleted,
-      hasAssessmentPassed: isTeacher ? true : stats.hasAssessmentPassed,
+      allSimulatorsCompleted: stats.allSimulatorsCompleted,
+      hasAssessmentPassed: stats.hasAssessmentPassed,
       average: worldAvg,
       completedCount: stats.completedCount,
       totalComponents: stats.totalComponents,
@@ -584,8 +584,8 @@ export async function clientGetWorlds() {
         const prog = userProgress.find((p) => p.activityId === s.id);
         return {
           id: s.id,
-          completed: isTeacher ? true : (prog ? prog.completed : false),
-          score: prog ? prog.bestScore : (isTeacher ? 100 : 0),
+          completed: prog ? prog.completed : false,
+          score: prog ? prog.bestScore : 0,
         };
       }),
       stats: { ...stats, isUnlocked },

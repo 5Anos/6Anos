@@ -498,6 +498,16 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
   const topic5 = world.topics.find((t) => t.id === 'w5-t5');
   const topic6 = world.topics.find((t) => t.id === 'w5-t6');
 
+  const isAssessmentDone = Boolean(
+    world.hasAssessmentPassed ||
+    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+  );
+
+  const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
+  const completedMissionsCount = completedSimsCount + (isAssessmentDone ? 1 : 0);
+  const totalMissionsCount = 7;
+  const routePercent = Math.min(100, Math.round((completedMissionsCount / totalMissionsCount) * 100));
+
   return (
     <div className="space-y-6">
       {/* Global Completed Feedback Banner */}
@@ -554,12 +564,12 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                 style={{
-                  width: '100%',
+                  width: `${routePercent}%`,
                 }}
               />
             </div>
             <span className="text-xs font-black text-slate-900 tabular-nums">
-              100%
+              {routePercent}% ({completedMissionsCount}/{totalMissionsCount})
             </span>
           </div>
         </div>
@@ -596,11 +606,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <Cpu className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t1' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 1/6</span>
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t1' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 1/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">O Que É e Não É IA</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t1' ? 'text-white' : 'text-indigo-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-ia-concepts')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t1' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t1' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t1' ? 'text-white' : 'text-indigo-500'}`} />
+              </div>
             </button>
 
             {/* Missão 2 */}
@@ -617,11 +639,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <Wand2 className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t2' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 2/6</span>
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t2' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 2/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">IA Generativa & Fatos</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t2' ? 'text-white' : 'text-indigo-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-ai-generation')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t2' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t2' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t2' ? 'text-white' : 'text-indigo-500'}`} />
+              </div>
             </button>
 
             {/* Missão 3 */}
@@ -638,11 +672,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <Sparkles className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t3' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 3/6</span>
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t3' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 3/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">A Arte do Prompt</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t3' ? 'text-white' : 'text-indigo-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-prompt')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t3' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t3' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t3' ? 'text-white' : 'text-indigo-500'}`} />
+              </div>
             </button>
           </div>
 
@@ -661,11 +707,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <AlertCircle className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t4' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 4/6</span>
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t4' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 4/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">Alucinações & Falsos</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t4' ? 'text-white' : 'text-indigo-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-hallucination')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t4' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t4' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t4' ? 'text-white' : 'text-indigo-500'}`} />
+              </div>
             </button>
 
             {/* Missão 5 */}
@@ -682,11 +740,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <Lock className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t5' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 5/6</span>
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t5' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 5/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">Privacidade & Dados</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t5' ? 'text-white' : 'text-indigo-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-ai-responsibility')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t5' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t5' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t5' ? 'text-white' : 'text-indigo-500'}`} />
+              </div>
             </button>
 
             {/* Missão 6 */}
@@ -703,11 +773,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <Brain className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t6' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 6/6</span>
+                  <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t6' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 6/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">Bolhas & Algoritmos</span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t6' ? 'text-white' : 'text-indigo-500'}`} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {Boolean(getSimProg('sim-recommendation')?.completed) ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t6' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t6' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t6' ? 'text-white' : 'text-indigo-500'}`} />
+              </div>
             </button>
 
             {/* Missão 7: Quiz Final */}
@@ -724,11 +806,23 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <Award className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className="text-[10px] font-black text-indigo-100 block">DESAFIO FINAL</span>
+                  <span className="text-[10px] font-black text-indigo-100 block">DESAFIO FINAL 7/7</span>
                   <span className="text-xs sm:text-sm font-black truncate">Quiz do Pioneiro 🏆</span>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 shrink-0 text-white" />
+              <div className="flex items-center gap-1.5 shrink-0">
+                {isAssessmentDone ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md bg-white/30 text-white">
+                    <CheckCircle2 className="w-3 h-3 text-white shrink-0" />
+                    <span>Feito</span>
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">
+                    Por fazer
+                  </span>
+                )}
+                <ChevronRight className="w-4 h-4 shrink-0 text-white" />
+              </div>
             </button>
           </div>
         </div>
@@ -770,8 +864,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-ia-concepts')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1033,8 +1128,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-ai-generation')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1262,8 +1358,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-prompt')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1498,8 +1595,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-hallucination')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1760,8 +1858,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-ai-responsibility')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
@@ -1997,8 +2096,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   <span>Concluído ({getSimProg('sim-recommendation')?.score}%)</span>
                 </span>
               ) : (
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-xl">
-                  Recompensa: +100 XP
+                <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>
