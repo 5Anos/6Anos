@@ -907,6 +907,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
 
               <ScaffoldingClueCard
+                themeColor="blue"
+                mascotName="Detetive Digital"
                 clues={[
                   'Usa aspas para manter palavras unidas na pesquisa: "D. Afonso Henriques".',
                   'Substitui verbos e perguntas por substantivos e nomes concretos.',
@@ -1162,6 +1164,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
 
               <ScaffoldingClueCard
+                themeColor="blue"
+                mascotName="Detetive Digital"
                 clues={[
                   'Vai à secção "Sobre Nós" ou "Quem Somos" do site para ver quem é a equipa.',
                   'Pesquisa o nome do autor noutro motor de busca para confirmar se é especialista.',
@@ -1418,6 +1422,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
 
               <ScaffoldingClueCard
+                themeColor="blue"
+                mascotName="Detetive Digital"
                 clues={[
                   'Se o artigo não tiver data visível, desconfia e procura o mesmo facto noutra fonte.',
                   'No Google podes clicar em "Ferramentas" e escolher "Último ano" para ver só atualizações recentes.',
@@ -1537,6 +1543,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
 
               <ScaffoldingClueCard
+                themeColor="blue"
+                mascotName="Detetive Digital"
                 clues={[
                   'Dois factos que concordam dão uma pista; três fontes independentes dão uma confirmação.',
                   'Se nenhum jornal sério fala do assunto, a probabilidade de ser falso é de 99%.',
@@ -1773,6 +1781,8 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               </div>
 
               <ScaffoldingClueCard
+                themeColor="blue"
+                mascotName="Detetive Digital"
                 clues={[
                   'Palavras como "NÃO VAIS ACREDITAR" ou "CHOCANTE" são bandeiras vermelhas de clickbait.',
                   'Antes de partilhares qualquer mensagem num grupo, pergunta-te: "Tenho a certeza de que é verdade?".',

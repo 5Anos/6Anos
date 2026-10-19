@@ -809,6 +809,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
 
           {/* Scaffolding Clues & Metacognition */}
           <ScaffoldingClueCard
+            themeColor="emerald"
+            mascotName="Guardião Digital"
             clues={[
               'Usa pelo menos 10 caracteres para que os robôs hackers demorem séculos a adivinhar!',
               'Nunca uses sequências simples tipo "123456" nem nomes de familiares ou datas de nascimento.',
@@ -1070,6 +1072,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
 
           <ScaffoldingClueCard
+            themeColor="emerald"
+            mascotName="Guardião Digital"
             clues={[
               'Nenhuma escola nem empresa legítima te vai pedir a palavra-passe por email para te dar prémios.',
               'Antes de clicares num link, analisa as letras do endereço: "sorteios-rapid0s.xyz" não é oficial!',
@@ -1302,6 +1306,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
 
           <ScaffoldingClueCard
+            themeColor="emerald"
+            mascotName="Guardião Digital"
             clues={[
               'Antes de publicares fotos com colegas, pergunta a cada um: "Autorizas a partilha?".',
               'O consentimento e o respeito pela imagem alheia são as regras de ouro da cidadania digital.',
@@ -1539,6 +1545,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
 
           <ScaffoldingClueCard
+            themeColor="emerald"
+            mascotName="Guardião Digital"
             clues={[
               'Antes de enviar uma mensagem com raiva, respira fundo e espera 5 minutos.',
               'Elogios sinceros e partilhas úteis são as melhores marcas de um verdadeiro cidadão digital.',
@@ -1784,6 +1792,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           </div>
 
           <ScaffoldingClueCard
+            themeColor="emerald"
+            mascotName="Guardião Digital"
             clues={[
               'Faz pelo menos 1 hora de brincadeiras ao ar livre ou desporto por dia.',
               'Lembra-te: o telemóvel não deve dormir debaixo da almofada nem na tua cama.',
