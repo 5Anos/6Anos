@@ -39,6 +39,7 @@ import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { TopicIllustrationCard } from './TopicIllustrationCard';
+import { PROGRESSION_CONFIG } from '../progressionConfig';
 
 interface World5ThematicViewProps {
   world: WorldSummary;
