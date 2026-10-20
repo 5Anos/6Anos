@@ -564,10 +564,12 @@ export async function clientGetWorlds() {
 
     const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
     const worldAvg = stats.average;
-    const isCompleted = stats.isWorldCompleted || worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    // CRITICAL: A world is only completed if ALL simulators are completed AND assessment is completed AND overall average >= 75%
+    const isCompleted = Boolean(stats.isWorldCompleted);
 
     prevUnlocked = isUnlocked;
-    prevPassed = worldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    // Previous world must be fully completed to unlock next world (never unlock after just 2 activities!)
+    prevPassed = Boolean(stats.isWorldCompleted);
 
     worldsWithStats.push({
       ...w,

@@ -81,11 +81,11 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           }
         }
       } else {
-        // Fallback for guest mode: all initial catalog worlds available with World 1 unlocked
+        // Fallback for guest mode: only World 1 unlocked initially
         setWorlds(
           WORLDS_DATA.map((w) => ({
             ...w,
-            isUnlocked: true,
+            isUnlocked: w.id === 1,
             average: 0,
             simulatorsProgress: w.simulators.map((s) => ({ id: s.id, completed: false, score: 0 })),
           } as any))
@@ -96,7 +96,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       setWorlds(
         WORLDS_DATA.map((w) => ({
           ...w,
-          isUnlocked: true,
+          isUnlocked: w.id === 1,
           average: 0,
         } as any))
       );
@@ -283,54 +283,75 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       ) : (
         <>
           {/* Progression Banner: Requirement to unlock the next world */}
-          {!isTeacher && currentWorld.id < 5 && (
-            <div
-              className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs ${
-                currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                  : 'bg-amber-50/90 border-amber-200 text-amber-950'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? (
-                    <CheckCircle2 className="w-5 h-5" />
-                  ) : (
-                    <Lock className="w-5 h-5" />
-                  )}
+          {!isTeacher && currentWorld.id < 5 && (() => {
+            const nextWorld = worlds.find((w) => w.id === currentWorld.id + 1);
+            const isNextUnlocked = Boolean(nextWorld?.isUnlocked);
+            const totalSims = currentWorld.simulators?.length || 5;
+            const completedSimsCount = currentWorld.simulatorsProgress?.filter((p: any) => p.completed).length || 0;
+            const allSimsDone = completedSimsCount >= totalSims;
+            const hasPassedQuiz = Boolean(
+              currentWorld.hasAssessmentPassed ||
+              (typeof currentWorld.bestAssessmentPercentage === 'number' && currentWorld.bestAssessmentPercentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD)
+            );
+            const currentAvg = typeof currentWorld.average === 'number' ? currentWorld.average : 0;
+            const meetsAverage = currentAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+            const isNextWorldUnlocked = isNextUnlocked && allSimsDone && hasPassedQuiz && meetsAverage;
+
+            return (
+              <div
+                className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs ${
+                  isNextWorldUnlocked
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                    : 'bg-amber-50/90 border-amber-200 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                      isNextWorldUnlocked
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'
+                    }`}
+                  >
+                    {isNextWorldUnlocked ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : (
+                      <Lock className="w-5 h-5" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-black text-sm">
+                      {isNextWorldUnlocked
+                        ? `✓ Mundo ${currentWorld.id + 1} Desbloqueado!`
+                        : `🔒 Acesso ao Mundo ${currentWorld.id + 1} — Requisitos de Desbloqueio`}
+                    </div>
+                    <div className="text-xs opacity-90 mt-0.5">
+                      {isNextWorldUnlocked
+                        ? `Parabéns! Concluíste com sucesso todas as ${totalSims} missões e o Quiz do Mundo ${currentWorld.id} com média de ${currentAvg}%. O Mundo ${currentWorld.id + 1} está acessível!`
+                        : !allSimsDone
+                        ? `Para desbloquear o Mundo ${currentWorld.id + 1}, precisas de concluir todas as missões (${completedSimsCount}/${totalSims} concluídas) e realizar o Quiz de Avaliação com média global mínima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%.`
+                        : !hasPassedQuiz
+                        ? `Missões práticas concluídas (${completedSimsCount}/${totalSims})! Realiza agora o Quiz de Avaliação Final para atingir média >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% e desbloquear o Mundo ${currentWorld.id + 1}.`
+                        : `A tua média atual é de ${currentAvg}%. Precisas de pelo menos ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para desbloquear o Mundo ${currentWorld.id + 1}.`}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-black text-sm">
-                    {currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? `✓ Mundo ${currentWorld.id + 1} Desbloqueado!`
-                      : `Acesso ao Mundo ${currentWorld.id + 1} — Requer Média Global >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%`}
-                  </div>
-                  <div className="text-xs opacity-90 mt-0.5">
-                    {currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? `Excelente! A tua taxa de sucesso no Mundo ${currentWorld.id} é de ${currentWorld.average}% (>= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%). O Mundo ${currentWorld.id + 1} já se encontra acessível!`
-                      : `Para desbloquear e ver o Mundo ${currentWorld.id + 1}, a tua taxa de sucesso global (dos simuladores e do quiz de avaliação) tem de ser de pelo menos ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%. Média atual: ${currentWorld.average}%.`}
-                  </div>
+                <div className="shrink-0 flex items-center gap-2">
+                  <span
+                    className={`px-3 py-1.5 rounded-xl font-black text-xs ${
+                      isNextWorldUnlocked
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-amber-200/80 text-amber-950'
+                    }`}
+                  >
+                    {isNextWorldUnlocked
+                      ? `Média: ${currentAvg}%`
+                      : `Missões: ${completedSimsCount}/${totalSims} • Quiz: ${hasPassedQuiz ? 'Feito' : 'Pendente'}`}
+                  </span>
                 </div>
               </div>
-              <div className="shrink-0 flex items-center gap-2">
-                <span
-                  className={`px-3 py-1.5 rounded-xl font-black text-xs ${
-                    currentWorld.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-amber-200/80 text-amber-950'
-                  }`}
-                >
-                  Média: {currentWorld.average}% / &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
-                </span>
-              </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* World Hero & Navigation is rendered inside each World's bespoke ThematicView */}
           {/* ========================================================= */}

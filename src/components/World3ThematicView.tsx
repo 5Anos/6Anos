@@ -773,7 +773,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
                   <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>A conquistar: até 100 XP</span>
+                  <span>🎯 Por Concluir • Ganha até 100 XP</span>
                 </span>
               )}
             </div>

@@ -28,20 +28,20 @@ export const ScaffoldingClueCard: React.FC<ScaffoldingClueCardProps> = ({
     clueList.push(clueText.trim());
   }
 
-  // If there are no clues to display, never render a blank empty box
+  // If there are no clues to display, never render an empty card
   if (clueList.length === 0) {
     return null;
   }
 
-  const defaultMascot = {
-    emerald: 'Guardião Digital',
-    blue: 'Detetive Digital',
-    purple: 'Criador Digital',
-    amber: 'Engenheiro de Algoritmos',
-    indigo: 'Pioneiro da IA',
-  }[themeColor] || 'Mascote Guia';
+  const defaultMascots: Record<string, string> = {
+    emerald: 'Guardião Digital 🛡️',
+    blue: 'Detetive Digital 🕵️‍♂️',
+    purple: 'Criador Digital 🎨',
+    amber: 'Mestre dos Algoritmos 🤖',
+    indigo: 'Explorador da IA 🚀',
+  };
 
-  const effectiveMascot = mascotName || defaultMascot;
+  const effectiveMascot = mascotName || defaultMascots[themeColor] || 'Guardião Digital 🛡️';
 
   const colorMap = {
     emerald: 'bg-emerald-50/90 border-emerald-300 text-emerald-950',
@@ -49,7 +49,7 @@ export const ScaffoldingClueCard: React.FC<ScaffoldingClueCardProps> = ({
     purple: 'bg-purple-50/90 border-purple-300 text-purple-950',
     amber: 'bg-amber-50/90 border-amber-300 text-amber-950',
     indigo: 'bg-indigo-50/90 border-indigo-300 text-indigo-950',
-  }[themeColor];
+  }[themeColor] || 'bg-blue-50/90 border-blue-300 text-blue-950';
 
   const btnColor = {
     emerald: 'bg-emerald-600 hover:bg-emerald-700 text-white',
@@ -57,28 +57,36 @@ export const ScaffoldingClueCard: React.FC<ScaffoldingClueCardProps> = ({
     purple: 'bg-purple-600 hover:bg-purple-700 text-white',
     amber: 'bg-amber-600 hover:bg-amber-700 text-white',
     indigo: 'bg-indigo-600 hover:bg-indigo-700 text-white',
-  }[themeColor];
+  }[themeColor] || 'bg-blue-600 hover:bg-blue-700 text-white';
 
   const bulletBg = {
-    emerald: 'bg-emerald-100 text-emerald-700',
-    blue: 'bg-blue-100 text-blue-700',
-    purple: 'bg-purple-100 text-purple-700',
-    amber: 'bg-amber-100 text-amber-800',
-    indigo: 'bg-indigo-100 text-indigo-700',
-  }[themeColor];
+    emerald: 'bg-emerald-200 text-emerald-900',
+    blue: 'bg-blue-200 text-blue-900',
+    purple: 'bg-purple-200 text-purple-900',
+    amber: 'bg-amber-200 text-amber-900',
+    indigo: 'bg-indigo-200 text-indigo-900',
+  }[themeColor] || 'bg-blue-200 text-blue-900';
+
+  const cardInnerBg = {
+    emerald: 'bg-white border-emerald-200/80',
+    blue: 'bg-white border-blue-200/80',
+    purple: 'bg-white border-purple-200/80',
+    amber: 'bg-white border-amber-200/80',
+    indigo: 'bg-white border-indigo-200/80',
+  }[themeColor] || 'bg-white border-blue-200/80';
 
   return (
     <div className={`p-4 sm:p-5 rounded-2xl border-2 ${colorMap} shadow-xs space-y-3 animate-in fade-in`}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center font-black shadow-2xs shrink-0">
             <Lightbulb className="w-4 h-4 fill-current" />
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider opacity-75 block">
-              Feedback Formativo &amp; Pista de Reflexão
+            <span className="text-[10px] font-black uppercase tracking-wider opacity-80 block text-amber-900">
+              💡 Pista Amiga de Apoio
             </span>
-            <h5 className="text-xs sm:text-sm font-black">Dica do {effectiveMascot} 💬</h5>
+            <h5 className="text-xs sm:text-sm font-black">Dica do {effectiveMascot}</h5>
           </div>
         </div>
 
@@ -94,7 +102,7 @@ export const ScaffoldingClueCard: React.FC<ScaffoldingClueCardProps> = ({
         )}
       </div>
 
-      <div className="bg-white/95 border border-white/90 p-3.5 sm:p-4 rounded-xl text-xs sm:text-sm leading-relaxed shadow-2xs space-y-2">
+      <div className={`${cardInnerBg} border p-3.5 sm:p-4 rounded-xl text-xs sm:text-sm leading-relaxed shadow-2xs space-y-2`}>
         {clueList.length === 1 ? (
           <p className="font-semibold text-slate-800">{clueList[0]}</p>
         ) : (
