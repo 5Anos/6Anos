@@ -28,7 +28,6 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
   // Estado dos Exemplos de Cartazes
   const [exampleMode, setExampleMode] = useState<'school' | 'bespoke'>('school');
   const [schoolPosterId, setSchoolPosterId] = useState<string>('onde_colocar');
-  const [schoolFilter, setSchoolFilter] = useState<'all' | 'ecopontos' | 'pilhao' | 'plastico' | 'eletronicos'>('all');
 
   // Estado da Coleção de Autor (+6)
   const [selectedBespokeId, setSelectedBespokeId] = useState<string>('c01');
@@ -108,11 +107,6 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
       headerRight: 'Oficina de Compostagem',
     },
   ];
-
-  const filteredSchoolPosters = schoolPosters.filter((p) => {
-    if (schoolFilter === 'all') return true;
-    return p.category === schoolFilter;
-  });
 
   const activePoster = schoolPosters.find((p) => p.id === schoolPosterId) || schoolPosters[0];
 
@@ -704,74 +698,6 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
           {/* MODO 1: OS 6 CARTAZES ESCOLARES ORIGINAIS DAS CAPTURAS DE ECRÃ */}
           {exampleMode === 'school' && (
             <div className="bg-[#0b1329] border border-slate-800 rounded-3xl p-4 sm:p-6 text-white shadow-2xl space-y-6">
-              {/* BOTÕES DE FILTRO NO TOPO (EXATAMENTE COMO NAS CAPTURAS DE ECRÃ) */}
-              <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4">
-                <button
-                  type="button"
-                  onClick={() => setSchoolFilter('all')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    schoolFilter === 'all'
-                      ? 'bg-emerald-400 text-slate-950 shadow-md font-black'
-                      : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                  }`}
-                >
-                  <span>☀️</span>
-                  <span>Todos os Exemplos (6)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSchoolFilter('ecopontos')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    schoolFilter === 'ecopontos'
-                      ? 'bg-emerald-400 text-slate-950 shadow-md font-black'
-                      : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                  }`}
-                >
-                  <span>🟡🔵🟢</span>
-                  <span>Ecopontos &amp; Papel (2)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSchoolFilter('pilhao')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    schoolFilter === 'pilhao'
-                      ? 'bg-emerald-400 text-slate-950 shadow-md font-black'
-                      : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                  }`}
-                >
-                  <span>🔋</span>
-                  <span>Pilhão &amp; Tóxicos (1)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSchoolFilter('plastico')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    schoolFilter === 'plastico'
-                      ? 'bg-emerald-400 text-slate-950 shadow-md font-black'
-                      : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                  }`}
-                >
-                  <span>🌊🌱</span>
-                  <span>Plástico Zero &amp; Horta (2)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSchoolFilter('eletronicos')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                    schoolFilter === 'eletronicos'
-                      ? 'bg-emerald-400 text-slate-950 shadow-md font-black'
-                      : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                  }`}
-                >
-                  <span>💻</span>
-                  <span>Resíduos Eletrónicos (1)</span>
-                </button>
-              </div>
-
               {/* CORPO PRINCIPAL: BARRA LATERAL À ESQUERDA + FOLHA A4 VERTICAL À DIREITA */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* BARRA LATERAL ESQUERDA: LISTA DE CARTAZES */}
@@ -781,7 +707,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                   </span>
 
                   <div className="space-y-2.5">
-                    {filteredSchoolPosters.map((poster) => {
+                    {schoolPosters.map((poster) => {
                       const isSelected = poster.id === activePoster.id;
                       return (
                         <div
