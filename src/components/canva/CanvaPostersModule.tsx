@@ -12,9 +12,6 @@ import {
   Check,
   ArrowRight,
   ChevronLeft,
-  Maximize2,
-  ZoomIn,
-  X,
 } from 'lucide-react';
 
 interface CanvaPostersModuleProps {
@@ -25,13 +22,8 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
   // Sub-separadores da Oficina (Navegação estruturada para crianças de 10 anos)
   const [activeSubTab, setActiveSubTab] = useState<'intro' | 'rules' | 'tutorial' | 'examples' | 'checklist'>('examples');
 
-  // Estado dos Exemplos de Cartazes
-  const [exampleMode, setExampleMode] = useState<'school' | 'bespoke'>('school');
+  // Estado dos Exemplos de Cartazes Escolares
   const [schoolPosterId, setSchoolPosterId] = useState<string>('onde_colocar');
-
-  // Estado da Coleção de Autor (+6)
-  const [selectedBespokeId, setSelectedBespokeId] = useState<string>('c01');
-  const [zoomedBespokeId, setZoomedBespokeId] = useState<string | null>(null);
 
   // Estado da Checklist
   const [checklist, setChecklist] = useState<Record<number, boolean>>({
@@ -110,81 +102,6 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
 
   const activePoster = schoolPosters.find((p) => p.id === schoolPosterId) || schoolPosters[0];
 
-  // -------------------------------------------------------------
-  // OS 6 CARTAZES DE AUTOR (+6 CONCEITOS A3 GERADOS)
-  // -------------------------------------------------------------
-  const bespokePosters = [
-    {
-      id: 'c01',
-      number: '01',
-      concept: 'O Planeta Pede Ajuda',
-      style: 'Ilustração Digital Cinematográfica',
-      imageSrc: '/src/assets/images/poster1_earth_help_1793967702230.jpg',
-      palette: 'Azul Espacial, Verde Aurora & Laranja de Alerta',
-      title: 'O PLANETA PEDE AJUDA',
-      message: 'O futuro do planeta está nas tuas mãos!',
-      description: 'Composição cinematográfica de grande escala com a Terra no espaço profundo, revelando o contraste dramático entre destruição e recuperação ecológica.',
-    },
-    {
-      id: 'c02',
-      number: '02',
-      concept: 'O Lixo de Ontem, o Recurso de Amanhã',
-      style: 'Design Conceptual & Fotografia Publicitária',
-      imageSrc: '/src/assets/images/poster2_transformation_1793967716879.jpg',
-      palette: 'Branco Minimal, Bege Kraft & Verde Botânico',
-      title: 'O LIXO DE ONTEM, O RECURSO DE AMANHÃ',
-      message: 'Reciclar é dar uma nova oportunidade!',
-      description: 'Fotografia publicitária onde garrafas e cartão usados se desconstroem e transformam em novos objetos de design e plantas férteis.',
-    },
-    {
-      id: 'c03',
-      number: '03',
-      concept: 'Os Resíduos Também Têm Personalidade',
-      style: 'Ilustração 3D Estilo Animação / Personagens',
-      imageSrc: '/src/assets/images/poster3_characters_1793967731210.jpg',
-      palette: 'Turquesa Vibrante, Amarelo Solar & Vermelho Pop',
-      title: 'OS RESÍDUOS TÊM PERSONALIDADE',
-      message: 'Não me deites fora. Dá-me uma nova vida!',
-      description: 'Personagens tridimensionais cativantes e expressivas — garrafa alegre, lata simpática, papel dobrado e frasco divertido.',
-    },
-    {
-      id: 'c04',
-      number: '04',
-      concept: 'Cada Resíduo no Seu Lugar',
-      style: 'Infografia Moderna 3D Isométrica',
-      imageSrc: '/src/assets/images/poster4_bins_infographic_1793967744684.jpg',
-      palette: 'Azul Ecoponto, Amarelo Plástico & Verde Vidro',
-      title: 'CADA RESÍDUO NO SEU LUGAR',
-      message: 'Separar hoje é proteger o amanhã!',
-      description: 'Infografia isométrica de estúdio com os 3 ecopontos e objetos do dia a dia escolar a fluírem de forma organizada.',
-    },
-    {
-      id: 'c05',
-      number: '05',
-      concept: 'Dois Futuros. Uma Escolha.',
-      style: 'Fotografia Hiper-Realista & Contraste Publicitário',
-      imageSrc: '/src/assets/images/poster5_two_futures_1793967758771.jpg',
-      palette: 'Terra Queimada & Verde Pradaria Puro',
-      title: 'DOIS FUTUROS. UMA ESCOLHA.',
-      message: 'Que futuro queres escolher?',
-      description: 'Cisão diagonal entre paisagem degradada por plásticos e fumo em contraste com um vale verdejante com rio cristalino.',
-    },
-    {
-      id: 'c06',
-      number: '06',
-      concept: 'Não Existe um Botão para Reiniciar o Planeta',
-      style: 'Design Futurista Cyberpunk / 3D Sci-Fi',
-      imageSrc: '/src/assets/images/poster6_reset_planet_1793967770749.jpg',
-      palette: 'Azul Neon Ciber, Vermelho de Aviso & Roxo Noturno',
-      title: 'NÃO HÁ BOTÃO DE REINICIAR',
-      message: 'Não há Planeta B. Recicla!',
-      description: 'Metáfora tecnológica: botão mecânico luminoso de energia com Terra holográfica em perigo.',
-    },
-  ];
-
-  const currentBespoke = bespokePosters.find((p) => p.id === selectedBespokeId) || bespokePosters[0];
-  const zoomedBespoke = bespokePosters.find((p) => p.id === zoomedBespokeId);
-
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* HEADER DO MÓDULO */}
@@ -205,7 +122,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
               Oficina de Cartazes no Canva 🖌️
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Aprende a criar cartazes de impacto para a escola: explora os conceitos nas abas abaixo sem te perderes!
+              Descobre como criar cartazes apelativos para a escola! Explora cada separador e aprende, passo a passo, a dar vida às tuas ideias.
             </p>
           </div>
         </div>
@@ -213,7 +130,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
         <div className="flex items-center gap-3 shrink-0">
           <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center">
             <span className="text-[10px] font-black uppercase text-emerald-800 block">Exemplos Reais</span>
-            <span className="text-sm font-black text-emerald-950">12 Cartazes (6 Escola + 6 Autor) ♻️</span>
+            <span className="text-sm font-black text-emerald-950">6 Exemplos Escolares ♻️</span>
           </div>
         </div>
       </div>
@@ -551,10 +468,10 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-black text-slate-900">
-                    Começar: Escolher o Modelo "Cartaz" (Poster A4)
+                    Começar: Escolher o Modelo "Cartaz" (Poster A3 / A4)
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Depois de entrares no Canva, clica no botão roxo <strong>"Criar um design"</strong> (no canto superior direito) e escreve <strong>"Cartaz"</strong>. Escolhe o formato vertical A4 tradicional para folha de papel.
+                    Depois de entrares no Canva, clica no botão roxo <strong>"Criar um design"</strong> (no canto superior direito) e escreve <strong>"Cartaz"</strong>. Escolhe o formato vertical A3 (o tamanho ideal para cartazes escolares e exposições de parede) ou A4.
                   </p>
                 </div>
               </div>
@@ -651,11 +568,11 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
       )}
 
       {/* ========================================================================= */}
-      {/* SEPARADOR 4: EXEMPLOS DE CARTAZES (OS 6 EXEMPLOS ORIGINAIS + AUTOR)        */}
+      {/* SEPARADOR 4: EXEMPLOS DE CARTAZES (OS 6 EXEMPLOS ESCOLARES ORIGINAIS)       */}
       {/* ========================================================================= */}
       {activeSubTab === 'examples' && (
         <div className="space-y-6 animate-in fade-in duration-300">
-          {/* SELETOR DE MODO ENTRE OS EXEMPLOS ESCOLARES E A COLEÇÃO DE AUTOR */}
+          {/* CABEÇALHO DA GALERIA ESCOLAR */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950 p-4 rounded-3xl border border-slate-800 text-white shadow-md">
             <div className="flex items-center gap-2.5">
               <span className="text-xl">♻️</span>
@@ -664,41 +581,19 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                   Galeria de Exemplos Reais sobre Reciclagem
                 </h3>
                 <p className="text-[11px] text-slate-400">
-                  Clica nos cartões da esquerda para ver a simulação real de impressão em tamanho A4
+                  Clica nos cartões da esquerda para ver a simulação real de impressão em formato vertical A3
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl shrink-0 self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => setExampleMode('school')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                  exampleMode === 'school'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                📋 Exemplos Escolares (6)
-              </button>
-              <button
-                type="button"
-                onClick={() => setExampleMode('bespoke')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                  exampleMode === 'bespoke'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                ✨ Coleção de Autor (+6 A3)
-              </button>
+            <div className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-black shrink-0 self-start sm:self-auto">
+              📋 6 Exemplos Oficiais da Escola (Formato A3)
             </div>
           </div>
 
-          {/* MODO 1: OS 6 CARTAZES ESCOLARES ORIGINAIS DAS CAPTURAS DE ECRÃ */}
-          {exampleMode === 'school' && (
-            <div className="bg-[#0b1329] border border-slate-800 rounded-3xl p-4 sm:p-6 text-white shadow-2xl space-y-6">
-              {/* CORPO PRINCIPAL: BARRA LATERAL À ESQUERDA + FOLHA A4 VERTICAL À DIREITA */}
+          {/* OS 6 CARTAZES ESCOLARES ORIGINAIS EM FORMATO A3 */}
+          <div className="bg-[#0b1329] border border-slate-800 rounded-3xl p-4 sm:p-6 text-white shadow-2xl space-y-6">
+              {/* CORPO PRINCIPAL: BARRA LATERAL À ESQUERDA + CARTAZ FORMATO A3 À DIREITA */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* BARRA LATERAL ESQUERDA: LISTA DE CARTAZES */}
                 <div className="lg:col-span-4 space-y-3">
@@ -749,24 +644,29 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                   </div>
                 </div>
 
-                {/* LADO DIREITO: A FOLHA A4 VERTICAL (SIMULAÇÃO REAL DE IMPRESSÃO) */}
+                {/* LADO DIREITO: O CARTAZ VERTICAL FORMATO A3 (SIMULAÇÃO REAL DE IMPRESSÃO ESCOLAR) */}
                 <div className="lg:col-span-8 space-y-3">
-                  <div className="flex items-center justify-between text-xs text-slate-300 font-bold px-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300 font-bold px-1">
                     <span className="flex items-center gap-1.5 text-emerald-400">
                       <Eye className="w-4 h-4" />
-                      <span>Folha A4 Vertical (Simulação Real de Impressão)</span>
+                      <span>Cartaz Vertical Formato A3 (Simulação Real de Impressão Escolar)</span>
                     </span>
-                    <span className="text-slate-400 text-[11px] truncate">
-                      {activePoster.headerRight}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 rounded-md text-[10px] font-black">
+                        📐 Formato A3 (29,7 × 42 cm)
+                      </span>
+                      <span className="text-slate-400 text-[11px] truncate">
+                        {activePoster.headerRight}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* 1. CARTAZ: ONDE DEVO COLOCAR? */}
-                  {activePoster.id === 'onde_colocar' && (
-                    <div className="bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6 select-none">
-                      <div className="text-center space-y-2">
+                  {/* 1. CARTAZ A3: ONDE DEVO COLOCAR? */}
+                  {activePoster.id === "onde_colocar" && (
+                    <div className="max-w-2xl mx-auto bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 select-none ring-1 ring-black/5">
+                      <div className="text-center space-y-1.5">
                         <span className="inline-block bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full">
-                          CAMPANHA ESCOLAR • 6.º ANO
+                          CAMPANHA ESCOLAR • 6.º ANO • FORMATO A3
                         </span>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight leading-tight">
                           ONDE DEVO COLOCAR?
@@ -776,10 +676,22 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
+                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-slate-200">
+                        <img
+                          src="/src/assets/images/ecopontos_school_bins_1793976160312.jpg"
+                          alt="Ecopontos Escolar Amarelo, Azul e Verde"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 right-2 bg-slate-900/85 backdrop-blur-xs text-white text-[9px] font-black px-2.5 py-0.5 rounded-md shadow-xs">
+                          Ecopontos Oficiais da Escola ♻️
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {/* Amarelo */}
-                        <div className="border-2 border-amber-400 rounded-2xl p-4 bg-amber-50/40 space-y-3 text-left">
-                          <div className="bg-amber-400 text-slate-950 text-center py-1 rounded-xl text-xs font-black uppercase">
+                        <div className="border-2 border-amber-400 rounded-2xl p-3.5 bg-amber-50/50 space-y-2.5 text-left">
+                          <div className="bg-amber-400 text-slate-950 text-center py-1 rounded-xl text-xs font-black uppercase shadow-xs">
                             🟡 AMARELO
                           </div>
                           <div className="text-center">
@@ -795,19 +707,19 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                               <li>• Sacos plásticos e iogurtes</li>
                             </ul>
                           </div>
-                          <div className="text-[10px] space-y-1 pt-1 border-t border-amber-200">
+                          <div className="text-[10px] space-y-1 pt-1.5 border-t border-amber-200">
                             <span className="font-black text-rose-700 block">NÃO COLOCAR (NÃO ❌):</span>
                             <ul className="text-slate-700 space-y-0.5">
                               <li>• Baldes ou brinquedos partidos</li>
                               <li>• Canetas e marcadores escolares</li>
-                              <li>• Pratos de plástico sujos com comida</li>
+                              <li>• Pratos de plástico sujos</li>
                             </ul>
                           </div>
                         </div>
 
                         {/* Azul */}
-                        <div className="border-2 border-blue-500 rounded-2xl p-4 bg-blue-50/40 space-y-3 text-left">
-                          <div className="bg-blue-600 text-white text-center py-1 rounded-xl text-xs font-black uppercase">
+                        <div className="border-2 border-blue-500 rounded-2xl p-3.5 bg-blue-50/50 space-y-2.5 text-left">
+                          <div className="bg-blue-600 text-white text-center py-1 rounded-xl text-xs font-black uppercase shadow-xs">
                             🔵 AZUL
                           </div>
                           <div className="text-center">
@@ -823,10 +735,10 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                               <li>• Jornais, revistas e panfletos</li>
                             </ul>
                           </div>
-                          <div className="text-[10px] space-y-1 pt-1 border-t border-blue-200">
+                          <div className="text-[10px] space-y-1 pt-1.5 border-t border-blue-200">
                             <span className="font-black text-rose-700 block">NÃO COLOCAR (NÃO ❌):</span>
                             <ul className="text-slate-700 space-y-0.5">
-                              <li>• Guardanapos e papel de cozinha sujo</li>
+                              <li>• Guardanapos de cozinha sujos</li>
                               <li>• Toalhetes húmidos de limpeza</li>
                               <li>• Papel de prata dos chocolates</li>
                             </ul>
@@ -834,8 +746,8 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         </div>
 
                         {/* Verde */}
-                        <div className="border-2 border-emerald-500 rounded-2xl p-4 bg-emerald-50/40 space-y-3 text-left">
-                          <div className="bg-emerald-600 text-white text-center py-1 rounded-xl text-xs font-black uppercase">
+                        <div className="border-2 border-emerald-500 rounded-2xl p-3.5 bg-emerald-50/50 space-y-2.5 text-left">
+                          <div className="bg-emerald-600 text-white text-center py-1 rounded-xl text-xs font-black uppercase shadow-xs">
                             🟢 VERDE
                           </div>
                           <div className="text-center">
@@ -851,7 +763,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                               <li>• Frascos de molho lavados</li>
                             </ul>
                           </div>
-                          <div className="text-[10px] space-y-1 pt-1 border-t border-emerald-200">
+                          <div className="text-[10px] space-y-1 pt-1.5 border-t border-emerald-200">
                             <span className="font-black text-rose-700 block">NÃO COLOCAR (NÃO ❌):</span>
                             <ul className="text-slate-700 space-y-0.5">
                               <li>• Copos de vidro partidos</li>
@@ -873,12 +785,12 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                     </div>
                   )}
 
-                  {/* 2. CARTAZ: ALERTA PILHÃO */}
-                  {activePoster.id === 'pilhao' && (
-                    <div className="bg-[#54091c] text-white border-2 border-rose-800 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6 select-none">
-                      <div className="text-center space-y-2">
+                  {/* 2. CARTAZ A3: ALERTA PILHÃO */}
+                  {activePoster.id === "pilhao" && (
+                    <div className="max-w-2xl mx-auto bg-[#54091c] text-white border-2 border-rose-800 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 select-none ring-1 ring-white/10">
+                      <div className="text-center space-y-1.5">
                         <span className="inline-block bg-yellow-400 text-slate-950 text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full">
-                          🟡 AVISO URGENTE DE SEGURANÇA AMBIENTAL
+                          🟡 AVISO URGENTE DE SEGURANÇA AMBIENTAL • A3
                         </span>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
                           PERIGO: PILHAS NO LIXO COMUM!
@@ -886,6 +798,20 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         <p className="text-xs sm:text-sm font-semibold text-rose-200 max-w-xl mx-auto leading-relaxed">
                           Uma única pilha contém metais pesados tóxicos como chumbo e mercúrio que poluem rios e nascentes.
                         </p>
+                      </div>
+
+                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
+                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-rose-700/60">
+                        <img
+                          src="/src/assets/images/pilhao_hazard_batteries_1793976138543.jpg"
+                          alt="Pilhas gastas e metais pesados perigosos"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2.5 text-right">
+                          <span className="text-[10px] font-black text-yellow-300 bg-black/60 px-2 py-0.5 rounded">
+                            ⚠️ Não misturar com lixo comum nem queimar!
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
@@ -909,7 +835,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         </div>
                       </div>
 
-                      <div className="bg-black/30 border border-white/10 rounded-2xl p-4 space-y-3">
+                      <div className="bg-black/30 border border-white/10 rounded-2xl p-4 space-y-2.5">
                         <span className="text-[10px] font-black uppercase tracking-wider text-yellow-300 block">
                           COMO PROCEDER EM 3 PASSOS SIMPLES:
                         </span>
@@ -949,12 +875,12 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                     </div>
                   )}
 
-                  {/* 3. CARTAZ: CAMPANHA PLÁSTICO ZERO */}
-                  {activePoster.id === 'plastico_zero' && (
-                    <div className="bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6 select-none">
-                      <div className="text-center space-y-2">
+                  {/* 3. CARTAZ A3: CAMPANHA PLÁSTICO ZERO */}
+                  {activePoster.id === "plastico_zero" && (
+                    <div className="max-w-2xl mx-auto bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 select-none ring-1 ring-black/5">
+                      <div className="text-center space-y-1.5">
                         <span className="inline-block bg-cyan-600 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full">
-                          🌊 SEMANA ECO-ESCOLAS
+                          🌊 SEMANA ECO-ESCOLAS • FORMATO A3
                         </span>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight leading-tight">
                           O TEU LANCHE PROTEGE O MAR?
@@ -964,8 +890,21 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="border border-rose-300 bg-rose-50/40 rounded-2xl p-4 space-y-3 text-left">
+                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
+                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-cyan-200">
+                        <img
+                          src="/src/assets/images/ocean_sea_turtle_clean_1793976181779.jpg"
+                          alt="Tartaruga marinha em mar limpo e preservado"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-cyan-950/85 backdrop-blur-xs text-cyan-200 text-[9px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
+                          <span>🐢</span>
+                          <span>Menos plástico no recreio escolar = Oceanos com vida!</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div className="border border-rose-300 bg-rose-50/50 rounded-2xl p-4 space-y-2.5 text-left">
                           <div>
                             <h5 className="text-xs font-black text-rose-700">EVITA ESTES HÁBITOS ❌</h5>
                             <span className="text-[10px] text-slate-500">Produzem 20 kg de lixo por aluno todos os anos</span>
@@ -978,7 +917,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                           </ul>
                         </div>
 
-                        <div className="border border-emerald-300 bg-emerald-50/40 rounded-2xl p-4 space-y-3 text-left">
+                        <div className="border border-emerald-300 bg-emerald-50/50 rounded-2xl p-4 space-y-2.5 text-left">
                           <div>
                             <h5 className="text-xs font-black text-emerald-800">PREFERE ESTAS SOLUÇÕES ✅</h5>
                             <span className="text-[10px] text-slate-500">Laváveis, económicas e amigas dos oceanos</span>
@@ -1004,12 +943,12 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                     </div>
                   )}
 
-                  {/* 4. CARTAZ: FESTIVAL DO REEE & ELETRÓNICOS */}
-                  {activePoster.id === 'e_lixo' && (
-                    <div className="bg-[#191033] text-white border-2 border-purple-800 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6 select-none">
-                      <div className="text-center space-y-2">
+                  {/* 4. CARTAZ A3: FESTIVAL DO REEE & ELETRÓNICOS */}
+                  {activePoster.id === "e_lixo" && (
+                    <div className="max-w-2xl mx-auto bg-[#191033] text-white border-2 border-purple-800 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 select-none ring-1 ring-white/10">
+                      <div className="text-center space-y-1.5">
                         <span className="inline-block bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full">
-                          ⚡ GRANDE EVENTO ESCOLAR
+                          ⚡ GRANDE EVENTO ESCOLAR • FORMATO A3
                         </span>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-yellow-400 tracking-tight leading-tight">
                           FESTIVAL DO REEE &amp; ELETRÓNICOS
@@ -1017,6 +956,18 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         <p className="text-xs sm:text-sm font-semibold text-purple-200 max-w-xl mx-auto">
                           Aparelhos elétricos e cabos avariados não vão para o caixote. Traz e dá-lhes uma nova vida!
                         </p>
+                      </div>
+
+                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
+                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-purple-700/60">
+                        <img
+                          src="/src/assets/images/e_waste_school_collection_1793976179627.jpg"
+                          alt="Recolha escolar de lixo eletrónico e computadores"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 right-2 bg-purple-950/85 backdrop-blur-xs text-yellow-300 text-[9px] font-black px-2.5 py-0.5 rounded-md">
+                          Ponto de Entrega: Tenda Electrão ⚡
+                        </div>
                       </div>
 
                       <div className="space-y-2 text-left">
@@ -1078,12 +1029,12 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                     </div>
                   )}
 
-                  {/* 5. CARTAZ: INFOGRAFIA PAPEL & ÁRVORES */}
-                  {activePoster.id === 'papel_arvores' && (
-                    <div className="bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6 select-none">
-                      <div className="text-center space-y-2">
+                  {/* 5. CARTAZ A3: INFOGRAFIA PAPEL & ÁRVORES */}
+                  {activePoster.id === "papel_arvores" && (
+                    <div className="max-w-2xl mx-auto bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 select-none ring-1 ring-black/5">
+                      <div className="text-center space-y-1.5">
                         <span className="inline-block bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full">
-                          📄 SABIAS QUE? • EDIÇÃO ESPECIAL
+                          📄 SABIAS QUE? • EDIÇÃO ESPECIAL • FORMATO A3
                         </span>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight leading-tight">
                           O QUE ACONTECE QUANDO RECICLAS O PAPEL?
@@ -1093,8 +1044,21 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         </p>
                       </div>
 
+                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
+                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-blue-200">
+                        <img
+                          src="/src/assets/images/paper_forest_recycle_1793976198199.jpg"
+                          alt="Ciclo do papel reciclado e preservação florestal"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-emerald-950/85 backdrop-blur-xs text-emerald-300 text-[9px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
+                          <span>🌲</span>
+                          <span>1 tonelada de papel reciclado salva 20 árvores adultas na floresta</span>
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
-                        <div className="border border-blue-200 bg-blue-50/40 rounded-2xl p-3 space-y-1">
+                        <div className="border border-blue-200 bg-blue-50/50 rounded-2xl p-3 space-y-1">
                           <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs mx-auto flex items-center justify-center">
                             1
                           </div>
@@ -1104,7 +1068,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                           </p>
                         </div>
 
-                        <div className="border border-blue-200 bg-blue-50/40 rounded-2xl p-3 space-y-1">
+                        <div className="border border-blue-200 bg-blue-50/50 rounded-2xl p-3 space-y-1">
                           <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs mx-auto flex items-center justify-center">
                             2
                           </div>
@@ -1114,7 +1078,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                           </p>
                         </div>
 
-                        <div className="border border-blue-200 bg-blue-50/40 rounded-2xl p-3 space-y-1">
+                        <div className="border border-blue-200 bg-blue-50/50 rounded-2xl p-3 space-y-1">
                           <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs mx-auto flex items-center justify-center">
                             3
                           </div>
@@ -1124,7 +1088,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                           </p>
                         </div>
 
-                        <div className="border border-blue-200 bg-blue-50/40 rounded-2xl p-3 space-y-1">
+                        <div className="border border-blue-200 bg-blue-50/50 rounded-2xl p-3 space-y-1">
                           <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs mx-auto flex items-center justify-center">
                             4
                           </div>
@@ -1136,15 +1100,15 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                        <div className="border border-emerald-300 bg-emerald-50/50 rounded-2xl p-3 space-y-0.5">
+                        <div className="border border-emerald-300 bg-emerald-50/60 rounded-2xl p-3 space-y-0.5">
                           <span className="text-lg font-black text-emerald-800 block">20 Árvores</span>
                           <p className="text-[10px] text-slate-600">salvas por cada tonelada de papel reciclado.</p>
                         </div>
-                        <div className="border border-emerald-300 bg-emerald-50/50 rounded-2xl p-3 space-y-0.5">
+                        <div className="border border-emerald-300 bg-emerald-50/60 rounded-2xl p-3 space-y-0.5">
                           <span className="text-lg font-black text-emerald-800 block">30.000 Litros</span>
                           <p className="text-[10px] text-slate-600">de água poupados em comparação com papel novo de madeira.</p>
                         </div>
-                        <div className="border border-emerald-300 bg-emerald-50/50 rounded-2xl p-3 space-y-0.5">
+                        <div className="border border-emerald-300 bg-emerald-50/60 rounded-2xl p-3 space-y-0.5">
                           <span className="text-lg font-black text-emerald-800 block">Até 7 Vezes</span>
                           <p className="text-[10px] text-slate-600">o número de vezes que a mesma fibra de papel pode ser reciclada.</p>
                         </div>
@@ -1157,12 +1121,12 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                     </div>
                   )}
 
-                  {/* 6. CARTAZ: OFICINA DE COMPOSTAGEM */}
-                  {activePoster.id === 'compostagem' && (
-                    <div className="bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6 select-none">
-                      <div className="text-center space-y-2">
+                  {/* 6. CARTAZ A3: OFICINA DE COMPOSTAGEM */}
+                  {activePoster.id === "compostagem" && (
+                    <div className="max-w-2xl mx-auto bg-white text-slate-900 border-2 border-slate-700/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 select-none ring-1 ring-black/5">
+                      <div className="text-center space-y-1.5">
                         <span className="inline-block bg-lime-600 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full">
-                          🌱 INSCRIÇÕES ABERTAS • VAGAS LIMITADAS
+                          🌱 INSCRIÇÕES ABERTAS • VAGAS LIMITADAS • FORMATO A3
                         </span>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight leading-tight">
                           OFICINA: DA CASCA AO ADUBO!
@@ -1172,8 +1136,21 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         </p>
                       </div>
 
+                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
+                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-lime-300">
+                        <img
+                          src="/src/assets/images/compost_organic_soil_1793976138126.jpg"
+                          alt="Alunos na horta pedagógica a criar adubo orgânico"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-lime-950/85 backdrop-blur-xs text-lime-300 text-[9px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
+                          <span>🌱</span>
+                          <span>Horta Pedagógica Escolar: transforma sobras em adubo vivo!</span>
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-center">
-                        <div className="border border-slate-200 bg-slate-50/60 rounded-2xl p-4 space-y-1.5">
+                        <div className="border border-slate-200 bg-slate-50/70 rounded-2xl p-4 space-y-1.5">
                           <span className="text-2xl">🌱</span>
                           <strong className="text-xs font-black text-slate-900 block">Os 2 Ingredientes</strong>
                           <p className="text-[10px] text-slate-600 leading-relaxed">
@@ -1181,7 +1158,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                           </p>
                         </div>
 
-                        <div className="border border-slate-200 bg-slate-50/60 rounded-2xl p-4 space-y-1.5">
+                        <div className="border border-slate-200 bg-slate-50/70 rounded-2xl p-4 space-y-1.5">
                           <span className="text-2xl">🪱</span>
                           <strong className="text-xs font-black text-slate-900 block">Ajudantes Invisíveis</strong>
                           <p className="text-[10px] text-slate-600 leading-relaxed">
@@ -1189,7 +1166,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                           </p>
                         </div>
 
-                        <div className="border border-slate-200 bg-slate-50/60 rounded-2xl p-4 space-y-1.5">
+                        <div className="border border-slate-200 bg-slate-50/70 rounded-2xl p-4 space-y-1.5">
                           <span className="text-2xl">⏱️</span>
                           <strong className="text-xs font-black text-slate-900 block">A Maturação</strong>
                           <p className="text-[10px] text-slate-600 leading-relaxed">
@@ -1216,147 +1193,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                 </div>
               </div>
             </div>
-          )}
 
-          {/* MODO 2: OS 6 CARTAZES DE AUTOR EM A3 */}
-          {exampleMode === 'bespoke' && (
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-white shadow-xl space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 block">
-                    Coleção Artística de Autor (+6 Conceitos em A3)
-                  </span>
-                  <h4 className="text-lg font-black text-white">
-                    Conceitos Gráficos Independentes de Grande Escala
-                  </h4>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setZoomedBespokeId(currentBespoke.id)}
-                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-4 py-2 rounded-xl transition-all shadow-md self-start sm:self-auto cursor-pointer"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                  <span>Ampliar em Ecrã Inteiro (A3)</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {bespokePosters.map((poster) => {
-                  const isSelected = poster.id === currentBespoke.id;
-                  return (
-                    <div
-                      key={poster.id}
-                      onClick={() => setSelectedBespokeId(poster.id)}
-                      className={`rounded-2xl border transition-all cursor-pointer overflow-hidden ${
-                        isSelected
-                          ? 'bg-slate-800 border-emerald-400 ring-2 ring-emerald-400/40 scale-102 shadow-lg'
-                          : 'bg-white/5 border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="relative aspect-[3/4] w-full overflow-hidden">
-                        <img
-                          src={poster.imageSrc}
-                          alt={poster.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-1.5 left-1.5 bg-black/80 text-[10px] font-mono px-2 py-0.5 rounded text-white font-black">
-                          {poster.number}
-                        </div>
-                      </div>
-                      <div className="p-2 space-y-0.5">
-                        <h5 className="text-[11px] font-black text-white truncate">{poster.concept}</h5>
-                        <p className="text-[9px] text-emerald-300 truncate font-semibold">«{poster.message}»</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Inspeção do Cartaz Artístico Selecionado */}
-              <div className="bg-slate-950 rounded-2xl p-4 sm:p-6 border border-slate-800 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                <div className="md:col-span-6">
-                  <div
-                    onClick={() => setZoomedBespokeId(currentBespoke.id)}
-                    className="relative aspect-[3/4] w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 cursor-pointer group"
-                  >
-                    <img
-                      src={currentBespoke.imageSrc}
-                      alt={currentBespoke.title}
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-4 text-center space-y-1">
-                      <h4 className="text-base sm:text-lg font-black text-white uppercase">{currentBespoke.title}</h4>
-                      <p className="text-xs font-black text-yellow-300">«{currentBespoke.message}»</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="md:col-span-6 space-y-3">
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Estilo Gráfico:</span>
-                    <div className="inline-block bg-purple-500/20 text-purple-300 border border-purple-400/30 text-xs font-black px-3 py-1 rounded-xl">
-                      {currentBespoke.style}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Mensagem:</span>
-                    <p className="text-sm font-black text-white border-l-4 border-emerald-400 pl-3">
-                      «{currentBespoke.message}»
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Descrição do Conceito:</span>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {currentBespoke.description}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Cores:</span>
-                    <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-slate-200">
-                      🎨 {currentBespoke.palette}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Zoom do Cartaz Artístico */}
-              {zoomedBespoke && (
-                <div
-                  onClick={() => setZoomedBespokeId(null)}
-                  className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md p-4 sm:p-8 flex items-center justify-center animate-in fade-in"
-                >
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="relative max-w-xl w-full max-h-[92vh] flex flex-col items-center bg-slate-950 border border-white/20 rounded-3xl p-4 sm:p-6 shadow-2xl overflow-y-auto"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setZoomedBespokeId(null)}
-                      className="absolute top-4 right-4 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-
-                    <div className="relative aspect-[3/4] w-full max-h-[70vh] rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-black mt-2">
-                      <img
-                        src={zoomedBespoke.imageSrc}
-                        alt={zoomedBespoke.title}
-                        className="w-full h-full object-contain"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 text-center space-y-1">
-                        <h4 className="text-lg font-black text-white uppercase">{zoomedBespoke.title}</h4>
-                        <p className="text-xs font-black text-yellow-300">«{zoomedBespoke.message}»</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* BOTÕES DE NAVEGAÇÃO */}
           <div className="flex items-center justify-between pt-4 border-t border-slate-200">
