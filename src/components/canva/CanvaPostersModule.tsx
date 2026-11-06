@@ -13,6 +13,11 @@ import {
   ArrowRight,
   ChevronLeft,
 } from 'lucide-react';
+import ecopontosImg from '../../assets/images/ecopontos_school_bins_1793976160312.jpg';
+import pilhaoImg from '../../assets/images/pilhao_hazard_batteries_1793976138543.jpg';
+import oceanImg from '../../assets/images/ocean_sea_turtle_clean_1793976181779.jpg';
+import eWasteImg from '../../assets/images/e_waste_school_collection_1793976179627.jpg';
+import compostImg from '../../assets/images/compost_organic_soil_1793976138126.jpg';
 
 interface CanvaPostersModuleProps {
   onNavigateTab?: (tab: string) => void;
@@ -130,7 +135,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
         <div className="flex items-center gap-3 shrink-0">
           <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center">
             <span className="text-[10px] font-black uppercase text-emerald-800 block">Exemplos Reais</span>
-            <span className="text-sm font-black text-emerald-950">6 Exemplos Escolares ♻️</span>
+            <span className="text-sm font-black text-emerald-950">Exemplos de Cartazes ♻️</span>
           </div>
         </div>
       </div>
@@ -183,7 +188,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                 <BookOpen className="w-6 h-6" />
                 <div>
                   <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                    1. O Que é um Cartaz e Qual é o Seu Super-Poder? 🦸‍♂️
+                    1. O Que é um Cartaz ? 🦸‍♂️
                   </h3>
                   <p className="text-xs text-slate-500">
                     Aprende a captar a atenção num instante no corredor da escola
@@ -282,9 +287,6 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                   <h3 className="text-lg sm:text-xl font-black text-slate-900">
                     2. As 5 Regras de Ouro de um Cartaz Campeão 🏆
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    Hierarquia visual: o que o olho humano deve ler primeiro, segundo e terceiro
-                  </p>
                 </div>
               </div>
               <span className="hidden sm:inline-block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-black">
@@ -580,14 +582,11 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                 <h3 className="text-sm font-black text-white">
                   Galeria de Exemplos Reais sobre Reciclagem
                 </h3>
-                <p className="text-[11px] text-slate-400">
-                  Clica nos cartões da esquerda para ver a simulação real de impressão em formato vertical A3
-                </p>
               </div>
             </div>
 
             <div className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-black shrink-0 self-start sm:self-auto">
-              📋 6 Exemplos Oficiais da Escola (Formato A3)
+              📋 Exemplos de Cartazes
             </div>
           </div>
 
@@ -679,7 +678,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                       {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
                       <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-slate-200">
                         <img
-                          src="/src/assets/images/ecopontos_school_bins_1793976160312.jpg"
+                          src={ecopontosImg}
                           alt="Ecopontos Escolar Amarelo, Azul e Verde"
                           className="w-full h-full object-cover"
                         />
@@ -803,7 +802,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                       {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
                       <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-rose-700/60">
                         <img
-                          src="/src/assets/images/pilhao_hazard_batteries_1793976138543.jpg"
+                          src={pilhaoImg}
                           alt="Pilhas gastas e metais pesados perigosos"
                           className="w-full h-full object-cover"
                         />
@@ -893,7 +892,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                       {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
                       <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-cyan-200">
                         <img
-                          src="/src/assets/images/ocean_sea_turtle_clean_1793976181779.jpg"
+                          src={oceanImg}
                           alt="Tartaruga marinha em mar limpo e preservado"
                           className="w-full h-full object-cover"
                         />
@@ -961,7 +960,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                       {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
                       <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-purple-700/60">
                         <img
-                          src="/src/assets/images/e_waste_school_collection_1793976179627.jpg"
+                          src={eWasteImg}
                           alt="Recolha escolar de lixo eletrónico e computadores"
                           className="w-full h-full object-cover"
                         />
@@ -1042,19 +1041,6 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                         <p className="text-xs sm:text-sm font-semibold text-slate-600 max-w-xl mx-auto">
                           Descobre a viagem incrível de uma folha de rascunho desde a tua sala até ao novo livro.
                         </p>
-                      </div>
-
-                      {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
-                      <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-blue-200">
-                        <img
-                          src="/src/assets/images/paper_forest_recycle_1793976198199.jpg"
-                          alt="Ciclo do papel reciclado e preservação florestal"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute bottom-2 left-2 bg-emerald-950/85 backdrop-blur-xs text-emerald-300 text-[9px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
-                          <span>🌲</span>
-                          <span>1 tonelada de papel reciclado salva 20 árvores adultas na floresta</span>
-                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
@@ -1139,7 +1125,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                       {/* IMAGEM PRINCIPAL DO CARTAZ A3 */}
                       <div className="relative aspect-[16/8] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-md border border-lime-300">
                         <img
-                          src="/src/assets/images/compost_organic_soil_1793976138126.jpg"
+                          src={compostImg}
                           alt="Alunos na horta pedagógica a criar adubo orgânico"
                           className="w-full h-full object-cover"
                         />

@@ -74,6 +74,11 @@ async function startServer() {
   // Attach user to req if valid session exists
   app.use(authMiddleware);
 
+  // Serve static assets from public and src/assets
+  app.use(express.static(path.join(process.cwd(), 'public')));
+  app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
+  app.use('/src/assets', express.static(path.join(process.cwd(), 'src/assets')));
+
   // API Routes FIRST
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
