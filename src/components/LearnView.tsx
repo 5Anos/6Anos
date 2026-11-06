@@ -842,6 +842,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
           </div>
 
           {/* ========================================================================= */}
+          {/* ========================================================================= */}
           {/* SECÇÃO 5: GALERIA DE CARTAZES DE RECICLAGEM — EXEMPLOS PRÁTICOS NO CANVA */}
           {/* ========================================================================= */}
           {(() => {
@@ -849,158 +850,167 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
               {
                 id: 'p1',
                 category: 'ponto_verde',
-                categoryLabel: 'Ecopontos & Regras de Separação',
-                badgeText: 'Regra dos 3 Ecopontos 🟡🔵🟢',
-                title: 'SEPARA HOJE, SALVA O AMANHÃ! ♻️',
-                slogan: 'Cada embalagem no sítio certo faz a diferença na nossa escola!',
-                date: 'Campanha Contínua • Ano Letivo 2025/2026',
-                location: 'Ecopontos no Pátio, Corredores e Cantina',
-                target: 'Alunos, Professores e Funcionários',
-                paletteName: 'Trio Ecológico (Amarelo, Azul e Verde)',
-                bgStyle: 'bg-gradient-to-b from-emerald-950 via-slate-900 to-teal-950 text-white border-emerald-400',
-                badgeBg: 'bg-emerald-400 text-emerald-950',
-                callToAction: 'Deposita sempre nos contentores coloridos!',
-                items: [
-                  { bin: 'Amarelo', icon: '🟡', rule: 'Plásticos, pacotes de leite e latas de sumo (espalma antes!)' },
-                  { bin: 'Azul', icon: '🔵', rule: 'Papel de rascunho, folhas de teste e caixas de cartão limpas' },
-                  { bin: 'Verde', icon: '🟢', rule: 'Garrafas e frascos de vidro (nunca espelhos nem copos partidos!)' },
+                categoryLabel: 'Guia Visual dos Ecopontos',
+                layoutType: 'three_columns',
+                badgeText: 'Campanha Escolar • 6.º Ano',
+                title: 'ONDE DEVO COLOCAR?',
+                slogan: 'Guia Oficial de Separação de Resíduos na Escola',
+                date: 'Ano Letivo 2025/2026',
+                location: 'Ecopontos em todos os corredores',
+                contact: 'Eco-Escola • Clube de TIC',
+                columns: [
+                  {
+                    name: 'AMARELO',
+                    headerBg: 'bg-amber-400 text-slate-950',
+                    boxBg: 'bg-amber-50/90 border-amber-300 text-slate-900',
+                    accentColor: 'text-amber-600',
+                    icon: '🟡',
+                    material: 'Plástico & Metal',
+                    rule: 'Espalmar antes de colocar!',
+                    yes: ['Garrafas de água e sumos', 'Pacotes de leite e néctar', 'Latas de conserva e refrigerante', 'Sacos plásticos e iogurtes'],
+                    no: ['Baldes ou brinquedos partidos', 'Canetas e marcadores escolares', 'Pratos de plástico sujos com comida'],
+                  },
+                  {
+                    name: 'AZUL',
+                    headerBg: 'bg-blue-600 text-white',
+                    boxBg: 'bg-blue-50/90 border-blue-300 text-slate-900',
+                    accentColor: 'text-blue-600',
+                    icon: '🔵',
+                    material: 'Papel & Cartão',
+                    rule: 'Folhas limpas e secas!',
+                    yes: ['Folhas de cadernos e rascunhos', 'Caixas de cartão espalmadas', 'Fotocópias de estudo', 'Jornais, revistas e panfletos'],
+                    no: ['Guardanapos e papel de cozinha sujo', 'Toalhetes húmidos de limpeza', 'Papel de prata dos chocolates'],
+                  },
+                  {
+                    name: 'VERDE',
+                    headerBg: 'bg-emerald-600 text-white',
+                    boxBg: 'bg-emerald-50/90 border-emerald-300 text-slate-900',
+                    accentColor: 'text-emerald-600',
+                    icon: '🟢',
+                    material: 'Vidro',
+                    rule: 'Retirar as tampas metálicas!',
+                    yes: ['Garrafas de água em vidro', 'Frascos de doce ou iogurte', 'Boiões de comida de vidro', 'Frascos de molho lavados'],
+                    no: ['Copos de vidro partidos', 'Espelhos e vidros de janelas', 'Lâmpadas ou loiças cerâmicas'],
+                  },
                 ],
-                extraTip: '💧 Dica de Ouro: Escorre bem o pacote de sumo antes de o pores no ecoponto amarelo para não criar maus cheiros!',
-                canvaSecrets: [
-                  'Usa ícones limpos dos ecopontos com as cores oficiais para associação imediata.',
-                  'O título ocupa o terço superior e lê-se a mais de 3 metros.',
-                  'Organização em 3 colunas paralelas para rápida consulta rápida nos corredores.',
-                ],
+                bannerTip: '💧 Dica importante: não é preciso lavar as embalagens com água, basta que estejam completamente vazias!',
               },
               {
                 id: 'p2',
                 category: 'pilhas',
-                categoryLabel: 'Pilhão & Resíduos Perigosos',
-                badgeText: 'Alerta Pilhão Escolar 🔋⚡',
-                title: 'PILHAS NO LIXO COMUM? NUNCA! 🔋🛑',
-                slogan: 'Uma única pilha mal deitada fora pode contaminar milhares de litros de água doce!',
-                date: 'Recolha Especial: Todas as Sextas-Feiras',
-                location: 'Pilhão Vermelho na Entrada Principal e Bloco B',
-                target: 'Comunidade Escolar e Famílias',
-                paletteName: 'Vermelho de Alerta & Branco Puro',
-                bgStyle: 'bg-gradient-to-b from-rose-950 via-slate-900 to-red-950 text-white border-rose-400',
-                badgeBg: 'bg-rose-400 text-rose-950',
-                callToAction: 'Traz as pilhas gastas de casa e deposita no Pilhão!',
-                items: [
-                  { bin: 'Pilhas AA / AAA', icon: '🪫', rule: 'Comandos de televisão, brinquedos e lanternas' },
-                  { bin: 'Pilhas-Botão', icon: '🔘', rule: 'Relógios e calculadoras escolares' },
-                  { bin: 'Baterias Pequenas', icon: '⚡', rule: 'Baterias de telemóveis antigos ou consolas portáteis' },
+                layoutType: 'alert_hero',
+                categoryLabel: 'Alerta Pilhão',
+                badgeText: 'Aviso Urgente de Segurança Ambiental',
+                title: 'PERIGO: PILHAS NO LIXO COMUM!',
+                slogan: 'Uma única pilha contém metais pesados tóxicos como chumbo e mercúrio que poluem rios e nascentes.',
+                date: 'Todas as Sextas • Recolha Oficial',
+                location: 'Pilhão Vermelho na Entrada do Bloco A',
+                contact: 'Brigada Verde da Escola',
+                stats: [
+                  { num: '30.000 Litros', label: 'de água que uma só pilha-botão pode contaminar no solo.' },
+                  { num: '100 Anos', label: 'o tempo que os metais pesados demoram a desaparecer da natureza.' },
+                  { num: '100% Reciclável', label: 'o aço, zinco e níquel retirados das pilhas recolhidas.' },
                 ],
-                extraTip: '⚠️ Atenção: Se uma pilha tiver resíduos brancos ou estiver danificada, pede ajuda a um adulto ou professor!',
-                canvaSecrets: [
-                  'O contraste entre o vermelho e o fundo escuro ativa o sentido de emergência ambiental.',
-                  'A palavra "NUNCA!" em caixa alta chama a atenção imediata de quem passa no corredor.',
-                  'Ícone central de bateria com relâmpago transmite a ideia em fração de segundo.',
+                steps: [
+                  { step: '1', title: 'Junta em Casa', desc: 'Guarda as pilhas gastas de comandos e brinquedos numa caixa de sapatos.' },
+                  { step: '2', title: 'Traz para a Escola', desc: 'Leva-as na mochila sem molhar nem perfurar o invólucro.' },
+                  { step: '3', title: 'Deposita no Pilhão', desc: 'Coloca no contentor vermelho próprio junto à Portaria.' },
                 ],
+                warning: '⚠️ Pilhas danificadas ou a verter líquido? Nunca toques com as mãos e avisa um professor ou funcionário.',
               },
               {
                 id: 'p3',
                 category: 'reutilizacao',
-                categoryLabel: 'Redução de Plástico Descartável',
-                badgeText: 'Plástico Zero nos Lanches 🥪🌊',
-                title: 'TRAZ A TUA GARRAFA E SALVA O OCEANO! 🌊🐬',
-                slogan: 'Diz adeus às garrafinhas descartáveis e ao papel de prata no teu recreio.',
-                date: 'Semana do Desafio Plástico Zero • 3 a 7 de Junho',
-                location: 'Bebedouros e Cantina Escolar',
-                target: 'Turmas do 5.º e 6.º Anos',
-                paletteName: 'Azul Marinho, Ciano Marinho e Branco',
-                bgStyle: 'bg-gradient-to-b from-cyan-950 via-slate-900 to-blue-950 text-white border-cyan-400',
-                badgeBg: 'bg-cyan-300 text-blue-950',
-                callToAction: 'Enche a tua garrafa reutilizável nos bebedouros escolares!',
-                items: [
-                  { bin: 'Garrafa de Inox/Vidro', icon: '🧴', rule: 'Usa garrafas reutilizáveis em vez de comprar garrafas de plástico descartável.' },
-                  { bin: 'Caixa de Lanche', icon: '🥪', rule: 'Guarda as tuas sandes em caixas laváveis em vez de papel de prata.' },
-                  { bin: 'Fruta Inteira', icon: '🍎', rule: 'A casca da maçã e da banana é a melhor embalagem natural do mundo!' },
-                ],
-                extraTip: '🐢 Facto Real: Mais de 8 milhões de toneladas de plástico vão parar ao mar todos os anos se não mudarmos os hábitos!',
-                canvaSecrets: [
-                  'A paleta marítima (azul e ciano) liga diretamente o tema do plástico à proteção marinha.',
-                  'Usa frases afirmativas e motivadoras em vez de proibições agressivas.',
-                  'Espaço em branco nas laterais para que a ilustração da onda e do golfinho respirem.',
-                ],
+                layoutType: 'split_comparison',
+                categoryLabel: 'Campanha Plástico Zero',
+                badgeText: 'Semana Eco-Escolas',
+                title: 'O TEU LANCHE PROTEGE O MAR?',
+                slogan: 'Faz a escolha certa no recreio escolar e diz adeus aos plásticos de uso único.',
+                date: 'Semana de 2 a 6 de Junho',
+                location: 'Refeitório & Bar dos Alunos',
+                contact: 'Projeto Mar Sem Plástico • 6.º Ano',
+                sideBad: {
+                  title: 'EVITA ESTES HÁBITOS ❌',
+                  subtitle: 'Produzem 20 kg de lixo por aluno todos os anos',
+                  items: [
+                    'Garrafas pequenas de plástico descartável',
+                    'Embrulhos de papel de alumínio descartáveis',
+                    'Sacos plásticos de uso único para a fruta',
+                    'Palhinhas e talheres de plástico fino',
+                  ],
+                },
+                sideGood: {
+                  title: 'PREFERE ESTAS SOLUÇÕES ✅',
+                  subtitle: 'Laváveis, económicas e amigas dos oceanos',
+                  items: [
+                    'Garrafa de aço inoxidável ou vidro resistente',
+                    'Caixa tipo "lunchbox" hermética reutilizável',
+                    'Bolsas de tecido laváveis para bolachas e pão',
+                    'Fruta fresca na sua casca natural protetora',
+                  ],
+                },
+                actionBanner: '🌊 Se 200 alunos usarem garrafa reutilizável, poupam-se mais de 30.000 embalagens plásticas num só ano letivo!',
               },
               {
                 id: 'p4',
                 category: 'eletronicos',
-                categoryLabel: 'Lixo Eletrónico (REEE)',
-                badgeText: 'E-Lixo & Tecnologia Sustentável 💻♻️',
-                title: 'HOSPITAL DOS ELETRÓNICOS VELHOS! 💻🔌',
-                slogan: 'Cabos partidos, ratos avariados e teclados antigos têm metais preciosos para reaproveitar!',
-                date: 'Quarta-feira, 22 de Maio • 14h00 às 17h00',
-                location: 'Laboratório de TIC (Sala 12) • Ponto Electrão',
-                target: 'Clube de Robótica, Alunos e Encarregados de Educação',
-                paletteName: 'Roxo Elétrico, Amarelo Cítrico e Preto Espacial',
-                bgStyle: 'bg-gradient-to-b from-purple-950 via-slate-900 to-slate-950 text-white border-yellow-400',
-                badgeBg: 'bg-yellow-400 text-slate-950',
-                callToAction: 'Entrega os teus aparelhos estragados para reciclagem segura!',
-                items: [
-                  { bin: 'Cabos e Carregadores', icon: '🔌', rule: 'Têm cobre puro que pode ser 100% reutilizado noutros cabos.' },
-                  { bin: 'Ratos e Auscultadores', icon: '🎧', rule: 'Plásticos técnicos e placas de circuito com micro-chips.' },
-                  { bin: 'Telemóveis Avariados', icon: '📱', rule: 'O ouro e a prata dos contactos valem ouro para a economia circular!' },
+                layoutType: 'event_announcement',
+                categoryLabel: 'Campanha Eletrão / E-Lixo',
+                badgeText: 'Grande Evento Escolar',
+                title: 'FESTIVAL DO REEE & ELETRÓNICOS',
+                slogan: 'Aparelhos elétricos e cabos avariados não vão para o caixote. Traz e dá-lhes uma nova vida!',
+                date: 'Quarta-feira, 28 de Maio • 14h30 às 17h00',
+                location: 'Átrio Principal da Escola • Tenda Electrão',
+                contact: 'Clube de Robótica & Departamento de TIC',
+                acceptedItems: [
+                  { title: 'Informática', icon: '💻', desc: 'Teclados, ratos, impressoras antigas, cabos USB e carregadores avariados.' },
+                  { title: 'Som & Imagem', icon: '🎧', desc: 'Auscultadores partidos, colunas, consolas portáteis e câmaras.' },
+                  { title: 'Pequenos Domésticos', icon: '🔌', desc: 'Torradeiras, secadores de cabelo velhos, ventoinhas e ferros de engomar.' },
+                  { title: 'Telefones & Tablets', icon: '📱', desc: 'Telemóveis estragados e ecrãs sem conserto (limpos de cartões SIM).' },
                 ],
-                extraTip: '💡 Sabias que? 1 tonelada de telemóveis velhos tem mais ouro do que 1 tonelada de minério de uma mina de ouro!',
-                canvaSecrets: [
-                  'Estética moderna com toque "tech": atrai em especial os alunos interessados em videojogos e computadores.',
-                  'Título em formato de metáfora divertida ("Hospital dos Eletrónicos").',
-                  'Texto curto e objetivo com ícones tecnológicos bem definidos.',
-                ],
+                rewardInfo: '🏆 A turma do 2.º Ciclo que recolher o maior peso de material elétrico ganha uma oficina prática de drones!',
               },
               {
                 id: 'p5',
                 category: 'ponto_verde',
-                categoryLabel: 'Reciclagem de Papel & Cartão',
-                badgeText: 'Operação Papelada Limpa 📄🌳',
-                title: 'CADA FOLHA SALVA UMA ÁRVORE! 📄🌳',
-                slogan: 'Recicla as tuas folhas de rascunho e jornais velhos no Ecoponto Azul da tua sala!',
-                date: 'Meta do Mês: Encher 50 Caixas de Papelão',
-                location: 'Caixote Azul presente em TODAS as salas de aula',
-                target: 'Todas as Turmas do 2.º Ciclo',
-                paletteName: 'Azul Cobalto, Verde Folha e Branco',
-                bgStyle: 'bg-gradient-to-b from-blue-950 via-slate-900 to-emerald-950 text-white border-blue-400',
-                badgeBg: 'bg-blue-400 text-slate-950',
-                callToAction: 'Folha sem uso? Dobra e coloca no caixote azul!',
-                items: [
-                  { bin: 'SIM no Ecoponto Azul', icon: '✅', rule: 'Folhas de caderno, caixas de cereais, fotocópias e revistas' },
-                  { bin: 'NÃO no Ecoponto Azul', icon: '❌', rule: 'Guardanapos sujos de comida, papel higiénico ou autocolantes plásticos' },
-                  { bin: 'Regra da Folha Dupla', icon: '🔄', rule: 'Usa sempre a frente e o verso antes de enviar para reciclar!' },
+                layoutType: 'infographic_facts',
+                categoryLabel: 'Infografia Papel & Árvores',
+                badgeText: 'Sabias Que? • Edição Especial',
+                title: 'O QUE ACONTECE QUANDO RECICLAS O PAPEL?',
+                slogan: 'Descobre a viagem incrível de uma folha de rascunho desde a tua sala até ao novo livro.',
+                date: 'Campanha Papelada Útil',
+                location: 'Todas as salas de aula e reprografia',
+                contact: 'Biblioteca Escolar & Turmas de Ciências',
+                cycleSteps: [
+                  { num: '1', title: 'Separação na Sala', text: 'Colocas o papel de rascunho no contentor azul sem agrafos nem plástico.' },
+                  { num: '2', title: 'Trituração & Polpa', text: 'Na fábrica de reciclagem o papel é misturado com água até formar uma pasta limpa.' },
+                  { num: '3', title: 'Secagem em Rolos', text: 'A pasta é prensada em rolos gigantes com quilómetros de papel novo branqueado.' },
+                  { num: '4', title: 'Novos Livros & Caixas', text: 'Renascem caixas de cereais, cadernos escolares e papel higiénico ecológico.' },
                 ],
-                extraTip: '🌳 Impacto: 1 tonelada de papel reciclado poupa cerca de 20 árvores e 30.000 litros de água potável!',
-                canvaSecrets: [
-                  'Técnica do SIM vs. NÃO: tabela visual de fácil compreensão para tirar dúvidas frequentes dos alunos.',
-                  'Ícones universais de visto verde e cruz vermelha garantem leitura rápida.',
-                  'Foco num único material (papel) para não dispersar a atenção do leitor.',
+                impactNumbers: [
+                  { big: '20 Árvores', desc: 'salvas por cada tonelada de papel reciclado.' },
+                  { big: '30.000 Litros', desc: 'de água poupados em comparação com papel novo de madeira.' },
+                  { big: 'Até 7 Vezes', desc: 'o número de vezes que a mesma fibra de papel pode ser reciclada.' },
                 ],
               },
               {
                 id: 'p6',
                 category: 'reutilizacao',
-                categoryLabel: 'Compostagem & Resíduos Orgânicos',
-                badgeText: 'Horta & Resíduos da Cantina 🍎🌱',
-                title: 'DA CASCA DE BANANA À NOVA PLANTA! 🌱🍎',
-                slogan: 'Aprende a transformar os restos de fruta e legumes em adubo natural para a nossa horta.',
-                date: 'Oficina Prática: Todas as Terças-feiras às 13h30',
-                location: 'Compostor junto à Horta Pedagógica da Escola',
-                target: 'Eco-Delegados e Alunos Voluntários',
-                paletteName: 'Terra Queimada, Verde Lima e Bege Solar',
-                bgStyle: 'bg-gradient-to-b from-stone-900 via-amber-950 to-emerald-950 text-white border-lime-400',
-                badgeBg: 'bg-lime-400 text-stone-950',
-                callToAction: 'Vem mexer no compostor e alimentar a terra da escola!',
-                items: [
-                  { bin: 'Restos Verdes', icon: '🥗', rule: 'Cascas de fruta, sobras de salada da cantina e folhas caídas' },
-                  { bin: 'Restos Castanhos', icon: '🍂', rule: 'Ramos secos, folhas secas do recreio e aparas de relva' },
-                  { bin: 'Resultado Mágico', icon: '✨', rule: 'Em 3 meses temos terra fértil e cheirosa sem químicos!' },
+                layoutType: 'workshop_poster',
+                categoryLabel: 'Oficina de Compostagem',
+                badgeText: 'Inscrições Abertas • Vagas Limitadas',
+                title: 'OFICINA: DA CASCA AO ADUBO!',
+                slogan: 'Vem aprender a transformar as sobras de fruta do teu recreio em terra fértil para a nossa horta.',
+                date: 'Quinta-feira, 15 de Maio • 15h30',
+                location: 'Horta Pedagógica da Escola (junto ao campo exterior)',
+                contact: 'Prof.ª de Ciências & Eco-Delegados',
+                learnings: [
+                  { icon: '🌿', title: 'Os 2 Ingredientes', desc: 'Equilíbrio perfeito entre restos verdes (húmidos) e restos castanhos (folhas secas).' },
+                  { icon: '🪱', title: 'Ajudantes Invisíveis', desc: 'Minhocas, bactérias benéficas e fungos que trabalham dia e noite sem parar.' },
+                  { icon: '⏱️', title: 'A Maturação', desc: 'Como cheirar e sentir a temperatura do compostor para saber quando está pronto.' },
                 ],
-                extraTip: '🪱 Segredo da Natureza: As minhocas da terra são as maiores trabalhadoras da reciclagem biológica!',
-                canvaSecrets: [
-                  'Cores orgânicas e quentes (tons terra e verde lima) que remetem para a horta e jardinagem.',
-                  'Contraste de alta legibilidade com tipografia redonda e amigável para crianças.',
-                  'Chamada de ação ("call to action") clara para participação voluntária na oficina.',
-                ],
+                bringList: '🧺 O que deves trazer: luvas de jardinagem, calçado confortável e muita curiosidade!',
+                enrollment: 'Inscrições gratuitas na Biblioteca Escolar até terça-feira!',
               },
             ];
 
@@ -1010,44 +1020,43 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
               : recyclePosters.filter((p) => p.category === filterRecycleCategory);
 
             return (
-              <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 border border-emerald-900/60 rounded-3xl p-6 sm:p-8 text-white shadow-xl space-y-8 animate-in fade-in">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl space-y-8 animate-in fade-in">
                 {/* CABEÇALHO DA GALERIA */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
                   <div className="space-y-1.5">
                     <div className="inline-flex items-center gap-2 bg-emerald-400 text-emerald-950 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
                       <Recycle className="w-3.5 h-3.5" />
-                      <span>Galeria de Modelos &amp; Inspiração</span>
+                      <span>Galeria de Modelos Reais • Formato Canva</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                      <span>Exemplos de Cartazes no Canva: Tema Reciclagem</span>
+                      <span>Exemplos de Cartazes sobre Reciclagem</span>
                       <span className="text-emerald-400">♻️</span>
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                      Explora <strong>6 cartazes temáticos reais</strong> concebidos segundo as regras de ouro do design (hierarquia visual, contraste, tipografia legível e margens). Clica num cartaz para analisar a sua estrutura, cores e segredos de composição!
+                      Explora <strong>6 cartazes com layouts e propósitos diferentes</strong>: guias de triagem em 3 colunas, alertas urgentes, comparações lado a lado, convocatórias de eventos e infografias de processo. Clica para ver em tamanho A4 real.
                     </p>
                   </div>
 
-                  {/* ESTATÍSTICA DE CARTAZES */}
                   <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-3.5 rounded-2xl shrink-0">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-lg">
                       6
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Exemplos Completos</span>
-                      <span className="text-xs font-black text-white">Prontos a Replicar</span>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Modelos Distintos</span>
+                      <span className="text-xs font-black text-white">Composições Reais</span>
                     </div>
                   </div>
                 </div>
 
-                {/* FILTROS POR CATEGORIA DE RECICLAGEM */}
+                {/* FILTROS POR CATEGORIA */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-slate-300 font-bold">
                     <span className="flex items-center gap-2">
                       <Sliders className="w-4 h-4 text-emerald-400" />
-                      <span>Filtrar Exemplos por Sub-Tema:</span>
+                      <span>Filtrar por Tema do Cartaz:</span>
                     </span>
                     <span className="text-[11px] text-slate-400">
-                      Mostrando {filteredPosters.length} de {recyclePosters.length} cartazes
+                      A mostrar {filteredPosters.length} de {recyclePosters.length} cartazes
                     </span>
                   </div>
 
@@ -1055,16 +1064,16 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                     {[
                       { id: 'all', label: 'Todos os Exemplos (6)', icon: '🌟' },
                       { id: 'ponto_verde', label: 'Ecopontos & Papel (2)', icon: '🟡🔵🟢' },
-                      { id: 'pilhas', label: 'Pilhão Escolar (1)', icon: '🔋' },
-                      { id: 'reutilizacao', label: 'Plástico Zero & Compostagem (2)', icon: '🌊🌱' },
-                      { id: 'eletronicos', label: 'Lixo Eletrónico (1)', icon: '💻' },
+                      { id: 'pilhas', label: 'Pilhão & Tóxicos (1)', icon: '🔋' },
+                      { id: 'reutilizacao', label: 'Plástico Zero & Horta (2)', icon: '🌊🌱' },
+                      { id: 'eletronicos', label: 'Resíduos Eletrónicos (1)', icon: '💻' },
                     ].map((f) => (
                       <button
                         key={f.id}
                         onClick={() => setFilterRecycleCategory(f.id as any)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
                           filterRecycleCategory === f.id
-                            ? 'bg-emerald-500 text-emerald-950 border-emerald-300 shadow-md scale-102 font-black'
+                            ? 'bg-emerald-500 text-emerald-950 border-emerald-300 shadow-md font-black'
                             : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -1075,50 +1084,47 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                   </div>
                 </div>
 
-                {/* GRELHA COM OS CARTAZES: CARDS SELECIONÁVEIS + VISUALIZADOR PRINCIPAL A4 */}
+                {/* GRELHA PRINCIPAL: SELETOR DE CARTAZES + VISUALIZADOR REALISTA A4 */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* COLUNA ESQUERDA: LISTA DE CARTAZES CLICÁVEIS */}
-                  <div className="lg:col-span-5 space-y-3">
+                  {/* SELETOR LATERAL */}
+                  <div className="lg:col-span-4 space-y-3">
                     <span className="text-xs font-black uppercase tracking-wider text-slate-300 block mb-1">
-                      Escolhe um Cartaz para Inspecionar:
+                      Clica para Visualizar o Cartaz:
                     </span>
 
-                    <div className="space-y-2.5 max-h-[620px] overflow-y-auto pr-1">
-                      {filteredPosters.map((poster, index) => {
+                    <div className="space-y-2.5 max-h-[700px] overflow-y-auto pr-1">
+                      {filteredPosters.map((poster) => {
                         const isSelected = poster.id === currentPoster.id;
                         return (
                           <div
                             key={poster.id}
                             onClick={() => setSelectedRecyclePosterId(poster.id)}
-                            className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer text-left flex items-start gap-3.5 ${
+                            className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-left flex items-start gap-3 ${
                               isSelected
-                                ? 'bg-emerald-500/15 border-emerald-400 ring-2 ring-emerald-400/40 shadow-lg'
+                                ? 'bg-emerald-500/15 border-emerald-400 ring-2 ring-emerald-400/40 shadow-md'
                                 : 'bg-white/5 border-white/10 hover:bg-white/10'
                             }`}
                           >
                             <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-xl shrink-0">
-                              {poster.items[0].icon}
+                              {poster.category === 'pilhas' ? '🔋' : poster.category === 'eletronicos' ? '💻' : poster.category === 'ponto_verde' ? '♻️' : '🌊'}
                             </div>
                             <div className="space-y-1 min-w-0 flex-1">
-                              <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center justify-between gap-1">
                                 <span className="text-[10px] font-black uppercase text-emerald-300 tracking-wider truncate">
                                   {poster.categoryLabel}
                                 </span>
                                 {isSelected && (
-                                  <span className="text-[10px] bg-emerald-400 text-emerald-950 font-black px-2 py-0.5 rounded-full shrink-0">
-                                    Em Análise 👁️
+                                  <span className="text-[9px] bg-emerald-400 text-emerald-950 font-black px-1.5 py-0.5 rounded-full shrink-0">
+                                    A Ver 👁️
                                   </span>
                                 )}
                               </div>
-                              <h4 className="text-xs sm:text-sm font-black text-white leading-tight truncate">
+                              <h4 className="text-xs font-black text-white leading-tight truncate">
                                 {poster.title}
                               </h4>
                               <p className="text-[11px] text-slate-300 line-clamp-1">
                                 {poster.slogan}
                               </p>
-                              <div className="pt-1 flex items-center gap-3 text-[10px] text-slate-400">
-                                <span>🎨 {poster.paletteName}</span>
-                              </div>
                             </div>
                           </div>
                         );
@@ -1126,121 +1132,387 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                     </div>
                   </div>
 
-                  {/* COLUNA DIREITA: CARTAZ A4 COMPLETO EM TAMANHO GRANDE & ANÁLISE DE DESIGN */}
-                  <div className="lg:col-span-7 space-y-6">
-                    {/* CARTAZ A4 SIMULADO (DESIGN REALISTA) */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs text-slate-300 font-bold">
-                        <span className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-emerald-400" />
-                          <span>Folha A4 do Cartaz Selecionado (Formato Oficial do Canva)</span>
-                        </span>
-                        <span className="bg-white/10 px-2.5 py-0.5 rounded-md text-[10px] text-emerald-300 font-mono font-bold">
-                          {currentPoster.id.toUpperCase()} • TIC 6.º Ano
-                        </span>
-                      </div>
-
-                      {/* FOLHA A4 ESTILIZADA */}
-                      <div className={`w-full aspect-[1/1.414] rounded-3xl border-4 ${currentPoster.bgStyle} p-6 sm:p-8 transition-all shadow-2xl flex flex-col justify-between overflow-hidden relative select-none`}>
-                        {/* Marca de Água Discreta */}
-                        <div className="absolute -right-8 -bottom-8 opacity-5 text-9xl pointer-events-none select-none font-black">
-                          ♻️
-                        </div>
-
-                        {/* Topo do Cartaz */}
-                        <div className="space-y-2 text-center border-b border-white/15 pb-4">
-                          <span className={`inline-block text-[10px] sm:text-xs uppercase tracking-widest px-3.5 py-1 rounded-full font-black shadow-xs ${currentPoster.badgeBg}`}>
-                            {currentPoster.badgeText}
-                          </span>
-                          <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight leading-tight uppercase font-sans text-white drop-shadow-md">
-                            {currentPoster.title}
-                          </h1>
-                          <p className="text-xs sm:text-sm font-semibold text-emerald-200/90 max-w-md mx-auto leading-snug">
-                            {currentPoster.slogan}
-                          </p>
-                        </div>
-
-                        {/* Centro: Os 3 Itens Chave com Ícones Grandes */}
-                        <div className="my-auto py-3 space-y-2.5">
-                          {currentPoster.items.map((item, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-black/35 backdrop-blur-md border border-white/15 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3.5 shadow-sm"
-                            >
-                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-inner">
-                                {item.icon}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <h4 className="text-xs sm:text-sm font-black text-yellow-300 uppercase tracking-wide">
-                                  {item.bin}
-                                </h4>
-                                <p className="text-[11px] sm:text-xs text-slate-100 font-medium leading-tight mt-0.5">
-                                  {item.rule}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-
-                          {/* Dica de Ouro no Cartaz */}
-                          <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-[11px] sm:text-xs text-emerald-100 font-medium text-center">
-                            {currentPoster.extraTip}
-                          </div>
-                        </div>
-
-                        {/* Rodapé Informativo (Os 3 Qs: Quando, Onde e Ação) */}
-                        <div className="pt-3 border-t border-white/15 space-y-2 text-center">
-                          <div className="grid grid-cols-2 gap-2 text-[10px] sm:text-[11px] font-bold text-slate-200">
-                            <div className="bg-white/10 p-1.5 rounded-lg border border-white/10 truncate">
-                              📅 {currentPoster.date}
-                            </div>
-                            <div className="bg-white/10 p-1.5 rounded-lg border border-white/10 truncate">
-                              📍 {currentPoster.location}
-                            </div>
-                          </div>
-                          <div className="bg-yellow-400 text-slate-950 font-black text-[11px] sm:text-xs py-2 px-3 rounded-xl uppercase tracking-wider shadow-md">
-                            📢 {currentPoster.callToAction}
-                          </div>
-                          <p className="text-[9px] uppercase tracking-widest text-slate-400 font-bold">
-                            Eco-Escola • Clube de TIC • 6.º Ano
-                          </p>
-                        </div>
-                      </div>
+                  {/* VISUALIZADOR DO CARTAZ A4 (LAYOUTS REALISTAS E DIVERSIFICADOS) */}
+                  <div className="lg:col-span-8 space-y-3">
+                    <div className="flex items-center justify-between text-xs text-slate-300 font-bold">
+                      <span className="flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-emerald-400" />
+                        <span>Folha A4 Vertical (Simulação Real de Impressão)</span>
+                      </span>
+                      <span className="text-[11px] text-emerald-300 font-mono font-bold bg-white/10 px-2.5 py-0.5 rounded-md">
+                        {currentPoster.categoryLabel}
+                      </span>
                     </div>
 
-                    {/* PAINEL DE ANÁLISE PEDAGÓGICA DO CARTAZ */}
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <div className="flex items-center gap-2">
-                          <Lightbulb className="w-5 h-5 text-yellow-400" />
-                          <h4 className="text-sm font-black text-white">
-                            Porque é que este Cartaz de Reciclagem Funciona no Canva? 🧐
-                          </h4>
-                        </div>
-                        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-md border border-emerald-800">
-                          Exemplo Nota 10
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {currentPoster.canvaSecrets.map((secret, sIdx) => (
-                          <div key={sIdx} className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-1">
-                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider block">
-                              Regra #{sIdx + 1}
+                    {/* ========================================================================= */}
+                    {/* CARTAZ 1: GUIA DOS 3 ECOPONTOS (LAYOUT EM 3 COLUNAS VISUAIS) */}
+                    {/* ========================================================================= */}
+                    {currentPoster.layoutType === 'three_columns' && (
+                      <div className="w-full bg-slate-950 border-4 border-slate-700 rounded-3xl p-6 sm:p-8 text-slate-900 shadow-2xl flex flex-col justify-between overflow-hidden relative select-none">
+                        {/* Fundo da Folha A4 */}
+                        <div className="bg-white rounded-2xl p-5 sm:p-7 space-y-5 border border-slate-300 shadow-sm flex flex-col justify-between min-h-[620px]">
+                          {/* Topo Oficial */}
+                          <div className="border-b-2 border-slate-200 pb-3 text-center space-y-1">
+                            <span className="inline-block bg-slate-900 text-white text-[10px] uppercase tracking-widest font-black px-3 py-0.5 rounded-full">
+                              {currentPoster.badgeText}
                             </span>
-                            <p className="text-[11px] text-slate-300 leading-snug">
-                              {secret}
+                            <h1 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight uppercase font-sans">
+                              {currentPoster.title}
+                            </h1>
+                            <p className="text-xs sm:text-sm font-bold text-slate-600">
+                              {currentPoster.slogan}
                             </p>
                           </div>
-                        ))}
-                      </div>
 
-                      <div className="p-3 bg-emerald-500/10 border border-emerald-400/30 rounded-xl text-xs text-emerald-200 flex items-start gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                        <p className="leading-relaxed">
-                          <strong>Ideia para a aula de TIC:</strong> Podes abrir o Canva na tua conta escolar, escolher o formato <em>Cartaz A4</em> e usar estes textos e estrutura para criar a versão da tua própria turma!
-                        </p>
+                          {/* 3 Colunas dos Ecopontos com SIM e NÃO */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-auto">
+                            {currentPoster.columns?.map((col, idx) => (
+                              <div key={idx} className={`rounded-xl border-2 ${col.boxBg} p-3.5 flex flex-col justify-between space-y-3 shadow-xs`}>
+                                <div className="space-y-1.5">
+                                  <div className={`py-1.5 px-2 rounded-lg font-black text-xs text-center uppercase tracking-wider ${col.headerBg}`}>
+                                    {col.icon} {col.name}
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-xs font-black text-slate-900">{col.material}</div>
+                                    <div className="text-[10px] font-bold text-slate-600 italic">{col.rule}</div>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2 text-[11px] leading-snug">
+                                  <div>
+                                    <span className="text-[10px] font-black text-emerald-800 uppercase block mb-1">
+                                      O que colocar (SIM ✅):
+                                    </span>
+                                    <ul className="space-y-1 text-slate-800">
+                                      {col.yes.map((y, yIdx) => (
+                                        <li key={yIdx} className="flex items-start gap-1">
+                                          <span className="text-emerald-600 font-bold">•</span>
+                                          <span>{y}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  <div className="pt-1.5 border-t border-slate-200/80">
+                                    <span className="text-[10px] font-black text-rose-800 uppercase block mb-1">
+                                      Não colocar (NÃO ❌):
+                                    </span>
+                                    <ul className="space-y-1 text-slate-700">
+                                      {col.no.map((n, nIdx) => (
+                                        <li key={nIdx} className="flex items-start gap-1">
+                                          <span className="text-rose-600 font-bold">•</span>
+                                          <span>{n}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Dica de Rodapé */}
+                          <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-center text-xs font-semibold text-slate-700">
+                            {currentPoster.bannerTip}
+                          </div>
+
+                          {/* Rodapé da Escola */}
+                          <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[10px] font-bold text-slate-500">
+                            <span>📍 {currentPoster.location}</span>
+                            <span>{currentPoster.contact}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* ========================================================================= */}
+                    {/* CARTAZ 2: ALERTA DO PILHÃO (LAYOUT DE ALERTA HERO) */}
+                    {/* ========================================================================= */}
+                    {currentPoster.layoutType === 'alert_hero' && (
+                      <div className="w-full bg-slate-950 border-4 border-rose-900 rounded-3xl p-6 sm:p-8 text-white shadow-2xl flex flex-col justify-between overflow-hidden relative select-none">
+                        <div className="bg-gradient-to-b from-rose-900 via-rose-950 to-slate-950 rounded-2xl p-5 sm:p-7 border border-rose-600/50 flex flex-col justify-between min-h-[620px] space-y-5">
+                          {/* Topo com Aviso Urgente */}
+                          <div className="text-center space-y-2 border-b border-rose-400/30 pb-4">
+                            <span className="inline-block bg-yellow-400 text-slate-950 text-[10px] sm:text-xs uppercase tracking-widest font-black px-3.5 py-1 rounded-full shadow-md">
+                              🛑 {currentPoster.badgeText}
+                            </span>
+                            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight uppercase font-sans">
+                              {currentPoster.title}
+                            </h1>
+                            <p className="text-xs sm:text-sm font-medium text-rose-200 max-w-lg mx-auto">
+                              {currentPoster.slogan}
+                            </p>
+                          </div>
+
+                          {/* 3 Factos de Impacto em Caixas Pretas */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-auto">
+                            {currentPoster.stats?.map((stat, sIdx) => (
+                              <div key={sIdx} className="bg-black/50 border border-rose-500/40 rounded-xl p-3.5 text-center space-y-1">
+                                <div className="text-lg sm:text-xl font-black text-yellow-300">{stat.num}</div>
+                                <div className="text-[11px] text-slate-200 leading-snug">{stat.label}</div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* 3 Passos de Ação do Aluno */}
+                          <div className="bg-white/10 rounded-xl p-4 border border-white/15 space-y-2.5">
+                            <span className="text-[11px] font-black text-yellow-300 uppercase tracking-wider block">
+                              Como Proceder em 3 Passos Simples:
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              {currentPoster.steps?.map((step, stIdx) => (
+                                <div key={stIdx} className="bg-black/30 p-2.5 rounded-lg border border-white/10 flex items-start gap-2">
+                                  <span className="w-5 h-5 rounded-full bg-rose-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                    {step.step}
+                                  </span>
+                                  <div className="space-y-0.5">
+                                    <div className="text-xs font-bold text-white">{step.title}</div>
+                                    <div className="text-[10px] text-slate-300 leading-tight">{step.desc}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Caixa de Aviso de Segurança */}
+                          <div className="p-3 bg-yellow-400 text-slate-950 rounded-xl font-bold text-xs text-center shadow-md">
+                            {currentPoster.warning}
+                          </div>
+
+                          {/* Rodapé com Local do Pilhão */}
+                          <div className="pt-2 border-t border-rose-400/30 flex items-center justify-between text-[10px] font-bold text-rose-200">
+                            <span>📍 {currentPoster.location}</span>
+                            <span>📅 {currentPoster.date}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ========================================================================= */}
+                    {/* CARTAZ 3: PLÁSTICO ZERO (LAYOUT DE COMPARAÇÃO LADO A LADO) */}
+                    {/* ========================================================================= */}
+                    {currentPoster.layoutType === 'split_comparison' && (
+                      <div className="w-full bg-slate-950 border-4 border-cyan-800 rounded-3xl p-6 sm:p-8 text-slate-900 shadow-2xl flex flex-col justify-between overflow-hidden relative select-none">
+                        <div className="bg-sky-50 rounded-2xl p-5 sm:p-7 border border-cyan-200 flex flex-col justify-between min-h-[620px] space-y-5">
+                          {/* Cabeçalho */}
+                          <div className="text-center space-y-1.5 border-b-2 border-cyan-200 pb-3">
+                            <span className="inline-block bg-cyan-700 text-white text-[10px] uppercase tracking-widest font-black px-3 py-0.5 rounded-full">
+                              🌊 {currentPoster.badgeText}
+                            </span>
+                            <h1 className="text-xl sm:text-3xl font-black text-cyan-950 tracking-tight leading-tight uppercase font-sans">
+                              {currentPoster.title}
+                            </h1>
+                            <p className="text-xs sm:text-sm font-bold text-cyan-800">
+                              {currentPoster.slogan}
+                            </p>
+                          </div>
+
+                          {/* Comparação Lado a Lado: EVITA vs. PREFERE */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-auto">
+                            {/* Lado Mau */}
+                            <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 space-y-3">
+                              <div className="space-y-0.5 border-b border-rose-200 pb-2">
+                                <h3 className="text-xs sm:text-sm font-black text-rose-800">{currentPoster.sideBad?.title}</h3>
+                                <p className="text-[10px] text-rose-600 font-semibold">{currentPoster.sideBad?.subtitle}</p>
+                              </div>
+                              <ul className="space-y-2 text-xs text-rose-950">
+                                {currentPoster.sideBad?.items.map((it, iIdx) => (
+                                  <li key={iIdx} className="flex items-start gap-2">
+                                    <span className="text-rose-600 font-bold">✗</span>
+                                    <span>{it}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            {/* Lado Bom */}
+                            <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 space-y-3">
+                              <div className="space-y-0.5 border-b border-emerald-200 pb-2">
+                                <h3 className="text-xs sm:text-sm font-black text-emerald-800">{currentPoster.sideGood?.title}</h3>
+                                <p className="text-[10px] text-emerald-600 font-semibold">{currentPoster.sideGood?.subtitle}</p>
+                              </div>
+                              <ul className="space-y-2 text-xs text-emerald-950 font-medium">
+                                {currentPoster.sideGood?.items.map((it, iIdx) => (
+                                  <li key={iIdx} className="flex items-start gap-2">
+                                    <span className="text-emerald-600 font-bold">✓</span>
+                                    <span>{it}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          {/* Frase Forte de Impacto Coletivo */}
+                          <div className="p-3 bg-cyan-900 text-cyan-100 rounded-xl text-center text-xs font-bold leading-relaxed shadow-sm">
+                            {currentPoster.actionBanner}
+                          </div>
+
+                          {/* Rodapé com Informação Prática */}
+                          <div className="pt-2 border-t border-cyan-200 flex items-center justify-between text-[10px] font-bold text-cyan-900">
+                            <span>📅 {currentPoster.date}</span>
+                            <span>📍 {currentPoster.location}</span>
+                            <span>{currentPoster.contact}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ========================================================================= */}
+                    {/* CARTAZ 4: FESTIVAL ELETRÃO (LAYOUT DE EVENTO ESCOLAR) */}
+                    {/* ========================================================================= */}
+                    {currentPoster.layoutType === 'event_announcement' && (
+                      <div className="w-full bg-slate-950 border-4 border-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-2xl flex flex-col justify-between overflow-hidden relative select-none">
+                        <div className="bg-gradient-to-b from-purple-950 via-slate-900 to-indigo-950 rounded-2xl p-5 sm:p-7 border border-purple-500/40 flex flex-col justify-between min-h-[620px] space-y-5">
+                          {/* Cabeçalho Tech */}
+                          <div className="text-center space-y-2 border-b border-purple-400/30 pb-4">
+                            <span className="inline-block bg-purple-500 text-white text-[10px] uppercase tracking-widest font-black px-3.5 py-0.5 rounded-full">
+                              ⚡ {currentPoster.badgeText}
+                            </span>
+                            <h1 className="text-xl sm:text-3xl font-black text-yellow-300 tracking-tight leading-tight uppercase font-sans">
+                              {currentPoster.title}
+                            </h1>
+                            <p className="text-xs sm:text-sm font-medium text-slate-200 max-w-md mx-auto">
+                              {currentPoster.slogan}
+                            </p>
+                          </div>
+
+                          {/* O que Podes Trazer: 4 Categorias com Ícones */}
+                          <div className="space-y-2 my-auto">
+                            <span className="text-xs font-black text-purple-300 uppercase tracking-wider block text-center">
+                              O que podes trazer de casa:
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                              {currentPoster.acceptedItems?.map((item, itIdx) => (
+                                <div key={itIdx} className="bg-white/10 p-3 rounded-xl border border-white/15 flex items-start gap-2.5">
+                                  <span className="text-2xl shrink-0">{item.icon}</span>
+                                  <div className="space-y-0.5 min-w-0">
+                                    <h4 className="text-xs font-black text-white">{item.title}</h4>
+                                    <p className="text-[10px] text-slate-300 leading-snug">{item.desc}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Caixa de Incentivo / Prémio */}
+                          <div className="p-3 bg-yellow-400 text-slate-950 rounded-xl text-xs font-bold text-center shadow-md">
+                            {currentPoster.rewardInfo}
+                          </div>
+
+                          {/* Rodapé Oficial com Data e Sala */}
+                          <div className="pt-2 border-t border-purple-400/30 flex flex-col sm:flex-row items-center justify-between gap-1 text-[10px] font-bold text-slate-300">
+                            <span>📅 {currentPoster.date}</span>
+                            <span>📍 {currentPoster.location}</span>
+                            <span>{currentPoster.contact}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ========================================================================= */}
+                    {/* CARTAZ 5: CICLO DO PAPEL (LAYOUT INFOGRÁFICO DE PROCESSO) */}
+                    {/* ========================================================================= */}
+                    {currentPoster.layoutType === 'infographic_facts' && (
+                      <div className="w-full bg-slate-950 border-4 border-blue-800 rounded-3xl p-6 sm:p-8 text-slate-900 shadow-2xl flex flex-col justify-between overflow-hidden relative select-none">
+                        <div className="bg-white rounded-2xl p-5 sm:p-7 border border-blue-200 flex flex-col justify-between min-h-[620px] space-y-5">
+                          {/* Topo Educativo */}
+                          <div className="text-center space-y-1.5 border-b-2 border-blue-100 pb-3">
+                            <span className="inline-block bg-blue-600 text-white text-[10px] uppercase tracking-widest font-black px-3 py-0.5 rounded-full">
+                              📄 {currentPoster.badgeText}
+                            </span>
+                            <h1 className="text-xl sm:text-2xl font-black text-blue-950 tracking-tight leading-tight uppercase font-sans">
+                              {currentPoster.title}
+                            </h1>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-600">
+                              {currentPoster.slogan}
+                            </p>
+                          </div>
+
+                          {/* 4 Etapas do Ciclo de Reciclagem com Setas */}
+                          <div className="space-y-2 my-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                              {currentPoster.cycleSteps?.map((step, stIdx) => (
+                                <div key={stIdx} className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center space-y-1">
+                                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs mx-auto flex items-center justify-center">
+                                    {step.num}
+                                  </div>
+                                  <div className="text-xs font-black text-blue-950">{step.title}</div>
+                                  <div className="text-[10px] text-slate-600 leading-tight">{step.text}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 3 Números de Impacto Ecológico */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            {currentPoster.impactNumbers?.map((imp, imIdx) => (
+                              <div key={imIdx} className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-center">
+                                <div className="text-base font-black text-emerald-800">{imp.big}</div>
+                                <div className="text-[10px] font-semibold text-slate-700 leading-tight mt-0.5">{imp.desc}</div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Rodapé */}
+                          <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[10px] font-bold text-slate-500">
+                            <span>📍 {currentPoster.location}</span>
+                            <span>{currentPoster.contact}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ========================================================================= */}
+                    {/* CARTAZ 6: OFICINA DE COMPOSTAGEM (LAYOUT WORKSHOP & INSCRIÇÃO) */}
+                    {/* ========================================================================= */}
+                    {currentPoster.layoutType === 'workshop_poster' && (
+                      <div className="w-full bg-slate-950 border-4 border-lime-700 rounded-3xl p-6 sm:p-8 text-slate-900 shadow-2xl flex flex-col justify-between overflow-hidden relative select-none">
+                        <div className="bg-stone-50 rounded-2xl p-5 sm:p-7 border border-lime-300 flex flex-col justify-between min-h-[620px] space-y-5">
+                          {/* Topo com Selo da Horta */}
+                          <div className="text-center space-y-1.5 border-b-2 border-stone-200 pb-3">
+                            <span className="inline-block bg-lime-600 text-white text-[10px] uppercase tracking-widest font-black px-3.5 py-0.5 rounded-full">
+                              🌱 {currentPoster.badgeText}
+                            </span>
+                            <h1 className="text-xl sm:text-3xl font-black text-stone-900 tracking-tight leading-tight uppercase font-sans">
+                              {currentPoster.title}
+                            </h1>
+                            <p className="text-xs sm:text-sm font-semibold text-stone-700">
+                              {currentPoster.slogan}
+                            </p>
+                          </div>
+
+                          {/* O que vamos aprender: 3 cartões ilustrados */}
+                          <div className="space-y-2 my-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              {currentPoster.learnings?.map((lr, lIdx) => (
+                                <div key={lIdx} className="bg-white border border-stone-200 rounded-xl p-3.5 text-center space-y-1.5 shadow-2xs">
+                                  <div className="text-2xl">{lr.icon}</div>
+                                  <div className="text-xs font-black text-stone-900">{lr.title}</div>
+                                  <div className="text-[10px] text-stone-600 leading-snug">{lr.desc}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* O que trazer & Caixa de Inscrição */}
+                          <div className="space-y-2">
+                            <div className="p-2.5 bg-stone-200/80 rounded-xl text-[11px] font-bold text-stone-800 text-center">
+                              {currentPoster.bringList}
+                            </div>
+                            <div className="p-3 bg-lime-600 text-white rounded-xl text-xs font-black uppercase tracking-wider text-center shadow-md">
+                              📢 {currentPoster.enrollment}
+                            </div>
+                          </div>
+
+                          {/* Rodapé com Horário e Horta */}
+                          <div className="pt-2 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between text-[10px] font-bold text-stone-600 gap-1">
+                            <span>📅 {currentPoster.date}</span>
+                            <span>📍 {currentPoster.location}</span>
+                            <span>{currentPoster.contact}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1332,50 +1604,6 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                 </p>
               </div>
             )}
-          </div>
-
-          {/* SECÇÃO 7: DESAFIO PRÁTICO REAL PARA A AULA DE TIC */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-6 sm:p-8 space-y-4">
-            <div className="flex items-center gap-3 text-blue-700">
-              <Sparkles className="w-6 h-6" />
-              <h3 className="text-lg font-black text-slate-900">
-                6. O Teu Desafio Prático no Canva Real! 🚀
-              </h3>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Agora que já dominas a teoria e o simulador, abre o <strong>Canva</strong> na aula de TIC ou no teu computador de casa com a tua turma e cria um cartaz real sobre um destes temas:
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-              <div className="p-3 bg-white rounded-xl border border-blue-200 text-xs font-bold text-slate-800 shadow-xs">
-                📚 Feira do Livro da Escola
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-blue-200 text-xs font-bold text-slate-800 shadow-xs">
-                🌍 Semana da Poupança de Água
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-blue-200 text-xs font-bold text-slate-800 shadow-xs">
-                🛡️ Campanha Contra o Cyberbullying
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-blue-200 text-xs font-bold text-slate-800 shadow-xs">
-                ⚽ Torneio Desportivo da Turma
-              </div>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-slate-500 font-medium">
-                Lembra-te: diverte-te a criar, experimenta novas cores e pede feedback ao teu professor e aos teus colegas!
-              </p>
-              {onNavigateTab && (
-                <button
-                  onClick={() => onNavigateTab('worlds')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-2 shrink-0 cursor-pointer"
-                >
-                  <span>Voltar aos Mundos TIC</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
           </div>
         </div>
       )}
