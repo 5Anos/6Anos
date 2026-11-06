@@ -790,7 +790,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Oficina Prática: Como Fazer Cartazes no Canva!
             </h3>
             <p className="text-xs sm:text-sm text-blue-100 max-w-xl">
-              Descobre a regra dos 3 segundos, o contraste de cores e experimenta o nosso Mini-Estúdio de Design interativo para 11 anos!
+              Descobre a regra dos 3 segundos, o contraste visual e explora a Galeria dos 6 Cartazes de Autor em formato A3 sobre Reciclagem!
             </p>
           </div>
         </div>
