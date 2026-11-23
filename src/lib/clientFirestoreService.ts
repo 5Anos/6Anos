@@ -343,7 +343,7 @@ export async function clientRegister(params: {
   await setDoc(doc(db, 'users', userId), newUser);
 
   // Award welcome badge 'primeiros-passos'
-  const badgeRef = doc(db, 'userBadges', `${userId}_primeiros-passos`);
+  const badgeRef = doc(db, 'badges', `${userId}_primeiros-passos`);
   await setDoc(badgeRef, {
     id: `${userId}_primeiros-passos`,
     userId,
@@ -603,6 +603,7 @@ export async function clientCompleteActivity(activityId: string, score: number, 
 
   const world = WORLDS_DATA.find((w) => w.simulators.some((s) => s.id === activityId) || w.challenge?.id === activityId);
   const worldId = world ? world.id : 1;
+  const isChallenge = Boolean(world?.challenge && world.challenge.id === activityId);
 
   const db = getClientFirestore();
   const userSnap = await getDoc(doc(db, 'users', userId));
@@ -654,6 +655,7 @@ export async function clientCompleteActivity(activityId: string, score: number, 
         bestScore: newBest,
         attempts: attempts + 1,
         durationSeconds: durationSeconds || 60,
+        lastAttemptAt: now,
         updatedAt: now,
       },
       { merge: true }
@@ -668,8 +670,8 @@ export async function clientCompleteActivity(activityId: string, score: number, 
         id: txId,
         userId,
         amount: xpGain,
-        reason: `Simulador: ${activityId}`,
-        sourceType: 'simulator',
+        reason: isChallenge ? `Desafio: ${activityId}` : `Simulador: ${activityId}`,
+        sourceType: isChallenge ? 'challenge' : 'activity',
         sourceId: activityId,
         previousBest,
         newBest,
@@ -688,6 +690,8 @@ export async function clientCompleteActivity(activityId: string, score: number, 
     success: true,
     activityId,
     score: clampedScore,
+    previousBest,
+    newBest,
     bestScore: newBest,
     xpGain,
     totalXp: finalUserXp,
@@ -706,12 +710,60 @@ export async function clientGetAssessment(worldId: number) {
     options: q.options,
   }));
 
+  const userId = await resolveClientUserId();
+  let attemptsCount = 0;
+  let officialPercentage: number | null = null;
+  let officialMention: string | null = null;
+  let bestPercentage: number | null = null;
+  let bestMention: string | null = null;
+  let lastPercentage: number | null = null;
+  let lastMention: string | null = null;
+
+  if (userId) {
+    try {
+      const db = getClientFirestore();
+      const qAttempts = query(
+        collection(db, 'assessmentAttempts'),
+        where('userId', '==', userId),
+        where('worldId', '==', worldId)
+      );
+      const snap = await getDocs(qAttempts);
+      const sorted = snap.docs
+        .map((d) => d.data())
+        .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+      attemptsCount = sorted.length;
+      if (sorted.length > 0) {
+        const first = sorted[0];
+        const best = sorted.reduce((m: any, a: any) => (a.percentage > m.percentage ? a : m), sorted[0]);
+        const last = sorted[sorted.length - 1];
+        officialPercentage = first.percentage;
+        officialMention = first.mention || getQualitativeMention(first.percentage);
+        bestPercentage = best.percentage;
+        bestMention = best.mention || getQualitativeMention(best.percentage);
+        lastPercentage = last.percentage;
+        lastMention = last.mention || getQualitativeMention(last.percentage);
+      }
+    } catch (err) {
+      console.warn('Could not fetch previous assessment attempts:', err);
+    }
+  }
+
   return {
     worldId,
     title: assessment.title,
     description: `Avaliação do Mundo ${worldId}`,
-    passingThreshold: PROGRESSION_CONFIG.PASSING_THRESHOLD,
+    passingThreshold: PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
     questions: safeQuestions,
+    attemptsCount,
+    isFirstAttempt: attemptsCount === 0,
+    attemptNumber: attemptsCount + 1,
+    officialPercentage,
+    officialMention,
+    bestPercentage,
+    bestMention,
+    lastPercentage,
+    lastMention,
   };
 }
 
@@ -736,6 +788,7 @@ export async function clientSubmitAssessment(
       id: q.id,
       text: q.text,
       options: q.options,
+      chosenIndex: studentAnswer,
       studentAnswer,
       correctIndex: q.correctIndex,
       isCorrect,
@@ -746,7 +799,7 @@ export async function clientSubmitAssessment(
   const totalQuestions = assessment.questions.length;
   const percentage = Math.round((correctCount / totalQuestions) * 100);
   const mention = getQualitativeMention(percentage);
-  const passed = percentage >= 50; // Curricular approval rule: >= 50%
+  const passed = percentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD; // Curricular approval rule: >= 50%
 
   const userSnap = await getDoc(doc(db, 'users', userId));
   const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
@@ -764,16 +817,25 @@ export async function clientSubmitAssessment(
   const existingDocs = snapAttempts.docs.map((d) => d.data());
   const sortedExisting = existingDocs.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   const firstAttemptData = isFirstAttempt ? null : sortedExisting[0];
+  const lastPrevAttempt = isFirstAttempt ? null : sortedExisting[sortedExisting.length - 1];
 
   const officialPercentage = isFirstAttempt ? percentage : (firstAttemptData?.firstScore ?? firstAttemptData?.percentage ?? percentage);
   const officialMention = isFirstAttempt ? mention : (firstAttemptData?.firstMention ?? firstAttemptData?.mention ?? getQualitativeMention(officialPercentage));
+
+  const evolution = lastPrevAttempt
+    ? percentage > lastPrevAttempt.percentage
+      ? 'improved'
+      : percentage === lastPrevAttempt.percentage
+      ? 'maintained'
+      : 'regressed'
+    : undefined;
 
   const prevBest = snapAttempts.empty
     ? 0
     : Math.max(...snapAttempts.docs.map((d) => d.data().percentage || 0));
   const newBest = Math.max(prevBest, percentage);
   const bestMention = getQualitativeMention(newBest);
-  const xpGain = isTeacher ? 0 : Math.max(0, newBest - prevBest);
+  const xpGain = 0; // O quiz de avaliação final não acrescenta XPs (regra pedagógica oficial)
 
   const now = new Date().toISOString();
   const attemptId = `attempt-${crypto.randomUUID()}`;
@@ -784,12 +846,13 @@ export async function clientSubmitAssessment(
   await runTransaction(db, async (txn) => {
     const uSnap = await txn.get(userRef);
     if (!uSnap.exists()) throw new Error('Utilizador não encontrado');
-    const curXp = (uSnap.data() as ClientUser).xp || 0;
+    const curXp = Number((uSnap.data() as ClientUser).xp) || 0;
     finalUserXp = curXp + xpGain;
 
     txn.set(attemptRef, {
       id: attemptId,
       userId,
+      assessmentId: assessment.id,
       worldId,
       score: correctCount,
       totalQuestions,
@@ -833,7 +896,9 @@ export async function clientSubmitAssessment(
     }
   });
 
-  await clientCheckBadges(userId);
+  if (!isTeacher) {
+    await clientCheckBadges(userId);
+  }
 
   return {
     worldId,
@@ -843,7 +908,7 @@ export async function clientSubmitAssessment(
     percentage,
     mention,
     passed,
-    passingThreshold: 50,
+    passingThreshold: PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
     isFirstAttempt,
     attemptNumber,
     officialPercentage,
@@ -851,8 +916,11 @@ export async function clientSubmitAssessment(
     previousBest: prevBest,
     newBest,
     bestMention,
+    evolution,
+    lastPrevAttemptPercentage: lastPrevAttempt ? lastPrevAttempt.percentage : null,
     xpGain,
     totalXp: finalUserXp,
+    resultsFeedback: detailedResults,
     results: detailedResults,
   };
 }
@@ -894,17 +962,20 @@ export async function clientGetDailyTip() {
 
   return {
     tip: {
-      id: tip.id,
+      ...tip,
       title: 'Dica do Dia',
       text: tip.pt,
-      xpReward: 15,
+      xpReward: PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP,
       claimed,
     },
+    alreadyClaimed: claimed,
+    claimedToday: claimed,
+    date: today,
   };
 }
 
 export async function clientClaimDailyTip() {
-  const userId = getActiveClientUserId();
+  const userId = await resolveClientUserId();
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
@@ -913,7 +984,13 @@ export async function clientClaimDailyTip() {
   const userSnap = await getDoc(doc(db, 'users', userId));
   const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
   if (isTeacher) {
-    return { success: true, xpReward: 0, totalXp: 0 };
+    return {
+      success: true,
+      xpReward: 0,
+      xpGain: 0,
+      totalXp: 0,
+      message: 'Dica Diária testada com sucesso (Modo Teste do Professor).',
+    };
   }
 
   const claimRef = doc(db, 'dailyTipClaims', claimId);
@@ -930,7 +1007,7 @@ export async function clientClaimDailyTip() {
 
     const userDocSnap = await txn.get(userRef);
     if (!userDocSnap.exists()) throw new Error('Utilizador não encontrado');
-    const curXp = (userDocSnap.data() as ClientUser).xp || 0;
+    const curXp = Number((userDocSnap.data() as ClientUser).xp) || 0;
     finalXp = curXp + xpReward;
 
     txn.set(claimRef, {
@@ -948,13 +1025,19 @@ export async function clientClaimDailyTip() {
       sourceType: 'daily_tip',
       sourceId: `tip-${today}`,
       previousBest: 0,
-      newBest: 10,
+      newBest: xpReward,
       xpGain: xpReward,
       createdAt: now,
     });
   });
 
-  return { success: true, xpReward, totalXp: finalXp };
+  return {
+    success: true,
+    xpReward,
+    xpGain: xpReward,
+    totalXp: finalXp,
+    message: `+${xpReward} XP ganhos com a Dica Diária!`,
+  };
 }
 
 export async function clientGetWeeklyChallenge() {
@@ -1273,7 +1356,7 @@ async function clientCheckBadges(userId: string) {
       completedWorldsCount++;
       const bId = worldBadgeMap[w];
       if (bId) {
-        const bRef = doc(db, 'userBadges', `${userId}_${bId}`);
+        const bRef = doc(db, 'badges', `${userId}_${bId}`);
         await setDoc(
           bRef,
           { id: `${userId}_${bId}`, userId, badgeId: bId, awardedAt: new Date().toISOString() },
@@ -1284,7 +1367,7 @@ async function clientCheckBadges(userId: string) {
   }
 
   if (completedWorldsCount >= 5) {
-    const masterBadgeRef = doc(db, 'userBadges', `${userId}_mestre-das-tic`);
+    const masterBadgeRef = doc(db, 'badges', `${userId}_mestre-das-tic`);
     await setDoc(
       masterBadgeRef,
       { id: `${userId}_mestre-das-tic`, userId, badgeId: 'mestre-das-tic', awardedAt: new Date().toISOString() },

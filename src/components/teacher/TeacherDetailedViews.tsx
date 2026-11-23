@@ -331,7 +331,7 @@ export const TeacherXPTab: React.FC<{ xpData: any }> = ({ xpData }) => {
                 <tr key={s.studentId} className="hover:bg-slate-50">
                   <td className="py-2.5 px-4 font-semibold text-slate-900">{s.studentName}</td>
                   <td className="py-2.5 px-4 text-slate-500">{s.className}</td>
-                  <td className="py-2.5 px-4 text-center font-mono text-slate-400">100</td>
+                  <td className="py-2.5 px-4 text-center font-mono text-slate-400">{s.sources?.initial ?? 0}</td>
                   <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.activities || 0}</td>
                   <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.challenges || 0}</td>
                   <td className="py-2.5 px-4 text-center font-mono text-slate-700">{s.sources?.assessments || 0}</td>

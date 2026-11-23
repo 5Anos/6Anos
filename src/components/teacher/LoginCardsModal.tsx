@@ -9,8 +9,9 @@ import {
   Globe,
   Filter,
   Sparkles,
-  ShieldCheck,
+  QrCode,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface LoginCardsModalProps {
   isOpen: boolean;
@@ -18,6 +19,8 @@ interface LoginCardsModalProps {
   students: any[];
   classes: any[];
 }
+
+const OFFICIAL_PLATFORM_URL = 'https://5anos.github.io/6Anos/';
 
 export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
   isOpen,
@@ -46,13 +49,15 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
     window.print();
   };
 
-  const platformUrl = typeof window !== 'undefined' ? window.location.origin : 'https://missao-tic.escola.pt';
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto print:p-0 print:bg-white print:static">
       {/* Inject Print-specific styles */}
       <style>{`
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body * {
             visibility: hidden;
           }
@@ -65,7 +70,7 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
             top: 0;
             width: 100%;
             margin: 0;
-            padding: 10mm;
+            padding: 8mm;
             background: white !important;
           }
           .no-print {
@@ -87,7 +92,7 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
               <span>Cartões Individuais de Acesso (Login Cards)</span>
             </h2>
             <p className="text-xs text-blue-100 font-medium mt-0.5">
-              Folha pronta a imprimir (formato A4) com linhas tracejadas e tesoura para recorte fácil
+              Folha pronta a imprimir (formato A4) com QR Code de acesso direto, link oficial e linhas tracejadas para recorte
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -129,8 +134,14 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
             </select>
           </div>
 
-          <div className="text-xs text-slate-500">
-            A mostrar <strong>{filteredStudents.length}</strong> cartões prontos para impressão em folha A4.
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 font-mono font-bold text-[11px]">
+              <QrCode className="w-3.5 h-3.5 text-blue-600" />
+              <span>{OFFICIAL_PLATFORM_URL}</span>
+            </span>
+            <span>
+              A mostrar <strong>{filteredStudents.length}</strong> cartões prontos para A4.
+            </span>
           </div>
         </div>
 
@@ -143,7 +154,7 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
               <p className="text-xs text-slate-500 mt-1">Usa o botão "Registar / Importar Alunos" para adicionar alunos.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 print:grid-cols-2 gap-4 print:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 print:grid-cols-2 gap-4 print:gap-3.5">
               {filteredStudents.map((student) => {
                 const turmaName = student.turma || student.className || '6.º Ano';
                 const callNum = student.studentNumber ? `N.º ${student.studentNumber}` : '';
@@ -154,78 +165,103 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
                 return (
                   <div
                     key={student.id}
-                    className="print-card relative border-2 border-dashed border-slate-300 print:border-slate-400 bg-white rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col justify-between overflow-hidden"
+                    className="print-card relative border-2 border-dashed border-slate-300 print:border-slate-400 bg-white rounded-2xl p-4 shadow-xs flex flex-col justify-between overflow-hidden"
                   >
                     {/* Cut guideline corner indicator */}
-                    <div className="absolute top-1 right-2 flex items-center gap-1 text-[10px] font-mono text-slate-400 select-none">
-                      <Scissors className="w-3 h-3 text-slate-400" />
+                    <div className="absolute top-1 right-2 flex items-center gap-1 text-[9px] font-mono text-slate-400 select-none">
+                      <Scissors className="w-2.5 h-2.5 text-slate-400" />
                       <span>recortar</span>
                     </div>
 
                     {/* Card Top: Discipline & Turma */}
-                    <div>
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-[10px]">
-                            TIC
-                          </div>
-                          <div>
-                            <div className="text-[11px] font-black tracking-wider uppercase text-blue-900 leading-tight">
-                              MISSÃO TIC 6.º ANO
-                            </div>
-                            <div className="text-[9px] text-slate-400 font-medium">
-                              Cartão Oficial de Acesso
-                            </div>
-                          </div>
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3 pr-12">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-[10px] shrink-0">
+                          TIC
                         </div>
-
-                        <div className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 font-black text-xs">
-                          {turmaName}
+                        <div>
+                          <div className="text-[11px] font-black tracking-wider uppercase text-blue-900 leading-tight">
+                            MISSÃO TIC 6.º ANO
+                          </div>
+                          <div className="text-[9px] text-slate-400 font-medium">
+                            Cartão Oficial de Acesso
+                          </div>
                         </div>
                       </div>
 
-                      {/* Student info */}
-                      <div className="mb-3">
-                        <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                          {callNum ? `${callNum} • Nome do Aluno` : 'Nome do Aluno'}
-                        </div>
-                        <div className="text-sm font-black text-slate-900 leading-snug">
-                          {callNum ? `${callNum} - ${fullName}` : fullName}
-                        </div>
-                      </div>
-
-                      {/* Credentials Grid */}
-                      <div className="grid grid-cols-2 gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-3">
-                        <div>
-                          <div className="text-[9px] uppercase font-bold tracking-wider text-slate-500 flex items-center gap-1">
-                            <User className="w-2.5 h-2.5 text-blue-600" />
-                            <span>Utilizador</span>
-                          </div>
-                          <div className="font-mono font-bold text-xs text-blue-700 mt-0.5 break-all">
-                            {username}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="text-[9px] uppercase font-bold tracking-wider text-slate-500 flex items-center gap-1">
-                            <Key className="w-2.5 h-2.5 text-emerald-600" />
-                            <span>Palavra-passe</span>
-                          </div>
-                          <div className="font-mono font-black text-xs text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md inline-block mt-0.5">
-                            {password}
-                          </div>
-                        </div>
+                      <div className="px-2.5 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 font-black text-xs shrink-0">
+                        {turmaName}
                       </div>
                     </div>
 
-                    {/* Card Footer: Web Address */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-                      <div className="flex items-center gap-1 font-mono text-slate-600">
-                        <Globe className="w-3 h-3 text-slate-400" />
-                        <span className="truncate max-w-[190px]">{platformUrl}</span>
+                    {/* Main Body: Student Credentials (Left) + QR Code (Right) */}
+                    <div className="flex items-stretch justify-between gap-3 mb-3">
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        {/* Student Name */}
+                        <div className="mb-2.5">
+                          <div className="text-[9px] uppercase font-bold tracking-wider text-slate-400">
+                            {callNum ? `${callNum} • Nome do Aluno` : 'Nome do Aluno'}
+                          </div>
+                          <div className="text-sm font-black text-slate-900 leading-snug break-words">
+                            {callNum ? `${callNum} - ${fullName}` : fullName}
+                          </div>
+                        </div>
+
+                        {/* Credentials Box */}
+                        <div className="grid grid-cols-1 gap-1.5 bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-[9px] uppercase font-bold tracking-wider text-slate-500 flex items-center gap-1 shrink-0">
+                              <User className="w-2.5 h-2.5 text-blue-600" />
+                              <span>Utilizador:</span>
+                            </div>
+                            <div className="font-mono font-bold text-xs text-blue-700 break-all text-right">
+                              {username}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
+                            <div className="text-[9px] uppercase font-bold tracking-wider text-slate-500 flex items-center gap-1 shrink-0">
+                              <Key className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>Palavra-passe:</span>
+                            </div>
+                            <div className="font-mono font-black text-xs text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                              {password}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-[9px] text-slate-400 font-semibold">
-                        Guarda este cartão na tua caderneta!
+
+                      {/* QR Code Column */}
+                      <div className="shrink-0 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-xl p-2 shadow-2xs">
+                        <QRCodeSVG
+                          value={OFFICIAL_PLATFORM_URL}
+                          size={78}
+                          level="M"
+                          bgColor="#ffffff"
+                          fgColor="#0f172a"
+                          includeMargin={false}
+                        />
+                        <span className="text-[8px] font-bold uppercase tracking-wider text-slate-500 mt-1 text-center leading-tight">
+                          Lê o QR Code
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Footer: Visible Full Web Address */}
+                    <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-1.5 bg-blue-50/50 -mx-4 -mb-4 px-4 py-2">
+                      <div className="flex items-center gap-1.5 font-mono text-[11px] font-bold text-blue-800">
+                        <Globe className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <a
+                          href={OFFICIAL_PLATFORM_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline decoration-blue-300 underline-offset-2 break-all"
+                        >
+                          {OFFICIAL_PLATFORM_URL}
+                        </a>
+                      </div>
+                      <span className="text-[9px] text-slate-500 font-semibold">
+                        Guarda na tua caderneta!
                       </span>
                     </div>
                   </div>
@@ -239,7 +275,7 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0 no-print">
           <div className="text-xs text-slate-500 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Dica: Podes imprimir em papel normal ou cartolina para recortar e entregar a cada aluno na aula.</span>
+            <span>Dica: Podes imprimir em papel normal ou cartolina. Cada cartão inclui o QR Code e o link direto para a página dos alunos.</span>
           </div>
           <div className="flex items-center gap-2">
             <button

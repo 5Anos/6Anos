@@ -20,7 +20,7 @@ export const PROGRESSION_CONFIG = {
     WEEKLY_CHALLENGE: 30,
     DAILY_TIP: 20,
     SIMULATOR_MAX: 100,
-    ASSESSMENT_MAX: 100,
+    ASSESSMENT_MAX: 0, // 0 XP para quizzes (avaliação pedagógica pura)
   },
 
   BADGES: {

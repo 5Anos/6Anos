@@ -152,6 +152,7 @@ export interface XPTransaction {
   userId: string;
   sourceType:
     | 'activity'
+    | 'simulator'
     | 'assessment'
     | 'mission'
     | 'daily_tip'
@@ -921,19 +922,21 @@ export async function getUserDailyTipClaims(userId: string): Promise<DailyTipCla
   return snap.docs.map((d) => d.data() as DailyTipClaim);
 }
 
-export async function claimDailyTipAtomic(userId: string, tipDate: string): Promise<{ success: boolean; xpAwarded: number }> {
+export async function claimDailyTipAtomic(
+  userId: string,
+  tipDate: string,
+  xpReward: number = 20
+): Promise<{ success: boolean; xpAwarded: number; newTotalXP: number }> {
   const db = getFirestore();
   const claimRef = doc(db, 'dailyTipClaims', `${userId}_${tipDate}`);
-  const snap = await getDoc(claimRef);
-  if (snap.exists()) {
-    return { success: false, xpAwarded: 0 };
-  }
+  const userRef = doc(db, 'users', userId);
+  const now = new Date().toISOString();
 
   const claim: DailyTipClaim = {
     id: `claim-${crypto.randomUUID()}`,
     userId,
     tipDate,
-    claimedAt: new Date().toISOString(),
+    claimedAt: now,
   };
 
   const txId = `xp-${crypto.randomUUID()}`;
@@ -943,26 +946,40 @@ export async function claimDailyTipAtomic(userId: string, tipDate: string): Prom
     sourceType: 'daily_tip',
     sourceId: `tip-${tipDate}`,
     previousBest: 0,
-    newBest: 10,
-    xpGain: 10,
-    createdAt: new Date().toISOString(),
+    newBest: xpReward,
+    xpGain: xpReward,
+    createdAt: now,
   };
 
-  const userRef = doc(db, 'users', userId);
   const txRef = doc(db, 'xpTransactions', txId);
 
+  let alreadyClaimed = false;
+  let newTotalXP = 0;
+
   await runTransaction(db, async (transaction) => {
+    const claimSnap = await transaction.get(claimRef);
     const uSnap = await transaction.get(userRef);
+
+    if (claimSnap.exists()) {
+      alreadyClaimed = true;
+      newTotalXP = uSnap.exists() ? Number((uSnap.data() as User).xp) || 0 : 0;
+      return;
+    }
+
     if (uSnap.exists()) {
       const u = uSnap.data() as User;
-      const newXp = (Number(u.xp) || 0) + 10;
-      transaction.update(userRef, { xp: newXp, updatedAt: new Date().toISOString() });
+      newTotalXP = (Number(u.xp) || 0) + xpReward;
+      transaction.update(userRef, { xp: newTotalXP, updatedAt: now });
     }
     transaction.set(claimRef, claim);
     transaction.set(txRef, tx);
   });
 
-  return { success: true, xpAwarded: 10 };
+  if (alreadyClaimed) {
+    return { success: false, xpAwarded: 0, newTotalXP };
+  }
+
+  return { success: true, xpAwarded: xpReward, newTotalXP };
 }
 
 // -------------------------------------------------------------

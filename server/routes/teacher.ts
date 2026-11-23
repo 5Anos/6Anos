@@ -462,10 +462,10 @@ router.get('/students/:studentId', async (req: AuthRequest, res) => {
     const xpBreakdown = {
       initial: 0,
       activities: xpHistory
-        .filter((t) => t.sourceType === 'activity')
+        .filter((t) => t.sourceType === 'activity' || t.sourceType === 'simulator')
         .reduce((sum, t) => sum + t.xpGain, 0),
       challenges: xpHistory
-        .filter((t) => t.sourceType === 'challenge')
+        .filter((t) => t.sourceType === 'challenge' || t.sourceType === 'weekly_challenge')
         .reduce((sum, t) => sum + t.xpGain, 0),
       assessments: xpHistory
         .filter((t) => t.sourceType === 'assessment')
@@ -1713,12 +1713,12 @@ router.get('/xp-breakdown', async (req: AuthRequest, res) => {
         level: levelInfo.level,
         levelName: levelInfo.name,
         sources: {
-          initial: 100,
+          initial: 0,
           activities: txs
-            .filter((t) => t.sourceType === 'activity')
+            .filter((t) => t.sourceType === 'activity' || t.sourceType === 'simulator')
             .reduce((sum, t) => sum + t.xpGain, 0),
           challenges: txs
-            .filter((t) => t.sourceType === 'challenge')
+            .filter((t) => t.sourceType === 'challenge' || t.sourceType === 'weekly_challenge')
             .reduce((sum, t) => sum + t.xpGain, 0),
           assessments: txs
             .filter((t) => t.sourceType === 'assessment')
@@ -1731,6 +1731,9 @@ router.get('/xp-breakdown', async (req: AuthRequest, res) => {
             .reduce((sum, t) => sum + t.xpGain, 0),
           grandeMissao: txs
             .filter((t) => t.sourceType === 'grande_missao')
+            .reduce((sum, t) => sum + t.xpGain, 0),
+          bonus: txs
+            .filter((t) => t.sourceType === 'bonus')
             .reduce((sum, t) => sum + t.xpGain, 0),
         },
       };

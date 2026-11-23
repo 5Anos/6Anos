@@ -705,6 +705,7 @@ router.get('/daily-tip', async (req: AuthRequest, res) => {
         ...tip,
         xpReward: PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP,
       },
+      alreadyClaimed: !!claim,
       claimedToday: !!claim,
       date: today,
     });
@@ -714,7 +715,7 @@ router.get('/daily-tip', async (req: AuthRequest, res) => {
   }
 });
 
-// POST claim Daily Tip (Student + Teacher testing mode)
+// POST claim Daily Tip (+20 XP once per day)
 router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
@@ -736,25 +737,18 @@ router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
     }
 
     const tipReward = PROGRESSION_CONFIG.XP_REWARDS.DAILY_TIP;
-    const resClaim = await claimDailyTipAtomic(userId, today);
+    const resClaim = await claimDailyTipAtomic(userId, today, tipReward);
     if (!resClaim.success) {
-      return res.status(400).json({ error: 'Não foi possível reclamar a dica diária.' });
+      return res.status(400).json({ error: 'Já reclamaste a dica diária de hoje!' });
     }
-
-    const resAward = await atomicAwardXP(userId, tipReward, {
-      sourceType: 'daily_tip',
-      sourceId: `daily_tip_${today}`,
-      previousBest: 0,
-      newBest: tipReward,
-    });
 
     await evaluateBadges(userId);
 
     return res.json({
       success: true,
-      xpGain: tipReward,
-      totalXp: resAward?.newTotalXP || req.user!.xp + tipReward,
-      message: `+${tipReward} XP ganhos com a Dica Diária!`,
+      xpGain: resClaim.xpAwarded,
+      totalXp: resClaim.newTotalXP || req.user!.xp + resClaim.xpAwarded,
+      message: `+${resClaim.xpAwarded} XP ganhos com a Dica Diária!`,
     });
   } catch (err) {
     console.error('Error in /daily-tip/claim:', err);
