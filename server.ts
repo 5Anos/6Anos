@@ -71,18 +71,17 @@ async function startServer() {
     next();
   });
 
-  // Attach user to req if valid session exists
-  app.use(authMiddleware);
-
-  // Serve static assets from public and src/assets
+  // Serve static assets from public and src/assets (no Firestore auth lookup needed)
   app.use(express.static(path.join(process.cwd(), 'public')));
   app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
   app.use('/src/assets', express.static(path.join(process.cwd(), 'src/assets')));
 
-  // API Routes FIRST
+  // API Routes FIRST (attach Firestore session auth ONLY to /api routes)
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
+
+  app.use('/api', authMiddleware);
 
   // Protected system route - only authenticated teachers can inspect database stats
   app.get('/api/system/db-status', requireTeacher, async (req, res) => {
@@ -101,7 +100,7 @@ async function startServer() {
   // Vite middleware for development or static serving for production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, allowedHosts: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);

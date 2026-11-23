@@ -174,11 +174,55 @@ const MainLayout: React.FC = () => {
   );
 };
 
+class AppErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; errorMessage: string }
+> {
+  declare props: { children: React.ReactNode };
+  state: { hasError: boolean; errorMessage: string } = {
+    hasError: false,
+    errorMessage: '',
+  };
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, errorMessage: error?.message || 'Erro inesperado ao carregar a interface.' };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[AppErrorBoundary]', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-white rounded-2xl border border-rose-200 shadow-lg p-6 text-center space-y-4">
+            <h2 className="text-lg font-black text-slate-900">Ocorreu um erro ao carregar a página</h2>
+            <p className="text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded-xl p-3 font-mono break-words">
+              {this.state.errorMessage}
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold cursor-pointer"
+            >
+              Recarregar Página
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export function App() {
   return (
-    <AuthProvider>
-      <MainLayout />
-    </AuthProvider>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
+    </AppErrorBoundary>
   );
 }
 
