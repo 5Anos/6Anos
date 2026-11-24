@@ -79,52 +79,52 @@ export const ProfileView: React.FC = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div className="flex items-center gap-4 sm:gap-6">
-          <div className="relative group">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden border-2 border-blue-500 shadow-md">
-              <AvatarRenderer avatar={avatarConfig} size={96} />
+      <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+        <div className="flex items-center gap-3.5 sm:gap-6 min-w-0">
+          <div className="relative group shrink-0">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-blue-500 shadow-md flex items-center justify-center">
+              <AvatarRenderer avatar={avatarConfig} size={96} className="w-full h-full" />
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-1 rounded-xl shadow">
+            <div className="absolute -bottom-1.5 -right-1.5 bg-blue-600 text-white p-1 rounded-xl shadow">
               <Sparkles className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight truncate">
                 {user.nickname || user.name}
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase bg-blue-100 text-blue-800">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase bg-blue-100 text-blue-800 shrink-0">
                 Nível {user.level}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 truncate">
               {user.name} • {classroom ? classroom.name : '6.º Ano TIC'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 px-4 py-2.5 rounded-2xl border border-blue-200 self-start sm:self-auto">
-          <ShieldCheck className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 px-4 py-2.5 rounded-2xl border border-blue-200 self-start sm:self-auto shrink-0">
+          <ShieldCheck className="w-4 h-4 shrink-0" />
           <span>Perfil Seguro e Privado</span>
         </div>
       </div>
 
       {savedSuccess && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-900 flex items-center gap-2 animate-in fade-in">
-          <Check className="w-4 h-4 text-emerald-600" />
+          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>Perfil e Avatar atualizados com sucesso! Todas as alterações foram guardadas.</span>
         </div>
       )}
 
       {/* Main Settings Form */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xs space-y-6">
         <form onSubmit={handleSave} className="space-y-6">
           {/* Avatar Builder Studio */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <label className="block text-sm font-black text-slate-900 uppercase tracking-wide">
-                🎨 Estúdio de Avatar • Construtor Completo
+                Estúdio de Avatar • Construtor Completo
               </label>
               <span className="text-xs text-slate-500 font-medium">
                 Altera o teu estilo sempre que quiseres

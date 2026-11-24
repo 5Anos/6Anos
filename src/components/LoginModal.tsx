@@ -70,7 +70,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             id="btn-close-login-modal"
             onClick={onClose}
             aria-label="Fechar janela"
-            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-11 h-11 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -98,7 +98,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ex: anderson.santos ou aluno@escola.edu.pt"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-base sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
               <p className="text-[11px] text-slate-500">
                 Escreve o <strong>nome de utilizador</strong> que está no teu cartão escolar (ou o email da escola).
@@ -118,12 +118,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="ex: sol350"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 pr-12 text-base sm:text-sm text-slate-800 font-mono placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 w-10 h-10 flex items-center justify-center rounded-xl cursor-pointer"
                   title={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
                   aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
                 >

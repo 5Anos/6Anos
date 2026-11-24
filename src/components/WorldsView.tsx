@@ -185,8 +185,8 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
       )}
 
       {/* Worlds Header Selector Bar */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-xs overflow-x-auto">
-        <div className="flex items-center gap-3 min-w-max">
+      <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-4 shadow-xs overflow-x-auto scroll-touch">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-max">
           {visibleWorlds.map((world) => {
             const isSelected = world.id === selectedWorldId;
             const isUnlocked = isTeacher || Boolean(world.isUnlocked);

@@ -144,13 +144,13 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
   const currentQ = questions[currentIdx];
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-start sm:items-center justify-center p-2.5 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[94dvh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden my-auto">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-4 sm:p-6 flex items-center justify-between gap-3 shrink-0">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className="text-xs font-bold text-blue-200 uppercase tracking-wider truncate">
                 {worldTitle}
               </span>
               {meta && !result && (
@@ -161,18 +161,19 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 </span>
               )}
             </div>
-            <h2 className="text-xl font-black">{t('final_assessment', locale)}</h2>
+            <h2 className="text-lg sm:text-xl font-black leading-tight">{t('final_assessment', locale)}</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white"
+            aria-label="Fechar avaliação"
+            className="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white flex items-center justify-center shrink-0 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8">
+        <div className="p-4 sm:p-8 overflow-y-auto scroll-touch flex-1">
           {loading ? (
             <div className="py-16 text-center text-slate-500 font-semibold">
               A preparar o teu questionário...

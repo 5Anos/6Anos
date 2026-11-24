@@ -20,6 +20,7 @@ const MainLayout: React.FC = () => {
   const [selectedWorldId, setSelectedWorldId] = useState<number>(1);
   const [activeSimulatorId, setActiveSimulatorId] = useState<string>('sim-password');
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   React.useEffect(() => {
     if (currentTab === 'teacher' && user?.role !== 'teacher') {
@@ -29,7 +30,7 @@ const MainLayout: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-4">
         <div className="text-center space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto animate-bounce shadow-lg">
             🧭
@@ -42,23 +43,35 @@ const MainLayout: React.FC = () => {
     );
   }
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSelectWorld = (worldId: number) => {
     setSelectedWorldId(worldId);
     setCurrentTab('worlds');
+    setMobileMenuOpen(false);
+    scrollToTop();
   };
 
   const handleOpenSimulator = (worldId: number, simId: string) => {
     setSelectedWorldId(worldId);
     setActiveSimulatorId(simId);
     setCurrentTab('simulators');
+    setMobileMenuOpen(false);
+    scrollToTop();
   };
 
   const handleOpenWeeklyChallenge = () => {
     setCurrentTab('challenges');
+    setMobileMenuOpen(false);
+    scrollToTop();
   };
 
   const handleOpenGrandeMissao = () => {
     setCurrentTab('grande_missao');
+    setMobileMenuOpen(false);
+    scrollToTop();
   };
 
   const handleSelectTab = (tab: string) => {
@@ -66,20 +79,31 @@ const MainLayout: React.FC = () => {
       return;
     }
     setCurrentTab(tab);
+    setMobileMenuOpen(false);
+    scrollToTop();
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row antialiased text-slate-800">
-      {/* Persistent Navigation Sidebar matching mockup */}
-      <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} />
+    <div className="min-h-[100dvh] bg-slate-100 flex flex-col lg:flex-row antialiased text-slate-800">
+      {/* Adaptive Navigation: Desktop Sidebar (lg+), Tablet/Mobile Drawer (< lg), Mobile Bottom Bar (< md) */}
+      <Sidebar
+        currentTab={currentTab}
+        onSelectTab={handleSelectTab}
+        mobileOpen={mobileMenuOpen}
+        onOpenMobile={() => setMobileMenuOpen(true)}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto">
-        {/* Top Header Banner with greeting 'Olá, Aluno!' or 'Olá, [Nome]!' and Login button */}
-        <Header onOpenLoginModal={() => setShowLoginModal(true)} />
+      <div className="flex-1 flex flex-col min-w-0 min-h-[100dvh]">
+        {/* Adaptive Top Header */}
+        <Header
+          onOpenLoginModal={() => setShowLoginModal(true)}
+          onOpenMobileMenu={() => setMobileMenuOpen(true)}
+        />
 
-        {/* Dynamic Main View */}
-        <main className="flex-1 p-6 sm:p-8 lg:p-10">
+        {/* Dynamic Main View — generous bottom clearance on mobile for Fixed Bottom Tab Bar */}
+        <main className="flex-1 px-3.5 py-4 sm:p-6 lg:p-8 xl:p-10 pb-24 md:pb-10">
           {currentTab === 'dashboard' && (
             <DashboardView
               onSelectWorld={handleSelectWorld}

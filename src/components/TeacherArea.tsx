@@ -308,7 +308,7 @@ export const TeacherArea: React.FC = () => {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200 ${
+          className={`fixed top-16 md:top-5 right-3 sm:right-5 max-w-[calc(100vw-1.5rem)] z-50 px-4 sm:px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200 ${
             toast.type === 'error' ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
           }`}
         >
@@ -321,7 +321,7 @@ export const TeacherArea: React.FC = () => {
           <button
             type="button"
             onClick={() => setToast(null)}
-            className="ml-1 opacity-80 hover:opacity-100 cursor-pointer"
+            className="ml-1 opacity-80 hover:opacity-100 cursor-pointer p-1"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -329,18 +329,18 @@ export const TeacherArea: React.FC = () => {
       )}
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-0 sm:px-2 lg:px-4 pt-1 sm:pt-3 space-y-5 sm:space-y-6">
         {/* Top Header Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 lg:p-8 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5 shadow-xs">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 font-bold text-xs border border-amber-200 flex items-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 text-amber-600" />
                 Painel da Docência
               </span>
               <span className="text-xs text-slate-500 font-medium">Missão TIC 6.º Ano</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
               Central de Gestão e Acompanhamento
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 max-w-2xl">
@@ -348,7 +348,7 @@ export const TeacherArea: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 w-full xl:w-auto">
             <button
               onClick={() => setShowImportModal(true)}
               className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
@@ -463,7 +463,7 @@ export const TeacherArea: React.FC = () => {
         )}
 
         {/* Horizontal Navigation Tabs */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex overflow-x-auto gap-1 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex overflow-x-auto scroll-touch gap-1 shadow-xs">
           {[
             { id: 'overview', label: 'Visão Geral', icon: Sparkles },
             { id: 'students', label: `Alunos & Acessos (${students?.length || 0})`, icon: Users },
@@ -529,7 +529,7 @@ export const TeacherArea: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
                   {dashboardStats.worldPerformance?.map((w: any) => {
                     const isPassed = w.averageScore > PROGRESSION_CONFIG.PASSING_THRESHOLD;
                     return (

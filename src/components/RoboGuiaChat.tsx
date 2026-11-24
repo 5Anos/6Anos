@@ -182,12 +182,12 @@ export const RoboGuiaChat: React.FC<RoboGuiaChatProps> = ({ visible = true }) =>
   };
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end">
+    <div className="fixed bottom-[4.75rem] right-3 md:bottom-6 md:right-6 z-40 flex flex-col items-end">
       {/* Chat Drawer */}
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-[370px] max-h-[75vh] bg-white rounded-3xl border border-indigo-200 shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-[380px] max-h-[calc(100dvh-9rem)] md:max-h-[75vh] bg-white rounded-3xl border border-indigo-200 shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white px-4 py-3.5 flex items-center justify-between gap-3">
+          <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white px-4 py-3 flex items-center justify-between gap-3 shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-xs">
                 <Bot className="w-5 h-5 text-white" />
@@ -211,7 +211,7 @@ export const RoboGuiaChat: React.FC<RoboGuiaChatProps> = ({ visible = true }) =>
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label="Fechar chat do Robo-Guia"
-              className="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors cursor-pointer shrink-0"
+              className="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 transition-colors cursor-pointer shrink-0 flex items-center justify-center"
             >
               <X className="w-4 h-4 text-white" />
             </button>
@@ -327,13 +327,13 @@ export const RoboGuiaChat: React.FC<RoboGuiaChatProps> = ({ visible = true }) =>
               onChange={(e) => setInputValue(e.target.value)}
               disabled={isLoading}
               placeholder="Escreve a tua dúvida ao Robo-Guia..."
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-base sm:text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
             />
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
               aria-label="Enviar mensagem"
-              className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-11 h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -348,7 +348,8 @@ export const RoboGuiaChat: React.FC<RoboGuiaChatProps> = ({ visible = true }) =>
           setIsOpen((prev) => !prev);
           setUnreadCount(0);
         }}
-        className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-black text-xs shadow-lg shadow-indigo-600/30 transition-all cursor-pointer active:scale-95"
+        aria-label={isOpen ? 'Ocultar Robo-Guia' : 'Abrir dicas do Robo-Guia'}
+        className="group flex items-center justify-center gap-2.5 w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-black text-xs shadow-lg shadow-indigo-600/30 transition-all cursor-pointer active:scale-95"
       >
         <div className="relative">
           {isOpen ? (
@@ -362,7 +363,7 @@ export const RoboGuiaChat: React.FC<RoboGuiaChatProps> = ({ visible = true }) =>
             </span>
           )}
         </div>
-        <span>{isOpen ? 'Ocultar Robo-Guia' : 'Dicas do Robo-Guia'}</span>
+        <span className="hidden sm:inline">{isOpen ? 'Ocultar Robo-Guia' : 'Dicas do Robo-Guia'}</span>
       </button>
     </div>
   );

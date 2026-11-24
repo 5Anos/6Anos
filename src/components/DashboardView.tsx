@@ -126,12 +126,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
-      {/* 1. TOP 3 FEATURED CARDS (Matching Reference Mockup) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 1. TOP 3 FEATURED CARDS (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Card 1: Desafio da Semana */}
         <div
           id="card-weekly-challenge"
-          className="bg-[#FFFDF2] border border-[#FDE68A] rounded-3xl p-6 shadow-xs relative flex flex-col justify-between"
+          className="bg-[#FFFDF2] border border-[#FDE68A] rounded-3xl p-5 sm:p-6 shadow-xs relative flex flex-col justify-between"
         >
           <div>
             <div className="flex items-start justify-between gap-4">
@@ -257,7 +257,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 3: Frase do Dia */}
         <div
           id="card-quote-day"
-          className="bg-[#FAF5FF] border border-[#E9D5FF] rounded-3xl p-6 shadow-xs relative flex flex-col justify-between"
+          className="bg-[#FAF5FF] border border-[#E9D5FF] rounded-3xl p-5 sm:p-6 shadow-xs relative flex flex-col justify-between md:col-span-2 xl:col-span-1"
         >
           <div>
             <div className="flex items-center gap-3.5">
@@ -334,7 +334,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Panorama Illustrated Archipelago Canvas */}
-        <div className="relative bg-gradient-to-b from-sky-100/40 via-blue-50/20 to-white rounded-3xl p-6 border border-blue-100/80">
+        <div className="relative bg-gradient-to-b from-sky-100/40 via-blue-50/20 to-white rounded-3xl p-4 sm:p-6 border border-blue-100/80">
           {/* Subtle Background Sky Clouds & Seagulls */}
           <div className="absolute top-4 left-10 text-slate-300 text-xs select-none">v v</div>
           <div className="absolute top-8 right-28 text-slate-300 text-xs select-none">v</div>
@@ -343,7 +343,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Dotted Arch Trail connecting all 5 islands and the mountain peak */}
           <svg
-            className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none z-0"
+            className="hidden xl:block absolute inset-0 w-full h-full pointer-events-none z-0"
             preserveAspectRatio="none"
             viewBox="0 0 1000 340"
           >
@@ -358,8 +358,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             />
           </svg>
 
-          {/* Floating Islands Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5 relative z-10">
+          {/* Floating Islands Grid: 1-col phone, 2-col large phone, 3-col tablet/laptop, 6-col wide desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-5 relative z-10">
             {/* Island 1: Guardião Digital */}
             {(() => {
               const w1 = worlds.find((w) => w.id === 1);
@@ -844,8 +844,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             </div>
 
-            {/* 5 Shields in horizontal sequence dynamic from user badges */}
-            <div className="grid grid-cols-5 gap-2 py-3">
+            {/* 5 Shields in responsive grid */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 py-3">
               {(() => {
                 const userBadgesList = badges.map((b: any) => b.badgeId || b.id || b);
                 const shieldConfigs = [

@@ -240,7 +240,10 @@ export const XpMilestonesTracker: React.FC<XpMilestonesTrackerProps> = ({
       </div>
 
       {/* Horizontal Visual Milestone Track */}
-      <div className="py-7 overflow-x-auto">
+      <div className="pt-5 pb-4 sm:py-7 overflow-x-auto scroll-touch">
+        <div className="md:hidden text-[11px] font-bold text-slate-400 mb-2 flex items-center justify-between">
+          <span>Desliza para o lado para veres todos os níveis →</span>
+        </div>
         <div className="min-w-[680px] px-2">
           <div className="relative">
             {/* Background & Active Progress Rail aligned to center of 44px icon circles */}
