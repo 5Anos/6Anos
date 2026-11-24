@@ -22,6 +22,7 @@ import {
   getDailyTipClaim,
   claimDailyTipAtomic,
   getWeeklyChallengeProgress,
+  getUserWeeklyChallenges,
   saveWeeklyChallengeProgress,
   atomicRecordWeeklyChallenge,
   getGrandeMissaoProgress,
@@ -38,6 +39,10 @@ import {
   FINAL_ASSESSMENTS,
   GRANDE_MISSAO,
   WEEKLY_CHALLENGE,
+  getCurrentWeeklyChallenge,
+  getWeeklyChallengeByWeek,
+  buildAnnualWeeklySchedule,
+  getDateRangeForIsoWeek,
   DAILY_TIPS,
   calculateLevel,
   BADGES_CATALOG,
@@ -774,31 +779,88 @@ router.post('/daily-tip/claim', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
-// GET Weekly Challenge
+// GET Weekly Challenge (Dynamic 52-week annual rotation + optional teacher preview ?week=N)
 router.get('/weekly-challenge', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
-    const progress = userId ? await getWeeklyChallengeProgress(userId, WEEKLY_CHALLENGE.id) : null;
+    const isTeacher = req.user?.role === 'teacher';
+    const current = getCurrentWeeklyChallenge();
+
+    const completedIds = new Set<string>();
+    if (userId) {
+      const userWeeklyList = await getUserWeeklyChallenges(userId);
+      userWeeklyList.forEach((p) => {
+        if (p.challengeId && p.status !== 'pending' && (p as any).completed !== false) {
+          completedIds.add(p.challengeId);
+        }
+      });
+    }
+
+    const weekQuery = typeof req.query.week === 'string' ? parseInt(req.query.week, 10) : NaN;
+    const isPreview =
+      isTeacher &&
+      Number.isInteger(weekQuery) &&
+      weekQuery >= 1 &&
+      weekQuery <= 52 &&
+      weekQuery !== current.weekNumber;
+
+    const activeChallenge = isPreview
+      ? {
+          ...getWeeklyChallengeByWeek(weekQuery),
+          id: `weekly-${current.isoYear}-w${String(weekQuery).padStart(2, '0')}`,
+          isoYear: current.isoYear,
+          isoWeek: weekQuery,
+          dateRangeLabel: getDateRangeForIsoWeek(current.isoYear, weekQuery),
+          daysUntilNextMonday: current.daysUntilNextMonday,
+        }
+      : current;
+
+    const completed =
+      completedIds.has(activeChallenge.id) ||
+      (activeChallenge.weekNumber === 1 && completedIds.has('challenge-phishing-message'));
 
     // Do NOT send isCorrect or explanation to client!
     const sanitized = {
-      id: WEEKLY_CHALLENGE.id,
-      title: WEEKLY_CHALLENGE.title,
-      context: WEEKLY_CHALLENGE.context,
-      messageSample: WEEKLY_CHALLENGE.messageSample,
-      problem: WEEKLY_CHALLENGE.problem,
-      task: WEEKLY_CHALLENGE.task,
+      id: activeChallenge.id,
+      weekNumber: activeChallenge.weekNumber,
+      isoYear: activeChallenge.isoYear,
+      isoWeek: activeChallenge.isoWeek,
+      worldId: activeChallenge.worldId,
+      worldName: activeChallenge.worldName,
+      category: activeChallenge.category,
+      difficulty: activeChallenge.difficulty,
+      title: activeChallenge.title,
+      context: activeChallenge.context,
+      scenarioLabel: activeChallenge.scenarioLabel,
+      senderOrSource: activeChallenge.senderOrSource,
+      messageSample: activeChallenge.messageSample,
+      problem: activeChallenge.problem,
+      task: activeChallenge.task,
+      dateRangeLabel: activeChallenge.dateRangeLabel,
+      daysUntilNextMonday: activeChallenge.daysUntilNextMonday,
       xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
-      options: WEEKLY_CHALLENGE.options.map((o, idx) => ({
+      options: activeChallenge.options.map((o, idx) => ({
         id: String(idx),
         text: o.text,
       })),
-      completed: progress?.status === 'completed',
+      completed,
+      isPreview,
     };
+
+    const schedule = buildAnnualWeeklySchedule(completedIds);
+    const completedCount = schedule.filter((s) => s.completed).length;
 
     return res.json({
       challenge: sanitized,
-      alreadyCompleted: progress?.status === 'completed',
+      alreadyCompleted: completed,
+      isPreview,
+      annualProgress: {
+        isoYear: current.isoYear,
+        currentWeekNumber: current.weekNumber,
+        completedCount,
+        totalWeeks: schedule.length,
+        schedule,
+      },
     });
   } catch (err) {
     console.error('Error in /weekly-challenge:', err);
@@ -806,28 +868,42 @@ router.get('/weekly-challenge', async (req: AuthRequest, res) => {
   }
 });
 
-// POST submit Weekly Challenge (Student + Teacher testing mode)
+// POST submit Weekly Challenge (Student + Teacher testing/preview mode)
 router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, async (req: AuthRequest, res) => {
   try {
-    let { optionIndex, isPhishing, option, solution } = req.body;
+    const userId = req.user!.id;
+    const isTeacher = req.user?.role === 'teacher';
+    const current = getCurrentWeeklyChallenge();
+
+    const requestedWeek =
+      typeof req.body?.weekNumber === 'number' &&
+      Number.isInteger(req.body.weekNumber) &&
+      req.body.weekNumber >= 1 &&
+      req.body.weekNumber <= 52
+        ? req.body.weekNumber
+        : null;
+
+    const isTeacherPreview = isTeacher && requestedWeek !== null && requestedWeek !== current.weekNumber;
+    const targetChallenge = isTeacherPreview
+      ? {
+          ...getWeeklyChallengeByWeek(requestedWeek!),
+          id: `weekly-${current.isoYear}-w${String(requestedWeek!).padStart(2, '0')}`,
+        }
+      : current;
+
+    let { optionIndex, option, solution } = req.body;
     if (typeof optionIndex !== 'number') {
-      if (typeof isPhishing === 'boolean') {
-        optionIndex = isPhishing ? 1 : 0;
-      } else if (option === 'phishing' || solution === 'phishing') {
-        optionIndex = 1;
-      } else if (option === 'safe' || solution === 'safe') {
-        optionIndex = 0;
-      } else if (typeof solution === 'number') {
+      if (typeof solution === 'number') {
         optionIndex = solution;
+      } else if (typeof option === 'number') {
+        optionIndex = option;
       }
     }
-    if (typeof optionIndex !== 'number' || !WEEKLY_CHALLENGE.options[optionIndex]) {
+    if (typeof optionIndex !== 'number' || !targetChallenge.options[optionIndex]) {
       return res.status(400).json({ error: 'Opção inválida.' });
     }
 
-    const userId = req.user!.id;
-    const isTeacher = req.user?.role === 'teacher';
-    const selected = WEEKLY_CHALLENGE.options[optionIndex];
+    const selected = targetChallenge.options[optionIndex];
 
     if (!selected.isCorrect) {
       return res.json({
@@ -842,6 +918,7 @@ router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, asyn
         feedback: selected.explanation,
         xpGain: 0,
         totalXp: 0,
+        isPreview: isTeacherPreview,
       });
     }
 
@@ -852,7 +929,7 @@ router.post(['/weekly-challenge', '/weekly-challenge/submit'], requireAuth, asyn
 
     const result = await atomicRecordWeeklyChallenge({
       userId,
-      challengeId: WEEKLY_CHALLENGE.id,
+      challengeId: current.id,
       solution: safeSolution,
       optionIndex,
       xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,

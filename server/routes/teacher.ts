@@ -49,6 +49,7 @@ import {
   FINAL_ASSESSMENTS,
   GRANDE_MISSAO,
   WEEKLY_CHALLENGE,
+  getCurrentWeeklyChallenge,
   DAILY_TIPS,
   BADGES_CATALOG,
 } from '../catalog';
@@ -1846,9 +1847,16 @@ router.get('/challenges-summary', async (req: AuthRequest, res) => {
       };
     });
 
-    // Weekly Challenge
+    // Weekly Challenge (Dynamic 52-week rotation)
+    const currentWeekly = getCurrentWeeklyChallenge();
     const weeklyStats = students.map((st) => {
-      const prog = allWeekly.find((p) => p.userId === st.id && p.challengeId === WEEKLY_CHALLENGE.id);
+      const prog = allWeekly.find(
+        (p) =>
+          p.userId === st.id &&
+          (p.challengeId === currentWeekly.id ||
+            (currentWeekly.weekNumber === 1 && p.challengeId === 'challenge-phishing-message'))
+      );
+      const annualCount = allWeekly.filter((p) => p.userId === st.id && p.status !== 'pending').length;
       const classroom = classes.find((c) => c.id === st.classId);
       return {
         studentId: st.id,
@@ -1856,6 +1864,7 @@ router.get('/challenges-summary', async (req: AuthRequest, res) => {
         studentNickname: st.nickname,
         className: classroom ? classroom.name : 'Sem Turma',
         completed: !!prog,
+        annualCompletedCount: annualCount,
         score: prog ? prog.score : 0,
         completedAt: prog ? prog.completedAt : null,
       };
@@ -1864,11 +1873,18 @@ router.get('/challenges-summary', async (req: AuthRequest, res) => {
     return res.json({
       worldChallenges,
       weeklyChallenge: {
-        id: WEEKLY_CHALLENGE.id,
-        title: WEEKLY_CHALLENGE.title,
-        task: WEEKLY_CHALLENGE.task,
-        xpReward: WEEKLY_CHALLENGE.xpReward,
+        id: currentWeekly.id,
+        weekNumber: currentWeekly.weekNumber,
+        isoYear: currentWeekly.isoYear,
+        dateRangeLabel: currentWeekly.dateRangeLabel,
+        worldId: currentWeekly.worldId,
+        worldName: currentWeekly.worldName,
+        difficulty: currentWeekly.difficulty,
+        title: currentWeekly.title,
+        task: currentWeekly.task,
+        xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
         totalCompleted: weeklyStats.filter((r) => r.completed).length,
+        totalAnnualCompletions: allWeekly.filter((p) => p.status !== 'pending').length,
         students: weeklyStats,
       },
     });

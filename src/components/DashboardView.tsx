@@ -140,15 +140,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <GoldTrophyIllustration size={44} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-[#1E3A8A] leading-tight">
+                    <h3 className="text-lg font-black text-[#1E3A8A] leading-tight">
                     Desafio da Semana
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    {weeklyChallenge?.challenge?.weekNumber && (
+                      <span className="bg-amber-900 text-amber-100 font-black text-[11px] px-2 py-0.5 rounded-md">
+                        Sem. {weeklyChallenge.challenge.weekNumber}/52
+                      </span>
+                    )}
                     <span className="bg-[#FEF08A] text-[#78350F] font-black text-xs px-2.5 py-0.5 rounded-md">
-                      +30 XP
+                      +{weeklyChallenge?.challenge?.xpReward || 30} XP
                     </span>
                     <span className="text-xs font-bold text-[#854D0E] flex items-center gap-1 bg-[#FEF9C3] px-2 py-0.5 rounded-md border border-[#FDE047]">
-                      <Signal className="w-3.5 h-3.5 text-[#CA8A04]" /> Médio
+                      <Signal className="w-3.5 h-3.5 text-[#CA8A04]" />{' '}
+                      {weeklyChallenge?.challenge?.difficulty || 'Médio'}
                     </span>
                   </div>
                 </div>
@@ -160,8 +166,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            <p className="text-xs text-slate-700 font-medium my-4 leading-relaxed">
-              Consegues descobrir se esta mensagem é phishing?
+            <p className="text-xs text-slate-700 font-semibold my-4 leading-relaxed">
+              {weeklyChallenge?.challenge?.title ||
+                'Novo desafio digital disponível esta semana!'}
             </p>
           </div>
 
@@ -171,9 +178,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => {
                 onOpenWeeklyChallenge();
               }}
-              className="bg-[#FBBF24] hover:bg-[#F59E0B] text-slate-900 font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              className={`font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer ${
+                weeklyChallenge?.alreadyCompleted
+                  ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300'
+                  : 'bg-[#FBBF24] hover:bg-[#F59E0B] text-slate-900'
+              }`}
             >
-              <span>Aceitar desafio</span>
+              <span>{weeklyChallenge?.alreadyCompleted ? 'Concluído ✓' : 'Aceitar desafio'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -182,7 +193,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               }}
               className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
             >
-              <span>Ver todos</span>
+              <span>Ver 52 semanas</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

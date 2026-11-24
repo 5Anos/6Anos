@@ -1789,30 +1789,15 @@ export const GRANDE_MISSAO = {
   ],
 };
 
-// Weekly challenge data
-export const WEEKLY_CHALLENGE = {
-  id: 'challenge-phishing-message',
-  title: 'Consegues descobrir se esta mensagem é phishing?',
-  context: 'Recebeste uma SMS urgente com o seguinte texto:',
-  messageSample: 'ALERTA ESCOLAR URGENTE: O teu computador portátil escolar foi bloqueado. Clica em http://bit.ly/escola-recupera-login-99 agora ou a tua matrícula será cancelada em 15 minutos!',
-  problem: 'A mensagem usa pressa e ameaças para assustar o aluno.',
-  task: 'Encontra os sinais suspeitos e escolhe a resposta certa.',
-  options: [
-    {
-      text: 'É verdadeira: como fala da escola e é urgente, devo carregar já na ligação antes dos 15 minutos.',
-      isCorrect: false,
-      explanation: 'Incorreto! A pressa e a pressão do tempo são truques para te impedir de pensar com calma.',
-    },
-    {
-      text: 'É phishing: usa ameaças de tempo curto, uma ligação estranha e pede dados de acesso.',
-      isCorrect: true,
-      explanation: 'Correto! Mesmo que uma mensagem pareça ser da escola, confirma sempre num canal oficial ou com um adulto.',
-    },
-    {
-      text: 'É verdadeira: se a mensagem tem o nome da escola, não preciso de confirmar em mais lado nenhum.',
-      isCorrect: false,
-      explanation: 'Incorreto! Qualquer pessoa pode fingir ser a escola. Confirma sempre através de um canal oficial conhecido.',
-    },
-  ],
-  xpReward: 30,
-};
+// Weekly challenge system (52 unique weekly challenges, rotating automatically by ISO calendar week)
+export {
+  WEEKLY_CHALLENGES_52,
+  getCurrentWeeklyChallenge,
+  getWeeklyChallengeByWeek,
+  buildAnnualWeeklySchedule,
+  getIsoWeekInfo,
+  getDateRangeForIsoWeek,
+} from '../../shared/weeklyChallenges';
+import { getCurrentWeeklyChallenge as _getCurrentWeeklyChallenge } from '../../shared/weeklyChallenges';
+export const WEEKLY_CHALLENGE = _getCurrentWeeklyChallenge();
+

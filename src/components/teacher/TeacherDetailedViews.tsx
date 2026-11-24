@@ -975,10 +975,25 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
       {/* Weekly challenge banner */}
       {weeklyChallenge && (
         <div className="bg-amber-50/60 border border-amber-200 rounded-2xl p-6 space-y-3 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase text-amber-800 tracking-wider flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-amber-600" /> Desafio da Semana Atual
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-black uppercase text-amber-800 tracking-wider flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-amber-600" />
+                {weeklyChallenge.weekNumber
+                  ? `Desafio da Semana ${weeklyChallenge.weekNumber} / 52`
+                  : 'Desafio da Semana Atual'}
+              </span>
+              {weeklyChallenge.dateRangeLabel && (
+                <span className="px-2.5 py-0.5 rounded-md bg-white border border-amber-200 text-[11px] font-bold text-amber-900">
+                  {weeklyChallenge.dateRangeLabel}
+                </span>
+              )}
+              {weeklyChallenge.worldName && (
+                <span className="px-2.5 py-0.5 rounded-md bg-amber-100 text-[11px] font-bold text-amber-900">
+                  Mundo {weeklyChallenge.worldId} • {weeklyChallenge.worldName}
+                </span>
+              )}
+            </div>
             <span className="px-3 py-1 rounded-lg bg-amber-500 text-white font-black text-xs">
               +{weeklyChallenge.xpReward} XP
             </span>
@@ -987,10 +1002,17 @@ export const TeacherChallengesTab: React.FC<{ challengesData: any }> = ({ challe
           <h3 className="text-lg font-bold text-slate-900">{weeklyChallenge.title}</h3>
           <p className="text-xs text-slate-700">{weeklyChallenge.task}</p>
 
-          <div className="pt-2 flex items-center gap-4 text-xs text-slate-500">
+          <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-slate-600">
             <div>
-              Alunos que já resolveram: <strong className="text-amber-800 font-bold">{weeklyChallenge.totalCompleted || 0}</strong>
+              Alunos que resolveram esta semana:{' '}
+              <strong className="text-amber-800 font-bold">{weeklyChallenge.totalCompleted || 0}</strong>
             </div>
+            {typeof weeklyChallenge.totalAnnualCompletions === 'number' && (
+              <div>
+                Conclusões acumuladas nas 52 semanas:{' '}
+                <strong className="text-emerald-700 font-bold">{weeklyChallenge.totalAnnualCompletions}</strong>
+              </div>
+            )}
           </div>
         </div>
       )}

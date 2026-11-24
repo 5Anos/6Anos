@@ -17,6 +17,10 @@ import {
   FINAL_ASSESSMENTS,
   GRANDE_MISSAO,
   WEEKLY_CHALLENGE,
+  getCurrentWeeklyChallenge,
+  getWeeklyChallengeByWeek,
+  buildAnnualWeeklySchedule,
+  getDateRangeForIsoWeek,
   DAILY_TIPS,
   calculateLevel,
   BADGES_CATALOG,
@@ -1092,28 +1096,91 @@ export async function clientClaimDailyTip() {
   };
 }
 
-export async function clientGetWeeklyChallenge() {
+export async function clientGetWeeklyChallenge(weekOverride?: number) {
   const userId = getActiveClientUserId();
-  let completed = false;
+  const current = getCurrentWeeklyChallenge();
+  let isTeacher = false;
+  const completedIds = new Set<string>();
+
   if (userId) {
     const db = getClientFirestore();
-    const cDoc = await getDoc(doc(db, 'weeklyChallenges', `${userId}_${WEEKLY_CHALLENGE.id}`));
-    completed = cDoc.exists();
+    const [userSnap, weeklySnap] = await Promise.all([
+      getDoc(doc(db, 'users', userId)),
+      getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', userId))),
+    ]);
+    isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+    weeklySnap.docs.forEach((d) => {
+      const data = d.data() as any;
+      if (data?.challengeId && (data.completed !== false && data.status !== 'pending')) {
+        completedIds.add(String(data.challengeId));
+      }
+    });
   }
 
-  const sanitizedOptions = WEEKLY_CHALLENGE.options.map((o, idx) => ({
+  const isPreview =
+    isTeacher &&
+    typeof weekOverride === 'number' &&
+    Number.isInteger(weekOverride) &&
+    weekOverride >= 1 &&
+    weekOverride <= 52 &&
+    weekOverride !== current.weekNumber;
+
+  const activeChallenge = isPreview
+    ? {
+        ...getWeeklyChallengeByWeek(weekOverride!),
+        id: `weekly-${current.isoYear}-w${String(weekOverride!).padStart(2, '0')}`,
+        isoYear: current.isoYear,
+        isoWeek: weekOverride!,
+        dateRangeLabel: getDateRangeForIsoWeek(current.isoYear, weekOverride!),
+        daysUntilNextMonday: current.daysUntilNextMonday,
+      }
+    : current;
+
+  const completed =
+    completedIds.has(activeChallenge.id) ||
+    (activeChallenge.weekNumber === 1 && completedIds.has('challenge-phishing-message'));
+
+  const sanitizedOptions = activeChallenge.options.map((o, idx) => ({
     id: String(idx),
     text: o.text,
   }));
 
+  const schedule = buildAnnualWeeklySchedule(completedIds);
+  const completedCount = schedule.filter((s) => s.completed).length;
+
   return {
     challenge: {
-      ...WEEKLY_CHALLENGE,
+      id: activeChallenge.id,
+      weekNumber: activeChallenge.weekNumber,
+      isoYear: activeChallenge.isoYear,
+      isoWeek: activeChallenge.isoWeek,
+      worldId: activeChallenge.worldId,
+      worldName: activeChallenge.worldName,
+      category: activeChallenge.category,
+      difficulty: activeChallenge.difficulty,
+      title: activeChallenge.title,
+      context: activeChallenge.context,
+      scenarioLabel: activeChallenge.scenarioLabel,
+      senderOrSource: activeChallenge.senderOrSource,
+      messageSample: activeChallenge.messageSample,
+      problem: activeChallenge.problem,
+      task: activeChallenge.task,
+      dateRangeLabel: activeChallenge.dateRangeLabel,
+      daysUntilNextMonday: activeChallenge.daysUntilNextMonday,
       options: sanitizedOptions,
       xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
       completed,
+      isPreview,
     },
     alreadyCompleted: completed,
+    isPreview,
+    annualProgress: {
+      isoYear: current.isoYear,
+      currentWeekNumber: current.weekNumber,
+      completedCount,
+      totalWeeks: schedule.length,
+      schedule,
+    },
   };
 }
 
@@ -1121,30 +1188,45 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
   const userId = getActiveClientUserId();
   if (!userId) throw new Error('Não autenticado');
 
+  const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+
+  const current = getCurrentWeeklyChallenge();
+  const requestedWeek =
+    typeof payload?.weekNumber === 'number' &&
+    Number.isInteger(payload.weekNumber) &&
+    payload.weekNumber >= 1 &&
+    payload.weekNumber <= 52
+      ? payload.weekNumber
+      : null;
+
+  const isTeacherPreview = isTeacher && requestedWeek !== null && requestedWeek !== current.weekNumber;
+  const targetChallenge = isTeacherPreview
+    ? {
+        ...getWeeklyChallengeByWeek(requestedWeek!),
+        id: `weekly-${current.isoYear}-w${String(requestedWeek!).padStart(2, '0')}`,
+      }
+    : current;
+
   let optionIndex = -1;
   if (typeof payload === 'object' && payload !== null) {
     if (typeof payload.optionIndex === 'number') {
       optionIndex = payload.optionIndex;
-    } else if (payload.isPhishing === true || payload.option === 'phishing' || payload.solution === 'phishing') {
-      optionIndex = 1;
-    } else if (payload.isPhishing === false || payload.option === 'safe' || payload.solution === 'safe') {
-      optionIndex = 0;
     } else if (typeof payload.solution === 'number') {
       optionIndex = payload.solution;
+    } else if (typeof payload.option === 'number') {
+      optionIndex = payload.option;
     }
-  } else if (typeof payload === 'string') {
-    optionIndex = payload === 'phishing' ? 1 : 0;
-  } else if (typeof payload === 'boolean') {
-    optionIndex = payload ? 1 : 0;
   } else if (typeof payload === 'number') {
     optionIndex = payload;
   }
 
-  if (optionIndex < 0 || !WEEKLY_CHALLENGE.options[optionIndex]) {
-    optionIndex = 0;
+  if (optionIndex < 0 || !targetChallenge.options[optionIndex]) {
+    throw new Error('Opção inválida. Escolhe uma das respostas disponíveis.');
   }
 
-  const selected = WEEKLY_CHALLENGE.options[optionIndex];
+  const selected = targetChallenge.options[optionIndex];
 
   if (!selected.isCorrect) {
     return {
@@ -1155,9 +1237,6 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
     };
   }
 
-  const db = getClientFirestore();
-  const userSnap = await getDoc(doc(db, 'users', userId));
-  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
   if (isTeacher) {
     return {
       success: true,
@@ -1166,11 +1245,12 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
       message: selected.explanation,
       xpGain: 0,
       totalXp: 0,
+      isPreview: isTeacherPreview,
     };
   }
 
-  const challengeId = `${userId}_${WEEKLY_CHALLENGE.id}`;
-  const challengeRef = doc(db, 'weeklyChallenges', challengeId);
+  const challengeDocId = `${userId}_${current.id}`;
+  const challengeRef = doc(db, 'weeklyChallenges', challengeDocId);
   const userRef = doc(db, 'users', userId);
   const now = new Date().toISOString();
   const xpReward = PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE; // 30 XP
@@ -1180,8 +1260,6 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
   const safeSolution =
     typeof payload?.solution !== 'undefined'
       ? String(payload.solution)
-      : payload?.isPhishing !== undefined
-      ? (payload.isPhishing ? 'phishing' : 'safe')
       : String(optionIndex);
 
   let alreadyCompleted = false;
@@ -1206,9 +1284,9 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
     finalUserXp = curXp + earnedXp;
 
     txn.set(challengeRef, {
-      id: challengeId,
+      id: challengeDocId,
       userId,
-      challengeId: WEEKLY_CHALLENGE.id,
+      challengeId: current.id,
       solution: safeSolution,
       optionIndex,
       completed: true,
@@ -1222,7 +1300,7 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
       id: txId,
       userId,
       sourceType: 'weekly_challenge',
-      sourceId: WEEKLY_CHALLENGE.id,
+      sourceId: current.id,
       previousBest: 0,
       newBest: 100,
       xpGain: earnedXp,
@@ -1240,7 +1318,7 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
     feedback: selected.explanation,
     message: alreadyCompleted
       ? 'Já resolveste com sucesso o desafio desta semana!'
-      : `+${earnedXp} XP ganhos no Desafio da Semana!`,
+      : `+${earnedXp} XP ganhos no Desafio da Semana ${current.weekNumber}!`,
     xpGain: earnedXp,
     totalXp: finalUserXp,
   };

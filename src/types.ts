@@ -153,16 +153,54 @@ export interface DailyTipData {
   xpReward: number;
 }
 
+export interface AnnualWeeklyScheduleItem {
+  weekNumber: number;
+  id: string;
+  worldId: number;
+  worldName: string;
+  category: string;
+  difficulty: 'Fácil' | 'Médio' | 'Desafio';
+  title: string;
+  dateRangeLabel: string;
+  xpReward: number;
+  isCurrent: boolean;
+  isPast: boolean;
+  isFuture: boolean;
+  completed: boolean;
+}
+
 export interface WeeklyChallengeData {
   challenge: {
     id: string;
+    weekNumber: number;
+    isoYear: number;
+    isoWeek: number;
+    worldId: number;
+    worldName: string;
+    category: string;
+    difficulty: 'Fácil' | 'Médio' | 'Desafio';
     title: string;
     context: string;
+    scenarioLabel: string;
+    senderOrSource?: string;
     messageSample: string;
     problem: string;
     task: string;
-    options: { id: number; text: string }[];
+    dateRangeLabel: string;
+    daysUntilNextMonday: number;
+    options: { id: string | number; text: string }[];
     xpReward: number;
     completed: boolean;
+    isPreview?: boolean;
+  };
+  alreadyCompleted?: boolean;
+  isPreview?: boolean;
+  annualProgress?: {
+    isoYear: number;
+    currentWeekNumber: number;
+    completedCount: number;
+    totalWeeks: number;
+    schedule: AnnualWeeklyScheduleItem[];
   };
 }
+

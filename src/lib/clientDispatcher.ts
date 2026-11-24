@@ -42,6 +42,7 @@ import {
   FINAL_ASSESSMENTS,
   GRANDE_MISSAO,
   WEEKLY_CHALLENGE,
+  getCurrentWeeklyChallenge,
   DAILY_TIPS,
   calculateLevel,
 } from '../data/catalog';
@@ -152,7 +153,11 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       const res = await clientSubmitWeeklyChallenge(body);
       return res as any;
     } else {
-      const res = await clientGetWeeklyChallenge();
+      const weekParam = searchParams.get('week');
+      const weekOverride = weekParam ? parseInt(weekParam, 10) : undefined;
+      const res = await clientGetWeeklyChallenge(
+        typeof weekOverride === 'number' && !Number.isNaN(weekOverride) ? weekOverride : undefined
+      );
       return res as any;
     }
   }
@@ -753,8 +758,15 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       };
     });
 
+    const currentWeekly = getCurrentWeeklyChallenge();
     const weeklyStats = students.map((st) => {
-      const prog = allWeekly.find((p) => p.userId === st.id && p.challengeId === WEEKLY_CHALLENGE.id);
+      const prog = allWeekly.find(
+        (p) =>
+          p.userId === st.id &&
+          (p.challengeId === currentWeekly.id ||
+            (currentWeekly.weekNumber === 1 && p.challengeId === 'challenge-phishing-message'))
+      );
+      const annualCount = allWeekly.filter((p) => p.userId === st.id && p.completed !== false).length;
       const classroom = classes.find((c: any) => c.id === st.classId);
       return {
         studentId: st.id,
@@ -762,6 +774,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         studentNickname: st.nickname,
         className: classroom ? classroom.name : 'Sem Turma',
         completed: !!prog,
+        annualCompletedCount: annualCount,
         score: prog ? prog.score || 100 : 0,
         completedAt: prog ? prog.completedAt || null : null,
       };
@@ -770,11 +783,18 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return {
       worldChallenges,
       weeklyChallenge: {
-        id: WEEKLY_CHALLENGE.id,
-        title: WEEKLY_CHALLENGE.title,
-        task: WEEKLY_CHALLENGE.task,
+        id: currentWeekly.id,
+        weekNumber: currentWeekly.weekNumber,
+        isoYear: currentWeekly.isoYear,
+        dateRangeLabel: currentWeekly.dateRangeLabel,
+        worldId: currentWeekly.worldId,
+        worldName: currentWeekly.worldName,
+        difficulty: currentWeekly.difficulty,
+        title: currentWeekly.title,
+        task: currentWeekly.task,
         xpReward: PROGRESSION_CONFIG.XP_REWARDS.WEEKLY_CHALLENGE,
         totalCompleted: weeklyStats.filter((r) => r.completed).length,
+        totalAnnualCompletions: allWeekly.filter((p) => p.completed !== false).length,
         students: weeklyStats,
       },
     } as any;
