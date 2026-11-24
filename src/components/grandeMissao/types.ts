@@ -101,7 +101,7 @@ export const ESCAPE_ZONES: ZoneInfo[] = [
     worldNumber: 6,
     codeFragment: '#MASTER-CORE-2040',
     description: 'Introduz os 5 códigos de segurança recuperados nas zonas anteriores e responde às 5 decisões éticas finais para reativar a Escola do Futuro.',
-    tag: 'Desafio Final Integrador',
+    tag: 'Desafio Final da Escola',
     iconName: 'Crown',
     color: 'yellow',
     accentBg: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',

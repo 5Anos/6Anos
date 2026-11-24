@@ -52,9 +52,9 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
       author: '**Prof.ª Teresa Gonçalves** (Coordenação de TIC)',
       source: '**Jornal Digital Oficial da Escola** & Portal DGE',
       date: '**14 de Novembro de 2024**',
-      snippet: 'Os alunos desenvolveram uma lixeira inteligente equipada com sensores de triagem automática de plástico e papel. A entrega dos prémios contou com a presença da **Direção da Escola**.',
+      snippet: 'Os alunos desenvolveram um ecoponto inteligente equipado com sensores de triagem automática de plástico e papel. A entrega dos prémios contou com a presença da **Direção da Escola**.',
       realClassification: 'real',
-      explanation: 'Notícia redigida por uma professora identificada, publicada em órgão oficial da escola, com dados cruzados e data precisa.',
+      explanation: 'Notícia escrita por uma professora identificada, publicada no jornal oficial da escola, com factos confirmados e data certa.',
     },
     {
       id: 'art-3',
@@ -64,7 +64,7 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
       date: '**Ontem** (sem dia, mês nem ano)',
       snippet: 'Cientistas secretos descobriram que as temperaturas negativas aceleram os fotões do router. **Faz já o teste em tua casa!**',
       realClassification: 'fake',
-      explanation: 'Afirmação cientificamente absurda, sem fontes credíveis e com risco real de estragar o equipamento eletrónico com humidade.',
+      explanation: 'Afirmação sem qualquer sentido científico, sem fontes de confiança e que pode mesmo estragar o telemóvel com humidade.',
     },
   ];
 
@@ -85,7 +85,7 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
     // Check if all are classified
     const answeredCount = Object.keys(classifications).length;
     if (answeredCount < articles.length) {
-      setFeedbackError('Por favor, classifica todos os 3 artigos antes de validar a verificação.');
+      setFeedbackError('Por favor, classifica todas as 3 notícias antes de confirmares.');
       return;
     }
 
@@ -148,8 +148,8 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
               🔍
             </div>
             <div>
-              <strong className="text-blue-300 block mb-0.5">Dica de Fact-Checking:</strong>
-              Desconfia sempre de títulos com letras maiúsculas alarmistas, apelos à partilha rápida e sem identificação clara de quem escreveu.
+              <strong className="text-blue-300 block mb-0.5">Dica de Detetive:</strong>
+              Desconfia sempre de títulos com letras maiúsculas exageradas, pedidos para partilhar logo sem pensar e falta de identificação de quem escreveu.
             </div>
           </div>
         )}
@@ -315,7 +315,7 @@ export const Zone2NewsArchive: React.FC<Zone2Props> = ({
               onClick={handleValidateZone}
               className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
             >
-              <span>Validar Fact-Checking</span>
+              <span>Confirmar Respostas</span>
               <KeyRound className="w-4 h-4" />
             </button>
           ) : (

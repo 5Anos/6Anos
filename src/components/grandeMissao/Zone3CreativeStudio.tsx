@@ -37,7 +37,7 @@ export const Zone3CreativeStudio: React.FC<Zone3Props> = ({
       title: 'Fotografia sem créditos encontrada no Google Imagens (Todos os direitos reservados ©)',
       isCorrect: false,
       tag: 'Violação de Copyright',
-      explanation: 'Não podes usar imagens aleatórias da internet sem permissão expressa do autor.',
+      explanation: 'Não podes usar imagens aleatórias da internet sem autorização do autor.',
     },
     {
       id: 'img-b',
@@ -65,17 +65,17 @@ export const Zone3CreativeStudio: React.FC<Zone3Props> = ({
     },
     {
       id: 'aud-b',
-      title: 'Trilha sonora instrumental sob licença livre / Domínio Público com créditos no rodapé',
+      title: 'Música de fundo instrumental com licença livre / Domínio Público e créditos no rodapé',
       isCorrect: true,
       tag: 'Domínio Público / CC0',
       explanation: 'Perfeito! Músicas em domínio público ou com licenças abertas são seguras e legais para projetos escolares.',
     },
     {
       id: 'aud-c',
-      title: 'Gravação da conversa privada de um colega no recreio sem o consentimento dele',
+      title: 'Gravação da conversa privada de um colega no recreio sem a autorização dele',
       isCorrect: false,
       tag: 'Violação de Privacidade',
-      explanation: 'Gravar colegas sem consentimento viola a privacidade e as regras básicas de cidadania digital.',
+      explanation: 'Gravar colegas sem autorização viola a privacidade e as regras básicas de cidadania digital.',
     },
   ];
 
@@ -92,7 +92,7 @@ export const Zone3CreativeStudio: React.FC<Zone3Props> = ({
       title: '"Projeto de Podcast do 6.º Ano sobre a Proteção dos Oceanos. Fontes e músicas creditadas na descrição."',
       isCorrect: true,
       tag: 'Netiqueta Positiva & Citação',
-      explanation: 'Exemplar! Apresentação clara, tom respeitoso e reconhecimento formal de todas as fontes e autores.',
+      explanation: 'Exemplar! Apresentação clara, tom respeitoso e indicação clara de todas as fontes e autores.',
     },
   ];
 
@@ -332,7 +332,7 @@ export const Zone3CreativeStudio: React.FC<Zone3Props> = ({
               onClick={handleValidateZone}
               className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-black text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
             >
-              <span>Validar Publicação</span>
+              <span>Confirmar Respostas</span>
               <KeyRound className="w-4 h-4" />
             </button>
           ) : (

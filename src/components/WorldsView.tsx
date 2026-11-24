@@ -131,7 +131,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
   if (loading || !currentWorld) {
     return (
       <div className="py-20 text-center text-slate-500 font-semibold">
-        A carregar os Mundos Curriculares da Missão TIC...
+        A carregar os Mundos da Missão TIC...
       </div>
     );
   }
@@ -144,13 +144,13 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
         </div>
         <div className="space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
-            Acesso Reservado a Utilizadores Autenticados
+            Área de Alunos
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-            Início de Sessão Obrigatório
+            Entra na tua conta para começar!
           </h2>
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto leading-relaxed">
-            Apenas utilizadores autenticados têm acesso aos 5 Mundos Curriculares da Missão TIC, aos simuladores e ao registo do progresso pedagógico.
+            Entra com o teu nome de utilizador para explorares os 5 Mundos, testares os teus conhecimentos e guardares os teus pontos!
           </p>
         </div>
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -158,7 +158,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             onClick={onOpenLoginModal}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-8 py-3.5 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95"
           >
-            <span>Entrar / Criar Conta 🔐</span>
+            <span>Entrar na Conta 🔐</span>
           </button>
         </div>
       </div>
@@ -258,15 +258,15 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           <span className={`text-xs font-black uppercase tracking-wider block mb-1 ${
             currentWorld.isTeacherLocked ? 'text-rose-700' : 'text-amber-700'
           }`}>
-            {currentWorld.isTeacherLocked ? 'Módulo Reservado pela Professora' : 'Desbloqueio Progressivo Obrigatório'}
+            {currentWorld.isTeacherLocked ? 'Mundo guardado pela Professora' : 'Mundo Bloqueado'}
           </span>
           <h3 className="text-2xl font-black text-slate-900 mb-2">
-            {currentWorld.title} {currentWorld.isTeacherLocked ? 'Reservado' : 'Bloqueado'}
+            {currentWorld.title} {currentWorld.isTeacherLocked ? '— Aguarda pela aula' : 'Bloqueado'}
           </h3>
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
             {currentWorld.isTeacherLocked
-              ? 'A tua Professora reservou temporariamente este Mundo para a próxima aula presencial. Fica atento às instruções na sala de aula!'
-              : `Para acederes e realizares as atividades do Mundo ${currentWorld.id}, precisas de alcançar uma taxa de interação e de sucesso superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (nos simuladores e quiz de avaliação) no Mundo ${currentWorld.id - 1}.`}
+              ? 'A tua Professora guardou este Mundo para a próxima aula. Fica atento às indicações na sala de aula!'
+              : `Para desbloqueares o Mundo ${currentWorld.id}, completa todas as missões e o Quiz do Mundo ${currentWorld.id - 1} com média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%!`}
           </p>
           {currentWorld.id > 1 && (
             <button
@@ -276,7 +276,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
               }}
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
-              <span>Voltar ao Mundo {currentWorld.id - 1} e Praticar</span>
+              <span>Voltar ao Mundo {currentWorld.id - 1} e Treinar</span>
             </button>
           )}
         </div>
@@ -294,7 +294,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
               (typeof currentWorld.bestAssessmentPercentage === 'number' && currentWorld.bestAssessmentPercentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD)
             );
             const currentAvg = typeof currentWorld.average === 'number' ? currentWorld.average : 0;
-            const meetsAverage = currentAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+            const meetsAverage = currentAvg > PROGRESSION_CONFIG.PASSING_THRESHOLD;
             const isNextWorldUnlocked = isNextUnlocked && allSimsDone && hasPassedQuiz && meetsAverage;
 
             return (
@@ -323,16 +323,16 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     <div className="font-black text-sm">
                       {isNextWorldUnlocked
                         ? `✓ Mundo ${currentWorld.id + 1} Desbloqueado!`
-                        : `🔒 Acesso ao Mundo ${currentWorld.id + 1} — Requisitos de Desbloqueio`}
+                        : `🔒 Como desbloquear o Mundo ${currentWorld.id + 1}`}
                     </div>
                     <div className="text-xs opacity-90 mt-0.5">
                       {isNextWorldUnlocked
-                        ? `Parabéns! Concluíste com sucesso todas as ${totalSims} missões e o Quiz do Mundo ${currentWorld.id} com média de ${currentAvg}%. O Mundo ${currentWorld.id + 1} está acessível!`
+                        ? `Parabéns! Completaste as ${totalSims} missões e o Quiz do Mundo ${currentWorld.id} com média de ${currentAvg}%. Já podes entrar no Mundo ${currentWorld.id + 1}!`
                         : !allSimsDone
-                        ? `Para desbloquear o Mundo ${currentWorld.id + 1}, precisas de concluir todas as missões (${completedSimsCount}/${totalSims} concluídas) e realizar o Quiz de Avaliação com média global mínima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%.`
+                        ? `Completa todas as missões (${completedSimsCount}/${totalSims} feitas) e faz o Quiz Final com média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para abrir o Mundo ${currentWorld.id + 1}!`
                         : !hasPassedQuiz
-                        ? `Missões práticas concluídas (${completedSimsCount}/${totalSims})! Realiza agora o Quiz de Avaliação Final para atingir média >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% e desbloquear o Mundo ${currentWorld.id + 1}.`
-                        : `A tua média atual é de ${currentAvg}%. Precisas de pelo menos ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para desbloquear o Mundo ${currentWorld.id + 1}.`}
+                        ? `Boa! Já fizeste as ${totalSims} missões! Agora faz o Quiz Final para conseguires média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% e abrir o Mundo ${currentWorld.id + 1}.`
+                        : `A tua média está em ${currentAvg}%. Precisas de mais de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para abrir o Mundo ${currentWorld.id + 1}!`}
                     </div>
                   </div>
                 </div>

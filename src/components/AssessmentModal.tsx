@@ -86,7 +86,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
   const handleSubmit = async () => {
     if (Object.keys(selectedAnswers).length < questions.length) {
-      setError(`Por favor responde a todas as ${questions.length} perguntas antes de submeter.`);
+      setError(`Responde a todas as ${questions.length} perguntas antes de entregar.`);
       return;
     }
 
@@ -160,7 +160,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
         <div className="p-6 sm:p-8">
           {loading ? (
             <div className="py-16 text-center text-slate-500 font-semibold">
-              A carregar avaliação oficial...
+              A preparar o teu quiz...
             </div>
           ) : error && !result ? (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-sm font-semibold flex items-center gap-3">
@@ -210,15 +210,15 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   </div>
                   <div className="text-xs font-semibold text-slate-600">
                     {result.passed
-                      ? 'Parabéns! Quiz concluído com aprovação curricular (≥ 50%).'
-                      : 'Classificação inferior a 50%. Podes continuar a treinar para consolidar as matérias.'}
+                      ? 'Parabéns! Passaste no quiz do mundo (50% ou mais)!'
+                      : 'Tiveste menos de 50%. Podes voltar a treinar para melhorar a tua nota!'}
                   </div>
                 </div>
 
                 {/* 4 Quantitative Metric Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Respostas Corretas</span>
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Respostas Certas</span>
                     <span className="text-xl font-black text-slate-900 mt-0.5 block">
                       {result.correctCount} / {result.totalQuestions}
                     </span>
@@ -230,18 +230,18 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                     </span>
                   </div>
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Menção Oficial</span>
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Nota Final</span>
                     <span className="text-sm font-black text-blue-700 mt-1 block truncate">
                       {result.mention}
                     </span>
                   </div>
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Pontos (XP)</span>
-                    <span className={`text-base font-black mt-1 block ${result.xpGain > 0 ? 'text-emerald-700' : 'text-amber-800'}`}>
-                      {result.xpGain > 0 ? `+${result.xpGain} XP` : `${result.percentage} XP`}
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Tipo</span>
+                    <span className="text-base font-black mt-1 block text-indigo-700">
+                      Avaliação
                     </span>
                     <span className="text-[9px] font-semibold text-slate-400 block -mt-0.5">
-                      {result.xpGain > 0 ? 'Novo recorde!' : 'Já acumulado'}
+                      Conta para a média
                     </span>
                   </div>
                 </div>
@@ -250,7 +250,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                 {!result.isFirstAttempt && (
                   <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 text-left space-y-3">
                     <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Comparação Curricular de Resultados:
+                      Compara os teus resultados:
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200">
@@ -302,7 +302,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                       <>
                         <TrendingUp className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>
-                          <strong>Evolução:</strong> Melhoraste em relação à tentativa anterior! Parabéns pela dedicação.
+                          <strong>Evolução:</strong> Melhoraste em relação à tentativa anterior! Muito bem!
                         </span>
                       </>
                     )}
@@ -310,7 +310,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                       <>
                         <Minus className="w-4 h-4 text-blue-600 shrink-0" />
                         <span>
-                          <strong>Evolução:</strong> Mantiveste o teu nível em relação à tentativa anterior. Continua a praticar!
+                          <strong>Evolução:</strong> Tiveste o mesmo resultado da última vez. Continua a praticar!
                         </span>
                       </>
                     )}
@@ -318,7 +318,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                       <>
                         <TrendingDown className="w-4 h-4 text-amber-600 shrink-0" />
                         <span>
-                          <strong>Evolução:</strong> Tenta rever os tópicos com atenção para recuperares o teu melhor desempenho.
+                          <strong>Evolução:</strong> Relê as missões com calma para voltares a subir a tua nota!
                         </span>
                       </>
                     )}
@@ -327,15 +327,15 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
                 <p className="text-xs font-medium text-slate-600 mt-3 max-w-lg mx-auto">
                   {result.isFirstAttempt
-                    ? 'Esta primeira tentativa é a tua Avaliação Oficial. O teu XP foi acumulado no perfil!'
-                    : `A tua Avaliação Oficial inicial mantém-se inalterada (${result.officialMention || 'registada'}). Esta sessão serviu para treinares e ganhares XP adicional se superaste o recorde anterior.`}
+                    ? 'Esta 1.ª tentativa fica guardada como a tua Avaliação Oficial na pauta da Professora.'
+                    : `A tua 1.ª nota oficial continua guardada (${result.officialMention || 'registada'}). Esta tentativa serviu para treinares e melhorares o teu recorde pessoal!`}
                 </p>
               </div>
 
               {/* Feedback per question */}
               <div className="space-y-4 max-h-[320px] overflow-y-auto pr-2">
                 <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
-                  Revisão Pedagógica de Respostas:
+                  Confere as tuas respostas:
                 </h4>
                 {(result.resultsFeedback || (result as any).results || []).map((item: any, idx: number) => (
                   <div
@@ -478,7 +478,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                     className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>{submitting ? 'A submeter...' : 'Submeter Avaliação'}</span>
+                    <span>{submitting ? 'A entregar...' : 'Entregar Respostas'}</span>
                   </button>
                 )}
               </div>

@@ -524,7 +524,7 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
               ) : (
                 sortedStudents.map((s) => {
                   const isSelected = selectedIds.includes(s.id);
-                  const isPassGlobal = s.globalAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                  const isPassGlobal = s.globalAverage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
                   const isPwdVisible = !!visiblePasswords[s.id];
                   const password = s.initialPassword || '••••••';
                   const username = s.username || s.nickname;

@@ -79,7 +79,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
       worldName: 'Mundo 1 — Guardião Digital',
       topic: 'Segurança, Privacidade & Bem-estar',
       icon: Shield,
-      situation: 'Um novo serviço digital escolar pede a criação de contas para todos os alunos. Qual é a diretriz de segurança correta?',
+      situation: 'Um novo serviço digital escolar pede a criação de contas para todos os alunos. Qual é a regra de segurança correta?',
       options: [
         {
           id: 'opt-1a',
@@ -95,7 +95,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
         },
         {
           id: 'opt-1c',
-          text: 'Clicar em qualquer hiperligação recebida por mensagem privada que prometa prémios ou vantagens na escola.',
+          text: 'Clicar em qualquer ligação (link) recebida por mensagem privada que prometa prémios ou vantagens na escola.',
           isCorrect: false,
           explanation: 'Clicar em ligações desconhecidas é a forma mais comum de cair em esquemas de phishing.',
         },
@@ -151,7 +151,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
         },
         {
           id: 'opt-3c',
-          text: 'Gravar conversas dos colegas no corredor sem consentimento para colocar no podcast escolar.',
+          text: 'Gravar conversas dos colegas no corredor sem autorização para colocar no podcast escolar.',
           isCorrect: false,
           explanation: 'Gravar ou divulgar a voz e imagem de outras pessoas sem a sua autorização desrespeita a sua privacidade.',
         },
@@ -181,7 +181,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
           id: 'opt-4c',
           text: 'Alterar as instruções do robô sem as testar nem tentar descobrir onde está o erro quando o programa falha.',
           isCorrect: false,
-          explanation: 'Programar exige testar o algoritmo e corrigir os erros (debugging) de forma metódica.',
+          explanation: 'Programar exige testar o algoritmo e corrigir os erros (debugging) passo a passo.',
         },
       ],
     },
@@ -209,7 +209,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
           id: 'opt-5c',
           text: 'Introduzir a morada, palavras-passe e fotografias dos alunos no assistente para obter respostas mais personalizadas.',
           isCorrect: false,
-          explanation: 'Nunca deves fornecer dados pessoais privados ou credenciais a sistemas de Inteligência Artificial.',
+          explanation: 'Nunca deves dar dados pessoais privados ou palavras-passe a sistemas de Inteligência Artificial.',
         },
       ],
     },
@@ -291,7 +291,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
               <span className="bg-amber-400 text-amber-950 text-xs font-black px-2.5 py-0.5 rounded-md uppercase flex items-center gap-1 shadow-xs">
                 <Crown className="w-3.5 h-3.5" /> Núcleo Central
               </span>
-              <span className="text-xs font-bold text-amber-300">Desafio Integrador Final</span>
+              <span className="text-xs font-bold text-amber-300">Desafio Final</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
               <span>Núcleo Central: A Escola do Futuro</span>
@@ -334,7 +334,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
             Etapa 1: Introdução dos 5 Códigos de Segurança
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Digita os códigos que recuperaste nas Zonas 1 a 5 para desbloquear o terminal do Núcleo Central.
+            Escreve os códigos que recuperaste nas Zonas 1 a 5 para desbloquear o terminal do Núcleo Central.
           </p>
         </div>
 
@@ -417,7 +417,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
               className="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 disabled:opacity-50 text-slate-950 font-black text-sm rounded-2xl shadow-md transition-all flex items-center gap-2 mx-auto cursor-pointer"
             >
               <Zap className="w-5 h-5 fill-current" />
-              <span>Validar Códigos e Desbloquear Desafio Final</span>
+              <span>Confirmar Códigos e Desbloquear Desafio Final</span>
             </button>
           </div>
         ) : (
@@ -427,7 +427,7 @@ export const Zone6CoreSchool: React.FC<Zone6Props> = ({
             </div>
             <div>
               <h4 className="text-xs font-black text-emerald-950">
-                Os 5 Códigos foram Validados com Sucesso!
+                Os 5 Códigos Estão Certos!
               </h4>
               <p className="text-xs text-emerald-800 font-medium mt-0.5">
                 O terminal principal está aberto. Responde agora às 5 decisões éticas finais para reativar a Escola do Futuro.

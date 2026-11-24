@@ -4,8 +4,8 @@
  */
 
 export const PROGRESSION_CONFIG = {
-  // Authoritative passing/competency threshold for world average (in %)
-  PASSING_THRESHOLD: 75,
+  // Authoritative passing/competency threshold for world average (in %, strictly > 70%)
+  PASSING_THRESHOLD: 70,
 
   // Curricular Quiz Approval threshold (>= 50%)
   QUIZ_PASSING_THRESHOLD: 50,

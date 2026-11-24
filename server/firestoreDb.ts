@@ -446,15 +446,30 @@ export async function resetClassStudentsProgress(classId: string): Promise<numbe
 // 3. SESSIONS
 // -------------------------------------------------------------
 export async function createSession(userId: string): Promise<Session> {
+  const now = Date.now();
   const session: Session = {
     id: crypto.randomUUID(),
     userId,
-    createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(now).toISOString(),
+    expiresAt: new Date(now + 7 * 24 * 60 * 60 * 1000).toISOString(),
   };
 
   const db = getFirestore();
   await setDoc(doc(db, 'sessions', session.id), session);
+
+  // Best-effort cleanup of expired sessions for this user so stale sessions do not accumulate
+  getDocs(query(collection(db, 'sessions'), where('userId', '==', userId)))
+    .then((snap) => {
+      const expiredDeletions = snap.docs
+        .filter((d) => {
+          const data = d.data() as Session;
+          return d.id !== session.id && data.expiresAt && new Date(data.expiresAt).getTime() < now;
+        })
+        .map((d) => deleteDoc(d.ref));
+      return Promise.all(expiredDeletions);
+    })
+    .catch(() => {});
+
   return session;
 }
 

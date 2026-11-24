@@ -118,7 +118,7 @@ export async function computeWorldStats(
 
   const hasAssessmentPassed =
     bestAssessmentPercentage !== null &&
-    bestAssessmentPercentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    bestAssessmentPercentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD;
 
   const totalComponents = totalSimulatorsCount + 1; // All simulators + final assessment
   const completedCount = scores.length;
@@ -653,6 +653,7 @@ router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => 
 
     const now = new Date().toISOString();
     const existingMissions = await getMissionSubmissions({ userId, worldId });
+    let savedSubmission: MissionSubmission;
     if (existingMissions.length > 0) {
       const existing = existingMissions[0];
       existing.submission = text;
@@ -661,6 +662,7 @@ router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => 
       existing.submittedAt = now;
       existing.updatedAt = now;
       await saveMissionSubmission(existing);
+      savedSubmission = existing;
     } else {
       const newSubmission: MissionSubmission = {
         id: `mis-${crypto.randomUUID()}`,
@@ -679,10 +681,12 @@ router.post('/missions/:worldId', requireAuth, async (req: AuthRequest, res) => 
         createdAt: now,
       };
       await saveMissionSubmission(newSubmission);
+      savedSubmission = newSubmission;
     }
 
     return res.json({
       success: true,
+      submission: savedSubmission,
       message: 'Missão Real submetida com sucesso! O teu professor irá avaliar e fornecer feedback.',
     });
   } catch (err) {

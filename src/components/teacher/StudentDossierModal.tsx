@@ -415,7 +415,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                   {worldDetails.map((w: any) => {
-                    const isPassed = w.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                    const isPassed = w.average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
                     const isUnlocked = w.isUnlocked;
 
                     return (
@@ -478,8 +478,8 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                               }`}
                             >
                               {isPassed
-                                ? `MÉDIA >= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (APROVADO)`
-                                : `MÉDIA < ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (BLOQUEADO)`}
+                                ? `MÉDIA > ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (APROVADO)`
+                                : `MÉDIA <= ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% (BLOQUEADO)`}
                             </span>
                           </div>
                         </div>
@@ -515,7 +515,7 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                         <div className="text-[10px] text-slate-400 uppercase font-semibold">Média do Mundo</div>
                         <div
                           className={`text-lg font-black font-mono ${
-                            w.average >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-rose-700'
+                            w.average > PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-rose-700'
                           }`}
                         >
                           {w.average > 0 ? `${w.average}%` : '0%'}

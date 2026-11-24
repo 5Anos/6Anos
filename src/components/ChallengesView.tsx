@@ -81,10 +81,10 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
           <Trophy className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Desafios Bloqueados — Início de Sessão Obrigatório
+          Entra na tua conta para jogar!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para participar nos desafios semanais e figurar no ranking da turma, é necessário iniciar sessão com a conta fornecida pela Professora.
+          Para participares nos desafios semanais e apareceres na tabela da tua turma, entra com a conta dada pela Professora.
         </p>
       </div>
     );
@@ -124,7 +124,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h3 className="text-base font-extrabold text-slate-900">
-            Cenário de Investigação da Semana
+            Missão da Semana
           </h3>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-900 bg-amber-100/90 px-3 py-1 rounded-full border border-amber-300/80 w-fit">
             🔍 Pistas destacadas a negrito para leitura rápida
@@ -176,7 +176,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
         ) : (
           <div className="space-y-4">
             <span className="text-xs font-bold text-slate-700 block">
-              Qual é a tua avaliação pericial desta mensagem?
+              O que achas desta mensagem?
             </span>
             <div className="flex flex-wrap gap-4">
               <button
@@ -185,14 +185,14 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
                 className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-xs transition-colors flex items-center gap-2"
               >
                 <AlertTriangle className="w-4 h-4" />
-                <span>É Phishing e Tentativa de Roubo de Dados!</span>
+                <span>É Phishing! Querem roubar os meus dados</span>
               </button>
               <button
                 onClick={() => handleWeeklySubmit('safe')}
                 disabled={submitting}
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs px-6 py-3 rounded-2xl transition-colors"
               >
-                É Uma Mensagem Segura e Real
+                É uma mensagem segura e verdadeira
               </button>
             </div>
             {feedback && (
@@ -212,12 +212,12 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
               {t('ranking_title', locale)}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tabela de honra privada da turma 6.º A. Apenas nicknames e XP são visíveis!
+              Tabela da tua turma — só aparecem os nomes de jogo e os pontos XP!
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
             <ShieldCheck className="w-4 h-4 text-blue-600" />
-            <span>Privacidade e RGPD Respeitados</span>
+            <span>A tua privacidade está protegida</span>
           </div>
         </div>
 
@@ -227,7 +227,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
               <tr>
                 <th className="px-5 py-3">Posição</th>
                 <th className="px-5 py-3">Aluno</th>
-                <th className="px-5 py-3">Nível Curricular</th>
+                <th className="px-5 py-3">Nível</th>
                 <th className="px-5 py-3 text-right">XP Total</th>
               </tr>
             </thead>

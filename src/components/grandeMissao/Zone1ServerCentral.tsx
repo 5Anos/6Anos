@@ -99,19 +99,19 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
 
     if (selectedCorrectClues.length < 2 || selectedWrongClues.length > 0) {
       setFeedbackError(
-        'Atenção: Precisas de selecionar pelo menos 2 indícios verdadeiros de perigo/phishing no e-mail (sem assinalar elementos inócuos).'
+        'Atenção: Escolhe pelo menos 2 sinais verdadeiros de perigo/phishing no e-mail (sem marcar o que não é perigoso).'
       );
       return;
     }
 
     if (!selectedAction) {
-      setFeedbackError('Tens de escolher o protocolo de ciberdefesa para neutralizar a ameaça!');
+      setFeedbackError('Tens de escolher o plano seguro para travar esta ameaça!');
       return;
     }
 
     const action = actionProtocols.find((a) => a.id === selectedAction);
     if (!action || !action.isCorrect) {
-      setFeedbackError(action?.explanation || 'Protocolo incorreto. Revê as boas práticas de cibersegurança.');
+      setFeedbackError(action?.explanation || 'Plano incorreto. Revê as regras de segurança online.');
       return;
     }
 
@@ -159,8 +159,8 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
               🤖
             </div>
             <div>
-              <strong className="text-emerald-300 block mb-0.5">Dica de Ciberdefesa:</strong>
-              Lembra-te de inspecionar o remetente oficial, a ausência de HTTPS no link e o tom de ameaça rápida. A melhor reação nunca envolve clicar nem partilhar palavras-passe.
+              <strong className="text-emerald-300 block mb-0.5">Dica de Segurança:</strong>
+              Lembra-te de verificar quem enviou o e-mail, se o link é seguro (HTTPS) e se há pressa ou ameaças. A melhor reação nunca envolve clicar nem partilhar palavras-passe.
             </div>
           </div>
         )}
@@ -282,7 +282,7 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
               <Terminal className="w-5 h-5 text-emerald-600" />
               <h3 className="text-sm font-black text-slate-900">
-                Passo 2: Protocolo de Resposta Imediata
+                Passo 2: O Que Fazer Agora?
               </h3>
             </div>
 
@@ -341,7 +341,7 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
                   <span>Setor 1 Restaurado com Sucesso!</span>
                 </div>
                 <p className="text-xs text-emerald-900 leading-relaxed font-medium">
-                  Excelente trabalho de ciberdefesa! Neutralizaste o phishing e protegeste as contas de toda a escola.
+                  Excelente trabalho de segurança! Travaste o phishing e protegeste as contas de toda a escola.
                 </p>
                 <div className="mt-2 p-2.5 bg-emerald-900 text-emerald-300 rounded-xl font-mono text-xs font-black text-center tracking-widest border border-emerald-700 shadow-xs">
                   CÓDIGO 1: #SEC-SAFE-2040
@@ -363,7 +363,7 @@ export const Zone1ServerCentral: React.FC<Zone1Props> = ({
                 onClick={handleValidateZone}
                 className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
               >
-                <span>Validar Ciberdefesa</span>
+                <span>Confirmar Respostas</span>
                 <KeyRound className="w-4 h-4" />
               </button>
             ) : (

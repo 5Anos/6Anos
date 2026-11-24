@@ -106,13 +106,13 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
         </div>
         <div className="space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-amber-700 block">
-            Acesso Reservado
+            Grande Missão
           </span>
           <h3 className="text-2xl font-black text-slate-900">
-            Início de Sessão Obrigatório
+            Entra na Tua Conta!
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-md mx-auto">
-            Para aceder à Grande Missão Final (A ESCOLA DO FUTURO), precisas de ter a sessão iniciada com a tua conta escolar.
+            Para jogares a Grande Missão Final (A ESCOLA DO FUTURO), inicia sessão com a tua conta da escola.
           </p>
         </div>
         <button
@@ -120,7 +120,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-6 py-3 rounded-xl transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Voltar ao Painel</span>
+          <span>Voltar ao Início</span>
         </button>
       </div>
     );
@@ -168,7 +168,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
       await refreshUser();
     } catch (err) {
       console.error('Failed to complete grande missao', err);
-      alert('Não foi possível guardar a conclusão no servidor. Verifique a ligação.');
+      alert('Não foi possível guardar o teu resultado. Verifica a ligação à Internet.');
     } finally {
       setIsSavingFinal(false);
     }
@@ -181,10 +181,10 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           <Crown className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Grande Missão Bloqueada — Início de Sessão Obrigatório
+          Entra na Tua Conta!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          A Grande Missão Final é reservada a alunos que tenham sessão iniciada e concluam as etapas dos 5 Mundos curriculares.
+          A Grande Missão Final fica disponível depois de iniciares sessão e completares os 5 Mundos.
         </p>
         <button
           onClick={onBack}
@@ -211,19 +211,19 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           <Crown className="w-8 h-8" />
         </div>
         <span className="text-xs font-black text-indigo-700 uppercase tracking-wider block mb-1">
-          Desafio Supremo Bloqueado
+          Missão Final Bloqueada
         </span>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
           Grande Missão Final Bloqueada
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          A Grande Missão Final (A ESCOLA DO FUTURO) só fica disponível quando alcançares uma pontuação média superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> em todos os 5 Mundos curriculares. Continua a praticar!
+          A Grande Missão Final (A ESCOLA DO FUTURO) desbloqueia quando conseguires uma média superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> em todos os 5 Mundos. Continua a praticar!
         </p>
         <button
           onClick={onBack}
           className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
         >
-          <span>Voltar ao Dashboard</span>
+          <span>Voltar ao Início</span>
         </button>
       </div>
     );
@@ -249,7 +249,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           onClick={activeZoneId !== null ? () => setActiveZoneId(null) : onBack}
           className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
         >
-          <span>{activeZoneId !== null ? '← Voltar ao Mapa de Setores' : '← Voltar ao Painel'}</span>
+          <span>{activeZoneId !== null ? '← Voltar ao Mapa de Setores' : '← Voltar ao Início'}</span>
         </button>
 
         {activeZoneId !== null && (

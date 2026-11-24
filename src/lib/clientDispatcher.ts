@@ -17,6 +17,7 @@ import {
   clientGetGrandeMissao,
   clientSaveGrandeMissaoStage,
   clientCompleteGrandeMissao,
+  clientSubmitMission,
   clientComputeWorldStats,
   getActiveClientUserId,
   sanitizeClientUser,
@@ -154,8 +155,16 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     }
   }
 
+  const missionSubmitMatch = pathname.match(/^\/api\/pedagogical\/missions\/(\d+)$/);
+  if (missionSubmitMatch && method === 'POST') {
+    const worldId = parseInt(missionSubmitMatch[1], 10);
+    const text = body.submission || body.submissionText || body.content || '';
+    const res = await clientSubmitMission(worldId, text);
+    return res as any;
+  }
+
   if (pathname === '/api/pedagogical/grande-missao/stage' && method === 'POST') {
-    const res = await clientSaveGrandeMissaoStage(body.stageNumber, body.answers);
+    const res = await clientSaveGrandeMissaoStage(body);
     return res as any;
   }
 
@@ -187,15 +196,20 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const allAssessments = assessSnap.docs.map((d) => d.data() as any);
     const allProgress = progSnap.docs.map((d) => d.data() as any);
 
+    const studentIds = new Set(students.map((s) => s.id));
+    const allSimIds = new Set(WORLDS_DATA.flatMap((w) => w.simulators.map((sim) => sim.id)));
     const totalStudents = students.length;
     const activeStudents = students.filter((s) => !s.blocked).length;
     const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
     const avgXP = totalStudents > 0 ? Math.round(totalXP / totalStudents) : 0;
-    const totalSimulatorsCompleted = allProgress.filter((p) => p.completed).length;
-    const totalQuizzesAttempted = allAssessments.length;
+    const totalSimulatorsCompleted = allProgress.filter(
+      (p) => studentIds.has(p.userId) && allSimIds.has(p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
+    ).length;
+    const totalQuizzesAttempted = allAssessments.filter((a) => studentIds.has(a.userId)).length;
 
     let totalScoreSum = 0;
     let totalScoreCount = 0;
+    const lowWorldStudentIds = new Set<string>();
 
     const worldPerformance = WORLDS_DATA.map((w) => {
       let sumAvg = 0;
@@ -205,27 +219,28 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       for (const s of students) {
         const worldSims = w.simulators;
         const studentSims = allProgress.filter(
-          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
         const attempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
 
-        const components: number[] = [];
-        if (studentSims.length > 0) {
-          const simAvg = studentSims.reduce((sum: number, p: any) => sum + (p.bestScore || 0), 0) / studentSims.length;
-          components.push(simAvg);
-        }
+        const canonicalScores: number[] = studentSims.map((p: any) => Number(p.bestScore) || 0);
         if (attempts.length > 0) {
-          const quizBest = Math.max(...attempts.map((a: any) => a.percentage || 0));
-          components.push(quizBest);
+          canonicalScores.push(Math.max(...attempts.map((a: any) => Number(a.percentage) || 0)));
         }
 
-        if (components.length > 0) {
-          const studentWorldAvg = Math.round(components.reduce((a: number, b: number) => a + b, 0) / components.length);
+        if (canonicalScores.length > 0) {
+          const studentWorldAvg = Number(
+            (canonicalScores.reduce((a, b) => a + b, 0) / canonicalScores.length).toFixed(1)
+          );
           sumAvg += studentWorldAvg;
           count++;
           totalScoreSum += studentWorldAvg;
           totalScoreCount++;
-          if (studentWorldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
+          if (studentWorldAvg < 50) {
+            lowWorldStudentIds.add(s.id);
+          }
+          const allSimsDone = studentSims.length >= worldSims.length;
+          if (allSimsDone && attempts.length > 0 && studentWorldAvg > PROGRESSION_CONFIG.PASSING_THRESHOLD) {
             completedCount++;
           }
         }
@@ -246,6 +261,10 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
     const globalAverageScore =
       totalScoreCount > 0 ? Math.round(totalScoreSum / totalScoreCount) : 0;
+    const studentsNeedingHelp = students.filter((s) => {
+      const failedAttempts = allAssessments.filter((a) => a.userId === s.id && (Number(a.percentage) || 0) < 50).length;
+      return failedAttempts >= 2 || lowWorldStudentIds.has(s.id);
+    }).length;
 
     return {
       totalStudents,
@@ -256,7 +275,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       totalSimulatorsCompleted,
       globalAverageScore,
       avgXP,
-      studentsNeedingHelp: 0,
+      studentsNeedingHelp,
       worldPerformance,
       worldStats: worldPerformance,
     } as any;
@@ -312,7 +331,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
             ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1))
             : 0;
         const allSimsDone = completedSimulatorsCount >= w.simulators.length;
-        const isCompleted = allSimsDone && hasAssessment && average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+        const isCompleted = allSimsDone && hasAssessment && average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
         const isUnlocked = w.id === 1 ? true : prevUnlocked && prevPassed;
 
         prevUnlocked = isUnlocked;
@@ -392,19 +411,21 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       students = students.filter((s) => s.classId === classId);
     }
 
-    const [assessSnap, progSnap] = await Promise.all([
+    const [assessSnap, progSnap, missionSnap] = await Promise.all([
       getDocs(collection(db, 'assessmentAttempts')),
       getDocs(collection(db, 'activityProgress')),
+      getDocs(collection(db, 'missionSubmissions')),
     ]);
     const allAssessments = assessSnap.docs.map((d) => d.data() as any);
     const allProgress = progSnap.docs.map((d) => d.data() as any);
+    const allMissions = missionSnap.docs.map((d) => d.data() as any);
 
     students.sort((a, b) => {
       if (a.studentNumber && b.studentNumber) return a.studentNumber - b.studentNumber;
       return a.name.localeCompare(b.name);
     });
 
-    // 1. Pauta Geral
+    // 1. Pauta Geral (usa exatamente a mesma média canónica dos simuladores + melhor quiz)
     const pautaGeral = students.map((s, idx) => {
       const classroom = classes.find((c) => c.id === s.classId);
       const levelInfo = calculateLevel(s.xp || 0);
@@ -415,31 +436,24 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         const studentSims = allProgress.filter(
           (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
-        const simAvg =
-          studentSims.length > 0
-            ? studentSims.reduce((sum: number, p: any) => sum + (p.bestScore || 0), 0) / studentSims.length
-            : 0;
-
         const worldAttempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
         const bestQuiz =
           worldAttempts.length > 0 ? Math.max(...worldAttempts.map((a: any) => a.percentage || 0)) : null;
 
-        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge?.id);
-        const challengeScore = chalProg && (chalProg.completed || (chalProg.bestScore && chalProg.bestScore > 0)) ? chalProg.bestScore : null;
+        const canonicalScores: number[] = studentSims.map((p: any) => Number(p.bestScore) || 0);
+        if (bestQuiz !== null) canonicalScores.push(Number(bestQuiz) || 0);
 
-        const comps: number[] = [];
-        if (studentSims.length > 0) comps.push(simAvg);
-        if (challengeScore !== null) comps.push(challengeScore);
-        if (bestQuiz !== null) comps.push(bestQuiz);
-
-        const worldScore = comps.length > 0 ? Math.round(comps.reduce((a, b) => a + b, 0) / comps.length) : 0;
+        const worldScore =
+          canonicalScores.length > 0
+            ? Number((canonicalScores.reduce((a, b) => a + b, 0) / canonicalScores.length).toFixed(1))
+            : 0;
         worldScores.push(worldScore);
       }
 
       const activeScores = worldScores.filter((sc) => sc > 0);
       const globalAverage =
         activeScores.length > 0
-          ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
+          ? Number((activeScores.reduce((a, b) => a + b, 0) / activeScores.length).toFixed(1))
           : 0;
 
       return {
@@ -464,15 +478,12 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
         const worldSims = w.simulators;
         const studentSims = allProgress.filter(
-          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && p.completed
+          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
         const simulatorsAvg =
           studentSims.length > 0
             ? Math.round(studentSims.reduce((sum: number, p: any) => sum + (p.bestScore || 0), 0) / studentSims.length)
             : 0;
-
-        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge.id);
-        const challengeScore = chalProg && chalProg.completed ? chalProg.bestScore : 0;
 
         const attempts = allAssessments
           .filter((a) => a.userId === s.id && a.worldId === w.id)
@@ -486,21 +497,28 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
         const assessmentScore = bestAttempt ? bestAttempt.percentage : 0;
         const officialAssessmentScore = firstAttempt ? firstAttempt.percentage : null;
+        const officialAssessmentMention = firstAttempt
+          ? (firstAttempt.mention || getQualitativeMention(firstAttempt.percentage))
+          : '—';
         const assessmentMention = bestAttempt
           ? (bestAttempt.mention || getQualitativeMention(bestAttempt.percentage))
           : '—';
 
-        const components: number[] = [];
-        if (studentSims.length > 0) components.push(simulatorsAvg);
-        if (challengeScore > 0) components.push(challengeScore);
-        if (bestAttempt) components.push(bestAttempt.percentage);
+        const wMission = allMissions.find((m) => m.userId === s.id && m.worldId === w.id);
+        const missionScore = wMission && typeof wMission.score === 'number' ? wMission.score : 0;
 
+        // Canonical World Average & Unlock Rule (exact match with /worlds and /students)
+        const canonicalScores: number[] = studentSims.map((p: any) => Number(p.bestScore) || 0);
+        if (bestAttempt) canonicalScores.push(Number(bestAttempt.percentage) || 0);
         const worldAverage =
-          components.length > 0
-            ? Math.round(components.reduce((a: number, b: number) => a + b, 0) / components.length)
+          canonicalScores.length > 0
+            ? Number((canonicalScores.reduce((a, b) => a + b, 0) / canonicalScores.length).toFixed(1))
             : 0;
 
-        const isWorldPassed = worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+        const isWorldPassed =
+          studentSims.length >= worldSims.length &&
+          bestAttempt !== null &&
+          worldAverage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
         return {
           studentId: s.id,
@@ -512,14 +530,16 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
           simulatorsCount: studentSims.length,
           simulatorsTotal: worldSims.length,
           simulatorsAvg,
-          challengeScore,
-          missionScore: 0,
+          missionScore,
           assessmentScore,
           officialAssessmentScore,
+          officialAssessmentMention,
           assessmentMention,
+          attemptsCount: attempts.length,
           worldAverage,
           isWorldPassed,
           isNextUnlocked: isWorldPassed,
+          unlockedNext: isWorldPassed,
         };
       });
 
@@ -578,8 +598,8 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       return {
         worldId: w.id,
         worldTitle: w.title,
-        assessmentTitle: `Avaliação do Mundo ${w.id}`,
-        totalQuestions: 8,
+        assessmentTitle: FINAL_ASSESSMENTS[w.id]?.title || `Avaliação do Mundo ${w.id}`,
+        totalQuestions: FINAL_ASSESSMENTS[w.id]?.questions.length || 10,
         totalAttempted: attempted.length,
         totalPassed: passed.length,
         totalPending: students.length - attempted.length,
@@ -601,20 +621,31 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
     const worldsActivities = WORLDS_DATA.map((w) => {
       const sims = w.simulators.map((s) => {
-        const studentStats = students.map((st) => {
-          const prog = allProgress.find((p) => p.userId === st.id && p.activityId === s.id);
-          const classroom = classes.find((c) => c.id === st.classId);
-          return {
-            studentId: st.id,
-            studentName: st.fullName || st.name,
-            studentNickname: st.nickname,
-            className: classroom ? classroom.name : 'Sem Turma',
-            completed: prog ? prog.completed : false,
-            bestScore: prog ? prog.bestScore : 0,
-            attempts: prog ? prog.attempts : 0,
-            lastAttemptAt: prog ? prog.lastAttemptAt : null,
-          };
-        });
+        const studentStats = students
+          .map((st) => {
+            const prog = allProgress.find((p) => p.userId === st.id && p.activityId === s.id);
+            const classroom = classes.find((c) => c.id === st.classId);
+            return {
+              studentId: st.id,
+              studentName: st.fullName || st.name,
+              studentNickname: st.nickname,
+              studentNumber: st.studentNumber ?? null,
+              classId: st.classId || '',
+              className: classroom ? classroom.name : st.turma || 'Sem Turma',
+              completed: prog ? (prog.completed || (typeof prog.bestScore === 'number' && prog.bestScore > 0)) : false,
+              bestScore: prog ? Number(prog.bestScore) || 0 : 0,
+              attempts: prog ? Number(prog.attempts) || 0 : 0,
+              lastAttemptAt: prog ? prog.lastAttemptAt || prog.updatedAt || null : null,
+            };
+          })
+          .sort((a, b) => {
+            const clsCmp = a.className.localeCompare(b.className);
+            if (clsCmp !== 0) return clsCmp;
+            const numA = a.studentNumber ?? 9999;
+            const numB = b.studentNumber ?? 9999;
+            if (numA !== numB) return numA - numB;
+            return a.studentName.localeCompare(b.studentName);
+          });
 
         const completedCount = studentStats.filter((r) => r.completed).length;
         const avgScore = completedCount > 0 ? Math.round(studentStats.filter((r) => r.completed).reduce((a, r) => a + r.bestScore, 0) / completedCount) : 0;
@@ -806,15 +837,14 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   }
 
   if (pathname === '/api/teacher/badges-summary') {
-    const [userSnap, classes, badgeSnap, legacyBadgeSnap] = await Promise.all([
+    const [userSnap, classes, badgeSnap] = await Promise.all([
       getDocs(query(collection(db, 'users'), where('role', '==', 'student'))),
       clientGetClasses(),
       getDocs(collection(db, 'badges')),
-      getDocs(collection(db, 'userBadges')),
     ]);
     const students = userSnap.docs.map((d) => d.data() as ClientUser);
     const badgeMap = new Map<string, any>();
-    for (const d of [...legacyBadgeSnap.docs, ...badgeSnap.docs]) {
+    for (const d of badgeSnap.docs) {
       const b = d.data() as any;
       if (b.userId && b.badgeId) {
         badgeMap.set(`${b.userId}_${b.badgeId}`, b);
@@ -957,8 +987,6 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         txn.set(doc(db, 'xpTransactions', txId), {
           id: txId,
           userId: subData.userId,
-          amount: xpGain,
-          reason: `Missão Real: ${subData.title || subData.missionId}`,
           sourceType: 'mission',
           sourceId: subData.missionId || submissionId,
           previousBest: prevBest,
@@ -1210,7 +1238,6 @@ async function deleteStudentCompletely(db: any, sId: string) {
     'assessmentAttempts',
     'weeklyChallenges',
     'badges',
-    'userBadges',
     'xpTransactions',
     'dailyTipClaims',
     'missionSubmissions',
@@ -1238,7 +1265,6 @@ async function resetStudentProgressData(db: any, sId: string) {
     'assessmentAttempts',
     'weeklyChallenges',
     'badges',
-    'userBadges',
     'xpTransactions',
     'dailyTipClaims',
     'missionSubmissions',
@@ -1416,8 +1442,6 @@ async function resetStudentProgressData(db: any, sId: string) {
       txn.set(txRef, {
         id: txId,
         userId: sId,
-        amount,
-        reason: body.reason || 'Bónus pedagógico atribuído pela Professora',
         sourceType: 'bonus',
         sourceId: `bonus-${Date.now()}`,
         previousBest: prevXp,
@@ -1441,12 +1465,11 @@ async function resetStudentProgressData(db: any, sId: string) {
       if (!sSnap.exists()) throw new Error('Aluno não encontrado');
       const student = sSnap.data() as ClientUser;
 
-      const [cSnap, progSnap, assessSnap, badgeSnap, legacyBadgeSnap, txSnap, gmSnap, missionSnap] = await Promise.all([
+      const [cSnap, progSnap, assessSnap, badgeSnap, txSnap, gmSnap, missionSnap] = await Promise.all([
         student.classId ? getDoc(doc(db, 'classes', student.classId)) : Promise.resolve(null as any),
         getDocs(query(collection(db, 'activityProgress'), where('userId', '==', sId))),
         getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', sId))),
         getDocs(query(collection(db, 'badges'), where('userId', '==', sId))),
-        getDocs(query(collection(db, 'userBadges'), where('userId', '==', sId))),
         getDocs(query(collection(db, 'xpTransactions'), where('userId', '==', sId))),
         getDoc(doc(db, 'grandeMissaoProgress', sId)),
         getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', sId))),
@@ -1458,7 +1481,7 @@ async function resetStudentProgressData(db: any, sId: string) {
       const userMissions = missionSnap.docs.map((d) => d.data() as any);
 
       const badgeMap = new Map<string, any>();
-      for (const d of [...legacyBadgeSnap.docs, ...badgeSnap.docs]) {
+      for (const d of badgeSnap.docs) {
         const b = d.data() as any;
         if (b.badgeId) badgeMap.set(b.badgeId, b);
       }
@@ -1510,7 +1533,7 @@ async function resetStudentProgressData(db: any, sId: string) {
             ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1))
             : 0;
         const allSimulatorsCompleted = completedSimulatorsCount >= w.simulators.length;
-        const isCompleted = allSimulatorsCompleted && hasAssessment && average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+        const isCompleted = allSimulatorsCompleted && hasAssessment && average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
         const isUnlocked = w.id === 1 ? true : prevUnlocked && prevPassed;
 
         prevUnlocked = isUnlocked;

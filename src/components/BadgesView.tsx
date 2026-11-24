@@ -49,10 +49,10 @@ export const BadgesView: React.FC = () => {
           <Award className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Conquistas Bloqueadas — Início de Sessão Obrigatório
+          Entra na tua conta para veres as medalhas!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para colecionares medalhas, insígnias e pontos XP, inicia sessão com o cartão escolar fornecido pela tua Professora.
+          Para colecionares medalhas e pontos XP, entra com o cartão de acesso dado pela tua Professora.
         </p>
       </div>
     );
@@ -67,7 +67,7 @@ export const BadgesView: React.FC = () => {
             {t('nav_badges', locale)} & Galeria de Honra
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Conquista insígnias oficiais ao completares mundos, simuladores e desafios.
+            Ganha medalhas ao completares os mundos, as atividades e os desafios!
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export const BadgesView: React.FC = () => {
               </div>
 
               <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="font-extrabold text-blue-600">Insígnia Oficial</span>
+                <span className="font-extrabold text-blue-600">Medalha Oficial</span>
                 {isUnlocked && userBadge && (
                   <span className="text-[11px] text-slate-400">
                     {new Date(userBadge.unlockedAt).toLocaleDateString('pt-PT')}

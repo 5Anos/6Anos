@@ -426,7 +426,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
   const handleValidatePromptLevel = () => {
     if (Object.keys(promptChoices).length < promptLevels.length) {
-      alert('Por favor completa todos os 4 níveis do Prompt Simulator antes de finalizar.');
+      alert('Completa os 4 níveis da atividade de Prompts antes de confirmar!');
       return;
     }
     let count = 0;
@@ -499,8 +499,9 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
   const topic6 = world.topics.find((t) => t.id === 'w5-t6');
 
   const isAssessmentDone = Boolean(
+    world.hasAssessment ||
     world.hasAssessmentPassed ||
-    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+    typeof world.bestAssessmentPercentage === 'number'
   );
 
   const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
@@ -581,7 +582,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               O Futuro da Inteligência: Prompts Perfeitos, Caça a Alucinações e Ética Digital!
             </h1>
             <p className="text-[11px] sm:text-xs text-slate-700 font-medium leading-normal max-w-lg">
-              A tua missão de pioneiro: dominar a IA Generativa, verificar factos sem pestanejar e proteger a tua privacidade no ciberespaço! 🤖✨
+              A tua missão de explorador: perceber a IA Generativa, confirmar os factos e proteger a tua privacidade na Internet! 🤖✨
             </p>
           </div>
           <div className="shrink-0 flex justify-center sm:justify-end">
@@ -590,6 +591,49 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
         </div>
 
         {/* 7 Mission Navigation Cards */}
+        {(() => {
+          const renderStatusBadge = (isDone: boolean, score: number | null, isActiveCard: boolean, isGradientCard = false) => {
+            if (!isDone) {
+              return (
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md whitespace-nowrap ${isActiveCard || isGradientCard ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                  Por fazer
+                </span>
+              );
+            }
+            const rounded = score !== null ? Math.round(score) : null;
+            const badgeClass =
+              isActiveCard || isGradientCard
+                ? 'bg-white/25 text-white'
+                : rounded !== null && rounded > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                ? 'bg-emerald-100 text-emerald-800'
+                : rounded !== null && rounded >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+                ? 'bg-amber-100 text-amber-800'
+                : 'bg-rose-100 text-rose-800';
+            const iconClass =
+              isActiveCard || isGradientCard
+                ? 'text-white'
+                : rounded !== null && rounded > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                ? 'text-emerald-600'
+                : rounded !== null && rounded >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+                ? 'text-amber-600'
+                : 'text-rose-600';
+            return (
+              <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md whitespace-nowrap tabular-nums ${badgeClass}`}>
+                <CheckCircle2 className={`w-3 h-3 shrink-0 ${iconClass}`} />
+                <span>{rounded !== null ? `Feito · ${rounded}%` : 'Feito'}</span>
+              </span>
+            );
+          };
+
+          const m1 = getSimProg('sim-ia-concepts');
+          const m2 = getSimProg('sim-ai-generation');
+          const m3 = getSimProg('sim-prompt');
+          const m4 = getSimProg('sim-hallucination');
+          const m5 = getSimProg('sim-ai-responsibility');
+          const m6 = getSimProg('sim-recommendation');
+          const quizScore = typeof world.bestAssessmentPercentage === 'number' ? world.bestAssessmentPercentage : null;
+
+          return (
         <div className="space-y-2 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Missão 1 */}
@@ -601,26 +645,17 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t1' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
                   <Cpu className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t1' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 1/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">O Que É e Não É IA</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">O Que É e Não É IA</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-ia-concepts')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t1' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t1' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m1?.completed), m1?.completed ? Number(m1.score) || 0 : null, activeTopicId === 'w5-t1')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t1' ? 'text-white' : 'text-indigo-500'}`} />
               </div>
             </button>
@@ -634,26 +669,17 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t2' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600'}`}>
                   <Wand2 className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t2' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 2/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">IA Generativa & Fatos</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">IA Generativa & Fatos</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-ai-generation')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t2' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t2' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m2?.completed), m2?.completed ? Number(m2.score) || 0 : null, activeTopicId === 'w5-t2')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t2' ? 'text-white' : 'text-indigo-500'}`} />
               </div>
             </button>
@@ -667,26 +693,17 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t3' ? 'bg-white/20 text-white' : 'bg-sky-50 text-sky-600'}`}>
                   <Sparkles className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t3' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 3/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">A Arte do Prompt</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">A Arte do Prompt</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-prompt')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t3' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t3' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m3?.completed), m3?.completed ? Number(m3.score) || 0 : null, activeTopicId === 'w5-t3')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t3' ? 'text-white' : 'text-indigo-500'}`} />
               </div>
             </button>
@@ -702,26 +719,17 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t4' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'}`}>
                   <AlertCircle className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t4' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 4/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Alucinações & Falsos</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Alucinações & Falsos</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-hallucination')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t4' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t4' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m4?.completed), m4?.completed ? Number(m4.score) || 0 : null, activeTopicId === 'w5-t4')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t4' ? 'text-white' : 'text-indigo-500'}`} />
               </div>
             </button>
@@ -735,26 +743,17 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t5' ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
                   <Lock className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t5' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 5/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Privacidade & Dados</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Privacidade & Dados</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-ai-responsibility')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t5' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t5' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m5?.completed), m5?.completed ? Number(m5.score) || 0 : null, activeTopicId === 'w5-t5')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t5' ? 'text-white' : 'text-indigo-500'}`} />
               </div>
             </button>
@@ -768,26 +767,17 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w5-t6' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'}`}>
                   <Brain className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w5-t6' ? 'text-indigo-100' : 'text-slate-400'}`}>Missão 6/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Bolhas & Algoritmos</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Bolhas & Algoritmos</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-recommendation')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t6' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w5-t6' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m6?.completed), m6?.completed ? Number(m6.score) || 0 : null, activeTopicId === 'w5-t6')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w5-t6' ? 'text-white' : 'text-indigo-500'}`} />
               </div>
             </button>
@@ -801,31 +791,24 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs hover:brightness-105'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
                   <Award className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className="text-[10px] font-black text-indigo-100 block">DESAFIO FINAL 7/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Quiz do Pioneiro 🏆</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Quiz do Pioneiro 🏆</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {isAssessmentDone ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md bg-white/30 text-white">
-                    <CheckCircle2 className="w-3 h-3 text-white shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(isAssessmentDone, quizScore, activeTopicId === 'avaliacao', true)}
                 <ChevronRight className="w-4 h-4 shrink-0 text-white" />
               </div>
             </button>
           </div>
         </div>
+          );
+        })()}
       </div>
 
       {/* ========================================================= */}
@@ -929,7 +912,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -944,7 +927,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -954,7 +937,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Radar de IA (6 Situações)
+                  🎮 2. Testa os teus conhecimentos: Radar de IA (6 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1059,7 +1042,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
             {conceptScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação do Simulador: <strong>{conceptScore}/100</strong>. A IA é uma ferramenta informática baseada em dados e modelos de treino, enquanto sistemas deterministas seguem regras fixas e a consciência pertence apenas aos seres humanos!
+                A tua pontuação: <strong>{conceptScore}/100</strong>. A IA é uma ferramenta informática baseada em dados e modelos de treino, enquanto sistemas deterministas seguem regras fixas e a consciência pertence apenas aos seres humanos!
               </div>
             )}
           </div>
@@ -1193,7 +1176,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1208,7 +1191,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1220,7 +1203,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de IA Generativa & Verificação (5 Situações)
+                  🎮 2. Testa os teus conhecimentos: IA Generativa & Verificação (5 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1294,13 +1277,13 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 onClick={handleValidateGen}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
-                Validar Auditoria (5 Situações)
+                Confirmar Respostas (5 Situações)
               </button>
             </div>
 
             {genScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação da Auditoria: <strong>{genScore}/100</strong>. A IA generativa cria texto e imagens combinando padrões, mas a garantia de verdade e a integridade do trabalho continuam a ser tua responsabilidade!
+                A tua pontuação: <strong>{genScore}/100</strong>. A IA generativa cria textos e imagens juntando padrões, mas confirmar se é verdade e melhorar o trabalho é sempre tua responsabilidade!
               </div>
             )}
           </div>
@@ -1423,7 +1406,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1438,7 +1421,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1450,7 +1433,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Prompt Simulator Progressivo (4 Níveis)
+                  🎮 2. Testa os teus conhecimentos: Criar Bons Prompts (4 Níveis)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1531,13 +1514,13 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 onClick={handleValidatePromptLevel}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
-                Validar Níveis do Prompt Simulator
+                Confirmar Níveis de Prompts
               </button>
             </div>
 
             {promptScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação do Prompt Simulator: <strong>{promptScore}/100</strong>. Excelente! Um bom prompt não precisa de ser longo: deve ser claro, indicar o tema, o objetivo e os detalhes importantes para obteres uma resposta útil.
+                A tua pontuação nos Prompts: <strong>{promptScore}/100</strong>. Excelente! Um bom prompt não precisa de ser gigante: basta ser claro e indicar o tema, o objetivo e como queres a resposta.
               </div>
             )}
           </div>
@@ -1660,7 +1643,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1675,7 +1658,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1687,16 +1670,16 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Hallucination & Evidence Simulator (6 Afirmações)
+                  🎮 2. Testa os teus conhecimentos: Verdade ou Invenção da IA? (6 Afirmações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Classifica a veracidade e fontes de cada resposta
+                Descobre o que é verdade ou invenção
               </span>
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Analisa estas 6 respostas produzidas por IA e classifica se são factos verídicos, afirmações sem fonte, fontes inventadas ou alucinações anacrónicas:
+              Lê estas 6 respostas dadas por uma IA e descobre se são factos verdadeiros, afirmações sem fonte, livros inventados ou erros de datas/alucinações:
             </p>
 
             <div className="space-y-4">
@@ -1794,13 +1777,13 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 onClick={handleValidateHallucination}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
-                Validar Avaliação de Alucinações
+                Confirmar Respostas
               </button>
             </div>
 
             {hallucinationScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação do Simulador: <strong>{hallucinationScore}/100</strong>. Uma resposta persuasiva e bem articulada não é sinónimo de verdade!
+                A tua pontuação: <strong>{hallucinationScore}/100</strong>. Uma resposta bem escrita e segura nem sempre é verdadeira!
               </div>
             )}
           </div>
@@ -1923,7 +1906,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1938,7 +1921,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1950,7 +1933,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Privacidade e Dados (10 Itens)
+                  🎮 2. Testa os teus conhecimentos: Privacidade e Dados com IA (10 Itens)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -2032,13 +2015,13 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 onClick={handleValidatePrivacy}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
-                Validar Classificação de Privacidade (10 Itens)
+                Confirmar Privacidade (10 Itens)
               </button>
             </div>
 
             {privacyScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                Pontuação do Simulador de Privacidade: <strong>{privacyScore}/100</strong>. Proteger palavras-passe, moradas, contactos e dados de colegas é regra de ouro antes de interagir com qualquer assistente de IA!
+                A tua pontuação de Privacidade: <strong>{privacyScore}/100</strong>. Proteger palavras-passe, moradas, contactos e dados de colegas é regra de ouro antes de interagir com qualquer assistente de IA!
               </div>
             )}
           </div>
@@ -2161,7 +2144,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -2176,7 +2159,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -2188,7 +2171,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-indigo-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Recomendações e Autonomia (5 Situações)
+                  🎮 2. Testa os teus conhecimentos: Recomendações e Escolhas (5 Situações)
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -2260,7 +2243,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                 onClick={handleValidateRec}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
-                Validar Decisões de Autonomia (5 Casos)
+                Confirmar Escolhas (5 Casos)
               </button>
             </div>
 
@@ -2316,7 +2299,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
           </div>
 
           <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl max-w-md mx-auto text-xs text-indigo-950 font-semibold space-y-1">
-            <p>🏆 Requisito de Conclusão da Missão TIC: Média global &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
+            <p>🏆 Requisito de Conclusão da Missão TIC: Média global &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null

@@ -76,8 +76,8 @@ export const GLOSSARY_DICTIONARY: Record<string, GlossaryDefinition> = {
   'dados pessoais': {
     title: 'Dados Pessoais',
     emoji: '🔒',
-    simpleDef: 'Informações que revelam quem tu és ou onde estás (nome completo, morada, escola, telefone ou fotos íntimas).',
-    example: 'A tua localização em tempo real no telemóvel ou o teu número de cidadão.',
+    simpleDef: 'Informações que revelam quem tu és ou onde estás (nome completo, morada, escola, telefone ou fotos tuas e da tua escola).',
+    example: 'A tua localização em tempo real no telemóvel ou o teu número do Cartão de Cidadão.',
     tip: 'Guarda os teus dados como se fossem o dinheiro da tua carteira.',
   },
   depuração: {
@@ -93,6 +93,27 @@ export const GLOSSARY_DICTIONARY: Record<string, GlossaryDefinition> = {
     simpleDef: 'Um comando que diz ao computador para repetir as mesmas instruções várias vezes automaticamente.',
     example: '"Repete 4 vezes: Avança 1 passo e Vira 90º à direita" (desenha um quadrado sem escrever 8 linhas!).',
     tip: 'Poupa tempo e linhas de código com ciclos inteligentes.',
+  },
+  autoria: {
+    title: 'Autoria',
+    emoji: '✍️',
+    simpleDef: 'Saber quem escreveu, desenhou ou criou um texto, foto ou vídeo que vês na Internet.',
+    example: 'Um artigo assinado por uma bióloga de um museu tem mais confiança do que um texto sem autor.',
+    tip: 'Pergunta sempre: "Quem escreveu isto e sabe mesmo sobre este assunto?".',
+  },
+  desinformação: {
+    title: 'Desinformação (Notícias Falsas)',
+    emoji: '🚨',
+    simpleDef: 'Informação falsa ou inventada que é espalhada de propósito para enganar pessoas ou chamar atenção.',
+    example: 'Um vídeo falso a dizer que vai nevar chocolate em Lisboa amanhã só para ganhar cliques.',
+    tip: 'Antes de partilhares uma notícia chocante, confirma sempre em 2 ou 3 sites de confiança!',
+  },
+  prompt: {
+    title: 'Prompt',
+    emoji: '💬',
+    simpleDef: 'O pedido ou instrução clara que escreves à Inteligência Artificial para ela te ajudar.',
+    example: '"Explica-me como funciona o sistema solar em 3 frases simples para o 6.º ano."',
+    tip: 'Quanto mais claro e completo for o teu pedido, melhor será a resposta da IA!',
   },
 };
 

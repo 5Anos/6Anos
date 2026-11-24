@@ -189,9 +189,9 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       id: 'aut-1',
       title: 'Artigo sobre Vulcões e Sismos',
       meta: 'Portal IPMA (Instituto Português do Mar e da Atmosfera) • **Dra. Helena Matos, Geóloga Investigadora**',
-      body: 'Artigo técnico com mapas de atividade sísmica recente, **referências científicas** e **contacto institucional** da equipa de geologia.',
+      body: 'Artigo com mapas de sismos recentes, **referências científicas** e **contacto oficial** da equipa de geologia.',
       correct: 'confiavel',
-      explanation: 'Excelente! Entidade pública reconhecida e autora especialista com credenciais verificadas.',
+      explanation: 'Excelente! É uma instituição pública conhecida e a autora é especialista no assunto.',
     },
     {
       id: 'aut-2',
@@ -199,7 +199,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
       meta: 'Blogue gratuito "**MisteriosOnline.net**" • Autor: "**AlienHunter99**" (**Sem foto nem biografia**)',
       body: 'Texto a garantir que a NASA está a esconder um planeta gigante atrás da Lua, **sem apresentar qualquer foto ou estudo oficial**.',
       correct: 'suspeito',
-      explanation: 'Cuidado! Autor anónimo com nickname, blogue não oficial e afirmações bombásticas sem provas científicas.',
+      explanation: 'Cuidado! Autor anónimo com nome inventado, blogue não oficial e notícias exageradas sem provas.',
     },
     {
       id: 'aut-3',
@@ -409,8 +409,9 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
   };
 
   const isAssessmentDone = Boolean(
+    world.hasAssessment ||
     world.hasAssessmentPassed ||
-    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+    typeof world.bestAssessmentPercentage === 'number'
   );
 
   const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
@@ -550,7 +551,28 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
           {missionNavList.map((m) => {
             const Icon = m.icon;
             const isActive = effectiveTopicId === m.id;
-            const isDone = m.id === 'avaliacao' ? isAssessmentDone : Boolean(getSimProg(m.simId)?.completed);
+            const simProg = m.id === 'avaliacao' ? null : getSimProg(m.simId);
+            const isDone = m.id === 'avaliacao' ? isAssessmentDone : Boolean(simProg?.completed);
+            const missionScore =
+              m.id === 'avaliacao'
+                ? (typeof world.bestAssessmentPercentage === 'number' ? Math.round(world.bestAssessmentPercentage) : null)
+                : (simProg?.completed ? Math.round(Number(simProg.score) || 0) : null);
+
+            const doneBadgeClass = isActive
+              ? 'bg-white/25 text-white'
+              : missionScore !== null && missionScore > PROGRESSION_CONFIG.PASSING_THRESHOLD
+              ? 'bg-emerald-100 text-emerald-800'
+              : missionScore !== null && missionScore >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+              ? 'bg-amber-100 text-amber-800'
+              : 'bg-rose-100 text-rose-800';
+
+            const doneIconClass = isActive
+              ? 'text-white'
+              : missionScore !== null && missionScore > PROGRESSION_CONFIG.PASSING_THRESHOLD
+              ? 'text-emerald-600'
+              : missionScore !== null && missionScore >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+              ? 'text-amber-600'
+              : 'text-rose-600';
 
             return (
               <button
@@ -583,14 +605,12 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {isDone ? (
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'
-                    }`}>
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                      <span>Feito</span>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md whitespace-nowrap tabular-nums ${doneBadgeClass}`}>
+                      <CheckCircle2 className={`w-3 h-3 shrink-0 ${doneIconClass}`} />
+                      <span>{missionScore !== null ? `Feito · ${missionScore}%` : 'Feito'}</span>
                     </span>
                   ) : (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md whitespace-nowrap ${
                       isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                     }`}>
                       Por fazer
@@ -643,7 +663,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {getSimProg('sim-keywords')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-keywords')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-keywords')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -713,7 +733,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   }}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -728,7 +748,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-700 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -738,7 +758,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-blue-700">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Simulador de Motor de Busca & Desafios
+                      🎮 2. Testa os teus conhecimentos: Pesquisa Inteligente
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -882,7 +902,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                         className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
                       >
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>Validar Estratégias de Pesquisa</span>
+                        <span>Confirmar Respostas</span>
                       </button>
 
                       {keywordScore !== null && keywordScore < 100 && (
@@ -966,7 +986,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {getSimProg('sim-author-check')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-author-check')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-author-check')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -994,7 +1014,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 <div className="flex items-center gap-2 text-indigo-700">
                   <Sparkles className="w-5 h-5 text-amber-500" />
                   <h4 className="text-sm font-black uppercase tracking-wide">
-                    💡 1. Aprende: O Selo de Confiança e Credibilidade
+                    💡 1. Aprende: Como Saber se Podemos Confiar no Autor
                   </h4>
                 </div>
 
@@ -1003,15 +1023,15 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     <div className="text-2xl">👤</div>
                     <h5 className="font-black text-indigo-950 text-sm">Autores Reais com Rosto</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      Artigos credíveis mostram quem escreveu, a profissão ou formação académica e meios de contacto.
+                      Artigos de confiança mostram quem escreveu, a sua profissão e como contactar.
                     </p>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1.5">
                     <div className="text-2xl">🏛️</div>
-                    <h5 className="font-black text-blue-950 text-sm">Entidades Reconhecidas</h5>
+                    <h5 className="font-black text-blue-950 text-sm">Sites Oficiais</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      Universidades, museus, escolas e organismos oficiais (.edu, .gov, .org) possuem equipas técnicas rigorosas.
+                      Universidades, museus, escolas e sites oficiais (.edu, .gov, .org) têm equipas de especialistas.
                     </p>
                   </div>
 
@@ -1019,7 +1039,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     <div className="text-2xl">🛑</div>
                     <h5 className="font-black text-rose-950 text-sm">Alerta de Anonimato</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      Páginas sem autor ou assinadas com nicknames fictícios sem fontes devem ser vistas com enorme desconfiança.
+                      Páginas sem autor ou assinadas com nomes inventados e sem provas merecem muita desconfiança.
                     </p>
                   </div>
                 </div>
@@ -1036,7 +1056,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   }}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1051,7 +1071,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1061,7 +1081,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-indigo-700">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Avaliação de Autoria e Credibilidade
+                      🎮 2. Testa os teus conhecimentos: Quem Escreveu Isto?
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -1071,7 +1091,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                    Classifica cada uma das 4 páginas encontradas online como <strong>Fiável / Oficial 🛡️</strong> ou <strong>Suspeito / Sem Credibilidade ⚠️</strong>:
+                    Classifica cada uma das 4 páginas encontradas online como <strong>Fiável / Oficial 🛡️</strong> ou <strong>Suspeito / Pouca Confiança ⚠️</strong>:
                   </p>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-900 bg-indigo-100/90 px-2.5 py-0.5 rounded-full border border-indigo-300 shrink-0">
                     🔍 Pistas destacadas a negrito para leitura rápida
@@ -1118,7 +1138,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                             }`}
                           >
                             <AlertTriangle className="w-4 h-4" />
-                            <span>Suspeito / Sem Credibilidade ⚠️</span>
+                            <span>Suspeito / Pouca Confiança ⚠️</span>
                           </button>
                         </div>
 
@@ -1140,7 +1160,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                       className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Validar Análise de Autores</span>
+                      <span>Confirmar Respostas</span>
                     </button>
 
                     {authorScore !== null && authorScore < 100 && (
@@ -1157,7 +1177,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                   {authorScore !== null && (
                     <div className="text-xs font-black text-indigo-900 bg-indigo-100 px-4 py-2 rounded-xl border border-indigo-200">
-                      Pontuação: {authorScore}% • {authorScore >= 70 ? '🏆 Excelente Auditoria!' : '⚠️ Atenção aos Detalhes!'}
+                      Pontuação: {authorScore}% • {authorScore >= 70 ? '🏆 Excelente Investigação!' : '⚠️ Atenção aos Detalhes!'}
                     </div>
                   )}
                 </div>
@@ -1223,7 +1243,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {getSimProg('sim-date-verifier')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-date-verifier')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-date-verifier')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -1293,7 +1313,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   }}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1308,7 +1328,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1318,7 +1338,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-amber-700">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Detetor de Atualidade e Reciclagem
+                      🎮 2. Testa os teus conhecimentos: É Atual ou Antigo?
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -1398,7 +1418,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                       className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Validar Verificação Temporal</span>
+                      <span>Confirmar Datas</span>
                     </button>
 
                     {dateScore !== null && dateScore < 100 && (
@@ -1469,10 +1489,10 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
-                  Comparar Pistas: A Regra da Triangulação 📑
+                  Comparar Pistas em Várias Fontes 📑
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Aprende a cruzar dados de pelo menos 2 a 3 fontes independentes antes de tirar conclusões.
+                  Aprende a confirmar a mesma notícia em 2 ou 3 sites diferentes antes de acreditar.
                 </p>
               </div>
             </div>
@@ -1481,7 +1501,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {getSimProg('sim-source-compare')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-source-compare')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-source-compare')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -1509,7 +1529,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 <div className="flex items-center gap-2 text-purple-700">
                   <Sparkles className="w-5 h-5 text-amber-500" />
                   <h4 className="text-sm font-black uppercase tracking-wide">
-                    💡 1. Aprende: A Técnica da Triangulação de Informação
+                    💡 1. Aprende: Comparar Várias Fontes (Regra das 3 Pistas)
                   </h4>
                 </div>
 
@@ -1561,7 +1581,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   }}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1576,7 +1596,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1586,7 +1606,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-purple-700">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Desafio de Triangulação de Fontes
+                      🎮 2. Testa os teus conhecimentos: Confirmar em Várias Fontes
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -1658,7 +1678,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Validar Triangulação</span>
+                    <span>Confirmar Respostas</span>
                   </button>
 
                   {sourceScore !== null && (
@@ -1719,7 +1739,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
               {getSimProg('sim-news-detective')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-news-detective')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-news-detective')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -1799,7 +1819,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   }}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1814,7 +1834,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-rose-700 bg-slate-100 hover:bg-rose-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1824,7 +1844,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-rose-700">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Radar Caçador de Fake News
+                      🎮 2. Testa os teus conhecimentos: Caçador de Fake News
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -1896,7 +1916,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     className="px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white font-black text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-2"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Validar Caça a Boatos</span>
+                    <span>Confirmar Respostas</span>
                   </button>
 
                   {newsScore !== null && (

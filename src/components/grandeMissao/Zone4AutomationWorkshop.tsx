@@ -77,7 +77,7 @@ export const Zone4AutomationWorkshop: React.FC<Zone4Props> = ({
   const addCommand = (dir: Direction) => {
     if (isRunning || submitted) return;
     if (commands.length >= 16) {
-      setFeedbackError('Limite máximo de 16 instruções atingido. Tenta otimizar o percurso!');
+      setFeedbackError('Chegaste ao limite de 16 passos. Tenta encontrar um caminho mais curto!');
       return;
     }
     setFeedbackError(null);
@@ -162,7 +162,7 @@ export const Zone4AutomationWorkshop: React.FC<Zone4Props> = ({
         clearInterval(timerRef.current);
         setIsRunning(false);
         setSimulationResult('failed');
-        setFeedbackError(`Erro de execução no Passo ${step + 1}: O robô tentou sair dos limites da grelha! Revê os movimentos.`);
+        setFeedbackError(`Ops! Erro no Passo ${step + 1}: O robô tentou sair dos limites da grelha! Revê os movimentos.`);
         setStatusMessage('Colisão com os limites da sala. Corrige o algoritmo.');
         return;
       }
@@ -173,7 +173,7 @@ export const Zone4AutomationWorkshop: React.FC<Zone4Props> = ({
         setIsRunning(false);
         setSimulationResult('failed');
         const obstacleHit = OBSTACLES.find((o) => o.x === nextX && o.y === nextY);
-        setFeedbackError(`Erro de execução no Passo ${step + 1}: O robô colidiu com um obstáculo (${obstacleHit?.label || 'bloqueio'})! Tens de o contornar.`);
+        setFeedbackError(`Ops! Erro no Passo ${step + 1}: O robô bateu num obstáculo (${obstacleHit?.label || 'bloqueio'})! Tens de o contornar.`);
         setStatusMessage('Colisão detetada. Planeia um percurso alternativo.');
         return;
       }
@@ -489,7 +489,7 @@ export const Zone4AutomationWorkshop: React.FC<Zone4Props> = ({
                   <span>Laboratório de Engenharia Reativado com Sucesso!</span>
                 </div>
                 <p className="text-xs text-amber-950 font-medium">
-                  Excelente raciocínio algorítmico! Planeaste a rota do robô, contornaste os obstáculos e religaste a energia da escola.
+                  Excelente algoritmo! Planeaste o caminho do robô, contornaste os obstáculos e religaste a energia da escola.
                 </p>
                 <div className="p-2.5 bg-amber-950 text-amber-300 rounded-xl font-mono text-xs font-black text-center tracking-widest border border-amber-700 shadow-xs">
                   CÓDIGO 4: #ALGO-ROBOT-RUN
@@ -514,7 +514,7 @@ export const Zone4AutomationWorkshop: React.FC<Zone4Props> = ({
                 className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-black text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>{isRunning ? 'A Executar Robô...' : 'Executar Algoritmo'}</span>
+                <span>{isRunning ? 'A Mover o Robô...' : 'Testar Algoritmo'}</span>
               </button>
             ) : (
               <button

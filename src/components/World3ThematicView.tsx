@@ -413,8 +413,9 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
   const topic6 = world.topics.find((t) => t.id === 'w3-t6');
 
   const isAssessmentDone = Boolean(
+    world.hasAssessment ||
     world.hasAssessmentPassed ||
-    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+    typeof world.bestAssessmentPercentage === 'number'
   );
 
   const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
@@ -501,6 +502,47 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
         </div>
 
         {/* 7 Mission Navigation Cards */}
+        {(() => {
+          const renderStatusBadge = (isDone: boolean, score: number | null, isActiveCard: boolean) => {
+            if (!isDone) {
+              return (
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md whitespace-nowrap ${isActiveCard ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                  Por fazer
+                </span>
+              );
+            }
+            const rounded = score !== null ? Math.round(score) : null;
+            const badgeClass = isActiveCard
+              ? 'bg-white/25 text-white'
+              : rounded !== null && rounded > PROGRESSION_CONFIG.PASSING_THRESHOLD
+              ? 'bg-emerald-100 text-emerald-800'
+              : rounded !== null && rounded >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+              ? 'bg-amber-100 text-amber-800'
+              : 'bg-rose-100 text-rose-800';
+            const iconClass = isActiveCard
+              ? 'text-white'
+              : rounded !== null && rounded > PROGRESSION_CONFIG.PASSING_THRESHOLD
+              ? 'text-emerald-600'
+              : rounded !== null && rounded >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+              ? 'text-amber-600'
+              : 'text-rose-600';
+            return (
+              <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md whitespace-nowrap tabular-nums ${badgeClass}`}>
+                <CheckCircle2 className={`w-3 h-3 shrink-0 ${iconClass}`} />
+                <span>{rounded !== null ? `Feito · ${rounded}%` : 'Feito'}</span>
+              </span>
+            );
+          };
+
+          const m1 = getSimProg('sim-comunicacao-digital');
+          const m2 = getSimProg('sim-netiqueta');
+          const m3 = getSimProg('sim-colaboracao');
+          const m4 = getSimProg('sim-direitos-autor');
+          const m5 = getSimProg('sim-plagio-citacao');
+          const m6 = getSimProg('sim-creative-commons');
+          const quizScore = typeof world.bestAssessmentPercentage === 'number' ? world.bestAssessmentPercentage : null;
+
+          return (
         <div className="space-y-2 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Missão 1: Conversas & Emojis */}
@@ -512,26 +554,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w3-t1' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600'}`}>
                   <MessageSquare className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t1' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 1/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Conversas & Emojis</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Conversas & Emojis</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-avatar-challenge')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t1' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t1' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m1?.completed), m1?.completed ? Number(m1.score) || 0 : null, activeTopicId === 'w3-t1')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t1' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
@@ -545,26 +578,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w3-t2' ? 'bg-white/20 text-white' : 'bg-pink-50 text-pink-600'}`}>
                   <Smile className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t2' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 2/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Netiqueta Fixe</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Netiqueta Fixe</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-netiqueta')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t2' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t2' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m2?.completed), m2?.completed ? Number(m2.score) || 0 : null, activeTopicId === 'w3-t2')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t2' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
@@ -578,26 +602,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w3-t3' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'}`}>
                   <Users className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t3' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 3/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Super-Equipas</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Super-Equipas</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-colaboracao')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t3' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t3' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m3?.completed), m3?.completed ? Number(m3.score) || 0 : null, activeTopicId === 'w3-t3')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t3' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
@@ -611,26 +626,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w3-t4' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600'}`}>
                   <Copyright className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t4' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 4/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Direitos de Autor</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Direitos de Autor</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-direitos-autor')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t4' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t4' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m4?.completed), m4?.completed ? Number(m4.score) || 0 : null, activeTopicId === 'w3-t4')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t4' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
@@ -646,26 +652,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w3-t5' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-600'}`}>
                   <FileText className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t5' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 5/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Caça ao Plágio</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Caça ao Plágio</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-plagio-citacao')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t5' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t5' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m5?.completed), m5?.completed ? Number(m5.score) || 0 : null, activeTopicId === 'w3-t5')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t5' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
@@ -679,26 +676,17 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'w3-t6' ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
                   <Share2 className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t6' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 6/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Licenças Livres</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Licenças Livres</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {Boolean(getSimProg('sim-creative-commons')?.completed) ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t6' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'w3-t6' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(Boolean(m6?.completed), m6?.completed ? Number(m6.score) || 0 : null, activeTopicId === 'w3-t6')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'w3-t6' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
@@ -712,31 +700,24 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   : 'bg-white/95 text-slate-800 border border-white/80 shadow-xs hover:bg-white hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activeTopicId === 'avaliacao' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-600'}`}>
                   <Award className="w-4 h-4 stroke-[2.5]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'avaliacao' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 7/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate">Quiz do Criador</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Quiz do Criador</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {isAssessmentDone ? (
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${activeTopicId === 'avaliacao' ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>Feito</span>
-                  </span>
-                ) : (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${activeTopicId === 'avaliacao' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    Por fazer
-                  </span>
-                )}
+                {renderStatusBadge(isAssessmentDone, quizScore, activeTopicId === 'avaliacao')}
                 <ChevronRight className={`w-4 h-4 shrink-0 ${activeTopicId === 'avaliacao' ? 'text-white' : 'text-purple-500'}`} />
               </div>
             </button>
           </div>
         </div>
+          );
+        })()}
       </div>
       {activeTopicId === 'w3-t1' && (
         <div className="space-y-6">
@@ -828,7 +809,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -843,7 +824,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -853,7 +834,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-purple-700">
                     <Sparkles className="w-5 h-5" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Simulador de Mensagens
+                      🎮 2. Testa os teus conhecimentos: Mensagens & Netiqueta
                     </h4>
                   </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1025,7 +1006,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1040,7 +1021,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1050,7 +1031,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-purple-700">
                     <Sparkles className="w-5 h-5" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Simulador de Netiqueta
+                      🎮 2. Testa os teus conhecimentos: Boas Maneiras Online
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -1107,7 +1088,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 onClick={handleNetiquetteSubmit}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors"
               >
-                Validar Avaliação de Netiqueta
+                Confirmar Respostas de Netiqueta
               </button>
             </div>
 
@@ -1347,7 +1328,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               onClick={() => setMissionPhase('simulator')}
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
             >
-              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
@@ -1362,7 +1343,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Rever Guia de Teoria 💡</span>
+              <span>Voltar a «Vamos aprender?» 💡</span>
             </button>
           </div>
 
@@ -1372,7 +1353,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Colaboração & Equipa
+                  🎮 2. Testa os teus conhecimentos: Trabalho em Equipa
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1532,7 +1513,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               onClick={() => setMissionPhase('simulator')}
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
             >
-              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
@@ -1547,7 +1528,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Rever Guia de Teoria 💡</span>
+              <span>Voltar a «Vamos aprender?» 💡</span>
             </button>
           </div>
 
@@ -1557,7 +1538,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Direitos de Autor & Permissões
+                  🎮 2. Testa os teus conhecimentos: Direitos de Autor & Permissões
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1731,7 +1712,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               onClick={() => setMissionPhase('simulator')}
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
             >
-              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
@@ -1746,7 +1727,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Rever Guia de Teoria 💡</span>
+              <span>Voltar a «Vamos aprender?» 💡</span>
             </button>
           </div>
 
@@ -1756,7 +1737,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Citação & Reconhecimento
+                  🎮 2. Testa os teus conhecimentos: Citação & Reconhecimento
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1923,7 +1904,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               onClick={() => setMissionPhase('simulator')}
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
             >
-              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
@@ -1938,7 +1919,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Rever Guia de Teoria 💡</span>
+              <span>Voltar a «Vamos aprender?» 💡</span>
             </button>
           </div>
 
@@ -1948,7 +1929,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-purple-700">
                 <Sparkles className="w-5 h-5" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Simulador de Licenças Creative Commons
+                  🎮 2. Testa os teus conhecimentos: Licenças Creative Commons
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1996,7 +1977,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 onClick={handleCcSubmit}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
-                Validar Licenças Creative Commons
+                Confirmar Licenças Creative Commons
               </button>
             </div>
 
@@ -2004,7 +1985,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950 font-medium">
                 {ccScore === 100
                   ? 'Correto! A licença indica o que podes fazer com este conteúdo.'
-                  : `Resultado do Simulador: ${ccScore}/100. A licença indica o que podes fazer com este conteúdo.`}
+                  : `O teu resultado: ${ccScore}/100. A licença indica o que podes fazer com este conteúdo.`}
               </div>
             )}
           </div>
@@ -2050,7 +2031,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           </div>
 
           <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl max-w-md mx-auto text-xs text-purple-950 font-semibold space-y-1">
-            <p>🏆 Requisito para desbloquear o Mundo 4: Média &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
+            <p>🏆 Requisito para desbloquear o Mundo 4: Média &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</p>
             <p>
               Melhor resultado registado:{' '}
               {world.bestAssessmentPercentage !== null

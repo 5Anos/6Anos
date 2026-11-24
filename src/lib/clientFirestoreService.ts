@@ -470,18 +470,18 @@ export async function clientComputeWorldStats(userId: string, worldId: number, u
 
   const hasAssessmentPassed =
     bestAssessmentPercentage !== null &&
-    bestAssessmentPercentage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    bestAssessmentPercentage >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD;
 
   const totalComponents = totalSimulatorsCount + 1;
   const completedCount = scores.length;
   const average =
     scores.length > 0 ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0;
 
-  // STRICT 75% THRESHOLD: average >= 75
+  // Canonical curricular world completion rule: all simulators + quiz + average > 70%
   const isWorldCompleted =
     allSimulatorsCompleted &&
     hasAssessment &&
-    average >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
   const isUnlocked = worldId === 1 || userRole === 'teacher';
 
@@ -506,24 +506,35 @@ export async function clientGetWorlds() {
   const db = getClientFirestore();
 
   let userRole = 'student';
+  let userClassId: string | null = null;
   if (userId) {
     const userSnap = await getDoc(doc(db, 'users', userId));
     if (userSnap.exists()) {
-      userRole = (userSnap.data() as ClientUser).role;
+      const uData = userSnap.data() as ClientUser;
+      userRole = uData.role;
+      userClassId = uData.classId || null;
     }
   }
 
+  let classroom: any = null;
   let userProgress: any[] = [];
   let allAssessments: any[] = [];
+  let allMissions: any[] = [];
 
   if (userId) {
     try {
-      const [snapProg, snapAssess] = await Promise.all([
+      const [snapProg, snapAssess, snapClass, snapMissions] = await Promise.all([
         getDocs(query(collection(db, 'activityProgress'), where('userId', '==', userId))),
         getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+        userClassId ? getDoc(doc(db, 'classes', userClassId)) : Promise.resolve(null as any),
+        getDocs(query(collection(db, 'missionSubmissions'), where('userId', '==', userId))),
       ]);
       userProgress = snapProg.docs.map((d) => d.data());
       allAssessments = snapAssess.docs.map((d) => d.data());
+      allMissions = snapMissions.docs.map((d) => d.data());
+      if (snapClass && snapClass.exists()) {
+        classroom = snapClass.data();
+      }
     } catch (e) {
       console.error('Error fetching student progress in clientGetWorlds:', e);
     }
@@ -562,18 +573,31 @@ export async function clientGetWorlds() {
       }
     }
 
+    const isTeacherLocked =
+      !isTeacher &&
+      classroom?.visibility?.worlds &&
+      classroom.visibility.worlds[w.id] === false;
+
+    const isQuizTeacherLocked =
+      !isTeacher &&
+      classroom?.visibility?.quizzes &&
+      classroom.visibility.quizzes[w.id] === false;
+
+    const effectiveUnlocked = isTeacherLocked ? false : isUnlocked;
+
     const chalProg = userProgress.find((p) => p.activityId === w.challenge?.id);
+    const mission = allMissions.find((m) => m.worldId === w.id);
     const worldAvg = stats.average;
-    // CRITICAL: A world is only completed if ALL simulators are completed AND assessment is completed AND overall average >= 75%
     const isCompleted = Boolean(stats.isWorldCompleted);
 
     prevUnlocked = isUnlocked;
-    // Previous world must be fully completed to unlock next world (never unlock after just 2 activities!)
     prevPassed = Boolean(stats.isWorldCompleted);
 
     worldsWithStats.push({
       ...w,
-      isUnlocked,
+      isUnlocked: effectiveUnlocked,
+      isTeacherLocked: !!isTeacherLocked,
+      isQuizTeacherLocked: !!isQuizTeacherLocked,
       isCompleted,
       allSimulatorsCompleted: stats.allSimulatorsCompleted,
       hasAssessmentPassed: stats.hasAssessmentPassed,
@@ -581,6 +605,14 @@ export async function clientGetWorlds() {
       completedCount: stats.completedCount,
       totalComponents: stats.totalComponents,
       challengeProgress: chalProg ? { completed: chalProg.completed, score: chalProg.bestScore } : null,
+      missionProgress: mission
+        ? {
+            status: mission.status,
+            score: mission.score,
+            feedback: mission.feedback,
+            submissionText: mission.submissionText || mission.submission,
+          }
+        : null,
       bestAssessmentPercentage: stats.bestAssessmentPercentage,
       simulatorsProgress: w.simulators.map((s) => {
         const prog = userProgress.find((p) => p.activityId === s.id);
@@ -590,7 +622,7 @@ export async function clientGetWorlds() {
           score: prog ? prog.bestScore : 0,
         };
       }),
-      stats: { ...stats, isUnlocked },
+      stats: { ...stats, isUnlocked: effectiveUnlocked },
     });
   }
 
@@ -669,8 +701,6 @@ export async function clientCompleteActivity(activityId: string, score: number, 
       txn.set(txRef, {
         id: txId,
         userId,
-        amount: xpGain,
-        reason: isChallenge ? `Desafio: ${activityId}` : `Simulador: ${activityId}`,
         sourceType: isChallenge ? 'challenge' : 'activity',
         sourceId: activityId,
         previousBest,
@@ -720,8 +750,20 @@ export async function clientGetAssessment(worldId: number) {
   let lastMention: string | null = null;
 
   if (userId) {
+    const db = getClientFirestore();
+    const uSnap = await getDoc(doc(db, 'users', userId));
+    const uData = uSnap.exists() ? (uSnap.data() as ClientUser) : null;
+    if (uData && uData.role !== 'teacher' && uData.classId) {
+      const cSnap = await getDoc(doc(db, 'classes', uData.classId));
+      const cData = cSnap.exists() ? cSnap.data() : null;
+      if (cData?.visibility?.quizzes && cData.visibility.quizzes[worldId] === false) {
+        throw new Error(
+          `O Teste de Avaliação do Mundo ${worldId} está temporariamente reservado pela tua Professora para a próxima aula.`
+        );
+      }
+    }
+
     try {
-      const db = getClientFirestore();
       const qAttempts = query(
         collection(db, 'assessmentAttempts'),
         where('userId', '==', userId),
@@ -882,8 +924,6 @@ export async function clientSubmitAssessment(
       txn.set(txRef, {
         id: txId,
         userId,
-        amount: xpGain,
-        reason: `Quiz Mundo ${worldId}: ${percentage}%`,
         sourceType: 'assessment',
         sourceId: `world-${worldId}-quiz`,
         previousBest: prevBest,
@@ -1020,8 +1060,6 @@ export async function clientClaimDailyTip() {
     txn.set(txRef, {
       id: txId,
       userId,
-      amount: xpReward,
-      reason: 'Dica do Dia',
       sourceType: 'daily_tip',
       sourceId: `tip-${today}`,
       previousBest: 0,
@@ -1160,6 +1198,8 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
       solution: safeSolution,
       optionIndex,
       completed: true,
+      score: 100,
+      status: 'completed',
       completedAt: now,
     });
 
@@ -1167,8 +1207,6 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
     txn.set(txRef, {
       id: txId,
       userId,
-      amount: earnedXp,
-      reason: 'Desafio Semanal',
       sourceType: 'weekly_challenge',
       sourceId: WEEKLY_CHALLENGE.id,
       previousBest: 0,
@@ -1194,16 +1232,107 @@ export async function clientSubmitWeeklyChallenge(payload: any) {
   };
 }
 
+export async function clientSubmitMission(worldId: number, rawText: string) {
+  const userId = await resolveClientUserId();
+  if (!userId) throw new Error('Não autenticado');
+
+  const world = WORLDS_DATA.find((w) => w.id === worldId);
+  if (!world) throw new Error('Mundo não encontrado');
+
+  const text = (rawText || '').trim();
+  if (!text || text.length < 20) {
+    throw new Error('A submissão deve conter uma resposta detalhada (mínimo 20 caracteres).');
+  }
+
+  const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  if (!userSnap.exists()) throw new Error('Utilizador não encontrado');
+  const uData = userSnap.data() as ClientUser;
+
+  if (uData.role === 'teacher') {
+    return {
+      submission: {
+        id: `mission-test-${Date.now()}`,
+        userId,
+        worldId,
+        status: 'submitted',
+        score: 100,
+        xpAwarded: 0,
+      },
+      xpGain: 0,
+      totalXp: 0,
+      message: 'Missão testada com sucesso (Modo Teste do Professor).',
+    };
+  }
+
+  const stats = await clientComputeWorldStats(userId, worldId, uData.role);
+  if (!stats.isUnlocked) {
+    throw new Error('Mundo bloqueado.');
+  }
+
+  const now = new Date().toISOString();
+  const qExisting = query(
+    collection(db, 'missionSubmissions'),
+    where('userId', '==', userId),
+    where('worldId', '==', worldId)
+  );
+  const existingSnap = await getDocs(qExisting);
+
+  let savedSubmission: any;
+  if (!existingSnap.empty) {
+    const existingDoc = existingSnap.docs[0];
+    savedSubmission = {
+      ...existingDoc.data(),
+      submission: text,
+      submissionText: text,
+      status: 'pending',
+      submittedAt: now,
+      updatedAt: now,
+    };
+    await setDoc(existingDoc.ref, savedSubmission, { merge: true });
+  } else {
+    const subId = `mis-${crypto.randomUUID()}`;
+    savedSubmission = {
+      id: subId,
+      userId,
+      studentName: uData.fullName || uData.name,
+      studentNickname: uData.nickname,
+      classId: uData.classId,
+      missionId: world.mission.id,
+      worldId,
+      title: world.mission.title,
+      submission: text,
+      submissionText: text,
+      score: 0,
+      status: 'pending',
+      submittedAt: now,
+      createdAt: now,
+    };
+    await setDoc(doc(db, 'missionSubmissions', subId), savedSubmission);
+  }
+
+  return {
+    success: true,
+    submission: savedSubmission,
+    message: 'Missão Real submetida com sucesso! O teu professor irá avaliar e fornecer feedback.',
+  };
+}
+
 export async function clientGetGrandeMissao() {
-  const userId = getActiveClientUserId();
+  const userId = await resolveClientUserId();
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
-  const gmSnap = await getDoc(doc(db, 'grandeMissaoProgress', userId));
+  const [gmSnap, userSnap] = await Promise.all([
+    getDoc(doc(db, 'grandeMissaoProgress', userId)),
+    getDoc(doc(db, 'users', userId)),
+  ]);
+  const userRole = userSnap.exists() ? (userSnap.data() as ClientUser).role : 'student';
 
   let progress = {
     currentStage: 1,
     completedStages: [] as number[],
+    unlockedCodes: {} as Record<number, string>,
     status: 'not_started',
   };
 
@@ -1211,39 +1340,71 @@ export async function clientGetGrandeMissao() {
     const d = gmSnap.data();
     progress = {
       currentStage: d.currentStage || 1,
-      completedStages: d.completedStages || [],
+      completedStages: Array.isArray(d.completedStages) ? d.completedStages : [],
+      unlockedCodes: d.unlockedCodes || {},
       status: d.status || 'in_progress',
     };
   }
 
+  const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => clientComputeWorldStats(userId, w, userRole)));
+  const allCompleted = allStats.every((st) => st.isWorldCompleted);
+
   return {
-    grandeMissao: GRANDE_MISSAO,
+    grandeMissao: {
+      ...GRANDE_MISSAO,
+      totalXp: PROGRESSION_CONFIG.XP_REWARDS.GRANDE_MISSAO,
+    },
     progress,
+    completed: progress.status === 'completed',
+    isUnlocked: allCompleted || userRole === 'teacher',
+    requiredWorldsCompleted: allCompleted,
   };
 }
 
-export async function clientSaveGrandeMissaoStage(stageNumber: number, answers: any) {
-  const userId = getActiveClientUserId();
+export async function clientSaveGrandeMissaoStage(payload: {
+  completedZones?: number[];
+  unlockedCodes?: Record<number, string>;
+  stageNumber?: number;
+}) {
+  const userId = await resolveClientUserId();
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+
+  const incomingZones = Array.isArray(payload?.completedZones)
+    ? payload.completedZones.filter((z) => typeof z === 'number' && !isNaN(z))
+    : typeof payload?.stageNumber === 'number' && !isNaN(payload.stageNumber)
+    ? [payload.stageNumber]
+    : [];
+
+  if (isTeacher) {
+    return {
+      success: true,
+      progress: {
+        currentStage: Math.min(6, Math.max(...incomingZones, 1)),
+        completedStages: incomingZones,
+        status: 'in_progress',
+      },
+    };
+  }
+
   const gmRef = doc(db, 'grandeMissaoProgress', userId);
   const now = new Date().toISOString();
 
-  let nextStage = stageNumber;
+  let nextStage = 1;
   let finalCompletedStages: number[] = [];
+  let finalCodes: Record<number, string> = {};
 
   await runTransaction(db, async (txn) => {
     const snap = await txn.get(gmRef);
-    let completedStages: number[] = [];
-    if (snap.exists()) {
-      completedStages = snap.data().completedStages || [];
-    }
-    if (!completedStages.includes(stageNumber)) {
-      completedStages.push(stageNumber);
-    }
-    finalCompletedStages = completedStages;
-    nextStage = Math.min(5, stageNumber + 1);
+    const existing = snap.exists() ? snap.data() : {};
+    const prevStages: number[] = Array.isArray(existing.completedStages) ? existing.completedStages : [];
+    finalCompletedStages = Array.from(new Set([...prevStages, ...incomingZones])).sort((a, b) => a - b);
+    finalCodes = { ...(existing.unlockedCodes || {}), ...(payload?.unlockedCodes || {}) };
+    nextStage = Math.min(6, Math.max(...finalCompletedStages, 1));
+    const currentStatus = existing.status === 'completed' ? 'completed' : 'in_progress';
 
     txn.set(
       gmRef,
@@ -1251,26 +1412,50 @@ export async function clientSaveGrandeMissaoStage(stageNumber: number, answers: 
         id: userId,
         userId,
         currentStage: nextStage,
-        completedStages,
-        status: completedStages.length >= 5 ? 'completed' : 'in_progress',
+        completedStages: finalCompletedStages,
+        unlockedCodes: finalCodes,
+        status: currentStatus,
         updatedAt: now,
       },
       { merge: true }
     );
   });
 
-  return { success: true, currentStage: nextStage, completedStages: finalCompletedStages };
+  return {
+    success: true,
+    progress: {
+      currentStage: nextStage,
+      completedStages: finalCompletedStages,
+      unlockedCodes: finalCodes,
+      status: 'in_progress',
+    },
+  };
 }
 
 export async function clientCompleteGrandeMissao() {
-  const userId = getActiveClientUserId();
+  const userId = await resolveClientUserId();
   if (!userId) throw new Error('Não autenticado');
 
   const db = getClientFirestore();
   const userSnap = await getDoc(doc(db, 'users', userId));
-  const isTeacher = userSnap.exists() && (userSnap.data() as ClientUser).role === 'teacher';
+  if (!userSnap.exists()) throw new Error('Utilizador não encontrado');
+  const uData = userSnap.data() as ClientUser;
+  const isTeacher = uData.role === 'teacher';
   if (isTeacher) {
-    return { success: true, xpGain: 0 };
+    return {
+      success: true,
+      xpGain: 0,
+      totalXp: 0,
+      message: 'Grande Missão testada com sucesso (Modo Teste do Professor).',
+    };
+  }
+
+  const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => clientComputeWorldStats(userId, w, uData.role)));
+  const allCompleted = allStats.every((st) => st.isWorldCompleted);
+  if (!allCompleted) {
+    throw new Error(
+      `A Grande Missão apenas pode ser concluída após aprovação em todos os 5 Mundos curriculares (todas as atividades concluídas e média global superior a ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%).`
+    );
   }
 
   const now = new Date().toISOString();
@@ -1278,7 +1463,7 @@ export async function clientCompleteGrandeMissao() {
   const userRef = doc(db, 'users', userId);
   const txId = `xp-${crypto.randomUUID()}`;
   const txRef = doc(db, 'xpTransactions', txId);
-  const xpGain = 150;
+  const xpGain = PROGRESSION_CONFIG.XP_REWARDS.GRANDE_MISSAO;
 
   let alreadyCompleted = false;
   let finalUserXp = 0;
@@ -1286,7 +1471,7 @@ export async function clientCompleteGrandeMissao() {
   await runTransaction(db, async (txn) => {
     const uSnap = await txn.get(userRef);
     if (!uSnap.exists()) throw new Error('Utilizador não encontrado');
-    const cur = (uSnap.data() as ClientUser).xp || 0;
+    const cur = Number((uSnap.data() as ClientUser).xp) || 0;
 
     const gmSnap = await txn.get(gmRef);
     if (gmSnap.exists() && gmSnap.data().status === 'completed') {
@@ -1306,8 +1491,8 @@ export async function clientCompleteGrandeMissao() {
         id: userId,
         userId,
         status: 'completed',
-        currentStage: 5,
-        completedStages: [1, 2, 3, 4, 5],
+        currentStage: 6,
+        completedStages: [1, 2, 3, 4, 5, 6],
         completedAt: now,
         updatedAt: now,
       },
@@ -1318,12 +1503,10 @@ export async function clientCompleteGrandeMissao() {
     txn.set(txRef, {
       id: txId,
       userId,
-      amount: xpGain,
-      reason: 'Grande Missão Final Concluída',
       sourceType: 'grande_missao',
-      sourceId: 'grande-missao-final',
+      sourceId: GRANDE_MISSAO.id,
       previousBest: 0,
-      newBest: 150,
+      newBest: xpGain,
       xpGain,
       createdAt: now,
     });
@@ -1333,14 +1516,25 @@ export async function clientCompleteGrandeMissao() {
     await clientCheckBadges(userId);
   }
 
-  return { success: true, xpGain: alreadyCompleted ? 0 : xpGain, totalXp: finalUserXp };
+  return {
+    success: true,
+    xpGain: alreadyCompleted ? 0 : xpGain,
+    totalXp: finalUserXp,
+    message: alreadyCompleted
+      ? 'Já concluíste a Grande Missão e recebeste a recompensa.'
+      : `Parabéns! Concluíste com distinção a Grande Missão A ESCOLA DO FUTURO! +${xpGain} XP atribuídos!`,
+  };
 }
 
 // -------------------------------------------------------------
-// BADGE CHECKER
+// BADGE CHECKER (Matches server/routes/pedagogical.ts 100%)
 // -------------------------------------------------------------
 async function clientCheckBadges(userId: string) {
   const db = getClientFirestore();
+  const userSnap = await getDoc(doc(db, 'users', userId));
+  if (!userSnap.exists()) return;
+  const user = userSnap.data() as ClientUser;
+
   const worldBadgeMap: Record<number, string> = {
     1: 'guardiao-digital',
     2: 'detetive-digital',
@@ -1351,7 +1545,7 @@ async function clientCheckBadges(userId: string) {
 
   let completedWorldsCount = 0;
   for (let w = 1; w <= 5; w++) {
-    const stats = await clientComputeWorldStats(userId, w, 'student');
+    const stats = await clientComputeWorldStats(userId, w, user.role);
     if (stats.isWorldCompleted) {
       completedWorldsCount++;
       const bId = worldBadgeMap[w];
@@ -1366,11 +1560,26 @@ async function clientCheckBadges(userId: string) {
     }
   }
 
-  if (completedWorldsCount >= 5) {
-    const masterBadgeRef = doc(db, 'badges', `${userId}_mestre-das-tic`);
+  // Centurion: >= 1000 XP or 100% in an assessment
+  const assessSnap = await getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId)));
+  const has100Assess = assessSnap.docs.some((d) => Number(d.data().percentage) === 100);
+  if ((Number(user.xp) || 0) >= PROGRESSION_CONFIG.BADGES.CENTURION_XP_THRESHOLD || has100Assess) {
+    const centRef = doc(db, 'badges', `${userId}_centuriao-digital`);
+    await setDoc(
+      centRef,
+      { id: `${userId}_centuriao-digital`, userId, badgeId: 'centuriao-digital', awardedAt: new Date().toISOString() },
+      { merge: true }
+    ).catch(() => {});
+  }
+
+  // Master: Grande Missão completed + all 5 worlds completed
+  const gmSnap = await getDoc(doc(db, 'grandeMissaoProgress', userId));
+  const hasGM = gmSnap.exists() && gmSnap.data().status === 'completed';
+  if (hasGM && completedWorldsCount >= 5) {
+    const masterBadgeRef = doc(db, 'badges', `${userId}_mestre-da-missao-tic`);
     await setDoc(
       masterBadgeRef,
-      { id: `${userId}_mestre-das-tic`, userId, badgeId: 'mestre-das-tic', awardedAt: new Date().toISOString() },
+      { id: `${userId}_mestre-da-missao-tic`, userId, badgeId: 'mestre-da-missao-tic', awardedAt: new Date().toISOString() },
       { merge: true }
     ).catch(() => {});
   }

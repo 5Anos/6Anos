@@ -283,7 +283,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
             'Muito obrigado pela atenção de todos! 🚀',
           ],
           bulletsOverloaded: [
-            'Foi esta a nossa pesquisa e agora já sabem que quando vêem vídeos no YouTube a informação vem a viajar por baixo de água e não pelo céu.',
+            'Foi esta a nossa pesquisa e agora já sabem que quando veem vídeos no YouTube a informação vem a viajar por baixo de água e não pelo céu.',
           ],
         },
       ],
@@ -339,8 +339,8 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
           </p>
 
           <div className="pt-2 flex flex-wrap gap-2 text-xs font-bold text-blue-100">
-            <span className="bg-white/10 px-3 py-1 rounded-lg">🎯 Para Alunos do 6.º Ano (~11-12 anos)</span>
-            <span className="bg-white/10 px-3 py-1 rounded-lg">💡 Aprendizagem Autónoma</span>
+            <span className="bg-white/10 px-3 py-1 rounded-lg">🎯 Para Alunos do 2.º Ciclo (10–12 anos)</span>
+            <span className="bg-white/10 px-3 py-1 rounded-lg">💡 Aprende ao Teu Ritmo</span>
             <span className="bg-white/10 px-3 py-1 rounded-lg">⭐ Ferramentas Gratuitas & Seguras</span>
           </div>
         </div>
@@ -537,8 +537,8 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
 
             <div className="flex items-center gap-3 shrink-0">
               <div className="bg-amber-50 border border-amber-200 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-black uppercase text-amber-800 block">Recompensa</span>
-                <span className="text-sm font-black text-amber-950">+50 XP no Laboratório</span>
+                <span className="text-[10px] font-black uppercase text-amber-800 block">Treino Prático</span>
+                <span className="text-sm font-black text-amber-950">Projetor da Sala</span>
               </div>
             </div>
           </div>
@@ -610,7 +610,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
             </div>
 
             <p className="text-sm text-slate-700 leading-relaxed">
-              Na escola, todos os alunos têm acesso ao Microsoft 365 através do email institucional. Podes criar as tuas apresentações diretamente no navegador sem precisar de instalar nada!
+              Na escola, todos os alunos têm acesso ao Microsoft 365 através do email da escola. Podes criar as tuas apresentações diretamente no navegador sem precisar de instalar nada!
             </p>
 
             {/* OS 5 PASSOS DO OUTLOOK */}
@@ -744,7 +744,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
             <div className="flex items-center gap-3 text-purple-600">
               <Layers className="w-6 h-6" />
               <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                4. O Esqueleto Perfeito de uma Apresentação Escolar (4 a 6 Slides) 뼈
+                4. O Esqueleto Perfeito de uma Apresentação Escolar (4 a 6 Slides) 🦴
               </h3>
             </div>
 
@@ -919,7 +919,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                   <span>🎮 Laboratório Interativo</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-white">
-                  Simulador do Projetor da Sala de Aula 📽️🏫
+                  Testa o Projetor da Sala de Aula 📽️🏫
                 </h3>
                 <p className="text-xs text-slate-300">
                   Constrói a tua apresentação de 4 slides, testa a reação da turma e recebe o teu certificado de Apresentador Campeão!
@@ -1205,12 +1205,12 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                 <div className="p-4 rounded-2xl bg-white/10 border border-white/15 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-white uppercase tracking-wider">
-                      Diagnóstico da Apresentação Oral
+                      Avaliação da Tua Apresentação
                     </span>
                     <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
                       currentPptScore >= 80 ? 'bg-emerald-400 text-emerald-950' : 'bg-amber-400 text-amber-950'
                     }`}>
-                      {currentPptScore === 100 ? '🌟 Apresentador Nota 10!' : currentPptScore >= 70 ? '👍 Bom Desempenho' : '⚠️ Precisa de Treino'}
+                      {currentPptScore === 100 ? '🌟 Apresentador 5 Estrelas!' : currentPptScore >= 70 ? '👍 Bom Desempenho' : '⚠️ Precisa de Treino'}
                     </span>
                   </div>
 
@@ -1246,7 +1246,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                     className="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-slate-950 font-black text-xs transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>Validar a Minha Apresentação (+50 XP)</span>
+                    <span>Testar a Minha Apresentação</span>
                   </button>
 
                   {pptSubmitted && (
@@ -1271,7 +1271,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                 <CheckCircle2 className="w-6 h-6" />
                 <div>
                   <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                    7. Checklist do Apresentador Nota 10 (Radar dos 5 Vistos) ✅
+                    7. Lista do Apresentador 5 Estrelas (Os 5 Vistos) ✅
                   </h3>
                   <p className="text-xs text-slate-500">
                     Passa por estes 5 pontos no PowerPoint antes do dia da apresentação oral:

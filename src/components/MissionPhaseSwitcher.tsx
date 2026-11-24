@@ -79,21 +79,21 @@ export const MissionPhaseSwitcher: React.FC<MissionPhaseSwitcherProps> = ({
 
   return (
     <div className="space-y-2">
-      {/* 2-Phase Switcher Tabs (Designed for Portuguese 5th-grade 10-year-old students) */}
-      <div className="bg-slate-100/90 p-1.5 rounded-2xl flex items-center gap-2 border border-slate-200 shadow-2xs">
+      {/* 2-Phase Switcher Tabs (Designed for Portuguese 6th-grade students) */}
+      <div className="bg-slate-100/90 p-1.5 rounded-2xl flex items-stretch gap-2 border border-slate-200 shadow-2xs">
         <button
           type="button"
           onClick={() => {
             onPhaseChange('theory');
           }}
-          className={`flex-1 py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-3 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 text-center leading-tight transition-all cursor-pointer ${
             currentPhase === 'theory'
               ? colorStyles.activeTheory
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
           }`}
         >
           <BookOpen className="w-4 h-4 shrink-0" />
-          <span>💡 1. Guia Rápido (Teoria & Imagem)</span>
+          <span>💡 1. Vamos aprender?</span>
         </button>
 
         <button
@@ -101,49 +101,55 @@ export const MissionPhaseSwitcher: React.FC<MissionPhaseSwitcherProps> = ({
           onClick={() => {
             onPhaseChange('simulator');
           }}
-          className={`flex-1 py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-3 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-center leading-tight transition-all cursor-pointer ${
             currentPhase === 'simulator'
               ? colorStyles.activeSim
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
           }`}
         >
           <Gamepad2 className="w-4 h-4 shrink-0" />
-          <span>🎮 2. Simulador Interativo</span>
+          <span>🎮 2. Vamos testar os teus conhecimentos</span>
           {simulatorCompleted && (
-            <span className="ml-1 bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px] font-black">
-              ✓ {score ? `${score}%` : 'Feito'}
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-black tabular-nums whitespace-nowrap ${
+                currentPhase === 'simulator'
+                  ? 'bg-white/25 text-white'
+                  : 'bg-emerald-100 text-emerald-800'
+              }`}
+            >
+              ✓ {score !== null && score !== undefined ? `${Math.round(score)}%` : 'Feito'}
             </span>
           )}
         </button>
       </div>
 
-      {/* Helpful cognitive scaffolding hint for 10-year-olds */}
-      <div className={`px-4 py-2 rounded-xl border text-[11px] sm:text-xs font-semibold flex items-center justify-between gap-2 ${colorStyles.banner}`}>
+      {/* Helpful cognitive scaffolding hint for 6th-grade students */}
+      <div className={`px-4 py-2.5 rounded-xl border text-[11px] sm:text-xs font-semibold flex items-center justify-between gap-2 ${colorStyles.banner}`}>
         <div className="flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-500 fill-current" />
           <span>
             {currentPhase === 'theory'
-              ? 'Lê o guia com atenção antes de avançar para o desafio prático.'
-              : 'Aplica o que aprendeste no simulador. Se tiveres dúvidas, podes voltar ao Guia Rápido a qualquer momento!'}
+              ? 'Lê tudo com muita atenção e observa bem os exemplos antes de testares os teus conhecimentos!'
+              : 'Mostra o que aprendeste e testa os teus conhecimentos! Se tiveres dúvidas, podes voltar a «Vamos aprender?» a qualquer momento.'}
           </span>
         </div>
         {currentPhase === 'theory' ? (
           <button
             type="button"
             onClick={() => onPhaseChange('simulator')}
-            className="hidden sm:inline-flex items-center gap-1 font-black text-xs underline cursor-pointer hover:opacity-80"
+            className="hidden sm:inline-flex items-center gap-1 font-black text-xs underline cursor-pointer hover:opacity-80 whitespace-nowrap"
           >
-            <span>Ir para o Desafio</span>
+            <span>Testar conhecimentos</span>
             <ArrowRight className="w-3 h-3" />
           </button>
         ) : (
           <button
             type="button"
             onClick={() => onPhaseChange('theory')}
-            className="hidden sm:inline-flex items-center gap-1 font-black text-xs underline cursor-pointer hover:opacity-80"
+            className="hidden sm:inline-flex items-center gap-1 font-black text-xs underline cursor-pointer hover:opacity-80 whitespace-nowrap"
           >
             <ArrowLeft className="w-3 h-3" />
-            <span>Rever Teoria</span>
+            <span>Vamos aprender?</span>
           </button>
         )}
       </div>

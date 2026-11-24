@@ -150,8 +150,8 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
       <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-xs text-slate-700 shadow-2xs">
         <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
         <div>
-          <strong>Critério de Desbloqueio e Conclusão:</strong> Média de pelo menos{' '}
-          <span className="text-emerald-700 font-bold font-mono">{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</span> (ex: {PROGRESSION_CONFIG.PASSING_THRESHOLD}% ou mais desbloqueia o mundo seguinte; inferior mantém bloqueado).
+          <strong>Critério de Desbloqueio e Conclusão:</strong> Todos os simuladores e o quiz de avaliação concluídos com média do mundo superior a{' '}
+          <span className="text-emerald-700 font-bold font-mono">{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</span> (ex: 70,1% ou mais desbloqueia o mundo seguinte; 70% ou inferior mantém bloqueado).
         </div>
       </div>
 
@@ -183,7 +183,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   </tr>
                 ) : (
                   filteredPautaGeral.map((item: any) => {
-                    const isPassedGlobal = item.globalAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                    const isPassedGlobal = item.globalAverage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
                     return (
                       <tr
@@ -207,7 +207,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         </td>
 
                         {item.worldScores.map((score: number, idx: number) => {
-                          const isWorldPassed = score >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                          const isWorldPassed = score > PROGRESSION_CONFIG.PASSING_THRESHOLD;
                           return (
                             <td key={idx} className="py-3 px-4 text-center font-mono">
                               <span
@@ -267,7 +267,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                 Mundo {selectedWorldId}: {currentWorldPauta.worldTitle}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Pauta detalhada com simuladores, desafios, missões e avaliação final.
+                Pauta detalhada com simuladores concluídos, média dos simuladores e quiz de avaliação final.
               </p>
             </div>
             <div className="text-xs text-amber-700 font-bold">
@@ -282,7 +282,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   <th className="py-3.5 px-4">Aluno</th>
                   <th className="py-3.5 px-4">Turma</th>
                   <th className="py-3.5 px-4 text-center">Simuladores Concluídos</th>
-                  <th className="py-3.5 px-4 text-center">Desafio Integrador</th>
+                  <th className="py-3.5 px-4 text-center">Média Simuladores</th>
                   <th className="py-3.5 px-4 text-center">Quiz de Avaliação</th>
                   <th className="py-3.5 px-4 text-center">Média do Mundo</th>
                   <th className="py-3.5 px-4 text-center">Mundo Seguinte</th>
@@ -297,9 +297,18 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                   </tr>
                 ) : (
                   filteredWorldStudents.map((st: any) => {
-                    const isWorldPassed = st.worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                    const isWorldPassed =
+                      typeof st.isWorldPassed === 'boolean'
+                        ? st.isWorldPassed
+                        : st.worldAverage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                    const hasUnlockedNext = Boolean(st.isNextUnlocked ?? st.unlockedNext ?? isWorldPassed);
                     const simsDone = st.simulatorsCount ?? st.simulatorsCompleted ?? 0;
                     const simsTotal = st.simulatorsTotal ?? 5;
+                    const simAvg = st.simulatorsAvg ?? 0;
+                    const hasQuizAttempt =
+                      (st.attemptsCount ?? 0) > 0 ||
+                      (st.officialAssessmentScore !== null && st.officialAssessmentScore !== undefined) ||
+                      st.assessmentScore > 0;
 
                     return (
                       <tr
@@ -335,24 +344,43 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         </td>
 
                         <td className="py-3 px-4 text-center font-mono text-xs">
-                          {st.challengeScore > 0 || st.challengeCompleted ? (
-                            <span className="text-emerald-700 font-bold">{st.challengeScore || 100} XP</span>
+                          {simsDone > 0 ? (
+                            <span
+                              className={`px-2 py-0.5 rounded font-bold ${
+                                simAvg > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : simAvg >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+                              }`}
+                            >
+                              {simAvg}%
+                            </span>
                           ) : (
                             <span className="text-slate-400">—</span>
                           )}
                         </td>
 
                         <td className="py-3 px-4 text-center font-mono text-xs">
-                          {st.assessmentScore > 0 ? (
-                            <span
-                              className={`px-2 py-0.5 rounded font-bold ${
-                                st.assessmentScore >= PROGRESSION_CONFIG.PASSING_THRESHOLD
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
-                              }`}
-                            >
-                              {st.assessmentScore}% {st.assessmentMention ? `(${st.assessmentMention})` : ''}
-                            </span>
+                          {hasQuizAttempt ? (
+                            <div className="inline-flex flex-col items-center gap-0.5">
+                              <span
+                                className={`px-2 py-0.5 rounded font-bold ${
+                                  st.assessmentScore >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                }`}
+                              >
+                                {st.assessmentScore}% {st.assessmentMention && st.assessmentMention !== '—' ? `(${st.assessmentMention})` : ''}
+                              </span>
+                              {st.officialAssessmentScore !== null &&
+                                st.officialAssessmentScore !== undefined &&
+                                st.officialAssessmentScore !== st.assessmentScore && (
+                                  <span className="text-[10px] text-slate-500 font-sans">
+                                    1.ª Oficial: <strong className="font-mono text-slate-700">{st.officialAssessmentScore}%</strong>
+                                  </span>
+                                )}
+                            </div>
                           ) : (
                             <span className="text-slate-400">—</span>
                           )}
@@ -362,7 +390,7 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                           <span
                             className={`inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${
                               st.worldAverage > 0
-                                ? isWorldPassed
+                                ? st.worldAverage > PROGRESSION_CONFIG.PASSING_THRESHOLD
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : 'bg-rose-50 text-rose-700 border border-rose-200'
                                 : 'bg-slate-100 text-slate-500 border border-slate-200'
@@ -373,15 +401,15 @@ export const TeacherPautasTab: React.FC<TeacherPautasTabProps> = ({
                         </td>
 
                         <td className="py-3 px-4 text-center">
-                          {st.unlockedNext ? (
+                          {hasUnlockedNext ? (
                             <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                               <CheckCircle2 className="w-3 h-3" />
-                              Desbloqueado
+                              {selectedWorldId === 5 ? 'Concluído' : 'Desbloqueado'}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
                               <XCircle className="w-3 h-3" />
-                              Bloqueado
+                              {selectedWorldId === 5 ? 'Em Curso' : 'Bloqueado'}
                             </span>
                           )}
                         </td>

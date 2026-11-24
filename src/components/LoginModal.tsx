@@ -43,7 +43,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       onClose();
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      setError(err.message || 'Credenciais incorretas. Verifica o teu nome de utilizador/palavra-passe ou pede apoio à tua Professora.');
+      setError(err.message || 'Nome de utilizador ou palavra-passe errados. Confirma no teu cartão ou pede ajuda à Professora.');
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
               <p className="text-[11px] text-slate-500">
-                Introduz o teu <strong>Username</strong> do cartão de acesso escolar ou o teu email institucional.
+                Escreve o <strong>nome de utilizador</strong> que está no teu cartão escolar (ou o email da escola).
               </p>
             </div>
 
@@ -138,7 +138,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               disabled={loading}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm py-3.5 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
             >
-              <span>{loading ? 'A verificar credenciais...' : 'Entrar na Plataforma'}</span>
+              <span>{loading ? 'A entrar...' : 'Entrar na Missão TIC'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -147,10 +147,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950 text-xs space-y-1.5">
             <div className="flex items-center gap-2 font-black text-amber-900">
               <GraduationCap className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Contas Geridas pela Professora</span>
+              <span>Precisas de ajuda para entrar?</span>
             </div>
             <p className="text-[11px] text-slate-700 leading-relaxed">
-              As contas dos alunos são criadas e fornecidas pela Professora de TIC. Se ainda não tens o teu cartão de acesso ou se te esqueceste da palavra-passe, solicita o teu código na sala de aula.
+              A tua conta é criada pela Professora de TIC. Se ainda não tens o teu cartão ou te esqueceste da palavra-passe, pede ajuda na aula!
             </p>
           </div>
         </div>

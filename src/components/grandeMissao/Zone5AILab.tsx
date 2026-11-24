@@ -85,7 +85,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
 
     const prompt = promptOptions.find((p) => p.id === selectedPrompt);
     if (!prompt) {
-      setFeedbackError('Tens de selecionar um prompt para calibrar o assistente de IA.');
+      setFeedbackError('Tens de escolher um prompt para configurar o assistente de IA.');
       return;
     }
 
@@ -100,7 +100,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
 
     if (!hasPrivacy || !hasVerify || hasBlind) {
       setFeedbackError(
-        'Atenção às diretrizes éticas: Ativa as regras de proteção de dados e verificação crítica (sem marcar a confiança cega).'
+        'Atenção às regras de segurança: Ativa a proteção de dados e a verificação crítica (sem marcar a confiança cega).'
       );
       return;
     }
@@ -150,7 +150,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
             </div>
             <div>
               <strong className="text-indigo-300 block mb-0.5">Dica de IA Ética:</strong>
-              Um bom prompt especifica o papel (papel de tutor), o formato desejado e delimita o tema sem pedir nem fornecer informações pessoais de ninguém.
+              Um bom prompt indica o papel (ex.: tutor), o formato desejado e explica bem o tema, sem pedir nem partilhar dados pessoais de ninguém.
             </div>
           </div>
         )}
@@ -168,7 +168,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
               </h3>
             </div>
             <span className="text-[10px] font-bold uppercase bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">
-              Calibração EDU-AI
+              Configurar IA
             </span>
           </div>
 
@@ -221,12 +221,12 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
               <ShieldCheck className="w-5 h-5 text-indigo-600" />
               <h3 className="text-sm font-black text-slate-900">
-                2. Firewall Ético & Proteção de Dados
+                2. Regras de Segurança & Privacidade
               </h3>
             </div>
 
             <p className="text-xs text-slate-600 font-medium">
-              Ativa as diretrizes obrigatórias de segurança no ecossistema de IA:
+              Ativa as regras obrigatórias para usar a IA com segurança:
             </p>
 
             <div className="space-y-2">
@@ -272,7 +272,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
               <div className="p-4 bg-indigo-50 border border-indigo-300 rounded-2xl space-y-2 animate-fadeIn">
                 <div className="flex items-center gap-2 text-indigo-900 font-black text-xs">
                   <CheckCircle2 className="w-5 h-5 text-indigo-600 shrink-0" />
-                  <span>Laboratório de IA Calibrado!</span>
+                  <span>Laboratório de IA Configurado!</span>
                 </div>
                 <div className="p-2.5 bg-indigo-950 text-indigo-300 rounded-xl font-mono text-xs font-black text-center tracking-widest border border-indigo-700 shadow-xs">
                   CÓDIGO 5: #AI-ETHICS-PASS
@@ -294,7 +294,7 @@ export const Zone5AILab: React.FC<Zone5Props> = ({
                 onClick={handleValidateZone}
                 className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
               >
-                <span>Calibrar Assistente IA</span>
+                <span>Confirmar Respostas</span>
                 <KeyRound className="w-4 h-4" />
               </button>
             ) : (

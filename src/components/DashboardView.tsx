@@ -219,7 +219,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               }`}
             >
               <span>
-                {dailyTip?.alreadyClaimed ? 'Reclamado Hoje ✓' : 'Saber mais'}
+                {dailyTip?.alreadyClaimed ? 'Dica Lida Hoje ✓' : 'Já li! Ganhar XP'}
               </span>
               {!dailyTip?.alreadyClaimed && <ArrowRight className="w-4 h-4" />}
             </button>
@@ -335,7 +335,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     onSelectWorld(1);
                   }}
                   className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Entra na tua conta para explorar este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island1Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-50 opacity-80' : ''}`} />
@@ -358,7 +358,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-extrabold text-blue-600 mb-1">
-                        {user ? `${avg}%` : 'Reservado'}
+                        {user ? `${avg}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
@@ -382,7 +382,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Sessão Obrigatória'
+                          ? 'Entrar na Conta'
                           : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
@@ -410,7 +410,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     onSelectWorld(2);
                   }}
                   className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Entra na tua conta para explorar este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island2Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-50 opacity-80' : ''}`} />
@@ -433,7 +433,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-extrabold text-sky-600 mb-1">
-                        {user ? `${avg}%` : 'Reservado'}
+                        {user ? `${avg}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
@@ -457,7 +457,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Sessão Obrigatória'
+                          ? 'Entrar na Conta'
                           : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
@@ -485,7 +485,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     onSelectWorld(3);
                   }}
                   className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Entra na tua conta para explorar este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island3Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-50 opacity-80' : ''}`} />
@@ -508,7 +508,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-bold text-purple-600 mb-1">
-                        {user ? `${avg}%` : 'Reservado'}
+                        {user ? `${avg}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
@@ -532,7 +532,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Sessão Obrigatória'
+                          ? 'Entrar na Conta'
                           : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
@@ -560,7 +560,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     onSelectWorld(4);
                   }}
                   className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Entra na tua conta para explorar este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island4Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-50 opacity-80' : ''}`} />
@@ -583,7 +583,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-bold text-amber-600 mb-1">
-                        {user ? `${avg}%` : 'Reservado'}
+                        {user ? `${avg}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
@@ -607,7 +607,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Sessão Obrigatória'
+                          ? 'Entrar na Conta'
                           : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
@@ -635,7 +635,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     onSelectWorld(5);
                   }}
                   className="group cursor-pointer flex flex-col items-center text-center transition-transform hover:-translate-y-1.5"
-                  title={!user ? 'Início de sessão obrigatório para ver este mundo' : undefined}
+                  title={!user ? 'Entra na tua conta para explorar este mundo' : undefined}
                 >
                   <div className="w-full h-36 flex items-center justify-center relative">
                     <Island5Artwork className={`w-full h-full drop-shadow-sm ${!user ? 'grayscale-50 opacity-80' : ''}`} />
@@ -658,7 +658,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <div className="my-2">
                       <div className="flex justify-end text-[10px] font-bold text-indigo-600 mb-1">
-                        {user ? `${avg}%` : 'Reservado'}
+                        {user ? `${avg}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
@@ -682,7 +682,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!user && <Lock className="w-3.5 h-3.5 text-amber-700" />}
                       <span>
                         {!user
-                          ? 'Sessão Obrigatória'
+                          ? 'Entrar na Conta'
                           : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
                           ? 'Concluído'
                           : avg > 0
@@ -758,7 +758,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {!user ? (
                           <>
                             <Lock className="w-3.5 h-3.5 text-amber-400" />
-                            <span>Sessão Obrigatória</span>
+                            <span>Entrar na Conta</span>
                           </>
                         ) : (
                           <>
@@ -912,10 +912,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wide block">
-                  Completa o simulador
+                  Próxima atividade
                 </span>
                 <h4 className="text-sm font-black text-slate-900 mt-0.5">
-                  Constrói uma Password Forte
+                  Cria uma Palavra-Passe Forte
                 </h4>
                 <span className="inline-block mt-1 bg-[#FEF08A] text-[#854D0E] text-xs font-black px-2.5 py-0.5 rounded-md">
                   +30 XP
@@ -1053,33 +1053,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <span className="text-[11px] font-black uppercase tracking-wider text-amber-700 block mb-1">
-              Desbloqueio Progressivo
+              Mundo Bloqueado
             </span>
             <h3 className="text-xl font-black text-slate-900 mb-2">
               {lockedModalInfo.worldName} Bloqueado
             </h3>
 
             <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
-              Para acederes a este mundo, precisas de atingir uma taxa de interação e sucesso global (dos simuladores e do quiz de avaliação) de pelo menos <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> no <strong>{lockedModalInfo.requiredWorldName}</strong>.
+              Para desbloqueares este mundo, precisas de terminar as missões e o Quiz do <strong>{lockedModalInfo.requiredWorldName}</strong> com média acima de <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong>!
             </p>
 
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 text-left">
               <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                 <span>O teu progresso no {lockedModalInfo.requiredWorldName.split('—')[0]}</span>
-                <span className={`font-black ${lockedModalInfo.prevAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-600' : 'text-amber-600'}`}>
-                  {lockedModalInfo.prevAvg}% / &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
+                <span className={`font-black ${lockedModalInfo.prevAvg > PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {lockedModalInfo.prevAvg}% / &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    lockedModalInfo.prevAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'bg-emerald-500' : 'bg-amber-500'
+                    lockedModalInfo.prevAvg > PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'bg-emerald-500' : 'bg-amber-500'
                   }`}
                   style={{ width: `${Math.min(100, (lockedModalInfo.prevAvg / PROGRESSION_CONFIG.PASSING_THRESHOLD) * 100)}%` }}
                 />
               </div>
               <p className="text-[11px] text-slate-500 mt-2">
-                💡 Dica: Conclui os simuladores práticos e o quiz de avaliação desse mundo para subires a tua média global!
+                💡 Dica: Faz todas as atividades e o Quiz desse mundo para subires a tua média!
               </p>
             </div>
 
@@ -1092,13 +1092,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 }}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm py-3 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
               >
-                Praticar no Mundo {lockedModalInfo.requiredWorldId}
+                Ir treinar no Mundo {lockedModalInfo.requiredWorldId}
               </button>
               <button
                 onClick={() => setLockedModalInfo(null)}
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm py-3 px-4 rounded-xl transition-colors cursor-pointer"
               >
-                Compreendi
+                Percebido!
               </button>
             </div>
           </div>
@@ -1122,14 +1122,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <span className="text-[11px] font-black uppercase tracking-wider text-indigo-700 block mb-1">
-              Desafio Supremo
+              Desafio Final
             </span>
             <h3 className="text-xl font-black text-slate-900 mb-2">
               Grande Missão Final Bloqueada
             </h3>
 
             <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
-              A <strong>Grande Missão Final (A ESCOLA DO FUTURO)</strong> é o cume da aprendizagem. Para a desbloqueares, tens de obter uma média superior a <strong>70%</strong> em todos os 5 Mundos curriculares!
+              A <strong>Grande Missão Final (A ESCOLA DO FUTURO)</strong> é a aventura final! Para a desbloqueares, termina os 5 Mundos com média acima de <strong>70%</strong>!
             </p>
 
             <button

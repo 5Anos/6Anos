@@ -247,7 +247,7 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-amber-400 text-amber-950 shadow-xs">
-                  👑 Desafio Integrador Final
+                  👑 Desafio Final
                 </span>
 
                 {isFullyCompleted ? (
@@ -287,14 +287,14 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
 
               <p className="text-xs text-slate-300 font-medium leading-relaxed mb-4">
                 {isCoreUnlocked
-                  ? 'Todos os 5 códigos foram recuperados! Entra no Núcleo, insere os fragmentos e toma a decisão ética final!'
-                  : 'Requer os 5 Códigos de Segurança dos setores 1 a 5 para abrir a consola central da escola.'}
+                  ? 'Já recuperaste os 5 códigos! Entra no Núcleo, escreve os códigos e responde às 5 decisões finais!'
+                  : 'Precisas dos 5 Códigos de Segurança dos setores 1 a 5 para abrir a consola central da escola.'}
               </p>
             </div>
 
             <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
               <span className="text-[11px] font-mono text-amber-400 font-bold">
-                {isCoreUnlocked ? 'Pronto para reinicialização' : `${count1to5Completed}/5 Códigos`}
+                {isCoreUnlocked ? 'Pronto para ligar!' : `${count1to5Completed}/5 Códigos`}
               </span>
 
               <button

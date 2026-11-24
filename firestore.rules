@@ -1,66 +1,383 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Application collections managed by the backend server
+    // =========================================================================
+    // Default-Deny Safety Net (blocks any unknown or deprecated collections
+    // such as legacy `userBadges` and unused `missions`)
+    // =========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // Reusable Validation Helpers
+    // =========================================================================
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isNonEmptyString(val, maxLen) {
+      return val is string && val.size() >= 1 && val.size() <= maxLen;
+    }
+
+    function isOptionalString(data, field, maxLen) {
+      return !(field in data) || data[field] == null || (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    function isOptionalBool(data, field) {
+      return !(field in data) || data[field] == null || data[field] is bool;
+    }
+
+    function isOptionalNumberRange(data, field, minVal, maxVal) {
+      return !(field in data) || data[field] == null || (data[field] is number && data[field] >= minVal && data[field] <= maxVal);
+    }
+
+    function isValidScore(val) {
+      return val is number && val >= 0 && val <= 100;
+    }
+
+    function isValidWorldId(val) {
+      return val is number && val >= 1 && val <= 5;
+    }
+
+    // =========================================================================
+    // Entity Schema Blueprints
+    // =========================================================================
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'role', 'xp', 'createdAt'])
+        && data.keys().hasOnly([
+          'id', 'name', 'email', 'passwordHash', 'passwordSalt', 'nickname',
+          'avatar', 'role', 'classId', 'locale', 'xp', 'blocked',
+          'mustChangePassword', 'fullName', 'turma', 'studentNumber',
+          'username', 'initialPassword', 'needsHelp', 'helpReason',
+          'createdAt', 'updatedAt', 'lastLoginAt'
+        ])
+        && isValidId(data.id)
+        && isNonEmptyString(data.name, 200)
+        && data.role in ['student', 'teacher']
+        && data.xp is number && data.xp >= 0 && data.xp <= 1000000
+        && isNonEmptyString(data.createdAt, 64)
+        && isOptionalString(data, 'email', 200)
+        && isOptionalString(data, 'passwordHash', 256)
+        && isOptionalString(data, 'passwordSalt', 128)
+        && isOptionalString(data, 'nickname', 100)
+        && isOptionalString(data, 'avatar', 100)
+        && isOptionalString(data, 'classId', 128)
+        && isOptionalString(data, 'locale', 10)
+        && isOptionalBool(data, 'blocked')
+        && isOptionalBool(data, 'mustChangePassword')
+        && isOptionalString(data, 'fullName', 200)
+        && isOptionalString(data, 'turma', 50)
+        && isOptionalNumberRange(data, 'studentNumber', 0, 9999)
+        && isOptionalString(data, 'username', 100)
+        && isOptionalString(data, 'initialPassword', 100)
+        && isOptionalBool(data, 'needsHelp')
+        && isOptionalString(data, 'helpReason', 300)
+        && isOptionalString(data, 'updatedAt', 64)
+        && isOptionalString(data, 'lastLoginAt', 64);
+    }
+
+    function isValidClass(data) {
+      return data.keys().hasAll(['id', 'name', 'createdAt'])
+        && data.keys().hasOnly(['id', 'name', 'code', 'archived', 'visibility', 'createdAt', 'updatedAt'])
+        && isValidId(data.id)
+        && isNonEmptyString(data.name, 100)
+        && isNonEmptyString(data.createdAt, 64)
+        && isOptionalString(data, 'code', 50)
+        && isOptionalBool(data, 'archived')
+        && (!( 'visibility' in data ) || data.visibility == null || data.visibility is map)
+        && isOptionalString(data, 'updatedAt', 64);
+    }
+
+    function isValidSession(data) {
+      return data.keys().hasAll(['id', 'userId', 'createdAt', 'expiresAt'])
+        && data.keys().hasOnly(['id', 'userId', 'createdAt', 'expiresAt'])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isNonEmptyString(data.createdAt, 64)
+        && isNonEmptyString(data.expiresAt, 64);
+    }
+
+    function isValidActivityProgress(data) {
+      return data.keys().hasAll(['id', 'userId', 'activityId', 'worldId', 'bestScore', 'attempts', 'completed', 'lastAttemptAt'])
+        && data.keys().hasOnly([
+          'id', 'userId', 'activityId', 'worldId', 'firstScore', 'bestScore',
+          'latestScore', 'score', 'attempts', 'awardedXp', 'completed',
+          'durationSeconds', 'firstCompletedAt', 'lastAttemptAt', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isValidId(data.activityId)
+        && isValidWorldId(data.worldId)
+        && isValidScore(data.bestScore)
+        && data.attempts is number && data.attempts >= 1 && data.attempts <= 10000
+        && data.completed is bool
+        && isNonEmptyString(data.lastAttemptAt, 64)
+        && isOptionalNumberRange(data, 'firstScore', 0, 100)
+        && isOptionalNumberRange(data, 'latestScore', 0, 100)
+        && isOptionalNumberRange(data, 'score', 0, 100)
+        && isOptionalNumberRange(data, 'awardedXp', 0, 10000)
+        && isOptionalNumberRange(data, 'durationSeconds', 0, 86400)
+        && isOptionalString(data, 'firstCompletedAt', 64)
+        && isOptionalString(data, 'updatedAt', 64);
+    }
+
+    function isValidAssessmentAttempt(data) {
+      return data.keys().hasAll(['id', 'userId', 'assessmentId', 'worldId', 'score', 'percentage', 'createdAt'])
+        && data.keys().hasOnly([
+          'id', 'userId', 'assessmentId', 'worldId', 'score', 'correctCount',
+          'totalQuestions', 'percentage', 'mention', 'passed', 'isFirstAttempt',
+          'attempts', 'attemptNumber', 'answers', 'durationSeconds',
+          'firstScore', 'firstMention', 'bestScore', 'bestMention',
+          'latestScore', 'latestMention', 'createdAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isValidId(data.assessmentId)
+        && isValidWorldId(data.worldId)
+        && isValidScore(data.score)
+        && isValidScore(data.percentage)
+        && isNonEmptyString(data.createdAt, 64)
+        && isOptionalNumberRange(data, 'correctCount', 0, 100)
+        && isOptionalNumberRange(data, 'totalQuestions', 1, 100)
+        && isOptionalString(data, 'mention', 50)
+        && isOptionalBool(data, 'passed')
+        && isOptionalBool(data, 'isFirstAttempt')
+        && isOptionalNumberRange(data, 'attempts', 1, 1000)
+        && isOptionalNumberRange(data, 'attemptNumber', 1, 1000)
+        && isOptionalNumberRange(data, 'durationSeconds', 0, 86400)
+        && isOptionalNumberRange(data, 'firstScore', 0, 100)
+        && isOptionalNumberRange(data, 'bestScore', 0, 100)
+        && isOptionalNumberRange(data, 'latestScore', 0, 100)
+        && isOptionalString(data, 'firstMention', 50)
+        && isOptionalString(data, 'bestMention', 50)
+        && isOptionalString(data, 'latestMention', 50)
+        && (!('answers' in data) || data.answers == null || data.answers is map || (data.answers is list && data.answers.size() <= 100));
+    }
+
+    function isValidMissionSubmission(data) {
+      return data.keys().hasAll(['id', 'userId', 'missionId', 'worldId', 'title', 'submission', 'score', 'status', 'submittedAt'])
+        && data.keys().hasOnly([
+          'id', 'userId', 'studentName', 'studentNickname', 'classId',
+          'missionId', 'worldId', 'title', 'submission', 'submissionText',
+          'score', 'feedback', 'status', 'gradedBy', 'gradedAt',
+          'submittedAt', 'createdAt', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isValidId(data.missionId)
+        && isValidWorldId(data.worldId)
+        && isNonEmptyString(data.title, 200)
+        && isNonEmptyString(data.submission, 10000)
+        && isValidScore(data.score)
+        && data.status in ['pending', 'graded']
+        && isNonEmptyString(data.submittedAt, 64)
+        && isOptionalString(data, 'studentName', 200)
+        && isOptionalString(data, 'studentNickname', 100)
+        && isOptionalString(data, 'classId', 128)
+        && isOptionalString(data, 'submissionText', 10000)
+        && isOptionalString(data, 'feedback', 5000)
+        && isOptionalString(data, 'gradedBy', 128)
+        && isOptionalString(data, 'gradedAt', 64)
+        && isOptionalString(data, 'createdAt', 64)
+        && isOptionalString(data, 'updatedAt', 64);
+    }
+
+    function isValidXPTransaction(data) {
+      return data.keys().hasAll(['id', 'userId', 'sourceType', 'sourceId', 'previousBest', 'newBest', 'xpGain', 'createdAt'])
+        && data.keys().hasOnly(['id', 'userId', 'sourceType', 'sourceId', 'previousBest', 'newBest', 'xpGain', 'createdAt'])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && data.sourceType in ['activity', 'challenge', 'assessment', 'mission', 'daily_tip', 'weekly_challenge', 'grande_missao', 'bonus']
+        && isNonEmptyString(data.sourceId, 128)
+        && data.previousBest is number && data.previousBest >= 0 && data.previousBest <= 1000000
+        && data.newBest is number && data.newBest >= 0 && data.newBest <= 1000000
+        && data.xpGain is number && data.xpGain >= 0 && data.xpGain <= 10000
+        && isNonEmptyString(data.createdAt, 64);
+    }
+
+    function isValidBadge(data) {
+      return data.keys().hasAll(['id', 'userId', 'badgeId', 'awardedAt'])
+        && data.keys().hasOnly(['id', 'userId', 'badgeId', 'awardedAt'])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isValidId(data.badgeId)
+        && isNonEmptyString(data.awardedAt, 64);
+    }
+
+    function isValidDailyTipClaim(data) {
+      return data.keys().hasAll(['id', 'userId', 'tipDate', 'claimedAt'])
+        && data.keys().hasOnly(['id', 'userId', 'tipDate', 'claimedAt'])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isNonEmptyString(data.tipDate, 20)
+        && isNonEmptyString(data.claimedAt, 64);
+    }
+
+    function isValidWeeklyChallenge(data) {
+      return data.keys().hasAll(['id', 'userId', 'challengeId', 'completedAt'])
+        && data.keys().hasOnly(['id', 'userId', 'challengeId', 'solution', 'optionIndex', 'completed', 'score', 'status', 'completedAt'])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && isValidId(data.challengeId)
+        && isNonEmptyString(data.completedAt, 64)
+        && isOptionalString(data, 'solution', 1000)
+        && isOptionalNumberRange(data, 'optionIndex', 0, 20)
+        && isOptionalBool(data, 'completed')
+        && isOptionalNumberRange(data, 'score', 0, 100)
+        && isOptionalString(data, 'status', 30);
+    }
+
+    function isValidGrandeMissao(data) {
+      return data.keys().hasAll(['id', 'userId', 'currentStage', 'status', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'userId', 'currentStage', 'completedStages', 'stageAnswers', 'unlockedCodes', 'status', 'completedAt', 'updatedAt'])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && data.currentStage is number && data.currentStage >= 1 && data.currentStage <= 6
+        && data.status in ['not_started', 'in_progress', 'completed']
+        && isNonEmptyString(data.updatedAt, 64)
+        && (!('completedStages' in data) || (data.completedStages is list && data.completedStages.size() <= 6))
+        && (!('stageAnswers' in data) || data.stageAnswers is map)
+        && (!('unlockedCodes' in data) || data.unlockedCodes is map)
+        && isOptionalString(data, 'completedAt', 64);
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['id', 'actorUserId', 'actorName', 'action', 'createdAt'])
+        && data.keys().hasOnly(['id', 'actorUserId', 'actorName', 'action', 'targetUserId', 'targetUserName', 'metadata', 'createdAt'])
+        && isValidId(data.id)
+        && isValidId(data.actorUserId)
+        && isNonEmptyString(data.actorName, 200)
+        && isNonEmptyString(data.action, 200)
+        && isNonEmptyString(data.createdAt, 64)
+        && isOptionalString(data, 'targetUserId', 128)
+        && isOptionalString(data, 'targetUserName', 200)
+        && (!('metadata' in data) || data.metadata == null || data.metadata is map);
+    }
+
+    // =========================================================================
+    // Collection Rules (Schema-Hardened, Immutable Logs, Role-Locking)
+    // Note: The app supports classroom username+password login directly from
+    // GitHub Pages without Firebase Auth; rules enforce strict schema, range,
+    // size, ID, immutability, and role-immutability guarantees on all writes.
+    // =========================================================================
     match /users/{userId} {
-      allow read, write: if true;
+      allow get: if isValidId(userId);
+      allow list: if true;
+      allow create: if isValidId(userId) && incoming().id == userId && isValidUser(incoming());
+      allow update: if isValidId(userId)
+        && isValidUser(incoming())
+        && incoming().id == existing().id
+        && incoming().role == existing().role;
+      allow delete: if isValidId(userId) && existing().role == 'student';
     }
 
     match /classes/{classId} {
-      allow read, write: if true;
+      allow get: if isValidId(classId);
+      allow list: if true;
+      allow create: if isValidId(classId) && incoming().id == classId && isValidClass(incoming());
+      allow update: if isValidId(classId) && isValidClass(incoming()) && incoming().id == existing().id;
+      allow delete: if isValidId(classId);
     }
 
     match /sessions/{sessionId} {
-      allow read, write: if true;
+      allow get: if isValidId(sessionId);
+      allow list: if true;
+      allow create: if isValidId(sessionId) && incoming().id == sessionId && isValidSession(incoming());
+      allow update: if false;
+      allow delete: if isValidId(sessionId);
     }
 
     match /activityProgress/{progressId} {
-      allow read, write: if true;
+      allow get: if isValidId(progressId);
+      allow list: if true;
+      allow create: if isValidId(progressId) && isValidActivityProgress(incoming());
+      allow update: if isValidId(progressId)
+        && isValidActivityProgress(incoming())
+        && incoming().userId == existing().userId
+        && incoming().activityId == existing().activityId
+        && incoming().worldId == existing().worldId;
+      allow delete: if isValidId(progressId);
     }
 
     match /assessmentAttempts/{attemptId} {
-      allow read, write: if true;
+      allow get: if isValidId(attemptId);
+      allow list: if true;
+      allow create: if isValidId(attemptId) && incoming().id == attemptId && isValidAssessmentAttempt(incoming());
+      allow update: if false;
+      allow delete: if isValidId(attemptId);
     }
 
     match /missionSubmissions/{submissionId} {
-      allow read, write: if true;
-    }
-
-    match /missions/{missionId} {
-      allow read, write: if true;
+      allow get: if isValidId(submissionId);
+      allow list: if true;
+      allow create: if isValidId(submissionId) && incoming().id == submissionId && isValidMissionSubmission(incoming());
+      allow update: if isValidId(submissionId)
+        && isValidMissionSubmission(incoming())
+        && incoming().userId == existing().userId
+        && incoming().missionId == existing().missionId
+        && incoming().worldId == existing().worldId;
+      allow delete: if isValidId(submissionId);
     }
 
     match /xpTransactions/{transactionId} {
-      allow read, write: if true;
+      allow get: if isValidId(transactionId);
+      allow list: if true;
+      allow create: if isValidId(transactionId) && incoming().id == transactionId && isValidXPTransaction(incoming());
+      allow update: if false;
+      allow delete: if isValidId(transactionId);
     }
 
     match /badges/{badgeId} {
-      allow read, write: if true;
-    }
-
-    match /userBadges/{badgeId} {
-      allow read, write: if true;
+      allow get: if isValidId(badgeId);
+      allow list: if true;
+      allow create: if isValidId(badgeId) && isValidBadge(incoming());
+      allow update: if false;
+      allow delete: if isValidId(badgeId);
     }
 
     match /dailyTipClaims/{claimId} {
-      allow read, write: if true;
+      allow get: if isValidId(claimId);
+      allow list: if true;
+      allow create: if isValidId(claimId) && isValidDailyTipClaim(incoming());
+      allow update: if false;
+      allow delete: if isValidId(claimId);
     }
 
     match /weeklyChallenges/{challengeId} {
-      allow read, write: if true;
+      allow get: if isValidId(challengeId);
+      allow list: if true;
+      allow create: if isValidId(challengeId) && isValidWeeklyChallenge(incoming());
+      allow update: if false;
+      allow delete: if isValidId(challengeId);
     }
 
     match /grandeMissaoProgress/{userId} {
-      allow read, write: if true;
+      allow get: if isValidId(userId);
+      allow list: if true;
+      allow create: if isValidId(userId) && incoming().userId == userId && isValidGrandeMissao(incoming());
+      allow update: if isValidId(userId) && isValidGrandeMissao(incoming()) && incoming().userId == existing().userId;
+      allow delete: if isValidId(userId);
     }
 
     match /auditLogs/{logId} {
-      allow read, write: if true;
+      allow get: if isValidId(logId);
+      allow list: if true;
+      allow create: if isValidId(logId) && incoming().id == logId && isValidAuditLog(incoming());
+      allow update, delete: if false;
     }
 
     match /_health_check/{docId} {
-      allow read, write: if true;
+      allow get: if docId == 'ping';
+      allow list, write: if false;
     }
   }
 }
-

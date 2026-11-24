@@ -188,7 +188,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
                 <BookOpen className="w-6 h-6" />
                 <div>
                   <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                    1. O Que é um Cartaz ? 🦸‍♂️
+                    1. O Que é um Cartaz? 🦸‍♂️
                   </h3>
                   <p className="text-xs text-slate-500">
                     Aprende a captar a atenção num instante no corredor da escola
@@ -1288,7 +1288,7 @@ export const CanvaPostersModule: React.FC<CanvaPostersModuleProps> = ({ onNaviga
               <div className="p-4 bg-emerald-100/70 border border-emerald-300 rounded-2xl flex items-center gap-3 text-emerald-900 animate-in fade-in">
                 <span className="text-2xl">🎉</span>
                 <p className="text-xs sm:text-sm font-bold">
-                  Parabéns! O teu cartaz cumpre todos os requisitos de um trabalho nota 10 em TIC!
+                  Parabéns! O teu cartaz cumpre todas as regras para um trabalho 5 estrelas em TIC!
                 </p>
               </div>
             )}

@@ -152,16 +152,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoginModal }) => {
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl border border-slate-200 shadow-xl p-3 z-50 text-xs space-y-2">
                 <div className="font-extrabold text-slate-900 border-b pb-2">
-                  Notificações Pedagógicas (3)
+                  Novidades (3)
                 </div>
                 <div className="p-2 bg-amber-50 rounded-xl border border-amber-100 text-amber-900">
-                  ⚡ Novo desafio semanal de Phishing disponível! (+50 XP)
+                  ⚡ Novo Desafio da Semana pronto para ti! (+30 XP)
                 </div>
                 <div className="p-2 bg-blue-50 rounded-xl border border-blue-100 text-blue-900">
-                  🏆 Conquistaste a insígnia Guardião Digital!
+                  🏆 Completa o Mundo 1 para ganhares a medalha Guardião Digital!
                 </div>
                 <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-900">
-                  💡 A tua dica diária de segurança está pronta a reclamar.
+                  💡 A tua Dica Rápida de hoje já está pronta (+20 XP)!
                 </div>
               </div>
             )}

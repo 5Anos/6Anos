@@ -242,13 +242,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       id: 'item-school',
       label: 'O horário em que sais sozinho da escola a pé',
       correct: 'private',
-      feedback: 'Revelar as tuas rotinas físicas diárias é muito arriscado. Guarda esta informação estritamente para ti!',
+      feedback: 'Contar onde andas sozinho todos os dias é muito arriscado. Guarda essa informação só para ti!',
     },
     {
       id: 'item-book',
       label: 'Um livro ou jogo educativo que recomendas aos colegas',
       correct: 'public',
-      feedback: 'Recomendações culturais e partilha de projetos escolares são seguras e enriquecem a comunidade escolar!',
+      feedback: 'Recomendar livros e partilhar trabalhos da escola é seguro e ajuda os teus colegas!',
     },
   ];
 
@@ -391,8 +391,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   };
 
   const isAssessmentDone = Boolean(
+    world.hasAssessment ||
     world.hasAssessmentPassed ||
-    (typeof world.bestAssessmentPercentage === 'number' && world.bestAssessmentPercentage > 0)
+    typeof world.bestAssessmentPercentage === 'number'
   );
 
   const completedSimsCount = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
@@ -490,7 +491,28 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
           {missionNavList.map((m) => {
             const Icon = m.icon;
             const isActive = effectiveTopicId === m.id;
-            const isDone = m.id === 'avaliacao' ? isAssessmentDone : Boolean(getSimProg(m.simId)?.completed);
+            const simProg = m.id === 'avaliacao' ? null : getSimProg(m.simId);
+            const isDone = m.id === 'avaliacao' ? isAssessmentDone : Boolean(simProg?.completed);
+            const missionScore =
+              m.id === 'avaliacao'
+                ? (typeof world.bestAssessmentPercentage === 'number' ? Math.round(world.bestAssessmentPercentage) : null)
+                : (simProg?.completed ? Math.round(Number(simProg.score) || 0) : null);
+
+            const doneBadgeClass = isActive
+              ? 'bg-white/25 text-white'
+              : missionScore !== null && missionScore > PROGRESSION_CONFIG.PASSING_THRESHOLD
+              ? 'bg-emerald-100 text-emerald-800'
+              : missionScore !== null && missionScore >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+              ? 'bg-amber-100 text-amber-800'
+              : 'bg-rose-100 text-rose-800';
+
+            const doneIconClass = isActive
+              ? 'text-white'
+              : missionScore !== null && missionScore > PROGRESSION_CONFIG.PASSING_THRESHOLD
+              ? 'text-emerald-600'
+              : missionScore !== null && missionScore >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD
+              ? 'text-amber-600'
+              : 'text-rose-600';
 
             return (
               <button
@@ -523,14 +545,12 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {isDone ? (
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-800'
-                    }`}>
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                      <span>Feito</span>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md whitespace-nowrap tabular-nums ${doneBadgeClass}`}>
+                      <CheckCircle2 className={`w-3 h-3 shrink-0 ${doneIconClass}`} />
+                      <span>{missionScore !== null ? `Feito · ${missionScore}%` : 'Feito'}</span>
                     </span>
                   ) : (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md whitespace-nowrap ${
                       isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                     }`}>
                       Por fazer
@@ -583,7 +603,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {getSimProg('sim-password')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-password')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-password')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -651,7 +671,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               onClick={() => setMissionPhase('simulator')}
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
             >
-              <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+              <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
@@ -666,7 +686,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Rever Guia de Teoria 💡</span>
+              <span>Voltar a «Vamos aprender?» 💡</span>
             </button>
           </div>
 
@@ -676,11 +696,11 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               <div className="flex items-center gap-2.5 text-emerald-700">
                 <Sparkles className="w-5 h-5 text-emerald-600" />
                 <h4 className="text-base font-black uppercase tracking-wide">
-                  🎮 2. Experimenta: Laboratório de Palavras-Passe
+                  🎮 2. Testa os teus conhecimentos: Palavras-Passe Secretas
                 </h4>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Simulador Interativo em Tempo Real
+                Atividade Interativa em Tempo Real
               </span>
             </div>
 
@@ -869,7 +889,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {getSimProg('sim-phishing')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-phishing')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-phishing')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -937,7 +957,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -952,7 +972,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -962,7 +982,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-blue-700">
                     <Sparkles className="w-5 h-5 text-blue-600" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Laboratório Anti-Phishing
+                      🎮 2. Testa os teus conhecimentos: Caça ao Phishing
                     </h4>
                   </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1131,7 +1151,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {getSimProg('sim-privacy')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-privacy')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-privacy')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -1191,7 +1211,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1206,7 +1226,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1216,7 +1236,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-emerald-700">
                     <Sparkles className="w-5 h-5 text-emerald-600" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Laboratório de Privacidade
+                      🎮 2. Testa os teus conhecimentos: Escudo de Privacidade
                     </h4>
                   </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1279,7 +1299,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               }`}
             >
               <Check className="w-4 h-4" />
-              <span>Validar Classificação de Privacidade</span>
+              <span>Confirmar Respostas</span>
             </button>
 
             {privacyScore !== null && (
@@ -1365,7 +1385,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {getSimProg('sim-digital-footprint')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-digital-footprint')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-digital-footprint')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -1425,7 +1445,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1440,7 +1460,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1450,7 +1470,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-purple-700">
                     <Sparkles className="w-5 h-5 text-purple-600" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Simulador de Pegada Digital
+                      🎮 2. Testa os teus conhecimentos: O Rasto Digital
                     </h4>
                   </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1604,7 +1624,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               {getSimProg('sim-digital-wellbeing')?.completed ? (
                 <span className="bg-emerald-50 text-emerald-700 text-xs font-black px-4 py-2 rounded-2xl flex items-center gap-1.5 border border-emerald-200 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Concluído ({getSimProg('sim-digital-wellbeing')?.score} pts)</span>
+                  <span>Concluído ({getSimProg('sim-digital-wellbeing')?.score}%)</span>
                 </span>
               ) : (
                 <span className="bg-amber-50/90 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-2xs">
@@ -1672,7 +1692,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   onClick={() => setMissionPhase('simulator')}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
                 >
-                  <span>Já li a teoria! Ir para o Desafio Prático 🎮</span>
+                  <span>Já li com atenção! Vamos testar os teus conhecimentos 🎮</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -1687,7 +1707,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Rever Guia de Teoria 💡</span>
+                  <span>Voltar a «Vamos aprender?» 💡</span>
                 </button>
               </div>
 
@@ -1697,7 +1717,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-rose-700">
                     <Sparkles className="w-5 h-5 text-rose-600" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Experimenta: Laboratório do Gamer Saudável
+                      🎮 2. Testa os teus conhecimentos: Super-Corpo & Ecrãs
                     </h4>
                   </div>
               <span className="text-xs font-bold text-slate-500">

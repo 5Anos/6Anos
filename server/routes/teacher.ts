@@ -100,15 +100,20 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
     ]);
 
     const students = allUsers.filter((u) => u.role === 'student');
+    const studentIds = new Set(students.map((s) => s.id));
+    const allSimIds = new Set(WORLDS_DATA.flatMap((w) => w.simulators.map((sim) => sim.id)));
     const totalStudents = students.length;
     const activeStudents = students.filter((s) => !s.blocked).length;
     const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
     const avgXP = totalStudents > 0 ? Math.round(totalXP / totalStudents) : 0;
-    const totalSimulatorsCompleted = allProgress.filter((p) => p.completed || (p.bestScore && p.bestScore > 0)).length;
-    const totalQuizzesAttempted = allAssessments.length;
+    const totalSimulatorsCompleted = allProgress.filter(
+      (p) => studentIds.has(p.userId) && allSimIds.has(p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
+    ).length;
+    const totalQuizzesAttempted = allAssessments.filter((a) => studentIds.has(a.userId)).length;
 
     let totalScoreSum = 0;
     let totalScoreCount = 0;
+    const lowWorldStudentIds = new Set<string>();
 
     const worldPerformance = WORLDS_DATA.map((w) => {
       let sumAvg = 0;
@@ -122,23 +127,24 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
         );
         const attempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
 
-        const components: number[] = [];
-        if (studentSims.length > 0) {
-          const simAvg = studentSims.reduce((sum, p) => sum + (p.bestScore || 0), 0) / studentSims.length;
-          components.push(simAvg);
-        }
+        const canonicalScores: number[] = studentSims.map((p) => p.bestScore || 0);
         if (attempts.length > 0) {
-          const quizBest = Math.max(...attempts.map((a) => a.percentage || 0));
-          components.push(quizBest);
+          canonicalScores.push(Math.max(...attempts.map((a) => a.percentage || 0)));
         }
 
-        if (components.length > 0) {
-          const studentWorldAvg = Math.round(components.reduce((a, b) => a + b, 0) / components.length);
+        if (canonicalScores.length > 0) {
+          const studentWorldAvg = Number(
+            (canonicalScores.reduce((a, b) => a + b, 0) / canonicalScores.length).toFixed(1)
+          );
           sumAvg += studentWorldAvg;
           count++;
           totalScoreSum += studentWorldAvg;
           totalScoreCount++;
-          if (studentWorldAvg >= PROGRESSION_CONFIG.PASSING_THRESHOLD) {
+          if (studentWorldAvg < 50) {
+            lowWorldStudentIds.add(s.id);
+          }
+          const allSimsDone = studentSims.length >= worldSims.length;
+          if (allSimsDone && attempts.length > 0 && studentWorldAvg > PROGRESSION_CONFIG.PASSING_THRESHOLD) {
             completedCount++;
           }
         }
@@ -159,7 +165,10 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
 
     const globalAverageScore =
       totalScoreCount > 0 ? Math.round(totalScoreSum / totalScoreCount) : 0;
-    const studentsNeedingHelp = students.filter((s) => s.needsHelp).length;
+    const studentsNeedingHelp = students.filter((s) => {
+      const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
+      return failedAttempts >= 2 || lowWorldStudentIds.has(s.id);
+    }).length;
 
     return res.json({
       totalStudents,
@@ -1424,11 +1433,6 @@ router.post('/missions/:submissionId/grade', async (req: AuthRequest, res) => {
     const submission = await getMissionSubmissionById(submissionId);
     if (!submission) return res.status(404).json({ error: 'Submissão não encontrada.' });
 
-    // Authorization: Teachers assigned to a specific class can only grade their class
-    if (req.user!.classId && submission.classId && req.user!.classId !== submission.classId) {
-      return res.status(403).json({ error: 'Não tens autorização para avaliar alunos de outra turma.' });
-    }
-
     const student = await getUserById(submission.userId);
     if (!student) return res.status(404).json({ error: 'Aluno associado não encontrado.' });
 
@@ -1558,20 +1562,31 @@ router.get('/activities-summary', async (req: AuthRequest, res) => {
 
     const worldsActivities = WORLDS_DATA.map((w) => {
       const sims = w.simulators.map((s) => {
-        const studentStats = students.map((st) => {
-          const prog = allProgress.find((p) => p.userId === st.id && p.activityId === s.id);
-          const classroom = classes.find((c) => c.id === st.classId);
-          return {
-            studentId: st.id,
-            studentName: st.name,
-            studentNickname: st.nickname,
-            className: classroom ? classroom.name : 'Sem Turma',
-            completed: prog ? (prog.completed || (typeof prog.bestScore === 'number' && prog.bestScore > 0)) : false,
-            bestScore: prog ? prog.bestScore : 0,
-            attempts: prog ? prog.attempts : 0,
-            lastAttemptAt: prog ? prog.lastAttemptAt : null,
-          };
-        });
+        const studentStats = students
+          .map((st) => {
+            const prog = allProgress.find((p) => p.userId === st.id && p.activityId === s.id);
+            const classroom = classes.find((c) => c.id === st.classId);
+            return {
+              studentId: st.id,
+              studentName: st.fullName || st.name,
+              studentNickname: st.nickname,
+              studentNumber: st.studentNumber ?? null,
+              classId: st.classId || '',
+              className: classroom ? classroom.name : st.turma || 'Sem Turma',
+              completed: prog ? (prog.completed || (typeof prog.bestScore === 'number' && prog.bestScore > 0)) : false,
+              bestScore: prog ? Number(prog.bestScore) || 0 : 0,
+              attempts: prog ? Number(prog.attempts) || 0 : 0,
+              lastAttemptAt: prog ? prog.lastAttemptAt || null : null,
+            };
+          })
+          .sort((a, b) => {
+            const clsCmp = a.className.localeCompare(b.className);
+            if (clsCmp !== 0) return clsCmp;
+            const numA = a.studentNumber ?? 9999;
+            const numB = b.studentNumber ?? 9999;
+            if (numA !== numB) return numA - numB;
+            return a.studentName.localeCompare(b.studentName);
+          });
 
         const completedCount = studentStats.filter((r) => r.completed).length;
         const avgScore =
@@ -1903,11 +1918,12 @@ router.get('/audit-logs', async (req: AuthRequest, res) => {
 router.get('/pauta', async (req: AuthRequest, res: Response) => {
   try {
     const { classId } = req.query;
-    const [allUsers, classes, allAssessments, allProgress] = await Promise.all([
+    const [allUsers, classes, allAssessments, allProgress, allMissions] = await Promise.all([
       getAllUsers(),
       getAllClasses(),
       getAssessmentAttempts('all'),
       getAllActivityProgress(),
+      getMissionSubmissions(),
     ]);
 
     let students = allUsers.filter((u) => u.role === 'student');
@@ -1920,7 +1936,7 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
       return a.name.localeCompare(b.name);
     });
 
-    // 1. Pauta Geral
+    // 1. Pauta Geral (usa exatamente a mesma média canónica dos simuladores + melhor quiz)
     const pautaGeral = students.map((s, idx) => {
       const classroom = classes.find((c) => c.id === s.classId);
       const levelInfo = calculateLevel(s.xp || 0);
@@ -1931,31 +1947,24 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
         const studentSims = allProgress.filter(
           (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
-        const simAvg =
-          studentSims.length > 0
-            ? studentSims.reduce((sum, p) => sum + (p.bestScore || 0), 0) / studentSims.length
-            : 0;
-
         const worldAttempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
         const bestQuiz =
           worldAttempts.length > 0 ? Math.max(...worldAttempts.map((a) => a.percentage || 0)) : null;
 
-        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge?.id);
-        const challengeScore = chalProg && (chalProg.completed || (chalProg.bestScore && chalProg.bestScore > 0)) ? chalProg.bestScore : null;
+        const canonicalScores: number[] = studentSims.map((p) => p.bestScore || 0);
+        if (bestQuiz !== null) canonicalScores.push(bestQuiz);
 
-        const comps: number[] = [];
-        if (studentSims.length > 0) comps.push(simAvg);
-        if (challengeScore !== null) comps.push(challengeScore);
-        if (bestQuiz !== null) comps.push(bestQuiz);
-
-        const worldScore = comps.length > 0 ? Math.round(comps.reduce((a, b) => a + b, 0) / comps.length) : 0;
+        const worldScore =
+          canonicalScores.length > 0
+            ? Number((canonicalScores.reduce((a, b) => a + b, 0) / canonicalScores.length).toFixed(1))
+            : 0;
         worldScores.push(worldScore);
       }
 
       const activeScores = worldScores.filter((sc) => sc > 0);
       const globalAverage =
         activeScores.length > 0
-          ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
+          ? Number((activeScores.reduce((a, b) => a + b, 0) / activeScores.length).toFixed(1))
           : 0;
 
       return {
@@ -1988,10 +1997,6 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
             ? Math.round(studentSims.reduce((sum, p) => sum + (p.bestScore || 0), 0) / studentSims.length)
             : 0;
 
-        // Challenge
-        const chalProg = allProgress.find((p) => p.userId === s.id && p.activityId === w.challenge.id);
-        const challengeScore = chalProg && (chalProg.completed || (chalProg.bestScore && chalProg.bestScore > 0)) ? chalProg.bestScore : 0;
-
         // Quizzes (Assessments)
         const attempts = allAssessments
           .filter((a) => a.userId === s.id && a.worldId === w.id)
@@ -2005,22 +2010,28 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
 
         const assessmentScore = bestAttempt ? bestAttempt.percentage : 0;
         const officialAssessmentScore = firstAttempt ? firstAttempt.percentage : null;
+        const officialAssessmentMention = firstAttempt
+          ? (firstAttempt.mention || getQualitativeMention(firstAttempt.percentage))
+          : '—';
         const assessmentMention = bestAttempt
           ? (bestAttempt.mention || getQualitativeMention(bestAttempt.percentage))
           : '—';
 
-        // World Average
-        const components: number[] = [];
-        if (studentSims.length > 0) components.push(simulatorsAvg);
-        if (challengeScore > 0) components.push(challengeScore);
-        if (bestAttempt) components.push(bestAttempt.percentage);
+        const wMission = allMissions.find((m) => m.userId === s.id && m.worldId === w.id);
+        const missionScore = wMission && typeof wMission.score === 'number' ? wMission.score : 0;
 
+        // Canonical World Average & Unlock Rule (exact match with /worlds and /students)
+        const canonicalScores: number[] = studentSims.map((p) => p.bestScore || 0);
+        if (bestAttempt) canonicalScores.push(bestAttempt.percentage);
         const worldAverage =
-          components.length > 0
-            ? Math.round(components.reduce((a, b) => a + b, 0) / components.length)
+          canonicalScores.length > 0
+            ? Number((canonicalScores.reduce((a, b) => a + b, 0) / canonicalScores.length).toFixed(1))
             : 0;
 
-        const isWorldPassed = worldAverage >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+        const isWorldPassed =
+          studentSims.length >= worldSims.length &&
+          bestAttempt !== null &&
+          worldAverage > PROGRESSION_CONFIG.PASSING_THRESHOLD;
 
         return {
           studentId: s.id,
@@ -2032,14 +2043,16 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
           simulatorsCount: studentSims.length,
           simulatorsTotal: worldSims.length,
           simulatorsAvg,
-          challengeScore,
-          missionScore: 0,
+          missionScore,
           assessmentScore,
           officialAssessmentScore,
+          officialAssessmentMention,
           assessmentMention,
+          attemptsCount: attempts.length,
           worldAverage,
           isWorldPassed,
           isNextUnlocked: isWorldPassed,
+          unlockedNext: isWorldPassed,
         };
       });
 
@@ -2081,27 +2094,20 @@ router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: R
     for (const s of students) {
       const levelInfo = calculateLevel(s.xp);
       const classroom = classes.find((c) => c.id === s.classId);
-      const m1 = (await computeWorldStats(s.id, 1)).average;
-      const m2 = (await computeWorldStats(s.id, 2)).average;
-      const m3 = (await computeWorldStats(s.id, 3)).average;
-      const m4 = (await computeWorldStats(s.id, 4)).average;
-      const m5 = (await computeWorldStats(s.id, 5)).average;
+      const worldStatsList = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(s.id, w)));
+      const [m1, m2, m3, m4, m5] = worldStatsList.map((st) => st.average);
 
-      const completed = [m1, m2, m3, m4, m5].filter((m) => m > 0);
+      const completed = worldStatsList.filter((st) => st.completedCount > 0).map((st) => st.average);
       const globalAvg =
         completed.length > 0
           ? Number((completed.reduce((a, b) => a + b, 0) / completed.length).toFixed(1))
           : 0;
 
-      let unlockedCount = 1;
-      const th = PROGRESSION_CONFIG.PASSING_THRESHOLD;
-      if (m1 > th) unlockedCount = 2;
-      if (m1 > th && m2 > th) unlockedCount = 3;
-      if (m1 > th && m2 > th && m3 > th) unlockedCount = 4;
-      if (m1 > th && m2 > th && m3 > th && m4 > th) unlockedCount = 5;
+      const unlockedCount = worldStatsList.filter((st) => st.isUnlocked).length;
 
       const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
-      const needsHelp = failedAttempts >= 2 || (m1 > 0 && m1 < 50) ? 'SIM' : 'NAO';
+      const lowWorld = worldStatsList.some((st) => st.isUnlocked && st.completedCount > 0 && st.average < 50);
+      const needsHelp = failedAttempts >= 2 || lowWorld ? 'SIM' : 'NAO';
 
       const row = [
         `"${s.nickname.replace(/"/g, '""')}"`,
@@ -2172,23 +2178,15 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
     for (const s of students) {
       const levelInfo = calculateLevel(s.xp);
       const classroom = classes.find((c) => c.id === s.classId);
-      const m1 = (await computeWorldStats(s.id, 1)).average;
-      const m2 = (await computeWorldStats(s.id, 2)).average;
-      const m3 = (await computeWorldStats(s.id, 3)).average;
-      const m4 = (await computeWorldStats(s.id, 4)).average;
-      const m5 = (await computeWorldStats(s.id, 5)).average;
-      const completed = [m1, m2, m3, m4, m5].filter((m) => m > 0);
+      const worldStatsList = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(s.id, w)));
+      const [m1, m2, m3, m4, m5] = worldStatsList.map((st) => st.average);
+      const completed = worldStatsList.filter((st) => st.completedCount > 0).map((st) => st.average);
       const globalAvg =
         completed.length > 0
           ? Number((completed.reduce((a, b) => a + b, 0) / completed.length).toFixed(1))
           : 0;
 
-      let unlockedCount = 1;
-      const th = PROGRESSION_CONFIG.PASSING_THRESHOLD;
-      if (m1 > th) unlockedCount = 2;
-      if (m1 > th && m2 > th) unlockedCount = 3;
-      if (m1 > th && m2 > th && m3 > th) unlockedCount = 4;
-      if (m1 > th && m2 > th && m3 > th && m4 > th) unlockedCount = 5;
+      const unlockedCount = worldStatsList.filter((st) => st.isUnlocked).length;
 
       pautaRows.push({
         'Nickname': s.nickname,

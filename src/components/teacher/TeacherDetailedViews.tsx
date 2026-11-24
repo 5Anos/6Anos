@@ -17,9 +17,25 @@ import {
   Zap,
   Target,
   Users,
+  Search,
+  Eye,
+  Table2,
+  ListChecks,
+  BarChart3,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from 'recharts';
 import { apiRequest } from '../../api';
-import { PROGRESSION_CONFIG } from '../../progressionConfig';
+import { PROGRESSION_CONFIG, getQualitativeMention } from '../../progressionConfig';
 
 // =================================================================
 // 1. ASSESSMENTS TAB (Avaliações Finais dos 5 Mundos)
@@ -178,61 +194,767 @@ export const TeacherAssessmentsTab: React.FC<{ assessmentsData: any; classes: an
 // =================================================================
 // 2. ACTIVITIES & SIMULATORS TAB
 // =================================================================
-export const TeacherActivitiesTab: React.FC<{ activitiesData: any }> = ({ activitiesData }) => {
+export const TeacherActivitiesTab: React.FC<{
+  activitiesData: any;
+  classes?: any[];
+  selectedClass?: string;
+  setSelectedClass?: (v: string) => void;
+  onOpenStudent?: (student: { id: string; name?: string }) => void;
+}> = ({
+  activitiesData,
+  classes = [],
+  selectedClass = 'all',
+  setSelectedClass,
+  onOpenStudent,
+}) => {
   const [selectedWorld, setSelectedWorld] = useState(1);
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'by-simulator' | 'world-grid'>('by-simulator');
+  const [chartScope, setChartScope] = useState<'world' | 'all'>('world');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   if (!activitiesData) return <div className="p-8 text-center text-slate-500">A carregar simuladores...</div>;
 
-  const currentWorld = Array.isArray(activitiesData) ? activitiesData.find((w: any) => w.worldId === selectedWorld) : null;
+  const allWorldsList: any[] = Array.isArray(activitiesData) ? activitiesData : [];
+  const currentWorld = allWorldsList.find((w: any) => w.worldId === selectedWorld) || null;
+
+  const worldActivities: any[] = currentWorld?.activities || [];
+
+  const enrichActivity = (act: any, worldId: number, worldTitle?: string) => {
+    const rawStudents: any[] = Array.isArray(act.students) ? act.students : [];
+    const classStudents = rawStudents.filter(
+      (st: any) => selectedClass === 'all' || st.classId === selectedClass
+    );
+    const completedStudents = classStudents.filter((st: any) => st.completed);
+    const completedCount = completedStudents.length;
+    const totalStudentsCount = classStudents.length;
+    const pendingCount = totalStudentsCount - completedCount;
+    const completionRate =
+      totalStudentsCount > 0 ? Math.round((completedCount / totalStudentsCount) * 100) : 0;
+    const averageScore =
+      completedCount > 0
+        ? Math.round(
+            completedStudents.reduce((acc: number, st: any) => acc + (Number(st.bestScore) || 0), 0) /
+              completedCount
+          )
+        : 0;
+
+    return {
+      ...act,
+      worldId,
+      worldTitle: worldTitle || `Mundo ${worldId}`,
+      filteredStudents: classStudents,
+      displayCompletedCount: completedCount,
+      displayPendingCount: pendingCount,
+      displayTotalStudents: totalStudentsCount,
+      displayCompletionRate: completionRate,
+      displayAverageScore: averageScore,
+    };
+  };
+
+  // Recompute per-simulator stats respecting the selected class filter
+  const enrichedActivities = worldActivities.map((act: any) =>
+    enrichActivity(act, selectedWorld, currentWorld?.worldTitle)
+  );
+
+  // Build Recharts datasets for Current World and All Available Simulators
+  const worldChartData = enrichedActivities.map((act: any) => ({
+    id: act.id,
+    worldId: act.worldId,
+    shortName: act.title.length > 22 ? `${act.title.slice(0, 20)}…` : act.title,
+    fullName: act.title,
+    worldLabel: `Mundo ${act.worldId}`,
+    completionRate: act.displayCompletionRate,
+    averageScore: act.displayAverageScore,
+    completedCount: act.displayCompletedCount,
+    totalStudents: act.displayTotalStudents,
+  }));
+
+  const allSimulatorsChartData = allWorldsList.flatMap((w: any) =>
+    (Array.isArray(w.activities) ? w.activities : []).map((act: any) => {
+      const enriched = enrichActivity(act, w.worldId, w.worldTitle);
+      return {
+        id: enriched.id,
+        worldId: w.worldId,
+        shortName: `M${w.worldId} · ${enriched.title.length > 26 ? `${enriched.title.slice(0, 24)}…` : enriched.title}`,
+        fullName: enriched.title,
+        worldLabel: `Mundo ${w.worldId}`,
+        completionRate: enriched.displayCompletionRate,
+        averageScore: enriched.displayAverageScore,
+        completedCount: enriched.displayCompletedCount,
+        totalStudents: enriched.displayTotalStudents,
+      };
+    })
+  );
+
+  const activeChartData = chartScope === 'world' ? worldChartData : allSimulatorsChartData;
+
+  const activeActivity =
+    enrichedActivities.find((a) => a.id === selectedActivityId) || enrichedActivities[0] || null;
+
+  const normalizedQuery = searchTerm.trim().toLowerCase();
+
+  const detailStudents = (activeActivity?.filteredStudents || [])
+    .filter((st: any) => {
+      if (statusFilter === 'completed' && !st.completed) return false;
+      if (statusFilter === 'pending' && st.completed) return false;
+      if (normalizedQuery) {
+        const hay = `${st.studentName || ''} ${st.studentNickname || ''} ${st.className || ''}`.toLowerCase();
+        return hay.includes(normalizedQuery);
+      }
+      return true;
+    })
+    .sort((a: any, b: any) => {
+      // Completed first when viewing all, then by class/number/name
+      if (a.completed !== b.completed) return a.completed ? -1 : 1;
+      if (a.completed && b.completed && b.bestScore !== a.bestScore) return b.bestScore - a.bestScore;
+      const clsCmp = (a.className || '').localeCompare(b.className || '');
+      if (clsCmp !== 0) return clsCmp;
+      return (a.studentNumber ?? 9999) - (b.studentNumber ?? 9999);
+    });
+
+  // Build World Grid rows (one row per student with score in every simulator of the selected world)
+  const worldGridRows = (() => {
+    if (enrichedActivities.length === 0) return [];
+    const baseStudents = enrichedActivities[0].filteredStudents || [];
+    return baseStudents
+      .map((st: any) => {
+        const scoresBySim = enrichedActivities.map((act) => {
+          const match = (act.filteredStudents || []).find((x: any) => x.studentId === st.studentId);
+          return {
+            activityId: act.id,
+            completed: Boolean(match?.completed),
+            bestScore: match ? Number(match.bestScore) || 0 : 0,
+            attempts: match ? Number(match.attempts) || 0 : 0,
+          };
+        });
+        const done = scoresBySim.filter((x) => x.completed);
+        const avg =
+          done.length > 0
+            ? Math.round(done.reduce((acc, x) => acc + x.bestScore, 0) / done.length)
+            : null;
+        return {
+          studentId: st.studentId,
+          studentName: st.studentName,
+          studentNickname: st.studentNickname,
+          studentNumber: st.studentNumber,
+          className: st.className,
+          scoresBySim,
+          completedCount: done.length,
+          totalSims: enrichedActivities.length,
+          average: avg,
+        };
+      })
+      .filter((row: any) => {
+        if (statusFilter === 'completed' && row.completedCount === 0) return false;
+        if (statusFilter === 'pending' && row.completedCount === row.totalSims) return false;
+        if (normalizedQuery) {
+          const hay = `${row.studentName || ''} ${row.studentNickname || ''} ${row.className || ''}`.toLowerCase();
+          return hay.includes(normalizedQuery);
+        }
+        return true;
+      });
+  })();
+
+  const getScoreBadgeClass = (score: number) => {
+    if (score >= 90) return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    if (score >= 70) return 'bg-green-50 text-green-800 border-green-200';
+    if (score >= 50) return 'bg-blue-50 text-blue-800 border-blue-200';
+    return 'bg-rose-50 text-rose-800 border-rose-200';
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-        {[1, 2, 3, 4, 5].map((wId) => (
-          <button
-            key={wId}
-            onClick={() => setSelectedWorld(wId)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              selectedWorld === wId
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200'
-            }`}
-          >
-            Simuladores Mundo {wId}
-          </button>
-        ))}
+      {/* Top Toolbar: Worlds + Class Filter */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {[1, 2, 3, 4, 5].map((wId) => (
+              <button
+                key={wId}
+                onClick={() => {
+                  setSelectedWorld(wId);
+                  setSelectedActivityId(null);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedWorld === wId
+                    ? 'bg-amber-500 text-white shadow-xs'
+                    : 'bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                Simuladores Mundo {wId}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {setSelectedClass && (
+              <select
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+                className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-amber-500"
+              >
+                <option value="all">Todas as Turmas</option>
+                {classes.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        </div>
       </div>
 
+      {/* Recharts Bar Chart: Completion % and Average Score per Simulator */}
+      {activeChartData.length > 0 && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-amber-600" />
+                Desempenho por Simulador — Conclusão e Média dos Alunos
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Percentagem de alunos que concluíram cada simulador e média das respetivas notas (linha de referência aos {PROGRESSION_CONFIG.PASSING_THRESHOLD}%).
+              </p>
+            </div>
+
+            <div className="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+              <button
+                type="button"
+                onClick={() => setChartScope('world')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer ${
+                  chartScope === 'world'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Mundo {selectedWorld} ({worldChartData.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartScope('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer ${
+                  chartScope === 'all'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Todos os Simuladores ({allSimulatorsChartData.length})
+              </button>
+            </div>
+          </div>
+
+          <div
+            className="w-full"
+            style={{
+              height:
+                chartScope === 'world'
+                  ? 310
+                  : Math.max(420, allSimulatorsChartData.length * 40),
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              {chartScope === 'world' ? (
+                <BarChart
+                  data={worldChartData}
+                  margin={{ top: 12, right: 20, left: 0, bottom: 20 }}
+                  barGap={6}
+                  onClick={(state: any) => {
+                    const clicked = state?.activePayload?.[0]?.payload;
+                    if (clicked?.id) {
+                      setSelectedActivityId(clicked.id);
+                      setViewMode('by-simulator');
+                    }
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                  <XAxis
+                    dataKey="shortName"
+                    tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }}
+                    axisLine={{ stroke: '#CBD5E1' }}
+                    tickLine={false}
+                    interval={0}
+                    angle={-10}
+                    textAnchor="end"
+                    height={52}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    unit="%"
+                    tick={{ fill: '#64748B', fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#F8FAFC' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload || payload.length === 0) return null;
+                      const d = payload[0].payload;
+                      return (
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-md text-xs space-y-1.5 min-w-[210px]">
+                          <div className="font-bold text-slate-900">{d.fullName}</div>
+                          <div className="text-[11px] text-slate-500">{d.worldLabel}</div>
+                          <div className="pt-1 border-t border-slate-100 space-y-1 font-mono tabular-nums">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-emerald-700 font-sans font-semibold">Conclusão:</span>
+                              <span className="font-bold text-slate-900">
+                                {d.completionRate}% ({d.completedCount}/{d.totalStudents})
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-amber-700 font-sans font-semibold">Média dos Alunos:</span>
+                              <span className="font-bold text-slate-900">{d.averageScore}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="top"
+                    height={32}
+                    wrapperStyle={{ fontSize: 12, fontWeight: 600 }}
+                  />
+                  <ReferenceLine
+                    y={PROGRESSION_CONFIG.PASSING_THRESHOLD}
+                    stroke="#94A3B8"
+                    strokeDasharray="4 4"
+                    label={{
+                      value: `Meta ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%`,
+                      position: 'insideTopRight',
+                      fill: '#64748B',
+                      fontSize: 10,
+                    }}
+                  />
+                  <Bar
+                    dataKey="completionRate"
+                    name="% Conclusão"
+                    fill="#10B981"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={36}
+                  />
+                  <Bar
+                    dataKey="averageScore"
+                    name="Média dos Alunos (%)"
+                    fill="#D97706"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={36}
+                  />
+                </BarChart>
+              ) : (
+                <BarChart
+                  data={allSimulatorsChartData}
+                  layout="vertical"
+                  margin={{ top: 12, right: 24, left: 10, bottom: 8 }}
+                  barGap={4}
+                  onClick={(state: any) => {
+                    const clicked = state?.activePayload?.[0]?.payload;
+                    if (clicked?.id && clicked?.worldId) {
+                      setSelectedWorld(clicked.worldId);
+                      setSelectedActivityId(clicked.id);
+                      setViewMode('by-simulator');
+                    }
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    domain={[0, 100]}
+                    unit="%"
+                    tick={{ fill: '#64748B', fontSize: 11 }}
+                    axisLine={{ stroke: '#CBD5E1' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="shortName"
+                    width={215}
+                    tick={{ fill: '#334155', fontSize: 11, fontWeight: 600 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#F8FAFC' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload || payload.length === 0) return null;
+                      const d = payload[0].payload;
+                      return (
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-md text-xs space-y-1.5 min-w-[220px]">
+                          <div className="font-bold text-slate-900">{d.fullName}</div>
+                          <div className="text-[11px] text-slate-500">{d.worldLabel}</div>
+                          <div className="pt-1 border-t border-slate-100 space-y-1 font-mono tabular-nums">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-emerald-700 font-sans font-semibold">Conclusão:</span>
+                              <span className="font-bold text-slate-900">
+                                {d.completionRate}% ({d.completedCount}/{d.totalStudents})
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-amber-700 font-sans font-semibold">Média dos Alunos:</span>
+                              <span className="font-bold text-slate-900">{d.averageScore}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="top"
+                    height={32}
+                    wrapperStyle={{ fontSize: 12, fontWeight: 600 }}
+                  />
+                  <ReferenceLine
+                    x={PROGRESSION_CONFIG.PASSING_THRESHOLD}
+                    stroke="#94A3B8"
+                    strokeDasharray="4 4"
+                  />
+                  <Bar
+                    dataKey="completionRate"
+                    name="% Conclusão"
+                    fill="#10B981"
+                    radius={[0, 6, 6, 0]}
+                    barSize={12}
+                  />
+                  <Bar
+                    dataKey="averageScore"
+                    name="Média dos Alunos (%)"
+                    fill="#D97706"
+                    radius={[0, 6, 6, 0]}
+                    barSize={12}
+                  />
+                </BarChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Existing Simulator Summary Statistics Cards (Maintained & Now Clickable!) */}
       {currentWorld && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(currentWorld.activities || []).map((act: any) => (
-            <div key={act.id} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-xs">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h4 className="font-bold text-slate-900 text-base">{act.title}</h4>
-                  <p className="text-xs text-slate-500 mt-0.5">{act.description}</p>
+          {enrichedActivities.map((act: any) => {
+            const isSelected = viewMode === 'by-simulator' && activeActivity?.id === act.id;
+            return (
+              <div
+                key={act.id}
+                onClick={() => {
+                  setSelectedActivityId(act.id);
+                  setViewMode('by-simulator');
+                }}
+                className={`bg-white rounded-2xl p-5 space-y-3 shadow-xs transition-all cursor-pointer border-2 ${
+                  isSelected
+                    ? 'border-amber-500 ring-2 ring-amber-200/70'
+                    : 'border-slate-200 hover:border-amber-300'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-base">{act.title}</h4>
+                    <p className="text-xs text-slate-500 mt-0.5">{act.description}</p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-mono text-xs font-bold shrink-0">
+                    +{act.xpReward} XP
+                  </span>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-mono text-xs font-bold">
-                  +{act.xpReward} XP
-                </span>
+
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-xs">
+                  <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
+                    <div className="text-slate-500 text-[10px]">Concluídos</div>
+                    <div className="font-bold text-emerald-700 text-sm mt-0.5">{act.displayCompletedCount}</div>
+                  </div>
+                  <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
+                    <div className="text-slate-500 text-[10px]">Pendentes</div>
+                    <div className="font-bold text-amber-700 text-sm mt-0.5">{act.displayPendingCount}</div>
+                  </div>
+                  <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
+                    <div className="text-slate-500 text-[10px]">Média de Acerto</div>
+                    <div className="font-bold text-slate-900 text-sm mt-0.5">{act.displayAverageScore}%</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1 text-[11px]">
+                  <span className={isSelected ? 'font-bold text-amber-700' : 'text-slate-500'}>
+                    {isSelected
+                      ? 'A mostrar notas individuais abaixo'
+                      : 'Clica para ver quem realizou e as percentagens'}
+                  </span>
+                  <span className="font-bold text-amber-700 flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" />
+                    {act.displayCompletedCount}/{act.filteredStudents.length}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Detailed Student Grades & Participation Section */}
+      {currentWorld && activeActivity && (
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+          <div className="p-5 border-b border-slate-200 bg-slate-50/70 space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-amber-600" />
+                  {viewMode === 'by-simulator'
+                    ? `Resultados dos Alunos — ${activeActivity.title}`
+                    : `Grelha de Todos os Simuladores — Mundo ${selectedWorld}`}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {viewMode === 'by-simulator'
+                    ? `Percentagem obtida por cada aluno neste simulador (${activeActivity.displayCompletedCount} concluídos de ${activeActivity.filteredStudents.length} alunos).`
+                    : `Comparação lado a lado da percentagem obtida por cada aluno em todos os simuladores do Mundo ${selectedWorld}.`}
+                </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-xs">
-                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
-                  <div className="text-slate-500 text-[10px]">Concluídos</div>
-                  <div className="font-bold text-emerald-700 text-sm mt-0.5">{act.completedCount || 0}</div>
-                </div>
-                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
-                  <div className="text-slate-500 text-[10px]">Pendentes</div>
-                  <div className="font-bold text-amber-700 text-sm mt-0.5">{act.pendingCount || 0}</div>
-                </div>
-                <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
-                  <div className="text-slate-500 text-[10px]">Média de Acerto</div>
-                  <div className="font-bold text-slate-900 text-sm mt-0.5">{act.averageScore || 0}%</div>
-                </div>
+              <div className="inline-flex bg-slate-200/70 p-1 rounded-xl shrink-0">
+                <button
+                  onClick={() => setViewMode('by-simulator')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    viewMode === 'by-simulator'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <ListChecks className="w-3.5 h-3.5" />
+                  Por Simulador
+                </button>
+                <button
+                  onClick={() => setViewMode('world-grid')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    viewMode === 'world-grid'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Table2 className="w-3.5 h-3.5" />
+                  Grelha do Mundo
+                </button>
               </div>
             </div>
-          ))}
+
+            {/* Filters Row: Search + Status Filter */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Pesquisar aluno por nome ou utilizador..."
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1.5">
+                {[
+                  { id: 'all', label: 'Todos' },
+                  { id: 'completed', label: 'Apenas quem realizou' },
+                  { id: 'pending', label: 'Ainda por fazer' },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setStatusFilter(opt.id as any)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                      statusFilter === opt.id
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* VIEW 1: PER-SIMULATOR STUDENT TABLE */}
+          {viewMode === 'by-simulator' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase">
+                    <th className="py-3 px-4 w-14 text-center">N.º</th>
+                    <th className="py-3 px-4">Aluno</th>
+                    <th className="py-3 px-4">Turma</th>
+                    <th className="py-3 px-4 text-center">Estado</th>
+                    <th className="py-3 px-4 text-center">Percentagem</th>
+                    <th className="py-3 px-4 text-center">Menção</th>
+                    <th className="py-3 px-4 text-center">Tentativas</th>
+                    <th className="py-3 px-4">Última Realização</th>
+                    {onOpenStudent && <th className="py-3 px-4 text-right">Ficha</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs">
+                  {detailStudents.map((st: any) => (
+                    <tr key={st.studentId} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-4 text-center font-mono font-bold text-slate-500">
+                        {st.studentNumber ?? '—'}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-slate-900">{st.studentName}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">@{st.studentNickname}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[11px]">
+                          {st.className}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {st.completed ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[11px]">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Concluído
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200 font-semibold text-[11px]">
+                            <Clock className="w-3.5 h-3.5" /> Por fazer
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {st.completed ? (
+                          <span
+                            className={`inline-block px-2.5 py-1 rounded-lg border font-mono font-black text-xs ${getScoreBadgeClass(
+                              st.bestScore
+                            )}`}
+                          >
+                            {st.bestScore}%
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-mono">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {st.completed ? (
+                          <span className="font-bold text-slate-700">
+                            {getQualitativeMention(st.bestScore)}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-center font-mono font-bold text-slate-700">
+                        {st.attempts || 0}
+                      </td>
+                      <td className="py-3 px-4 text-slate-500">
+                        {st.lastAttemptAt
+                          ? new Date(st.lastAttemptAt).toLocaleString('pt-PT', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : '—'}
+                      </td>
+                      {onOpenStudent && (
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={() => onOpenStudent({ id: st.studentId, name: st.studentName })}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 font-bold text-[11px] transition-colors cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Ver
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                  {detailStudents.length === 0 && (
+                    <tr>
+                      <td colSpan={onOpenStudent ? 9 : 8} className="py-8 text-center text-slate-400 text-xs">
+                        Nenhum aluno encontrado com os filtros selecionados neste simulador.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* VIEW 2: WORLD MATRIX GRID (ALL SIMULATORS SIDE BY SIDE) */}
+          {viewMode === 'world-grid' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase">
+                    <th className="py-3 px-3 w-12 text-center">N.º</th>
+                    <th className="py-3 px-4 min-w-[180px]">Aluno</th>
+                    <th className="py-3 px-3">Turma</th>
+                    {enrichedActivities.map((act, idx) => (
+                      <th key={act.id} className="py-3 px-3 text-center min-w-[110px]" title={act.title}>
+                        <div className="text-[10px] text-amber-700 font-black">Sim {idx + 1}</div>
+                        <div className="text-[10px] text-slate-600 font-semibold normal-case truncate max-w-[120px] mx-auto">
+                          {act.title}
+                        </div>
+                      </th>
+                    ))}
+                    <th className="py-3 px-4 text-center bg-amber-50/70 text-amber-900">Média Simuladores</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs">
+                  {worldGridRows.map((row: any) => (
+                    <tr key={row.studentId} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-3 text-center font-mono font-bold text-slate-500">
+                        {row.studentNumber ?? '—'}
+                      </td>
+                      <td className="py-3 px-4">
+                        <button
+                          type="button"
+                          onClick={() => onOpenStudent?.({ id: row.studentId, name: row.studentName })}
+                          className="text-left hover:underline font-bold text-slate-900 cursor-pointer"
+                        >
+                          {row.studentName}
+                        </button>
+                        <div className="text-[11px] text-slate-500 font-mono">@{row.studentNickname}</div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[11px]">
+                          {row.className}
+                        </span>
+                      </td>
+                      {row.scoresBySim.map((sc: any) => (
+                        <td key={sc.activityId} className="py-3 px-3 text-center">
+                          {sc.completed ? (
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded-md border font-mono font-bold text-xs ${getScoreBadgeClass(
+                                sc.bestScore
+                              )}`}
+                            >
+                              {sc.bestScore}%
+                            </span>
+                          ) : (
+                            <span className="text-slate-300 font-mono">—</span>
+                          )}
+                        </td>
+                      ))}
+                      <td className="py-3 px-4 text-center bg-amber-50/40">
+                        {row.average !== null ? (
+                          <span className="font-mono font-black text-slate-900">{row.average}%</span>
+                        ) : (
+                          <span className="text-slate-400 font-mono">—</span>
+                        )}
+                        <div className="text-[10px] text-slate-500">
+                          {row.completedCount}/{row.totalSims} feitos
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {worldGridRows.length === 0 && (
+                    <tr>
+                      <td colSpan={enrichedActivities.length + 4} className="py-8 text-center text-slate-400 text-xs">
+                        Nenhum aluno encontrado com os filtros selecionados.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

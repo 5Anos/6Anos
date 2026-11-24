@@ -44,10 +44,10 @@ export const ProfileView: React.FC = () => {
           <User className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-          Perfil Bloqueado — Início de Sessão Obrigatório
+          Entra na tua conta para veres o teu perfil!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para personalizares o teu avatar e o teu nome de explorador digital, inicia sessão com a conta fornecida pela tua Professora.
+          Para criares o teu avatar e escolheres o teu nome de jogo, entra com a conta dada pela tua Professora.
         </p>
       </div>
     );
@@ -106,7 +106,7 @@ export const ProfileView: React.FC = () => {
 
         <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 px-4 py-2.5 rounded-2xl border border-blue-200 self-start sm:self-auto">
           <ShieldCheck className="w-4 h-4" />
-          <span>Perfil Protegido RGPD</span>
+          <span>Perfil Seguro e Privado</span>
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export const ProfileView: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-bold text-slate-700">
-                  Nickname Público (RGPD):
+                  Nome de Jogo (visto pela turma):
                 </label>
                 <button
                   type="button"
@@ -162,7 +162,7 @@ export const ProfileView: React.FC = () => {
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400 mt-1 block">
-                Este é o único nome visível para os teus colegas no ranking de turma e desafios.
+                Este é o único nome que os teus colegas veem na tabela da turma e nos desafios.
               </span>
             </div>
 
@@ -216,18 +216,18 @@ export const ProfileView: React.FC = () => {
       {/* Level and Progression Summary Card */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
         <h3 className="text-base font-extrabold text-slate-900 mb-4">
-          Resumo do teu Estado Curricular
+          O Teu Progresso
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-blue-50/70 p-4 rounded-2xl border border-blue-100">
-            <span className="text-[10px] uppercase font-bold text-blue-800">Nível Curricular</span>
+            <span className="text-[10px] uppercase font-bold text-blue-800">O Teu Nível</span>
             <div className="text-xl font-black text-blue-950 mt-1">
               Nível {nextLevel.current.level}
             </div>
             <span className="text-xs text-blue-700 font-semibold">{nextLevel.current.name}</span>
           </div>
           <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-100">
-            <span className="text-[10px] uppercase font-bold text-emerald-800">Pontos de Experiência</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-800">Pontos (XP)</span>
             <div className="text-xl font-black text-emerald-950 mt-1">
               {user.xp} XP
             </div>
@@ -236,11 +236,11 @@ export const ProfileView: React.FC = () => {
             </span>
           </div>
           <div className="bg-purple-50/70 p-4 rounded-2xl border border-purple-100">
-            <span className="text-[10px] uppercase font-bold text-purple-800">Mundos Concluídos</span>
+            <span className="text-[10px] uppercase font-bold text-purple-800">Mundos Desbloqueados</span>
             <div className="text-xl font-black text-purple-950 mt-1">
               {user.unlockedWorlds?.length || 1} / 5
             </div>
-            <span className="text-xs text-purple-700 font-semibold">Em progressão contínua</span>
+            <span className="text-xs text-purple-700 font-semibold">Continua a avançar!</span>
           </div>
         </div>
       </div>

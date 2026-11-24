@@ -389,7 +389,7 @@ export const TeacherArea: React.FC = () => {
                 {dashboardStats.globalAverageScore}%
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                Critério de aprovação: &gt;={PROGRESSION_CONFIG.PASSING_THRESHOLD}%
+                Critério de aprovação: &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
               </div>
             </div>
           </div>
@@ -435,14 +435,14 @@ export const TeacherArea: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                     <Compass className="w-5 h-5 text-amber-600" />
-                    Desempenho Médio por Mundo (Critério &gt;= {PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
+                    Desempenho Médio por Mundo (Critério &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
                   </h3>
                   <span className="text-xs text-slate-500">5 Mundos Temáticos TIC</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   {dashboardStats.worldPerformance?.map((w: any) => {
-                    const isPassed = w.averageScore >= PROGRESSION_CONFIG.PASSING_THRESHOLD;
+                    const isPassed = w.averageScore > PROGRESSION_CONFIG.PASSING_THRESHOLD;
                     return (
                       <div
                         key={w.worldId}
@@ -468,7 +468,7 @@ export const TeacherArea: React.FC = () => {
                                 : 'bg-rose-50 text-rose-700 border-rose-200'
                             }`}
                           >
-                            {isPassed ? `Aprovado (>=${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)` : 'Abaixo da Média'}
+                            {isPassed ? `Aprovado (>${PROGRESSION_CONFIG.PASSING_THRESHOLD}%)` : 'Abaixo da Média'}
                           </span>
                         </div>
 
@@ -624,7 +624,13 @@ export const TeacherArea: React.FC = () => {
 
           {/* TAB: ACTIVITIES */}
           {activeTab === 'activities' && (
-            <TeacherActivitiesTab activitiesData={activitiesData} />
+            <TeacherActivitiesTab
+              activitiesData={activitiesData}
+              classes={classes}
+              selectedClass={selectedClass}
+              setSelectedClass={setSelectedClass}
+              onOpenStudent={(s) => setSelectedStudentForDossier(s)}
+            />
           )}
 
           {/* TAB: CLASSES */}

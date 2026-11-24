@@ -33,14 +33,14 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
     {
       icon: Shield,
       title: 'Guardião Digital',
-      desc: 'Ciberdefesa, 2FA e bloqueio de phishing',
+      desc: 'Segurança, palavras-passe fortes e caça ao phishing',
       color: 'emerald',
       code: '#SEC-SAFE-2040',
     },
     {
       icon: Search,
       title: 'Detetive Digital',
-      desc: 'Pensamento crítico e fact-checking de notícias',
+      desc: 'Pensamento crítico e verificação de notícias',
       color: 'blue',
       code: '#FACT-CHECK-OK',
     },
@@ -54,14 +54,14 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
     {
       icon: Terminal,
       title: 'Engenheiro Digital',
-      desc: 'Lógica condicional, sensores e eficiência energética',
+      desc: 'Algoritmos, condições e poupança de energia',
       color: 'amber',
       code: '#ALGO-ROBOT-RUN',
     },
     {
       icon: Brain,
       title: 'Explorador da IA',
-      desc: 'Engenharia de prompts éticos e privacidade',
+      desc: 'Bons prompts, verificação de factos e privacidade',
       color: 'indigo',
       code: '#AI-ETHICS-PASS',
     },
@@ -100,14 +100,14 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
         {/* Reward Pill */}
         <div className="inline-flex items-center gap-2 bg-amber-400 text-amber-950 font-black text-sm px-6 py-2.5 rounded-full shadow-md mb-8">
           <Sparkles className="w-4 h-4 fill-current" />
-          <span>+{xpWon || 150} XP Creditados & Insígnia "Mestre da Missão TIC" Atribuída!</span>
+          <span>+{xpWon || 150} XP Ganhos e Medalha "Mestre da Missão TIC" Desbloqueada!</span>
         </div>
 
         {/* 5 Pillars Summary */}
         <div className="text-left bg-slate-50 border border-slate-200/90 rounded-2xl p-5 mb-8">
           <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            Competências Curriculares Consolidadas:
+            O Que Já Dominas:
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -141,7 +141,7 @@ export const GrandeMissaoCelebration: React.FC<CelebrationProps> = ({
             onClick={onBackToDashboard}
             className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
           >
-            <span>Voltar ao Painel Principal</span>
+            <span>Voltar ao Início</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 

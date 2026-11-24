@@ -172,13 +172,20 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
             const classStudents = studentList.filter((s) => s.classId === c.id);
             const totalXP = classStudents.reduce((acc, s) => acc + (s.xp || 0), 0);
             const avgXP = classStudents.length > 0 ? Math.round(totalXP / classStudents.length) : 0;
+            const activeClassStudents = classStudents.filter((s) =>
+              Array.isArray(s.worldAverages)
+                ? s.worldAverages.some((w: any) => (w.completedCount || 0) > 0)
+                : (s.globalAverage || 0) > 0
+            );
             const avgPass =
-              classStudents.length > 0
-                ? Math.round(
-                    classStudents.reduce((acc, s) => acc + (s.globalAverage || 0), 0) /
-                      classStudents.length
+              activeClassStudents.length > 0
+                ? Number(
+                    (
+                      activeClassStudents.reduce((acc, s) => acc + (s.globalAverage || 0), 0) /
+                      activeClassStudents.length
+                    ).toFixed(1)
                   )
-                : 0;
+                : null;
 
             return (
               <div
@@ -208,10 +215,17 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                       <div className="text-slate-500 text-[11px]">Média da Turma</div>
                       <div
                         className={`font-bold font-mono text-sm mt-0.5 ${
-                          avgPass >= PROGRESSION_CONFIG.PASSING_THRESHOLD ? 'text-emerald-700' : 'text-slate-700'
+                          avgPass !== null && avgPass > PROGRESSION_CONFIG.PASSING_THRESHOLD
+                            ? 'text-emerald-700'
+                            : avgPass !== null
+                            ? 'text-amber-700'
+                            : 'text-slate-400'
                         }`}
                       >
-                        {avgPass > 0 ? `${avgPass}%` : '—'}
+                        {avgPass !== null ? `${avgPass}%` : '—'}
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        {activeClassStudents.length}/{classStudents.length} com atividades
                       </div>
                     </div>
                   </div>
