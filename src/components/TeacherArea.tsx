@@ -45,6 +45,7 @@ import {
 import { StudentImportModal } from './teacher/StudentImportModal';
 import { LoginCardsModal } from './teacher/LoginCardsModal';
 import { ModuleVisibilityModal } from './teacher/ModuleVisibilityModal';
+import { TeacherStudentsWorldBarChart } from './teacher/StudentWorldProgressChart';
 
 export const TeacherArea: React.FC = () => {
   const { user } = useAuth();
@@ -570,6 +571,16 @@ export const TeacherArea: React.FC = () => {
                 </div>
               </div>
 
+              {/* Per-Student World Progress Bar Chart (Recharts) */}
+              <TeacherStudentsWorldBarChart
+                pautaData={pautaData}
+                students={students}
+                classes={classes}
+                selectedClass={selectedClass}
+                onSelectClass={setSelectedClass}
+                onOpenStudent={(s) => setSelectedStudentForDossier(s)}
+              />
+
               {/* Quick Actions & Recent Activity */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Quick Shortcuts */}
@@ -773,6 +784,7 @@ export const TeacherArea: React.FC = () => {
         onClose={() => setShowLoginCardsModal(false)}
         students={students}
         classes={classes}
+        initialClassId={selectedClass}
       />
 
       {/* Module and Quiz Visibility Modal */}

@@ -54,3 +54,62 @@
     scroll-behavior: auto !important;
   }
 }
+
+#login-cards-print-portal {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  body.printing-login-cards > #root {
+    display: none !important;
+  }
+
+  body.printing-login-cards > #login-cards-print-portal {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  #login-cards-print-portal * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .login-cards-print-page {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 5mm !important;
+    width: 100% !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .login-cards-print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .login-cards-print-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+

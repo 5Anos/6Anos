@@ -23,6 +23,7 @@ import {
 import { apiRequest } from '../../api';
 import { AvatarRenderer } from '../avatar/AvatarRenderer';
 import { PROGRESSION_CONFIG } from '../../progressionConfig';
+import { SingleStudentWorldBarChart } from './StudentWorldProgressChart';
 
 interface StudentDossierModalProps {
   studentId: string;
@@ -405,6 +406,9 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Individual Student World Progress Bar Chart */}
+              <SingleStudentWorldBarChart worldDetails={worldDetails} />
 
               {/* Worlds Summary Cards */}
               <div className="space-y-3">
