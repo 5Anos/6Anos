@@ -27,13 +27,13 @@ export interface LevelDefinition {
  */
 export const SHARED_LEVELS: LevelDefinition[] = [
   { level: 1, name: 'Novato Digital', minXp: 0 },
-  { level: 2, name: 'Explorador Digital', minXp: 250 },
-  { level: 3, name: 'Guardião Digital', minXp: 600 },
-  { level: 4, name: 'Detetive Digital', minXp: 1050 },
-  { level: 5, name: 'Criador Digital', minXp: 1600 },
-  { level: 6, name: 'Engenheiro Digital', minXp: 2250 },
-  { level: 7, name: 'Explorador da IA', minXp: 3000 },
-  { level: 8, name: 'Mestre da Missão TIC', minXp: 4000 },
+  { level: 2, name: 'Aprendiz Digital', minXp: 250 },
+  { level: 3, name: 'Explorador Digital', minXp: 600 },
+  { level: 4, name: 'Navegador Digital', minXp: 1050 },
+  { level: 5, name: 'Especialista TIC', minXp: 1600 },
+  { level: 6, name: 'Estratega Digital', minXp: 2250 },
+  { level: 7, name: 'Campeão TIC', minXp: 3000 },
+  { level: 8, name: 'Lenda da Missão TIC', minXp: 4000 },
 ];
 
 export const BADGE_THRESHOLDS = {

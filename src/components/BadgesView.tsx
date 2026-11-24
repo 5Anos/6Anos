@@ -24,6 +24,7 @@ import { BADGES_CATALOG, BadgeCatalogDefinition } from '../data/catalog';
 import { apiRequest } from '../api';
 import { t } from '../i18n';
 import type { BadgeCategory, BadgeTier } from '../../shared/badgesCatalog';
+import { XpMilestonesTracker } from './XpMilestonesTracker';
 
 interface EnrichedBadge extends BadgeCatalogDefinition {
   unlocked: boolean;
@@ -208,54 +209,44 @@ export const BadgesView: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Unified XP Rank Track + Collection Summary */}
+      <XpMilestonesTracker
+        xp={user.xp || 0}
+        isLoggedIn={true}
+        mode="full"
+        badges={resolvedBadges}
+      />
+
+      {/* Medals Gallery Header & Category Filter Bar */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {t('nav_badges', locale)} &amp; Galeria de Honra
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Conquista {resolvedBadges.length} medalhas oficiais ao longo do ano: 5 Mundos, Marcos de XP (até 4 500 XP), Desafios Semanais, Dicas Diárias e Excelência!
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              Galeria das {resolvedBadges.length} Medalhas Oficiais
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Filtra por categoria para veres o que já conquistaste ({unlockedCount}/{resolvedBadges.length} · {completionPct}%) e o que falta desbloquear.
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl px-5 py-2.5 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                Conquistadas
-              </span>
-              <span className="text-xl font-black text-blue-700">
-                {unlockedCount} / {resolvedBadges.length}
-              </span>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2.5 text-center">
-              <span className="text-[10px] uppercase font-bold text-amber-800 block">
-                Coleção
-              </span>
-              <span className="text-xl font-black text-amber-700">{completionPct}%</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {CATEGORY_TABS.map((tab) => {
+              const isActive = categoryFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setCategoryFilter(tab.id)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-colors cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-        </div>
-
-        {/* Category Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-          {CATEGORY_TABS.map((tab) => {
-            const isActive = categoryFilter === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setCategoryFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-colors cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
         </div>
       </div>
 

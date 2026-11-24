@@ -62,6 +62,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [dashboardRankingTab, setDashboardRankingTab] = useState<'classes' | 'individual'>('classes');
   const [dailyTip, setDailyTip] = useState<DailyTipData | null>(null);
   const [weeklyChallenge, setWeeklyChallenge] = useState<WeeklyChallengeData | null>(null);
+  const [liveBadges, setLiveBadges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [claimingTip, setClaimingTip] = useState(false);
   const [tipSuccessMsg, setTipSuccessMsg] = useState<string | null>(null);
@@ -76,22 +77,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   useEffect(() => {
     loadDashboardData();
-  }, [user?.id]);
+  }, [user?.id, user?.xp]);
 
   const loadDashboardData = async () => {
     try {
-      const [worldsRes, rankingRes, classesRankRes, tipRes, challengeRes] = await Promise.all([
+      const [worldsRes, rankingRes, classesRankRes, tipRes, challengeRes, badgesRes] = await Promise.all([
         apiRequest('/api/pedagogical/worlds'),
         apiRequest('/api/pedagogical/class-ranking'),
         apiRequest('/api/pedagogical/classes-ranking').catch(() => ({ classesRanking: [] })),
         apiRequest('/api/pedagogical/daily-tip'),
         apiRequest('/api/pedagogical/weekly-challenge'),
+        user ? apiRequest('/api/pedagogical/badges').catch(() => ({ badges: [] })) : Promise.resolve({ badges: [] }),
       ]);
       setWorlds(worldsRes.worlds || []);
       setRanking(rankingRes.ranking || []);
       setClassesRanking(classesRankRes.classesRanking || []);
       setDailyTip(tipRes);
       setWeeklyChallenge(challengeRes);
+      if (Array.isArray(badgesRes?.badges) && badgesRes.badges.length > 0) {
+        setLiveBadges(badgesRes.badges);
+      }
     } catch (err) {
       console.error('Error loading dashboard data:', err);
     } finally {
@@ -304,20 +309,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 1.5 VISUAL XP MILESTONES TRACKER */}
-      <XpMilestonesTracker
-        xp={user?.xp || 0}
-        isLoggedIn={Boolean(user)}
-        dailyTipClaimed={Boolean(dailyTip?.alreadyClaimed)}
-        weeklyChallengeCompleted={Boolean(weeklyChallenge?.alreadyCompleted)}
-        onClaimDailyTip={handleClaimDailyTip}
-        onOpenWeeklyChallenge={onOpenWeeklyChallenge}
-        onOpenWorlds={() => onSelectTab('worlds')}
-        onOpenGrandeMissao={onOpenGrandeMissao}
-        onOpenLoginModal={onOpenLoginModal}
-      />
-
-      {/* 2. OS 5 MUNDOS DA MISSÃO TIC — THE PANORAMA ARCHIPELAGO (Matching Reference Mockup) */}
+      {/* 2. OS 5 MUNDOS DA MISSÃO TIC — IMMEDIATELY AFTER TOP 3 CARDS */}
       <div
         id="worlds-panorama-section"
         className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden"
@@ -831,172 +823,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 3. BOTTOM 3 COLUMNS (Matching Reference Mockup) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Column 1: As minhas conquistas */}
-        <div
-          id="achievements-section"
-          className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-black text-slate-900">
-                As minhas conquistas
-              </h3>
-              <button
-                onClick={() => {
-                  onSelectTab('badges');
-                }}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
-              >
-                <span>Ver todas</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+      {/* 3. SISTEMA ÚNICO: AS MINHAS CONQUISTAS & NÍVEL XP (DEPOIS DOS 5 MUNDOS) */}
+      <XpMilestonesTracker
+        xp={user?.xp || 0}
+        isLoggedIn={Boolean(user)}
+        mode="dashboard"
+        badges={liveBadges.length > 0 ? liveBadges : badges}
+        onOpenBadges={() => onSelectTab('badges')}
+        onSelectWorld={onSelectWorld}
+        onOpenLoginModal={onOpenLoginModal}
+      />
 
-            {/* 5 Shields in responsive grid */}
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 py-3">
-              {(() => {
-                const userBadgesList = badges.map((b: any) => b.badgeId || b.id || b);
-                const shieldConfigs = [
-                  {
-                    id: 'guardiao-digital',
-                    name: 'Guardião Digital',
-                    color: '#2563EB',
-                    fill: '#3B82F6',
-                    icon: 'star',
-                  },
-                  {
-                    id: 'detetive-digital',
-                    name: 'Detetive Digital',
-                    color: '#0284C7',
-                    fill: '#38BDF8',
-                    icon: 'search',
-                  },
-                  {
-                    id: 'criador-digital',
-                    name: 'Criador Digital',
-                    color: '#7C3AED',
-                    fill: '#A855F7',
-                    icon: 'palette',
-                  },
-                  {
-                    id: 'engenheiro-digital',
-                    name: 'Engenheiro Digital',
-                    color: '#D97706',
-                    fill: '#F59E0B',
-                    icon: 'terminal',
-                  },
-                  {
-                    id: 'explorador-da-ia',
-                    name: 'Explorador da IA',
-                    color: '#4F46E5',
-                    fill: '#6366F1',
-                    icon: 'sparkles',
-                  },
-                ];
-
-                return shieldConfigs.map((shield) => {
-                  const hasIt = userBadgesList.includes(shield.id);
-                  return (
-                    <div key={shield.id} className="flex flex-col items-center text-center">
-                      <div className="w-12 h-14 flex items-center justify-center">
-                        {hasIt ? (
-                          <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 drop-shadow-xs">
-                            <path
-                              d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
-                              fill={shield.color}
-                              stroke="#FFFFFF"
-                              strokeWidth="2.5"
-                            />
-                            <path
-                              d="M24 8 L38 12 C38 30, 34 40, 24 46 C14 40, 10 30, 10 12 Z"
-                              fill={shield.fill}
-                            />
-                            <polygon
-                              points="24,18 26,24 32,24 27,28 29,34 24,30 19,34 21,28 16,24 22,24"
-                              fill="#FFFFFF"
-                            />
-                          </svg>
-                        ) : (
-                          <svg viewBox="0 0 48 56" fill="none" className="w-11 h-13 opacity-50">
-                            <path
-                              d="M24 2 L44 8 C44 32, 38 46, 24 54 C10 46, 4 32, 4 8 Z"
-                              fill="#E2E8F0"
-                              stroke="#CBD5E1"
-                              strokeWidth="2"
-                            />
-                            <circle cx="24" cy="28" r="4" fill="#94A3B8" />
-                            <path d="M22 28 V24 A2 2 0 0 1 26 24 V28" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                          </svg>
-                        )}
-                      </div>
-                      <span
-                        className={`text-[10px] font-bold leading-tight mt-1 ${
-                          hasIt ? 'text-slate-800' : 'text-slate-400'
-                        }`}
-                      >
-                        {shield.name}
-                      </span>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-            Completa os 5 Mundos para ganhares a medalha Mestre da Missão TIC!
-          </div>
-        </div>
-
-        {/* Column 2: Próxima missão */}
-        <div
-          id="next-mission-section"
-          className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between"
-        >
-          <div>
-            <h3 className="text-lg font-black text-slate-900 mb-4">
-              Próxima missão
-            </h3>
-
-            {/* Mission Box */}
-            <div className="flex items-center gap-4 bg-[#F0F9FF] border border-[#BAE6FD] p-4 rounded-2xl">
-              <div className="w-13 h-13 rounded-2xl bg-[#0284C7] text-white flex items-center justify-center shrink-0 shadow-xs">
-                <BookOpen className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wide block">
-                  Próxima atividade
-                </span>
-                <h4 className="text-sm font-black text-slate-900 mt-0.5">
-                  Cria uma Palavra-Passe Forte
-                </h4>
-                <span className="inline-block mt-1 bg-[#FEF08A] text-[#854D0E] text-xs font-black px-2.5 py-0.5 rounded-md">
-                  +30 XP
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
-            <button
-              onClick={() => {
-                onOpenSimulator(1, 'sim-password');
-              }}
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-black text-xs px-6 py-2.5 rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
-            >
-              <span>Continuar</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Column 3: Ranking de Turmas & Tabela Individual */}
-        <div
-          id="class-ranking-section"
-          className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between"
-        >
+      {/* 4. RANKING DAS TURMAS & TABELA INDIVIDUAL */}
+      <div
+        id="class-ranking-section"
+        className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between"
+      >
           <div>
             <div className="flex items-start justify-between gap-2 mb-3">
               <div>
@@ -1218,7 +1060,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ? 'Clica em "Ver todos" para veres o ranking completo e filtrar por turma.'
               : 'Pratica missões e desafios para subires no Ranking das Turmas!'}
           </div>
-        </div>
       </div>
 
       {/* Locked World Pedagogical Modal */}
