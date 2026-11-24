@@ -12,6 +12,7 @@ import {
   QrCode,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { extractShortName } from '../../utils/kidCredentials';
 
 interface LoginCardsModalProps {
   isOpen: boolean;
@@ -158,7 +159,8 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
               {filteredStudents.map((student) => {
                 const turmaName = student.turma || student.className || '6.º Ano';
                 const callNum = student.studentNumber ? `N.º ${student.studentNumber}` : '';
-                const fullName = student.fullName || student.name;
+                const fullName = student.fullName || student.name || '';
+                const shortName = extractShortName(fullName).displayName;
                 const username = student.username || student.nickname;
                 const password = student.initialPassword || '••••••';
 
@@ -179,13 +181,8 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
                         <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-[10px] shrink-0">
                           TIC
                         </div>
-                        <div>
-                          <div className="text-[11px] font-black tracking-wider uppercase text-blue-900 leading-tight">
-                            MISSÃO TIC 6.º ANO
-                          </div>
-                          <div className="text-[9px] text-slate-400 font-medium">
-                            Cartão Oficial de Acesso
-                          </div>
+                        <div className="text-[11px] font-black tracking-wider uppercase text-blue-900 leading-tight">
+                          MISSÃO TIC 6.º ANO
                         </div>
                       </div>
 
@@ -203,7 +200,7 @@ export const LoginCardsModal: React.FC<LoginCardsModalProps> = ({
                             {callNum ? `${callNum} • Nome do Aluno` : 'Nome do Aluno'}
                           </div>
                           <div className="text-sm font-black text-slate-900 leading-snug break-words">
-                            {callNum ? `${callNum} - ${fullName}` : fullName}
+                            {callNum ? `${callNum} - ${shortName}` : shortName}
                           </div>
                         </div>
 
