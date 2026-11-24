@@ -17,7 +17,6 @@ import { AssessmentQuestion, AssessmentSubmissionResult } from '../types';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
-import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 
 interface AssessmentModalProps {
   worldId: number;
@@ -126,6 +125,22 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
     }
   };
 
+  const getAttemptLabel = (attemptNumber: number) => {
+    if (attemptNumber === 1) return 'Avaliação - Primeira tentativa';
+    const ordinals: Record<number, string> = {
+      2: 'Segunda tentativa',
+      3: 'Terceira tentativa',
+      4: 'Quarta tentativa',
+      5: 'Quinta tentativa',
+      6: 'Sexta tentativa',
+      7: 'Sétima tentativa',
+      8: 'Oitava tentativa',
+      9: 'Nona tentativa',
+      10: 'Décima tentativa',
+    };
+    return ordinals[attemptNumber] || `${attemptNumber}.ª tentativa`;
+  };
+
   const currentQ = questions[currentIdx];
 
   return (
@@ -141,8 +156,8 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
               {meta && !result && (
                 <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 text-white">
                   {meta.isFirstAttempt
-                    ? '1.ª Tentativa — Avaliação Oficial'
-                    : `Treino — Tentativa n.º ${meta.attemptNumber}`}
+                    ? 'Avaliação - Primeira tentativa'
+                    : `${getAttemptLabel(meta.attemptNumber)} (Treino)`}
                 </span>
               )}
             </div>
@@ -190,12 +205,12 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   {result.isFirstAttempt ? (
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-blue-600 text-white shadow-xs">
                       <Award className="w-3.5 h-3.5" />
-                      Avaliação Oficial (1.ª Tentativa)
+                      Avaliação - Primeira tentativa
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-800 text-white shadow-xs">
                       <RotateCcw className="w-3.5 h-3.5" />
-                      Tentativa de Treino (Tentativa n.º {result.attemptNumber})
+                      {getAttemptLabel(result.attemptNumber)}
                     </span>
                   )}
                 </div>
@@ -210,13 +225,13 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   </div>
                   <div className="text-xs font-semibold text-slate-600">
                     {result.passed
-                      ? 'Parabéns! Passaste no quiz do mundo (50% ou mais)!'
-                      : 'Tiveste menos de 50%. Podes voltar a treinar para melhorar a tua nota!'}
+                      ? 'Parabéns! Passaste no quiz do mundo!'
+                      : 'Ainda não passaste desta vez. Podes voltar a treinar para melhorar!'}
                   </div>
                 </div>
 
-                {/* 4 Quantitative Metric Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
+                {/* Top Summary Cards (No percentages — only qualitative grade, right answers & XP) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4">
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
                     <span className="text-[11px] font-bold text-slate-500 uppercase block">Respostas Certas</span>
                     <span className="text-xl font-black text-slate-900 mt-0.5 block">
@@ -224,76 +239,98 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                     </span>
                   </div>
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Percentagem</span>
-                    <span className="text-xl font-black text-slate-900 mt-0.5 font-mono block">
-                      {result.percentage}%
-                    </span>
-                  </div>
-                  <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
                     <span className="text-[11px] font-bold text-slate-500 uppercase block">Nota Final</span>
-                    <span className="text-sm font-black text-blue-700 mt-1 block truncate">
+                    <span className="text-base font-black text-blue-700 mt-1 block truncate">
                       {result.mention}
                     </span>
                   </div>
                   <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase block">Tipo</span>
-                    <span className="text-base font-black mt-1 block text-indigo-700">
-                      Avaliação
+                    <span className="text-[11px] font-bold text-slate-500 uppercase block">XP</span>
+                    <span className="text-xl font-black mt-0.5 block text-amber-700">
+                      {result.totalXp ?? user?.xp ?? 0} XP
                     </span>
-                    <span className="text-[9px] font-semibold text-slate-400 block -mt-0.5">
-                      Conta para a média
+                    <span className="text-[10px] font-semibold text-slate-500 block -mt-0.5">
+                      Já acumulado
                     </span>
                   </div>
                 </div>
 
-                {/* Comparison for Training Attempts */}
-                {!result.isFirstAttempt && (
-                  <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 text-left space-y-3">
-                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Compara os teus resultados:
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200">
-                        <span className="text-[10px] font-bold text-blue-800 uppercase block">
-                          Avaliação Oficial (1.ª Tent.)
-                        </span>
-                        <span className="text-lg font-black text-blue-900 font-mono block mt-0.5">
-                          {result.officialPercentage ?? '—'}%
-                        </span>
-                        <span className="text-xs font-extrabold text-blue-700 block">
-                          {result.officialMention || '—'}
-                        </span>
-                        <span className="text-[10px] text-blue-600 block mt-1">Registada na pauta</span>
-                      </div>
+                {/* Sequential Attempts List (Qualitative mentions only — NO percentages) */}
+                {!result.isFirstAttempt && (() => {
+                  const historyList =
+                    result.attemptsHistory && result.attemptsHistory.length > 0
+                      ? result.attemptsHistory
+                      : [
+                          {
+                            attemptNumber: 1,
+                            mention: result.officialMention || '—',
+                          },
+                          {
+                            attemptNumber: result.attemptNumber,
+                            mention: result.mention,
+                          },
+                        ];
 
-                      <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200">
-                        <span className="text-[10px] font-bold text-emerald-800 uppercase block">
-                          Melhor Resultado (Treino)
-                        </span>
-                        <span className="text-lg font-black text-emerald-900 font-mono block mt-0.5">
-                          {result.newBest ?? result.previousBest ?? result.percentage}%
-                        </span>
-                        <span className="text-xs font-extrabold text-emerald-700 block">
-                          {result.bestMention || getQualitativeMention(result.newBest || result.percentage)}
-                        </span>
-                        <span className="text-[10px] text-emerald-600 block mt-1">Recorde pessoal</span>
+                  return (
+                    <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 text-left space-y-3">
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Histórico de tentativas:
                       </div>
-
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                        <span className="text-[10px] font-bold text-slate-600 uppercase block">
-                          Tentativa Atual n.º {result.attemptNumber}
-                        </span>
-                        <span className="text-lg font-black text-slate-900 font-mono block mt-0.5">
-                          {result.percentage}%
-                        </span>
-                        <span className="text-xs font-extrabold text-slate-700 block">
-                          {result.mention}
-                        </span>
-                        <span className="text-[10px] text-slate-500 block mt-1">Sessão de treino</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {historyList.map((att) => {
+                          const isOfficial = att.attemptNumber === 1;
+                          const isCurrent = att.attemptNumber === result.attemptNumber;
+                          return (
+                            <div
+                              key={att.attemptNumber}
+                              className={`p-3.5 rounded-xl border ${
+                                isOfficial
+                                  ? 'bg-blue-50/70 border-blue-200'
+                                  : isCurrent
+                                  ? 'bg-emerald-50/70 border-emerald-200'
+                                  : 'bg-slate-50 border-slate-200'
+                              }`}
+                            >
+                              <span
+                                className={`text-[10px] font-black uppercase block tracking-wide ${
+                                  isOfficial
+                                    ? 'text-blue-800'
+                                    : isCurrent
+                                    ? 'text-emerald-800'
+                                    : 'text-slate-600'
+                                }`}
+                              >
+                                {getAttemptLabel(att.attemptNumber)}
+                              </span>
+                              <span
+                                className={`text-base font-black block mt-1.5 ${
+                                  isOfficial
+                                    ? 'text-blue-900'
+                                    : isCurrent
+                                    ? 'text-emerald-900'
+                                    : 'text-slate-800'
+                                }`}
+                              >
+                                {att.mention}
+                              </span>
+                              <span
+                                className={`text-[10px] block mt-1 font-medium ${
+                                  isOfficial
+                                    ? 'text-blue-600'
+                                    : isCurrent
+                                    ? 'text-emerald-700'
+                                    : 'text-slate-500'
+                                }`}
+                              >
+                                {isOfficial ? 'Registada na pauta' : 'Sessão de treino'}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Evolution note for training attempts */}
                 {!result.isFirstAttempt && result.evolution && (
@@ -327,8 +364,8 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
                 <p className="text-xs font-medium text-slate-600 mt-3 max-w-lg mx-auto">
                   {result.isFirstAttempt
-                    ? 'Esta 1.ª tentativa fica guardada como a tua Avaliação Oficial na pauta da Professora.'
-                    : `A tua 1.ª nota oficial continua guardada (${result.officialMention || 'registada'}). Esta tentativa serviu para treinares e melhorares o teu recorde pessoal!`}
+                    ? 'A tua Avaliação - Primeira tentativa fica guardada na pauta da Professora.'
+                    : `A tua Avaliação - Primeira tentativa continua guardada (${result.officialMention || 'registada'}). Esta tentativa serviu para treinares e aprenderes ainda mais!`}
                 </p>
               </div>
 

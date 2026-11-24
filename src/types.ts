@@ -132,6 +132,11 @@ export interface AssessmentSubmissionResult {
   evolution?: 'improved' | 'maintained' | 'regressed';
   xpGain: number;
   totalXp: number;
+  attemptsHistory?: {
+    attemptNumber: number;
+    mention: string;
+    createdAt?: string;
+  }[];
   resultsFeedback: AssessmentResultFeedback[];
 }
 

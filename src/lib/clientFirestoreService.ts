@@ -940,6 +940,19 @@ export async function clientSubmitAssessment(
     await clientCheckBadges(userId);
   }
 
+  const attemptsHistory = [
+    ...sortedExisting.map((a: any, idx: number) => ({
+      attemptNumber: idx + 1,
+      mention: a.mention || getQualitativeMention(Number(a.percentage) || 0),
+      createdAt: a.createdAt,
+    })),
+    {
+      attemptNumber,
+      mention,
+      createdAt: now,
+    },
+  ];
+
   return {
     worldId,
     score: correctCount,
@@ -960,6 +973,7 @@ export async function clientSubmitAssessment(
     lastPrevAttemptPercentage: lastPrevAttempt ? lastPrevAttempt.percentage : null,
     xpGain,
     totalXp: finalUserXp,
+    attemptsHistory,
     resultsFeedback: detailedResults,
     results: detailedResults,
   };

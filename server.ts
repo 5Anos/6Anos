@@ -7,6 +7,7 @@ import { getFirestoreStats, testFirestoreConnection } from './server/firestoreDb
 import authRoutes from './server/routes/auth';
 import pedagogicalRoutes from './server/routes/pedagogical';
 import teacherRoutes from './server/routes/teacher';
+import aiRoutes from './server/routes/ai';
 
 // Filter out benign Firebase/gRPC stream idle timeouts (e.g. Code: 1 CANCELLED: Disconnecting idle stream)
 const origWarn = console.warn;
@@ -95,6 +96,7 @@ async function startServer() {
   app.use('/api/auth', authRoutes);
   app.use('/api/pedagogical', pedagogicalRoutes);
   app.use('/api/teacher', teacherRoutes);
+  app.use('/api/ai', aiRoutes);
 
   // Vite middleware for development or static serving for production
   if (process.env.NODE_ENV !== 'production') {

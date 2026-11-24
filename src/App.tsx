@@ -12,6 +12,7 @@ import { ProfileView } from './components/ProfileView';
 import { TeacherArea } from './components/TeacherArea';
 import { GrandeMissaoView } from './components/GrandeMissaoView';
 import { LoginModal } from './components/LoginModal';
+import { RoboGuiaChat } from './components/RoboGuiaChat';
 
 const MainLayout: React.FC = () => {
   const { user, loading, welcomeGreeting, dismissGreeting } = useAuth();
@@ -170,6 +171,8 @@ const MainLayout: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Robo-Guia personalized Socratic hint chat (visible for student views) */}
+      <RoboGuiaChat visible={currentTab !== 'teacher'} />
     </div>
   );
 };

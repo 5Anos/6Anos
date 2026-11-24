@@ -53,6 +53,7 @@ import {
   normalizeTurmaTag,
 } from '../utils/kidCredentials';
 import { hashPasswordClient } from './clientAuthUtils';
+import { buildStaticSocraticHint } from './simulatorHints';
 
 export async function clientDispatch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const method = (options.method || 'GET').toUpperCase();
@@ -176,6 +177,23 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   if (pathname === '/api/pedagogical/grande-missao') {
     const res = await clientGetGrandeMissao();
     return res as any;
+  }
+
+  // 2.5 STATIC-HOST SOCRATIC HINTS (GitHub Pages without Node backend)
+  if (pathname === '/api/ai/simulator-hint' && method === 'POST') {
+    const hint = buildStaticSocraticHint({
+      simulatorId: typeof body.simulatorId === 'string' ? body.simulatorId : '',
+      worldId: Number(body.worldId) || 1,
+      score: typeof body.score === 'number' ? body.score : undefined,
+      attemptSummary: typeof body.attemptSummary === 'string' ? body.attemptSummary : undefined,
+      userMessage: typeof body.userMessage === 'string' ? body.userMessage : undefined,
+      turnCount: Array.isArray(body.history) ? body.history.length : 0,
+    });
+    return {
+      hint,
+      simulatorId: body.simulatorId || '',
+      simulatorTitle: body.simulatorTitle || 'Atividade de TIC',
+    } as any;
   }
 
 

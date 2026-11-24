@@ -505,6 +505,19 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
 
     await evaluateBadges(userId);
 
+    const attemptsHistory = [
+      ...sortedPrev.map((a, idx) => ({
+        attemptNumber: idx + 1,
+        mention: a.mention || getQualitativeMention(a.percentage),
+        createdAt: a.createdAt,
+      })),
+      {
+        attemptNumber,
+        mention,
+        createdAt: attempt.createdAt,
+      },
+    ];
+
     return res.json({
       percentage,
       mention,
@@ -523,6 +536,7 @@ router.post('/assessments/:worldId', requireAuth, async (req: AuthRequest, res) 
       lastPrevAttemptPercentage: lastPrevAttempt ? lastPrevAttempt.percentage : null,
       xpGain: 0,
       totalXp,
+      attemptsHistory,
       resultsFeedback,
     });
   } catch (err) {

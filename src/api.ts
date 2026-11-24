@@ -1,6 +1,53 @@
 // API client communicating strictly with the server backend and Firebase Firestore.
 // Official persistent storage is Firebase Firestore.
 import { clientDispatch } from './lib/clientDispatcher';
+import {
+  buildSafeAttemptSummary,
+  emitSimulatorMistake,
+  getSimulatorMeta,
+} from './lib/simulatorHints';
+
+function notifySimulatorMistakeIfNeeded(endpoint: string, options: RequestInit, responseData: any): void {
+  try {
+    const method = (options.method || 'GET').toUpperCase();
+    if (method !== 'POST' || !endpoint.includes('/api/pedagogical/activities/complete')) {
+      return;
+    }
+    if (!options.body || typeof options.body !== 'string') return;
+    const parsedBody = JSON.parse(options.body);
+    const activityId = typeof parsedBody?.activityId === 'string' ? parsedBody.activityId.trim() : '';
+    if (!activityId.startsWith('sim-')) return;
+
+    const scoreCandidate =
+      typeof responseData?.score === 'number'
+        ? responseData.score
+        : typeof parsedBody?.score === 'number'
+          ? parsedBody.score
+          : null;
+
+    if (scoreCandidate === null || scoreCandidate >= 100) return;
+
+    const worldId = Number(parsedBody?.worldId) || 1;
+    const meta = getSimulatorMeta(activityId, worldId);
+    const attemptSummary = buildSafeAttemptSummary(
+      activityId,
+      parsedBody?.payload || parsedBody?.answers || parsedBody,
+      scoreCandidate
+    );
+
+    emitSimulatorMistake({
+      simulatorId: activityId,
+      simulatorTitle: meta.title,
+      worldId: meta.worldId,
+      topic: meta.topic,
+      score: scoreCandidate,
+      attemptSummary,
+      timestamp: Date.now(),
+    });
+  } catch {
+    // Non-blocking notification
+  }
+}
 
 export function isStaticHost(): boolean {
   if (typeof window === 'undefined') return false;
@@ -56,16 +103,19 @@ export function buildApiUrl(endpoint: string): string {
 }
 
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  // If running on GitHub Pages or static host without backend URL, dispatch directly to Firebase Firestore
+  // If running on GitHub Pages or static host without backend URL, dispatch directly to client dispatcher
   if (isStaticHost() && !getApiBaseUrl()) {
     try {
-      return await clientDispatch<T>(endpoint, options);
+      const staticRes = await clientDispatch<T>(endpoint, options);
+      notifySimulatorMistakeIfNeeded(endpoint, options, staticRes);
+      return staticRes;
     } catch (clientErr: any) {
       console.error(`[Client Firestore Error] ${endpoint}:`, clientErr);
       throw clientErr;
     }
   }
 
+  const isAiEndpoint = endpoint.includes('/api/ai/');
   const url = buildApiUrl(endpoint);
   const headers = new Headers(options.headers || {});
 
@@ -93,19 +143,34 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
       credentials: 'include',
     });
   } catch (netErr: any) {
+    if (isAiEndpoint) {
+      throw new Error('Não foi possível contactar o Robo-Guia. Verifica a tua ligação e tenta novamente.');
+    }
     console.warn(`[API Network Error] ${endpoint}, attempting direct Firebase Firestore access:`, netErr);
     try {
-      return await clientDispatch<T>(endpoint, options);
+      const fallbackRes = await clientDispatch<T>(endpoint, options);
+      notifySimulatorMistakeIfNeeded(endpoint, options, fallbackRes);
+      return fallbackRes;
     } catch (fallbackErr: any) {
       throw new Error(fallbackErr.message || 'Não foi possível guardar os dados. Verifique a ligação.');
     }
   }
 
   // If server returns 405 (Method Not Allowed - static hosting like GitHub Pages), 404, or 401 with local fallback
-  if (response.status === 405 || response.status === 404 || (response.status === 401 && typeof window !== 'undefined' && (localStorage.getItem('auth_user_id') || localStorage.getItem('user_id')))) {
+  // Never silently mask real AI server errors with static fallback.
+  if (
+    !isAiEndpoint &&
+    (response.status === 405 ||
+      response.status === 404 ||
+      (response.status === 401 &&
+        typeof window !== 'undefined' &&
+        (localStorage.getItem('auth_user_id') || localStorage.getItem('user_id'))))
+  ) {
     console.warn(`[API HTTP ${response.status}] ${endpoint}, executing directly against Firebase Firestore...`);
     try {
-      return await clientDispatch<T>(endpoint, options);
+      const fallbackRes = await clientDispatch<T>(endpoint, options);
+      notifySimulatorMistakeIfNeeded(endpoint, options, fallbackRes);
+      return fallbackRes;
     } catch (fallbackErr: any) {
       throw new Error(fallbackErr.message || `Erro ${response.status}: ${response.statusText}`);
     }
@@ -133,7 +198,9 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
     throw new Error(`Resposta inesperada do servidor (${contentType}): ${text.slice(0, 100)}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  notifySimulatorMistakeIfNeeded(endpoint, options, data);
+  return data;
 }
 
 export async function downloadFile(url: string, defaultFilename: string) {
