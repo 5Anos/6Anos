@@ -71,10 +71,9 @@ async function startServer() {
     next();
   });
 
-  // Serve static assets from public and src/assets (no Firestore auth lookup needed)
+  // Serve static assets from public (do NOT intercept /src/assets before Vite or ?import JS modules break with image/jpeg MIME errors)
   app.use(express.static(path.join(process.cwd(), 'public')));
   app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
-  app.use('/src/assets', express.static(path.join(process.cwd(), 'src/assets')));
 
   // API Routes FIRST (attach Firestore session auth ONLY to /api routes)
   app.get('/api/health', (req, res) => {
