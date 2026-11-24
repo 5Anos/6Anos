@@ -26,6 +26,7 @@ import {
   BADGES_CATALOG,
 } from '../data/catalog';
 import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
+import { resolveStudentSafeNickname, isNicknameUnsafeOrMissing } from '../../shared/nicknames';
 
 export interface ClientUser {
   id: string;
@@ -259,11 +260,16 @@ export async function clientLogin(identifier: string, password: string) {
     throw new Error('Credenciais inválidas.');
   }
 
-  // Update last login
+  // Update last login & auto-assign safe anonymous nickname for students if missing/unsafe
   const now = new Date().toISOString();
-  await updateDoc(doc(db, 'users', userDoc.id), {
-    lastLoginAt: now,
-  }).catch(() => {});
+  const loginUpdates: Record<string, any> = { lastLoginAt: now };
+  if (userDoc.role === 'student' && isNicknameUnsafeOrMissing(userDoc.nickname, userDoc)) {
+    const resolved = resolveStudentSafeNickname(userDoc, new Set());
+    userDoc.nickname = resolved.nickname;
+    loginUpdates.nickname = resolved.nickname;
+    loginUpdates.updatedAt = now;
+  }
+  await updateDoc(doc(db, 'users', userDoc.id), loginUpdates).catch(() => {});
 
   userDoc.xp = Number(userDoc.xp) || 0;
 
@@ -383,6 +389,16 @@ export async function clientGetCurrentUser() {
     return { user: null };
   }
 
+  // Auto-assign safe anonymous nickname if student has missing/unsafe nickname
+  if (user.role === 'student' && isNicknameUnsafeOrMissing(user.nickname, user)) {
+    const resolved = resolveStudentSafeNickname(user, new Set());
+    user.nickname = resolved.nickname;
+    await updateDoc(doc(db, 'users', user.id), {
+      nickname: resolved.nickname,
+      updatedAt: new Date().toISOString(),
+    }).catch(() => {});
+  }
+
   return { user: sanitizeClientUser(user) };
 }
 
@@ -393,11 +409,23 @@ export async function clientUpdateProfile(payload: { name?: string; avatar?: str
   const db = getClientFirestore();
   const snap = await getDoc(doc(db, 'users', userId));
   if (!snap.exists()) throw new Error('Utilizador não encontrado');
+  const currentUser = snap.data() as ClientUser;
 
   const updateData: any = { updatedAt: new Date().toISOString() };
   if (payload.name) updateData.name = payload.name.trim();
   if (payload.avatar) updateData.avatar = payload.avatar;
-  if (payload.nickname) updateData.nickname = payload.nickname.trim();
+  if (payload.nickname) {
+    const cleanNick = payload.nickname.trim();
+    if (
+      currentUser.role === 'student' &&
+      isNicknameUnsafeOrMissing(cleanNick, currentUser)
+    ) {
+      throw new Error(
+        'O teu nome de jogo não pode conter o teu nome real, utilizador ou e-mail para proteger a tua privacidade!'
+      );
+    }
+    updateData.nickname = cleanNick;
+  }
 
   await updateDoc(doc(db, 'users', userId), updateData);
   const updatedSnap = await getDoc(doc(db, 'users', userId));
@@ -983,26 +1011,124 @@ export async function clientSubmitAssessment(
   };
 }
 
-export async function clientGetClassRanking() {
+export async function clientGetClassRanking(requestedClassId?: string) {
   const db = getClientFirestore();
-  const qUsers = query(collection(db, 'users'), where('role', '==', 'student'));
-  const snap = await getDocs(qUsers);
-  const students = snap.docs.map((d) => d.data() as ClientUser);
+  const activeUserId = getActiveClientUserId();
 
-  const ranking = students
-    .sort((a, b) => (b.xp || 0) - (a.xp || 0))
-    .slice(0, 10)
-    .map((s, idx) => ({
+  const [usersSnap, classesSnap, activeUserSnap] = await Promise.all([
+    getDocs(query(collection(db, 'users'), where('role', '==', 'student'))),
+    getDocs(collection(db, 'classes')),
+    activeUserId ? getDoc(doc(db, 'users', activeUserId)) : Promise.resolve(null),
+  ]);
+
+  const activeUser = activeUserSnap && activeUserSnap.exists()
+    ? (activeUserSnap.data() as ClientUser)
+    : null;
+  const isTeacher = activeUser?.role === 'teacher';
+
+  const classesList = classesSnap.docs
+    .map((d) => d.data() as any)
+    .filter((c) => !c.archived)
+    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt'));
+
+  const classNameMap = new Map<string, string>();
+  classesList.forEach((c) => {
+    if (c.id) classNameMap.set(c.id, c.name || c.id);
+  });
+
+  const allStudents = usersSnap.docs
+    .map((d) => d.data() as ClientUser)
+    .filter((s) => !s.blocked);
+
+  // Collect all already-safe nicknames first so auto-generated ones never collide
+  const usedNicknames = new Set<string>();
+  allStudents.forEach((s) => {
+    if (!isNicknameUnsafeOrMissing(s.nickname, s)) {
+      usedNicknames.add(s.nickname.trim().toLowerCase());
+    }
+  });
+
+  // Ensure every student has a safe anonymous nickname (auto-backfill & persist when missing/unsafe)
+  const persistPromises: Promise<any>[] = [];
+  const safeNickById = new Map<string, string>();
+  const now = new Date().toISOString();
+
+  for (const s of allStudents) {
+    const resolved = resolveStudentSafeNickname(s, usedNicknames);
+    safeNickById.set(s.id, resolved.nickname);
+    if (resolved.needsPersist && (isTeacher || activeUserId === s.id)) {
+      persistPromises.push(
+        updateDoc(doc(db, 'users', s.id), {
+          nickname: resolved.nickname,
+          updatedAt: now,
+        }).catch(() => {})
+      );
+    }
+  }
+
+  if (persistPromises.length > 0) {
+    await Promise.allSettled(persistPromises);
+  }
+
+  // Filter by class:
+  // - Teachers can choose any specific classId or 'all'
+  // - Students see only their own class (when assigned to one)
+  let filteredStudents = allStudents;
+  if (isTeacher) {
+    if (requestedClassId && requestedClassId !== 'all') {
+      filteredStudents = allStudents.filter((s) => s.classId === requestedClassId);
+    }
+  } else if (activeUser?.classId) {
+    filteredStudents = allStudents.filter((s) => s.classId === activeUser.classId);
+  }
+
+  filteredStudents.sort((a, b) => {
+    const xpDiff = (b.xp || 0) - (a.xp || 0);
+    if (xpDiff !== 0) return xpDiff;
+    const nickA = safeNickById.get(a.id) || '';
+    const nickB = safeNickById.get(b.id) || '';
+    return nickA.localeCompare(nickB, 'pt');
+  });
+
+  const ranking = filteredStudents.map((s, idx) => {
+    const safeNickname = safeNickById.get(s.id) || 'Explorador_TIC';
+    const lvl = calculateLevel(s.xp || 0);
+    const resolvedClassName =
+      (s.classId && classNameMap.get(s.classId)) || s.turma || 'Sem Turma';
+    const isCurrentUser = activeUserId === s.id;
+
+    const baseRow: any = {
+      position: idx + 1,
       rank: idx + 1,
       id: s.id,
-      name: s.nickname,
-      avatar: s.avatar,
+      name: safeNickname,
+      nickname: safeNickname,
+      avatar: s.avatar || 'avatar-boy-1',
       xp: s.xp || 0,
-      level: calculateLevel(s.xp || 0).level,
-      levelName: calculateLevel(s.xp || 0).name,
-    }));
+      level: lvl.level,
+      levelName: lvl.name,
+      classId: s.classId || '',
+      className: resolvedClassName,
+      isCurrentUser,
+    };
 
-  return { ranking };
+    // STRICT PRIVACY GATE: Real student names are ONLY included for teachers
+    if (isTeacher) {
+      baseRow.realName = s.name || s.fullName || 'Aluno';
+      baseRow.fullName = s.fullName || s.name || 'Aluno';
+      baseRow.username = s.username || '';
+      baseRow.studentNumber = s.studentNumber ?? null;
+      baseRow.turma = resolvedClassName;
+    }
+
+    return baseRow;
+  });
+
+  return {
+    ranking,
+    isTeacherView: isTeacher,
+    classes: isTeacher ? classesList.map((c) => ({ id: c.id, name: c.name })) : [],
+  };
 }
 
 export async function clientGetDailyTip() {

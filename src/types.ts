@@ -95,13 +95,22 @@ export interface BadgeItem {
 
 export interface RankingStudent {
   position: number;
+  rank?: number;
   id: string;
   nickname: string;
   avatar: string;
   xp: number;
   level: number;
   levelName: string;
+  classId?: string;
+  className?: string;
   isCurrentUser: boolean;
+  // Strictly populated ONLY for authenticated teachers (never returned to students)
+  realName?: string;
+  fullName?: string;
+  username?: string;
+  studentNumber?: number | null;
+  turma?: string;
 }
 
 export interface AssessmentQuestion {

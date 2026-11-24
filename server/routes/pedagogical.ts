@@ -32,6 +32,8 @@ import {
   getUserById,
   getAllUsers,
   getClassById,
+  getAllClasses,
+  updateUser,
 } from '../firestoreDb';
 import { AuthRequest, requireAuth, requireStudent } from '../auth';
 import {
@@ -49,6 +51,7 @@ import {
 } from '../catalog';
 import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 import { evaluateActivity } from '../activityEvaluator';
+import { resolveStudentSafeNickname, isNicknameUnsafeOrMissing } from '../../shared/nicknames';
 
 const router = Router();
 
@@ -1054,38 +1057,101 @@ router.post('/grande-missao/complete', requireAuth, async (req: AuthRequest, res
   }
 });
 
-// GET Class Ranking
+// GET Class Ranking (Auto-assigns safe nicknames; teachers see real names, students only see anonymous nicknames)
 router.get('/class-ranking', async (req: AuthRequest, res) => {
   try {
     const { classId } = req.query;
-    const users = await getAllUsers();
-    let students = users.filter((u) => u.role === 'student' && !u.blocked);
+    const isTeacher = req.user?.role === 'teacher';
+    const [users, allClasses] = await Promise.all([getAllUsers(), getAllClasses()]);
 
-    if (classId && typeof classId === 'string' && classId !== 'all') {
-      students = students.filter((s) => s.classId === classId);
+    const activeClasses = allClasses
+      .filter((c) => !c.archived)
+      .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt'));
+
+    const classNameMap = new Map<string, string>();
+    activeClasses.forEach((c) => {
+      if (c.id) classNameMap.set(c.id, c.name || c.id);
+    });
+
+    const allStudents = users.filter((u) => u.role === 'student' && !u.blocked);
+
+    const usedNicknames = new Set<string>();
+    allStudents.forEach((s) => {
+      if (!isNicknameUnsafeOrMissing(s.nickname, s)) {
+        usedNicknames.add(s.nickname.trim().toLowerCase());
+      }
+    });
+
+    // Guarantee every student has a safe anonymous nickname and persist backfill
+    const persistPromises: Promise<any>[] = [];
+    const safeNickById = new Map<string, string>();
+    for (const s of allStudents) {
+      const resolved = resolveStudentSafeNickname(s, usedNicknames);
+      safeNickById.set(s.id, resolved.nickname);
+      if (resolved.needsPersist) {
+        persistPromises.push(
+          updateUser(s.id, { nickname: resolved.nickname }).catch(() => {})
+        );
+      }
+    }
+    if (persistPromises.length > 0) {
+      await Promise.allSettled(persistPromises);
     }
 
-    students.sort((a, b) => b.xp - a.xp);
+    let students = allStudents;
+    if (isTeacher) {
+      if (classId && typeof classId === 'string' && classId !== 'all') {
+        students = students.filter((s) => s.classId === classId);
+      }
+    } else if (req.user?.classId) {
+      students = students.filter((s) => s.classId === req.user!.classId);
+    }
 
-    const ranking = students.slice(0, 50).map((s, index) => {
+    students.sort((a, b) => {
+      const xpDiff = (b.xp || 0) - (a.xp || 0);
+      if (xpDiff !== 0) return xpDiff;
+      return (safeNickById.get(a.id) || '').localeCompare(safeNickById.get(b.id) || '', 'pt');
+    });
+
+    const ranking = students.map((s, index) => {
       const isCurrentUser = req.user?.id === s.id;
-      const levelInfo = calculateLevel(s.xp);
-      return {
+      const levelInfo = calculateLevel(s.xp || 0);
+      const safeNickname = safeNickById.get(s.id) || 'Explorador_TIC';
+      const resolvedClassName =
+        (s.classId && classNameMap.get(s.classId)) || s.turma || 'Sem Turma';
+
+      const baseRow: any = {
         position: index + 1,
         rank: index + 1,
         id: s.id,
-        name: isCurrentUser ? s.name : s.nickname,
-        nickname: s.nickname,
-        avatar: s.avatar,
-        xp: s.xp,
+        name: safeNickname,
+        nickname: safeNickname,
+        avatar: s.avatar || 'avatar-boy-1',
+        xp: s.xp || 0,
         level: levelInfo.level,
         levelName: levelInfo.name,
-        classId: s.classId,
+        classId: s.classId || '',
+        className: resolvedClassName,
         isCurrentUser,
       };
+
+      // STRICT PRIVACY GATE: Real student names are ONLY returned to authenticated teachers
+      if (isTeacher) {
+        baseRow.realName = s.name || s.fullName || 'Aluno';
+        baseRow.fullName = s.fullName || s.name || 'Aluno';
+        baseRow.username = s.username || '';
+        baseRow.studentNumber = s.studentNumber ?? null;
+        baseRow.turma = resolvedClassName;
+      }
+
+      return baseRow;
     });
 
-    return res.json({ ranking });
+    return res.json({
+      ranking,
+      isTeacherView: isTeacher,
+      classes: isTeacher ? activeClasses.map((c) => ({ id: c.id, name: c.name })) : [],
+    });
   } catch (err) {
     console.error('Error in /class-ranking:', err);
     return res.status(500).json({ error: 'Erro ao carregar o ranking da turma.' });

@@ -989,9 +989,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-black text-slate-900">
-                Tabela da Turma
-              </h3>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">
+                  {user?.role === 'teacher' ? 'Ranking dos Alunos' : 'Tabela da Turma'}
+                </h3>
+                {user?.role === 'teacher' && (
+                  <span className="text-[10px] font-bold text-indigo-700 block">
+                    Vista de Professor (nomes reais visíveis)
+                  </span>
+                )}
+              </div>
               <button
                 onClick={() => {
                   onSelectTab('challenges');
@@ -1007,7 +1014,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="space-y-2.5">
               {ranking.length === 0 ? (
                 <div className="text-center py-6 text-xs text-slate-500 font-medium">
-                  {user ? (
+                  {user && user.role === 'student' ? (
                     <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-base">⭐</span>
@@ -1025,42 +1032,65 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </span>
                     </div>
                   ) : (
-                    'Sem alunos na turma ainda.'
+                    'Ainda não existem alunos registados no ranking.'
                   )}
                 </div>
               ) : (
                 ranking.slice(0, 3).map((item, idx) => {
                   const medal = idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉';
                   const isCurrent = item.isCurrentUser || item.id === user?.id;
+                  const isTeacherView = user?.role === 'teacher';
+                  const safeNickname = item.nickname || 'Explorador_TIC';
+                  const primaryLabel =
+                    isTeacherView && item.realName ? item.realName : safeNickname;
+                  const levelNum =
+                    typeof item.level === 'object' && item.level !== null
+                      ? (item.level as any).level
+                      : item.level;
+                  const levelName =
+                    typeof item.level === 'object' && item.level !== null
+                      ? (item.level as any).name
+                      : item.levelName || 'Explorador';
+
                   return (
                     <div
                       key={item.id || idx}
-                      className={`flex items-center justify-between p-2.5 rounded-2xl border ${
+                      onClick={() => onSelectTab('challenges')}
+                      className={`flex items-center justify-between p-2.5 rounded-2xl border transition-colors cursor-pointer ${
                         isCurrent
                           ? 'bg-blue-50/90 border-blue-200'
-                          : 'bg-slate-50 border-slate-100'
+                          : 'bg-slate-50 border-slate-100 hover:bg-slate-100/80'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-base select-none">{medal}</span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-base select-none shrink-0">{medal}</span>
                         <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
                           <AvatarRenderer avatar={item.avatar} size={32} />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <span
-                            className={`text-xs font-black block ${
+                            className={`text-xs font-black block truncate ${
                               isCurrent ? 'text-blue-700' : 'text-slate-800'
                             }`}
                           >
-                            {item.nickname} {isCurrent && '(Tu)'}
+                            {primaryLabel} {isCurrent && '(Tu)'}
                           </span>
-                          <span className="text-[10px] text-slate-400 block font-medium">
-                            Nível {typeof item.level === 'object' && item.level !== null ? (item.level as any).level : item.level} • {typeof item.level === 'object' && item.level !== null ? (item.level as any).name : (item.levelName || 'Explorador')}
+                          <span className="text-[10px] text-slate-500 block font-medium truncate">
+                            {isTeacherView && item.realName ? (
+                              <>
+                                Nick: {safeNickname}
+                                {item.className || item.turma
+                                  ? ` • ${item.className || item.turma}`
+                                  : ''}
+                              </>
+                            ) : (
+                              <>Nível {levelNum} • {levelName}</>
+                            )}
                           </span>
                         </div>
                       </div>
                       <span
-                        className={`text-xs font-black px-2.5 py-1 rounded-lg ${
+                        className={`text-xs font-black px-2.5 py-1 rounded-lg shrink-0 ml-2 ${
                           isCurrent
                             ? 'text-blue-700 bg-white border border-blue-200'
                             : 'text-blue-700 bg-blue-50'
@@ -1076,7 +1106,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-            Pratica missões e desafios para subires na tabela da turma!
+            {user?.role === 'teacher'
+              ? 'Clica em "Ver todos" para veres o ranking completo com nomes reais e filtro por turma.'
+              : 'Pratica missões e desafios para subires na tabela da turma!'}
           </div>
         </div>
       </div>

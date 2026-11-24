@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Trophy,
   Flame,
@@ -12,8 +12,12 @@ import {
   Lock,
   Sparkles,
   Eye,
+  EyeOff,
   RotateCcw,
   Compass,
+  Users,
+  UserCheck,
+  X,
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -39,6 +43,12 @@ const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 export const ChallengesView: React.FC<ChallengesViewProps> = () => {
   const { user, locale, refreshUser } = useAuth();
   const [ranking, setRanking] = useState<RankingStudent[]>([]);
+  const [rankingClasses, setRankingClasses] = useState<{ id: string; name: string }[]>([]);
+  const [selectedRankingClass, setSelectedRankingClass] = useState<string>('all');
+  const [loadingRanking, setLoadingRanking] = useState(false);
+  const [hideRealNamesForProjection, setHideRealNamesForProjection] = useState(false);
+  const [selectedRankingStudent, setSelectedRankingStudent] = useState<RankingStudent | null>(null);
+
   const [weeklyChallenge, setWeeklyChallenge] = useState<WeeklyChallengeData | null>(null);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ text: string; isCorrect: boolean } | null>(null);
@@ -51,29 +61,68 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
 
   const isTeacher = user?.role === 'teacher';
 
+  const loadRanking = useCallback(
+    async (classIdFilter: string = selectedRankingClass) => {
+      if (!user) return;
+      setLoadingRanking(true);
+      try {
+        const rankUrl =
+          isTeacher && classIdFilter && classIdFilter !== 'all'
+            ? `/api/pedagogical/class-ranking?classId=${encodeURIComponent(classIdFilter)}`
+            : '/api/pedagogical/class-ranking';
+        const rankRes = await apiRequest(rankUrl);
+        setRanking(rankRes.ranking || []);
+        if (Array.isArray(rankRes.classes)) {
+          setRankingClasses(rankRes.classes);
+        }
+      } catch (err) {
+        console.error('Failed to load ranking data:', err);
+      } finally {
+        setLoadingRanking(false);
+      }
+    },
+    [user?.id, isTeacher, selectedRankingClass]
+  );
+
+  const loadData = useCallback(
+    async (weekOverride: number | null = null) => {
+      if (!user) return;
+      setLoadingWeek(true);
+      try {
+        const challengeEndpoint =
+          weekOverride !== null
+            ? `/api/pedagogical/weekly-challenge?week=${weekOverride}`
+            : '/api/pedagogical/weekly-challenge';
+        const rankUrl =
+          isTeacher && selectedRankingClass !== 'all'
+            ? `/api/pedagogical/class-ranking?classId=${encodeURIComponent(selectedRankingClass)}`
+            : '/api/pedagogical/class-ranking';
+        const [rankRes, chalRes] = await Promise.all([
+          apiRequest(rankUrl),
+          apiRequest(challengeEndpoint),
+        ]);
+        setRanking(rankRes.ranking || []);
+        if (Array.isArray(rankRes.classes)) {
+          setRankingClasses(rankRes.classes);
+        }
+        setWeeklyChallenge(chalRes);
+      } catch (err) {
+        console.error('Failed to load challenges data:', err);
+      } finally {
+        setLoadingWeek(false);
+      }
+    },
+    [user?.id, isTeacher, selectedRankingClass]
+  );
+
   useEffect(() => {
     loadData(previewWeek);
   }, [user?.id, previewWeek]);
 
-  const loadData = async (weekOverride: number | null = null) => {
-    if (!user) return;
-    setLoadingWeek(true);
-    try {
-      const challengeEndpoint =
-        weekOverride !== null
-          ? `/api/pedagogical/weekly-challenge?week=${weekOverride}`
-          : '/api/pedagogical/weekly-challenge';
-      const [rankRes, chalRes] = await Promise.all([
-        apiRequest('/api/pedagogical/class-ranking'),
-        apiRequest(challengeEndpoint),
-      ]);
-      setRanking(rankRes.ranking || []);
-      setWeeklyChallenge(chalRes);
-    } catch (err) {
-      console.error('Failed to load challenges data:', err);
-    } finally {
-      setLoadingWeek(false);
-    }
+  const handleRankingClassChange = (newClassId: string) => {
+    setSelectedRankingClass(newClassId);
+    setSelectedRankingStudent(null);
+    loadRanking(newClassId);
   };
 
   const challenge = weeklyChallenge?.challenge;
@@ -552,73 +601,253 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
       )}
 
       {/* Class Ranking / Leaderboard Table */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-xs space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h3 className="text-xl font-black text-slate-900 tracking-tight">
-              {t('ranking_title', locale)}
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Tabela da tua turma — só aparecem os nomes de jogo e os pontos XP!
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                {isTeacher ? 'Ranking dos Alunos' : t('ranking_title', locale)}
+              </h3>
+              {isTeacher && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-black text-indigo-800 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-lg">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  Vista de Professor
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              {isTeacher
+                ? 'Vês o nome real de cada aluno e o respetivo nome de jogo (nickname). Os alunos só conseguem ver o nickname automático.'
+                : 'Tabela da tua turma — todos os alunos usam um nome de jogo automático para proteger a privacidade!'}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-            <span>A tua privacidade está protegida</span>
-          </div>
+
+          {isTeacher ? (
+            <div className="flex flex-wrap items-center gap-2.5">
+              {rankingClasses.length > 0 && (
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                  <Users className="w-4 h-4 text-slate-500 shrink-0" />
+                  <select
+                    value={selectedRankingClass}
+                    onChange={(e) => handleRankingClassChange(e.target.value)}
+                    aria-label="Filtrar ranking por turma"
+                    className="bg-transparent text-xs font-extrabold text-slate-800 focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">Todas as Turmas</option>
+                    {rankingClasses.map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        Turma {cls.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setHideRealNamesForProjection((prev) => !prev)}
+                className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${
+                  hideRealNamesForProjection
+                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`}
+                title="Ocultar nomes reais para projetar o ranking no quadro da sala"
+              >
+                {hideRealNamesForProjection ? (
+                  <>
+                    <Eye className="w-3.5 h-3.5" />
+                    Mostrar nomes reais
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5" />
+                    Ocultar nomes (Projetar)
+                  </>
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 w-fit">
+              <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>A tua privacidade está protegida</span>
+            </div>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Teacher Student Detail Drawer/Card on Row Click */}
+        {isTeacher && selectedRankingStudent && (
+          <div className="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-white shadow-xs">
+                <AvatarRenderer avatar={selectedRankingStudent.avatar} size={48} />
+              </div>
+              <div className="min-w-0 space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm sm:text-base font-black text-indigo-950 truncate">
+                    {selectedRankingStudent.fullName || selectedRankingStudent.realName || 'Aluno'}
+                  </span>
+                  {selectedRankingStudent.studentNumber != null && (
+                    <span className="text-[11px] font-extrabold bg-white text-indigo-800 border border-indigo-200 px-2 py-0.5 rounded-md">
+                      N.º {selectedRankingStudent.studentNumber}
+                    </span>
+                  )}
+                  {(selectedRankingStudent.className || selectedRankingStudent.turma) && (
+                    <span className="text-[11px] font-extrabold bg-indigo-600 text-white px-2 py-0.5 rounded-md">
+                      {selectedRankingStudent.className || selectedRankingStudent.turma}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-indigo-900/90 font-semibold">
+                  <span>
+                    <strong>Nickname (visível aos alunos):</strong>{' '}
+                    <span className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-indigo-200">
+                      {selectedRankingStudent.nickname}
+                    </span>
+                  </span>
+                  {selectedRankingStudent.username && (
+                    <span>
+                      <strong>Utilizador:</strong>{' '}
+                      <span className="font-mono">{selectedRankingStudent.username}</span>
+                    </span>
+                  )}
+                  <span>
+                    <strong>XP:</strong> {selectedRankingStudent.xp} XP (Nível {selectedRankingStudent.level})
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedRankingStudent(null)}
+              className="self-end sm:self-center p-1.5 rounded-xl text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer shrink-0"
+              title="Fechar detalhes"
+              aria-label="Fechar detalhes do aluno"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {isTeacher && ranking.length > 0 && !selectedRankingStudent && (
+          <div className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+            <span>
+              Clica em qualquer linha da tabela para veres a ficha completa do aluno (nome completo, turma, n.º e nickname).
+            </span>
+          </div>
+        )}
+
+        <div className="overflow-x-auto -mx-2 px-2">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400 border-b border-slate-200">
               <tr>
-                <th className="px-5 py-3">Posição</th>
-                <th className="px-5 py-3">Aluno</th>
-                <th className="px-5 py-3">Nível</th>
-                <th className="px-5 py-3 text-right">XP Total</th>
+                <th className="px-4 sm:px-5 py-3">Posição</th>
+                <th className="px-4 sm:px-5 py-3">
+                  {isTeacher && !hideRealNamesForProjection ? 'Aluno (Nome Real / Nickname)' : 'Aluno (Nickname)'}
+                </th>
+                {isTeacher && <th className="px-4 sm:px-5 py-3">Turma</th>}
+                <th className="px-4 sm:px-5 py-3">Nível</th>
+                <th className="px-4 sm:px-5 py-3 text-right">XP Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {ranking.map((s) => {
-                let badge = null;
-                if (s.position === 1) badge = <Crown className="w-4 h-4 text-amber-500 inline mr-1" />;
-                if (s.position === 2) badge = <Medal className="w-4 h-4 text-slate-400 inline mr-1" />;
-                if (s.position === 3) badge = <Medal className="w-4 h-4 text-amber-700 inline mr-1" />;
+              {loadingRanking ? (
+                <tr>
+                  <td colSpan={isTeacher ? 5 : 4} className="px-5 py-8 text-center text-xs font-semibold text-slate-500">
+                    A carregar ranking...
+                  </td>
+                </tr>
+              ) : ranking.length === 0 ? (
+                <tr>
+                  <td colSpan={isTeacher ? 5 : 4} className="px-5 py-8 text-center text-xs font-semibold text-slate-500">
+                    Ainda não existem alunos nesta seleção.
+                  </td>
+                </tr>
+              ) : (
+                ranking.map((s, idx) => {
+                  const pos = s.position ?? s.rank ?? idx + 1;
+                  const safeNickname = s.nickname || 'Explorador_TIC';
+                  const showRealName = isTeacher && !hideRealNamesForProjection && Boolean(s.realName);
+                  const isSelectedRow = isTeacher && selectedRankingStudent?.id === s.id;
 
-                return (
-                  <tr
-                    key={s.id}
-                    className={`transition-colors ${
-                      s.isCurrentUser
-                        ? 'bg-blue-50/80 font-bold text-blue-950 border-l-4 border-blue-600'
-                        : 'hover:bg-slate-50'
-                    }`}
-                  >
-                    <td className="px-5 py-3.5 font-mono font-black text-sm">
-                      {badge}#{s.position}
-                    </td>
-                    <td className="px-5 py-3.5 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
-                        <AvatarRenderer avatar={s.avatar} size={32} />
-                      </div>
-                      <div>
-                        <span className="font-extrabold text-slate-900">{s.nickname}</span>
-                        {s.isCurrentUser && (
-                          <span className="ml-2 text-[10px] font-black bg-blue-600 text-white px-2 py-0.5 rounded-full">
-                            Tu
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 font-semibold text-slate-600">
-                      Nível {s.level} – {s.levelName}
-                    </td>
-                    <td className="px-5 py-3.5 text-right font-black text-blue-700 text-sm">
-                      {s.xp} XP
-                    </td>
-                  </tr>
-                );
-              })}
+                  let badge = null;
+                  if (pos === 1) badge = <Crown className="w-4 h-4 text-amber-500 inline mr-1" />;
+                  if (pos === 2) badge = <Medal className="w-4 h-4 text-slate-400 inline mr-1" />;
+                  if (pos === 3) badge = <Medal className="w-4 h-4 text-amber-700 inline mr-1" />;
+
+                  return (
+                    <tr
+                      key={s.id || idx}
+                      onClick={() => {
+                        if (isTeacher) {
+                          setSelectedRankingStudent((prev) => (prev?.id === s.id ? null : s));
+                        }
+                      }}
+                      className={`transition-colors ${
+                        isTeacher ? 'cursor-pointer' : ''
+                      } ${
+                        isSelectedRow
+                          ? 'bg-indigo-50/90 border-l-4 border-indigo-600'
+                          : s.isCurrentUser
+                          ? 'bg-blue-50/80 font-bold text-blue-950 border-l-4 border-blue-600'
+                          : 'hover:bg-slate-50'
+                      }`}
+                    >
+                      <td className="px-4 sm:px-5 py-3.5 font-mono font-black text-sm whitespace-nowrap">
+                        {badge}#{pos}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
+                            <AvatarRenderer avatar={s.avatar} size={32} />
+                          </div>
+                          <div className="min-w-0">
+                            {showRealName ? (
+                              <>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-extrabold text-slate-900">
+                                    {s.realName}
+                                  </span>
+                                  {s.studentNumber != null && (
+                                    <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                      N.º {s.studentNumber}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[11px] font-mono font-semibold text-indigo-700 block mt-0.5">
+                                  Nick: {safeNickname}
+                                </span>
+                              </>
+                            ) : (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-extrabold text-slate-900">
+                                  {safeNickname}
+                                </span>
+                                {s.isCurrentUser && (
+                                  <span className="text-[10px] font-black bg-blue-600 text-white px-2 py-0.5 rounded-full">
+                                    Tu
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      {isTeacher && (
+                        <td className="px-4 sm:px-5 py-3.5 font-bold text-slate-600 whitespace-nowrap">
+                          {s.className || s.turma || '—'}
+                        </td>
+                      )}
+                      <td className="px-4 sm:px-5 py-3.5 font-semibold text-slate-600 whitespace-nowrap">
+                        Nível {s.level} – {s.levelName}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3.5 text-right font-black text-blue-700 text-sm whitespace-nowrap">
+                        {s.xp} XP
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

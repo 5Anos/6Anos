@@ -29,6 +29,7 @@ import {
   requireAuth,
 } from '../auth';
 import { calculateLevel } from '../catalog';
+import { isNicknameUnsafeOrMissing, resolveStudentSafeNickname } from '../../shared/nicknames';
 
 const router = Router();
 
@@ -227,8 +228,15 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
-    await updateUser(user.id, { lastLoginAt: new Date().toISOString() });
-    user.lastLoginAt = new Date().toISOString();
+    const loginNow = new Date().toISOString();
+    const loginUpdates: Partial<User> = { lastLoginAt: loginNow };
+    if (user.role === 'student' && isNicknameUnsafeOrMissing(user.nickname, user)) {
+      const resolved = resolveStudentSafeNickname(user, new Set());
+      user.nickname = resolved.nickname;
+      loginUpdates.nickname = resolved.nickname;
+    }
+    await updateUser(user.id, loginUpdates);
+    user.lastLoginAt = loginNow;
 
     const session = await createSession(user.id);
     setSessionCookie(res, session.id);
@@ -278,6 +286,12 @@ router.get('/me', async (req: AuthRequest, res) => {
   }
 
   try {
+    if (req.user.role === 'student' && isNicknameUnsafeOrMissing(req.user.nickname, req.user)) {
+      const resolved = resolveStudentSafeNickname(req.user, new Set());
+      req.user.nickname = resolved.nickname;
+      await updateUser(req.user.id, { nickname: resolved.nickname }).catch(() => {});
+    }
+
     const userBadges = await getUserBadges(req.user.id);
     const classroom = req.user.classId ? await getClassById(req.user.classId) : null;
 
@@ -304,21 +318,19 @@ router.put('/profile', requireAuth, async (req: AuthRequest, res) => {
     const updates: Partial<User> = {};
 
     if (nickname && nickname.trim() !== dbUser.nickname) {
-      const lowerNick = nickname.trim().toLowerCase();
-      const lowerName = dbUser.name.toLowerCase();
-      const emailPrefix = dbUser.email.split('@')[0].toLowerCase();
-      if (lowerNick.includes(lowerName) || lowerNick.includes(emailPrefix) || lowerNick.includes('@')) {
+      const cleanNick = nickname.trim();
+      if (dbUser.role === 'student' && isNicknameUnsafeOrMissing(cleanNick, dbUser)) {
         return res.status(400).json({
-          error: 'O teu nickname não deve conter o teu nome real ou email para proteger a tua privacidade!',
+          error: 'O teu nome de jogo não deve conter o teu nome real, utilizador ou e-mail para proteger a tua privacidade!',
         });
       }
 
-      const existingNick = await getUserByNickname(nickname.trim());
+      const existingNick = await getUserByNickname(cleanNick);
       if (existingNick && existingNick.id !== user.id) {
-        return res.status(400).json({ error: 'Este nickname já está em uso.' });
+        return res.status(400).json({ error: 'Este nome de jogo já está em uso.' });
       }
-      updates.nickname = nickname.trim();
-      dbUser.nickname = nickname.trim();
+      updates.nickname = cleanNick;
+      dbUser.nickname = cleanNick;
     }
 
     if (avatar) {

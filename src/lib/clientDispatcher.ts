@@ -56,6 +56,7 @@ import {
 } from '../utils/kidCredentials';
 import { hashPasswordClient } from './clientAuthUtils';
 import { buildStaticSocraticHint } from './simulatorHints';
+import { generateUniqueSafeNickname } from '../../shared/nicknames';
 
 export async function clientDispatch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const method = (options.method || 'GET').toUpperCase();
@@ -134,7 +135,8 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   }
 
   if (pathname === '/api/pedagogical/class-ranking') {
-    const res = await clientGetClassRanking();
+    const classIdParam = searchParams.get('classId') || undefined;
+    const res = await clientGetClassRanking(classIdParam);
     return res as any;
   }
 
@@ -1138,6 +1140,11 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
       const { hash, salt } = await hashPasswordClient(initialPassword);
       const studentId = `student-${crypto.randomUUID()}`;
+      const existingNicknames = new Set(allUsers.map((u) => (u.nickname || '').toLowerCase()).filter(Boolean));
+      createdStudents.forEach((cs) => {
+        if (cs.nickname) existingNicknames.add(String(cs.nickname).toLowerCase());
+      });
+      const safeNickname = generateUniqueSafeNickname(existingNicknames, studentId);
 
       const studentDoc: ClientUser = {
         id: studentId,
@@ -1150,7 +1157,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         initialPassword,
         passwordHash: hash,
         passwordSalt: salt,
-        nickname: username,
+        nickname: safeNickname,
         avatar: 'avatar-boy-1',
         role: 'student',
         classId: classObj.id,
@@ -1182,6 +1189,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         turma: studentDoc.turma,
         studentNumber: studentDoc.studentNumber,
         username: studentDoc.username,
+        nickname: studentDoc.nickname,
         email: studentDoc.email,
         initialPassword: studentDoc.initialPassword,
         classId: studentDoc.classId,
@@ -1210,10 +1218,12 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const allUsers = userSnap.docs.map((d) => d.data() as ClientUser);
     const existingUsernames = new Set(allUsers.map((u) => (u.username || u.nickname || '').toLowerCase()));
 
+    const existingNicknames = new Set(allUsers.map((u) => (u.nickname || '').toLowerCase()).filter(Boolean));
     const username = customUsername || generateKidUsername(finalFullName, finalTurma, existingUsernames);
     const initialPassword = customPassword || generateKidPassword();
     const { hash, salt } = await hashPasswordClient(initialPassword);
     const studentId = `student-${crypto.randomUUID()}`;
+    const safeNickname = generateUniqueSafeNickname(existingNicknames, studentId);
     const now = new Date().toISOString();
 
     const studentDoc: ClientUser = {
@@ -1227,7 +1237,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       initialPassword,
       passwordHash: hash,
       passwordSalt: salt,
-      nickname: username,
+      nickname: safeNickname,
       avatar: 'avatar-boy-1',
       role: 'student',
       classId: finalClassId,
@@ -1784,7 +1794,6 @@ async function resetStudentProgressData(db: any, sId: string) {
       if (body.nickname) updates.nickname = body.nickname;
       if (body.username) {
         updates.username = body.username;
-        updates.nickname = body.username;
       }
       if (body.fullName) {
         updates.fullName = body.fullName;

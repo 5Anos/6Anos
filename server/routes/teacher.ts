@@ -63,6 +63,7 @@ import {
   normalizeTurmaTag,
   cleanString,
 } from '../kidCredentials';
+import { generateUniqueSafeNickname } from '../../shared/nicknames';
 
 const router = Router();
 
@@ -697,6 +698,9 @@ router.post('/students', async (req: AuthRequest, res) => {
         ? studentNumber
         : parseInt(studentNumber, 10) || 1;
 
+    const existingNicknames = new Set(allUsers.map((u) => (u.nickname || '').toLowerCase()).filter(Boolean));
+    const safeNickname = generateUniqueSafeNickname(existingNicknames, studentId);
+
     const newStudent: User = {
       id: studentId,
       name: shortName,
@@ -708,7 +712,7 @@ router.post('/students', async (req: AuthRequest, res) => {
       initialPassword,
       passwordHash: hash,
       passwordSalt: salt,
-      nickname: username,
+      nickname: safeNickname,
       avatar: 'avatar-boy-1',
       role: 'student',
       classId: assignedClassId,
@@ -750,6 +754,7 @@ router.post('/students/batch-import', async (req: AuthRequest, res) => {
     ]);
 
     const existingUsernames = new Set(allUsers.map((u) => (u.username || u.nickname || '').toLowerCase()));
+    const existingNicknames = new Set(allUsers.map((u) => (u.nickname || '').toLowerCase()).filter(Boolean));
     const classesMap = new Map<string, ClassRoom>();
     for (const c of existingClasses) {
       classesMap.set(c.id, c);
@@ -793,6 +798,7 @@ router.post('/students/batch-import', async (req: AuthRequest, res) => {
 
       const { hash, salt } = hashPassword(initialPassword);
       const studentId = `student-${crypto.randomUUID()}`;
+      const safeNickname = generateUniqueSafeNickname(existingNicknames, studentId);
 
       const studentDoc: User = {
         id: studentId,
@@ -805,7 +811,7 @@ router.post('/students/batch-import', async (req: AuthRequest, res) => {
         initialPassword,
         passwordHash: hash,
         passwordSalt: salt,
-        nickname: username,
+        nickname: safeNickname,
         avatar: 'avatar-boy-1',
         role: 'student',
         classId: classObj.id,
@@ -826,6 +832,7 @@ router.post('/students/batch-import', async (req: AuthRequest, res) => {
         turma: studentDoc.turma,
         studentNumber: studentDoc.studentNumber,
         username: studentDoc.username,
+        nickname: studentDoc.nickname,
         email: studentDoc.email,
         initialPassword: studentDoc.initialPassword,
         classId: studentDoc.classId,
@@ -917,8 +924,8 @@ router.put('/students/:studentId', async (req: AuthRequest, res) => {
     }
     if (username) {
       updates.username = cleanString(username);
-      updates.nickname = updates.username;
-    } else if (nickname) {
+    }
+    if (nickname) {
       updates.nickname = nickname.trim();
     }
     if (avatar) updates.avatar = avatar;
