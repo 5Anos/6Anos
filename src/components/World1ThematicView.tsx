@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { WorldSummary } from '../types';
 import { apiRequest } from '../api';
+import { evaluatePasswordStrength } from '../utils/passwordEvaluator';
 import { useAuth } from '../context/AuthContext';
 import { GuardianKidHero } from './WorldMascots';
 import { StudyStackIllustration } from './DetectiveMascot';
@@ -78,72 +79,14 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   } | null>(null);
 
   const evaluatePassword = () => {
-    let score = 0;
-
-    // Length
-    if (pwdInput.length >= 10) {
-      score += 35;
-    } else if (pwdInput.length >= 8) {
-      score += 25;
-    } else if (pwdInput.length >= 6) {
-      score += 15;
-    } else {
-      score += 5;
-    }
-
-    // Unpredictability & Common sequences
-    const common = ['123', 'password', 'palavrapasse', 'escola', 'teste', 'qwerty', '123456', 'portugal', 'futebol', 'abc', '111', '000', 'admin'];
-    const hasSequences = common.some((c) => pwdInput.toLowerCase().includes(c));
-    if (!hasSequences && pwdInput.length >= 8) {
-      score += 25;
-    }
-
-    // No obvious names or birth years
-    const obviousNames = ['alex', 'tiago', 'leonor', 'marta', 'diogo', 'joao', 'maria', 'ana', 'pedro', 'lucas', 'matilde', 'tomas', 'beatriz', 'francisco', 'afonso', 'goncalo', 'rodrigo', 'martim', 'santiago'];
-    const hasObviousNames = obviousNames.some((n) => pwdInput.toLowerCase().includes(n));
-    const hasDates = /(19\d\d|20\d\d)/.test(pwdInput);
-    if (!hasObviousNames && !hasDates && pwdInput.length >= 8) {
-      score += 20;
-    }
-
-    // Character variety
-    let typeCount = 0;
-    if (/[a-z]/.test(pwdInput)) typeCount++;
-    if (/[A-Z]/.test(pwdInput)) typeCount++;
-    if (/[0-9]/.test(pwdInput)) typeCount++;
-    if (/[^a-zA-Z0-9]/.test(pwdInput)) typeCount++;
-    if (typeCount >= 3) {
-      score += 20;
-    } else if (typeCount >= 2) {
-      score += 10;
-    }
-
-    score = Math.min(100, Math.max(10, score));
-
-    let title = '';
-    let description = '';
-
-    if (score >= 90) {
-      title = '🛡️ Palavra-passe Muito Segura e Invencível!';
-      description =
-        'Excelente! A tua palavra-passe é comprida, difícil de adivinhar e não contém dados previsíveis. Usa palavras-passe diferentes para cada conta e nunca as partilhes com ninguém!';
-    } else if (score >= 70) {
-      title = '✓ Palavra-passe Segura (Boa Proteção)';
-      description =
-        'Muito bom! A tua palavra-passe tem boa proteção. Para alcançar os 100 pontos, adiciona mais caracteres e combina um símbolo especial (#, $, !).';
-    } else if (score >= 50) {
-      title = '⚡ Palavra-passe Razoável (Pode Melhorar)';
-      description =
-        'A tua palavra-passe tem alguns pontos positivos, mas um robô pode conseguir adivinhá-la. Aumenta o comprimento (8+ caracteres), evita sequências óbvias e junta maiúsculas e símbolos.';
-    } else {
-      title = '⚠️ Palavra-passe Curta ou Vulnerável';
-      description =
-        'Esta palavra-passe é fácil de adivinhar porque é curta ou utiliza informação previsível. Experimenta o método da frase maluca: "Gato_Ninja_Comeu_9_Pizzas!".';
-    }
-
+    const evaluation = evaluatePasswordStrength(pwdInput);
     setHasTestedPwd(true);
-    setPwdFeedback({ score, title, description });
-    reportCompletion('sim-password', 'Laboratório de Palavras-Passe', { password: pwdInput }, score);
+    setPwdFeedback({
+      score: evaluation.score,
+      title: evaluation.title,
+      description: evaluation.description,
+    });
+    reportCompletion('sim-password', 'Laboratório de Palavras-Passe', { password: pwdInput }, evaluation.score);
   };
 
   // -------------------------------------------------------------
@@ -762,7 +705,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
-                    /[A-Z]/.test(pwdInput) && /[a-z]/.test(pwdInput)
+                    /[A-ZÀ-ÖØ-Þ]/.test(pwdInput) && /[a-zß-öø-ÿ]/.test(pwdInput)
                       ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}
@@ -782,7 +725,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                 </div>
                 <div
                   className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
-                    /[^A-Za-z0-9]/.test(pwdInput)
+                    /[^A-Za-z0-9À-ÖØ-öø-ÿ]/.test(pwdInput)
                       ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}

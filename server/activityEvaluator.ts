@@ -6,6 +6,8 @@
  * submissions against official pedagogical answer keys and logic.
  */
 
+import { evaluatePasswordStrength } from '../src/utils/passwordEvaluator';
+
 export interface EvaluationInput {
   answers?: any;
   payload?: any;
@@ -39,26 +41,15 @@ export function evaluateActivity(
     // WORLD 1: SEGURANÇA, PRIVACIDADE E BEM-ESTAR
     // -------------------------------------------------------------
     case 'sim-password': {
-      // Deterministic password strength evaluation
+      // Deterministic password strength evaluation (shared with frontend)
       const pwd = typeof input === 'string'
         ? input
         : input?.password || input?.pwdInput || input?.payload?.password || input?.answers?.password || '';
       if (!pwd || typeof pwd !== 'string' || pwd.trim().length === 0) {
         break; // Fall through to client score / stage completion fallback
       }
-      let score = 0;
-      const len = pwd.length;
-      if (len >= 8) score += 20;
-      if (len >= 12) score += 20;
-      if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score += 20;
-      if (/[0-9]/.test(pwd)) score += 20;
-      if (/[^A-Za-z0-9]/.test(pwd)) score += 20;
-
-      const common = ['123', 'password', 'escola', 'alex', 'teste', 'qwerty', '12345', 'admin', 'pass'];
-      if (common.some((c) => pwd.toLowerCase().includes(c))) {
-        score = Math.max(10, score - 35);
-      }
-      return { score: Math.min(100, Math.max(0, score)), isValidated: true };
+      const evaluation = evaluatePasswordStrength(pwd);
+      return { score: evaluation.score, isValidated: true };
     }
 
     case 'sim-phishing': {

@@ -92,6 +92,7 @@ async function logTeacherAction(
 // -------------------------------------------------------------
 router.get('/dashboard-stats', async (req: AuthRequest, res) => {
   try {
+    const classId = typeof req.query.classId === 'string' ? req.query.classId : 'all';
     const [allUsers, classes, allAssessments, allProgress] = await Promise.all([
       getAllUsers(),
       getAllClasses(),
@@ -99,7 +100,10 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
       getAllActivityProgress(),
     ]);
 
-    const students = allUsers.filter((u) => u.role === 'student');
+    let students = allUsers.filter((u) => u.role === 'student');
+    if (classId && classId !== 'all') {
+      students = students.filter((s) => s.classId === classId);
+    }
     const studentIds = new Set(students.map((s) => s.id));
     const allSimIds = new Set(WORLDS_DATA.flatMap((w) => w.simulators.map((sim) => sim.id)));
     const totalStudents = students.length;
@@ -111,8 +115,7 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
     ).length;
     const totalQuizzesAttempted = allAssessments.filter((a) => studentIds.has(a.userId)).length;
 
-    let totalScoreSum = 0;
-    let totalScoreCount = 0;
+    const studentWorldAvgsMap = new Map<string, number[]>();
     const lowWorldStudentIds = new Set<string>();
 
     const worldPerformance = WORLDS_DATA.map((w) => {
@@ -138,8 +141,10 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
           );
           sumAvg += studentWorldAvg;
           count++;
-          totalScoreSum += studentWorldAvg;
-          totalScoreCount++;
+          const list = studentWorldAvgsMap.get(s.id) || [];
+          list.push(studentWorldAvg);
+          studentWorldAvgsMap.set(s.id, list);
+
           if (studentWorldAvg < 50) {
             lowWorldStudentIds.add(s.id);
           }
@@ -150,12 +155,14 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
         }
       }
 
-      const averageScore = count > 0 ? Math.round(sumAvg / count) : 0;
+      // Média da turma: soma das médias de todos os alunos a dividir pelo total de alunos da turma (quem não realizou conta 0%)
+      const averageScore = totalStudents > 0 ? Math.round(sumAvg / totalStudents) : 0;
       return {
         worldId: w.id,
         title: w.title,
         averageScore,
         studentsAttempted: count,
+        totalStudents,
         studentsCompleted: completedCount,
         classAverage: averageScore,
         studentsActive: count,
@@ -163,8 +170,17 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
       };
     });
 
+    // Média global da turma (alunos sem atividades realizadas contam 0%)
+    let classGlobalSum = 0;
+    for (const s of students) {
+      const avgs = studentWorldAvgsMap.get(s.id);
+      if (avgs && avgs.length > 0) {
+        classGlobalSum += avgs.reduce((a, b) => a + b, 0) / avgs.length;
+      }
+    }
     const globalAverageScore =
-      totalScoreCount > 0 ? Math.round(totalScoreSum / totalScoreCount) : 0;
+      totalStudents > 0 ? Math.round(classGlobalSum / totalStudents) : 0;
+
     const studentsNeedingHelp = students.filter((s) => {
       const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
       return failedAttempts >= 2 || lowWorldStudentIds.has(s.id);

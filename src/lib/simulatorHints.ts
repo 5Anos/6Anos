@@ -1,5 +1,6 @@
 // Pedagogical metadata, privacy-safe mistake summarization, event bus,
 // and static-host (GitHub Pages) Socratic guide for all 28 simulators.
+import { evaluatePasswordStrength } from '../utils/passwordEvaluator';
 
 export interface SimulatorMeta {
   id: string;
@@ -400,19 +401,9 @@ export function buildSafeAttemptSummary(simulatorId: string, payload: any, score
 
   // NEVER transmit raw password strings to the AI or logs!
   if (simulatorId === 'sim-password' && typeof payload.password === 'string') {
-    const pwd = payload.password;
-    const issues: string[] = [];
-    if (pwd.length < 8) issues.push(`tem apenas ${pwd.length} caracteres (menos de 8)`);
-    const common = ['123', 'password', 'palavrapasse', 'escola', 'teste', 'qwerty', 'portugal', 'futebol', 'abc', '111', '000', 'admin'];
-    if (common.some((c) => pwd.toLowerCase().includes(c))) issues.push('contém uma palavra ou sequência previsível');
-    if (/(19\d\d|20\d\d)/.test(pwd)) issues.push('contém um ano ou data óbvia');
-    let types = 0;
-    if (/[a-zA-Z]/.test(pwd)) types++;
-    if (/[0-9]/.test(pwd)) types++;
-    if (/[^a-zA-Z0-9]/.test(pwd)) types++;
-    if (types < 2) issues.push('tem pouca variedade de tipos de caracteres');
-    return issues.length > 0
-      ? `A palavra-passe de teste ficou com ${score}% porque: ${issues.join('; ')}.`
+    const evalResult = evaluatePasswordStrength(payload.password);
+    return evalResult.issues.length > 0
+      ? `A palavra-passe de teste ficou com ${score}% porque: ${evalResult.issues.join('; ')}.`
       : `A palavra-passe de teste ficou com ${score}% e ainda pode ficar mais forte.`;
   }
 

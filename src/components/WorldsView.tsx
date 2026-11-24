@@ -191,6 +191,18 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
             const isSelected = world.id === selectedWorldId;
             const isUnlocked = isTeacher || Boolean(world.isUnlocked);
 
+            const isAssessmentDone = Boolean(
+              world.hasAssessment ||
+              world.hasAssessmentPassed ||
+              typeof world.bestAssessmentPercentage === 'number'
+            );
+            const completedSims = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
+            const totalMissions = (world.simulators?.length || (world.id >= 3 ? 6 : 5)) + 1;
+            const routePercent = Math.min(
+              100,
+              Math.round(((completedSims + (isAssessmentDone ? 1 : 0)) / totalMissions) * 100)
+            );
+
             return (
               <button
                 key={world.id}
@@ -232,13 +244,13 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     {world.title.replace(`MUNDO ${world.id} — `, '')}
                   </div>
                 </div>
-                {isUnlocked && world.average > 0 && (
+                {isUnlocked && routePercent > 0 && (
                   <span
-                    className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                    className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md tabular-nums ${
                       isSelected ? 'bg-white/30 text-white' : 'bg-blue-100 text-blue-800'
                     }`}
                   >
-                    {world.average}%
+                    {routePercent}%
                   </span>
                 )}
               </button>

@@ -18,6 +18,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { apiRequest } from '../api';
+import { evaluatePasswordStrength } from '../utils/passwordEvaluator';
 import { useAuth } from '../context/AuthContext';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
 import { HighlightClues } from '../utils/textHighlight';
@@ -127,70 +128,14 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
 
   // 1. Password Simulator Evaluation
   const evaluatePassword = () => {
-    let score = 0;
-
-    // COMPRIMENTO
-    if (pwdInput.length >= 8) {
-      score += 40;
-    } else if (pwdInput.length >= 6) {
-      score += 30;
-    } else if (pwdInput.length >= 4) {
-      score += 20;
-    } else {
-      score += 10;
-    }
-
-    // IMPREVISIBILIDADE
-    const common = ['123', 'password', 'palavrapasse', 'escola', 'teste', 'qwerty', '123456', 'portugal', 'futebol', 'abc', '111', '000', 'admin'];
-    const hasSequences = common.some((c) => pwdInput.toLowerCase().includes(c));
-    if (!hasSequences && pwdInput.length >= 8) {
-      score += 30;
-    }
-
-    // DADOS PESSOAIS
-    const obviousNames = ['alex', 'tiago', 'leonor', 'marta', 'diogo', 'joao', 'maria', 'ana', 'pedro', 'lucas', 'matilde', 'tomas', 'beatriz', 'francisco', 'afonso', 'goncalo', 'rodrigo', 'martim', 'santiago'];
-    const hasObviousNames = obviousNames.some((n) => pwdInput.toLowerCase().includes(n));
-    const hasDates = /(19\d\d|20\d\d)/.test(pwdInput);
-    if (!hasObviousNames && !hasDates && pwdInput.length >= 8) {
-      score += 20;
-    }
-
-    // VARIEDADE DE CARACTERES
-    let typeCount = 0;
-    if (/[a-zA-Z]/.test(pwdInput)) typeCount++;
-    if (/[0-9]/.test(pwdInput)) typeCount++;
-    if (/[^a-zA-Z0-9]/.test(pwdInput)) typeCount++;
-    if (typeCount >= 2) {
-      score += 10;
-    }
-
-    // Total clamped between 0 and 100
-    score = Math.min(100, Math.max(0, score));
-
-    let title = '';
-    let description = '';
-
-    if (score === 100) {
-      title = 'Palavra-passe muito segura!';
-      description =
-        'Excelente! A tua palavra-passe é suficientemente longa, difícil de adivinhar e não apresenta dados pessoais óbvios. Usa palavras-passe diferentes nas tuas contas e nunca as partilhes.';
-    } else if (score >= 80) {
-      title = 'Palavra-passe Segura (Boa Proteção)';
-      description =
-        'Muito bom! A tua palavra-passe tem boa proteção. Para alcançar a pontuação máxima (100 pontos), certifica-te de que tem pelo menos 8 caracteres, sem sequências nem dados pessoais óbvios e com variedade de caracteres.';
-    } else if (score >= 50) {
-      title = 'Palavra-passe Razoável (Pode Melhorar)';
-      description =
-        'A tua palavra-passe tem alguns pontos positivos, mas ainda pode ser melhorada. Aumenta o comprimento (8+ caracteres), evita nomes/datas e combina diferentes tipos de caracteres.';
-    } else {
-      title = 'Ainda pode ser melhorada.';
-      description =
-        'Esta palavra-passe é fácil de adivinhar porque é curta ou utiliza informação previsível. Experimenta torná-la mais longa (8+ caracteres) e evita nomes, datas ou palavras muito comuns.';
-    }
-
+    const evaluation = evaluatePasswordStrength(pwdInput);
     setHasTestedPwd(true);
-    setPwdFeedback({ score, title, description });
-    reportCompletion('sim-password', 1, { password: pwdInput }, score);
+    setPwdFeedback({
+      score: evaluation.score,
+      title: evaluation.title,
+      description: evaluation.description,
+    });
+    reportCompletion('sim-password', 1, { password: pwdInput }, evaluation.score);
   };
 
   // 2. Phishing Simulator Scenarios
@@ -577,7 +522,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               </div>
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
-                  /[A-Z]/.test(pwdInput) && /[a-z]/.test(pwdInput)
+                  /[A-ZÀ-ÖØ-Þ]/.test(pwdInput) && /[a-zß-öø-ÿ]/.test(pwdInput)
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                     : 'bg-slate-50 border-slate-200 text-slate-500'
                 }`}
@@ -595,7 +540,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               </div>
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
-                  /[^A-Za-z0-9]/.test(pwdInput)
+                  /[^A-Za-z0-9À-ÖØ-öø-ÿ]/.test(pwdInput)
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                     : 'bg-slate-50 border-slate-200 text-slate-500'
                 }`}

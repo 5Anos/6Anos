@@ -201,10 +201,14 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   const db = getClientFirestore();
 
   if (pathname === '/api/teacher/dashboard-stats') {
+    const classId = searchParams.get('classId') || 'all';
     const qUsers = query(collection(db, 'users'));
     const userSnap = await getDocs(qUsers);
     const allUsers = userSnap.docs.map((d) => d.data() as ClientUser);
-    const students = allUsers.filter((u) => u.role === 'student');
+    let students = allUsers.filter((u) => u.role === 'student');
+    if (classId && classId !== 'all') {
+      students = students.filter((s) => s.classId === classId);
+    }
     const classes = await clientGetClasses();
 
     const [assessSnap, progSnap] = await Promise.all([
@@ -225,8 +229,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     ).length;
     const totalQuizzesAttempted = allAssessments.filter((a) => studentIds.has(a.userId)).length;
 
-    let totalScoreSum = 0;
-    let totalScoreCount = 0;
+    const studentWorldAvgsMap = new Map<string, number[]>();
     const lowWorldStudentIds = new Set<string>();
 
     const worldPerformance = WORLDS_DATA.map((w) => {
@@ -252,8 +255,10 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
           );
           sumAvg += studentWorldAvg;
           count++;
-          totalScoreSum += studentWorldAvg;
-          totalScoreCount++;
+          const list = studentWorldAvgsMap.get(s.id) || [];
+          list.push(studentWorldAvg);
+          studentWorldAvgsMap.set(s.id, list);
+
           if (studentWorldAvg < 50) {
             lowWorldStudentIds.add(s.id);
           }
@@ -264,12 +269,14 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         }
       }
 
-      const averageScore = count > 0 ? Math.round(sumAvg / count) : 0;
+      // Média da turma: soma das médias a dividir por todos os alunos da turma (quem não realizou conta 0%)
+      const averageScore = totalStudents > 0 ? Math.round(sumAvg / totalStudents) : 0;
       return {
         worldId: w.id,
         title: w.title,
         averageScore,
         studentsAttempted: count,
+        totalStudents,
         studentsCompleted: completedCount,
         classAverage: averageScore,
         studentsActive: count,
@@ -277,8 +284,16 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       };
     });
 
+    let classGlobalSum = 0;
+    for (const s of students) {
+      const avgs = studentWorldAvgsMap.get(s.id);
+      if (avgs && avgs.length > 0) {
+        classGlobalSum += avgs.reduce((a, b) => a + b, 0) / avgs.length;
+      }
+    }
     const globalAverageScore =
-      totalScoreCount > 0 ? Math.round(totalScoreSum / totalScoreCount) : 0;
+      totalStudents > 0 ? Math.round(classGlobalSum / totalStudents) : 0;
+
     const studentsNeedingHelp = students.filter((s) => {
       const failedAttempts = allAssessments.filter((a) => a.userId === s.id && (Number(a.percentage) || 0) < 50).length;
       return failedAttempts >= 2 || lowWorldStudentIds.has(s.id);
@@ -413,7 +428,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     return { students: studentsFormatted } as any;
   }
 
-  if (pathname === '/api/teacher/classes') {
+  if (pathname === '/api/teacher/classes' && method === 'GET') {
     const classes = await clientGetClasses();
     return { classes } as any;
   }
@@ -1201,16 +1216,21 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
   // Create class
   if (pathname === '/api/teacher/classes' && method === 'POST') {
-    const { name } = body;
-    const classId = `class-${normalizeTurmaTag(name || 'nova-turma')}-${Date.now().toString(36)}`;
+    const rawName = typeof body.name === 'string' ? body.name.trim() : '';
+    if (!rawName) {
+      throw new Error('O nome da turma é obrigatório.');
+    }
+    const cleanCode = typeof body.code === 'string' ? body.code.trim().toUpperCase().slice(0, 50) : '';
+    const tag = normalizeTurmaTag(rawName).slice(0, 40) || 'turma';
+    const classId = `class-${tag}-${Date.now().toString(36)}`;
     const newClass = {
       id: classId,
-      name: name || 'Nova Turma',
-      code: '',
+      name: rawName.slice(0, 100),
+      code: cleanCode,
       createdAt: new Date().toISOString(),
     };
     await setDoc(doc(db, 'classes', classId), newClass);
-    return { success: true, classroom: newClass } as any;
+    return { success: true, class: newClass, classroom: newClass } as any;
   }
 
   // Class detail / update / delete
@@ -1223,10 +1243,32 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       return { classroom: cSnap.data() } as any;
     }
     if (method === 'PUT') {
-      await updateDoc(doc(db, 'classes', cId), { ...body, updatedAt: new Date().toISOString() });
+      const updates: Record<string, any> = { updatedAt: new Date().toISOString() };
+      if (typeof body.name === 'string' && body.name.trim()) {
+        updates.name = body.name.trim().slice(0, 100);
+      }
+      if (typeof body.code === 'string') {
+        updates.code = body.code.trim().toUpperCase().slice(0, 50);
+      }
+      if (typeof body.archived === 'boolean') {
+        updates.archived = body.archived;
+      }
+      if (body.visibility && typeof body.visibility === 'object') {
+        updates.visibility = body.visibility;
+      }
+      await updateDoc(doc(db, 'classes', cId), updates);
       return { success: true } as any;
     }
     if (method === 'DELETE') {
+      const studentSnap = await getDocs(
+        query(collection(db, 'users'), where('classId', '==', cId))
+      );
+      for (const sDoc of studentSnap.docs) {
+        await updateDoc(doc(db, 'users', sDoc.id), {
+          classId: '',
+          updatedAt: new Date().toISOString(),
+        }).catch(() => {});
+      }
       await deleteDoc(doc(db, 'classes', cId));
       return { success: true } as any;
     }

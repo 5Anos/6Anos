@@ -88,7 +88,7 @@ export const TeacherArea: React.FC = () => {
     try {
       setLoading(true);
       const results = await Promise.allSettled([
-        apiRequest('/api/teacher/dashboard-stats'),
+        apiRequest(`/api/teacher/dashboard-stats?classId=${selectedClass}`),
         apiRequest(`/api/teacher/students?classId=${selectedClass}`),
         apiRequest('/api/teacher/classes'),
         apiRequest(`/api/teacher/pauta?classId=${selectedClass}`),
@@ -382,14 +382,14 @@ export const TeacherArea: React.FC = () => {
 
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                <span>Média Global da Escola</span>
+                <span>{selectedClass === 'all' ? 'Média Global das Turmas' : 'Média Global da Turma'}</span>
                 <Flame className="w-4 h-4 text-emerald-600" />
               </div>
               <div className="text-2xl font-black text-emerald-600 font-mono mt-2">
                 {dashboardStats.globalAverageScore}%
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                Critério de aprovação: &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%
+                Calculada sobre todos os {dashboardStats.totalStudents} alunos
               </div>
             </div>
           </div>
@@ -432,12 +432,34 @@ export const TeacherArea: React.FC = () => {
             <div className="space-y-6">
               {/* World Performance Grid */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <Compass className="w-5 h-5 text-amber-600" />
-                    Desempenho Médio por Mundo (Critério &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
-                  </h3>
-                  <span className="text-xs text-slate-500">5 Mundos Temáticos TIC</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                      <Compass className="w-5 h-5 text-amber-600" />
+                      Desempenho Médio por Mundo (Critério &gt; {PROGRESSION_CONFIG.PASSING_THRESHOLD}%)
+                    </h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Média calculada sobre todos os {dashboardStats.totalStudents} alunos {selectedClass === 'all' ? 'das turmas' : 'da turma selecionada'} (alunos sem atividade contam 0%).
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <label htmlFor="overview-class-filter" className="text-xs font-semibold text-slate-500">
+                      Turma:
+                    </label>
+                    <select
+                      id="overview-class-filter"
+                      value={selectedClass}
+                      onChange={(e) => setSelectedClass(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                    >
+                      <option value="all">Todas as Turmas</option>
+                      {classes.map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -473,7 +495,7 @@ export const TeacherArea: React.FC = () => {
                         </div>
 
                         <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-200">
-                          {w.studentsAttempted} alunos realizaram
+                          {w.studentsAttempted} de {w.totalStudents ?? dashboardStats.totalStudents} alunos realizaram
                         </div>
                       </div>
                     );

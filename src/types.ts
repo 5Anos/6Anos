@@ -40,6 +40,9 @@ export interface WorldSummary {
   icon: string;
   color: string;
   isUnlocked: boolean;
+  isCompleted?: boolean;
+  hasAssessment?: boolean;
+  hasAssessmentPassed?: boolean;
   average: number;
   completedCount: number;
   totalComponents: number;

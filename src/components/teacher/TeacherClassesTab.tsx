@@ -50,11 +50,22 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
   // Student transfer within class modal
   const [transferringStudent, setTransferringStudent] = useState<any | null>(null);
   const [targetClassId, setTargetClassId] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [confirmDeleteClass, setConfirmDeleteClass] = useState<{ id: string; name: string } | null>(null);
+  const [deletingClass, setDeletingClass] = useState(false);
+
+  const showFeedback = (type: 'success' | 'error', message: string) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), 5000);
+  };
 
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newClassName.trim()) {
-      alert('Preenche o nome da turma (ex: 6.º A).');
+    setModalError(null);
+    const trimmedName = newClassName.trim();
+    if (!trimmedName) {
+      setModalError('Preenche o nome da turma (ex: 6.º F).');
       return;
     }
     try {
@@ -62,22 +73,24 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
       await apiRequest('/api/teacher/classes', {
         method: 'POST',
         body: JSON.stringify({
-          name: newClassName.trim(),
+          name: trimmedName,
           code: '',
         }),
       });
       setNewClassName('');
       setNewClassCode('');
       setShowCreateModal(false);
-      onRefresh();
+      await onRefresh();
+      showFeedback('success', `Turma "${trimmedName}" criada com sucesso!`);
     } catch (err: any) {
-      alert(err.message || 'Erro ao criar turma.');
+      setModalError(err.message || 'Erro ao criar turma.');
     } finally {
       setCreating(false);
     }
   };
 
   const handleOpenClassDetails = (c: any) => {
+    setModalError(null);
     setSelectedClassForDetails(c);
     setEditClassName(c.name);
     setEditClassCode(c.code || '');
@@ -86,6 +99,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
   const handleUpdateClass = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClassForDetails || !editClassName.trim()) return;
+    setModalError(null);
     try {
       setSavingEdit(true);
       await apiRequest(`/api/teacher/classes/${selectedClassForDetails.id}`, {
@@ -95,27 +109,37 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
           code: '',
         }),
       });
+      const updatedName = editClassName.trim();
       setSelectedClassForDetails(null);
-      onRefresh();
+      await onRefresh();
+      showFeedback('success', `Turma "${updatedName}" atualizada com sucesso!`);
     } catch (err: any) {
-      alert(err.message || 'Erro ao atualizar turma.');
+      setModalError(err.message || 'Erro ao atualizar turma.');
     } finally {
       setSavingEdit(false);
     }
   };
 
-  const handleDeleteClass = async (classId: string, className: string) => {
-    if (!confirm(`Tens a certeza que desejas eliminar a turma ${className}? Os alunos associados ficarão "Sem Turma".`)) {
-      return;
-    }
+  const handleDeleteClass = (classId: string, className: string) => {
+    setConfirmDeleteClass({ id: classId, name: className });
+  };
+
+  const executeDeleteClass = async () => {
+    if (!confirmDeleteClass) return;
     try {
-      await apiRequest(`/api/teacher/classes/${classId}`, {
+      setDeletingClass(true);
+      await apiRequest(`/api/teacher/classes/${confirmDeleteClass.id}`, {
         method: 'DELETE',
       });
+      const deletedName = confirmDeleteClass.name;
+      setConfirmDeleteClass(null);
       setSelectedClassForDetails(null);
-      onRefresh();
+      await onRefresh();
+      showFeedback('success', `Turma "${deletedName}" eliminada.`);
     } catch (err: any) {
-      alert(err.message || 'Erro ao eliminar turma.');
+      showFeedback('error', err.message || 'Erro ao eliminar turma.');
+    } finally {
+      setDeletingClass(false);
     }
   };
 
@@ -130,9 +154,10 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
       });
       setTransferringStudent(null);
       setTargetClassId('');
-      onRefresh();
+      await onRefresh();
+      showFeedback('success', 'Aluno transferido com sucesso!');
     } catch (err: any) {
-      alert(err.message || 'Erro ao transferir aluno.');
+      showFeedback('error', err.message || 'Erro ao transferir aluno.');
     }
   };
 
@@ -151,13 +176,43 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
         </div>
 
         <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-xs"
+          type="button"
+          onClick={() => {
+            setModalError(null);
+            setShowCreateModal(true);
+          }}
+          className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-xs cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Criar Nova Turma</span>
         </button>
       </div>
+
+      {feedback && (
+        <div
+          className={`px-4 py-3 rounded-xl border text-xs font-bold flex items-center justify-between gap-2 ${
+            feedback.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            {feedback.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+            )}
+            {feedback.message}
+          </span>
+          <button
+            type="button"
+            onClick={() => setFeedback(null)}
+            className="opacity-70 hover:opacity-100 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Classes Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -284,13 +339,20 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
             </div>
 
             <form onSubmit={handleCreateClass} className="space-y-4">
+              {modalError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{modalError}</span>
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-700">
                   Nome da Turma (ex: 6.º A, 6.º B, 6.º C, 6.º D, 6.º E):
                 </label>
                 <input
                   type="text"
-                  placeholder="ex: 6.º A"
+                  placeholder="ex: 6.º F"
                   value={newClassName}
                   onChange={(e) => setNewClassName(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
@@ -302,19 +364,56 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer disabled:opacity-60"
                 >
                   {creating ? 'A criar...' : 'Criar Turma'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Inline Delete Class Confirmation Modal */}
+      {confirmDeleteClass && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-700">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-slate-900">Eliminar Turma {confirmDeleteClass.name}?</h4>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Os alunos associados ficarão marcados como &quot;Sem Turma&quot;, sem perderem o progresso.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteClass(null)}
+                disabled={deletingClass}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={executeDeleteClass}
+                disabled={deletingClass}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer disabled:opacity-60"
+              >
+                {deletingClass ? 'A eliminar...' : 'Sim, Eliminar'}
+              </button>
+            </div>
           </div>
         </div>
       )}

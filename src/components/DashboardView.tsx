@@ -30,6 +30,7 @@ import {
   AlexAvatar,
 } from './Illustrations';
 import { AvatarRenderer } from './avatar/AvatarRenderer';
+import { XpMilestonesTracker } from './XpMilestonesTracker';
 
 interface DashboardViewProps {
   onSelectWorld: (worldId: number) => void;
@@ -106,6 +107,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     } finally {
       setClaimingTip(false);
     }
+  };
+
+  const getWorldRoutePercent = (world?: WorldSummary, fallbackSims = 5): number => {
+    if (!world) return 0;
+    const isAssessmentDone = Boolean(
+      world.hasAssessment ||
+      world.hasAssessmentPassed ||
+      typeof world.bestAssessmentPercentage === 'number'
+    );
+    const completedSims = world.simulatorsProgress?.filter((p) => p.completed).length || 0;
+    const totalMissions = (world.simulators?.length || fallbackSims) + 1;
+    return Math.min(
+      100,
+      Math.round(((completedSims + (isAssessmentDone ? 1 : 0)) / totalMissions) * 100)
+    );
   };
 
   return (
@@ -267,6 +283,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
+      {/* 1.5 VISUAL XP MILESTONES TRACKER */}
+      <XpMilestonesTracker
+        xp={user?.xp || 0}
+        isLoggedIn={Boolean(user)}
+        dailyTipClaimed={Boolean(dailyTip?.alreadyClaimed)}
+        weeklyChallengeCompleted={Boolean(weeklyChallenge?.alreadyCompleted)}
+        onClaimDailyTip={handleClaimDailyTip}
+        onOpenWeeklyChallenge={onOpenWeeklyChallenge}
+        onOpenWorlds={() => onSelectTab('worlds')}
+        onOpenGrandeMissao={onOpenGrandeMissao}
+        onOpenLoginModal={onOpenLoginModal}
+      />
+
       {/* 2. OS 5 MUNDOS DA MISSÃO TIC — THE PANORAMA ARCHIPELAGO (Matching Reference Mockup) */}
       <div
         id="worlds-panorama-section"
@@ -323,7 +352,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 1: Guardião Digital */}
             {(() => {
               const w1 = worlds.find((w) => w.id === 1);
-              const avg = Math.round(w1?.average || 0);
+              const pct = getWorldRoutePercent(w1, 5);
+              const isDone = Boolean(w1?.isCompleted);
               return (
                 <div
                   id="world-island-1"
@@ -357,13 +387,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="my-2">
-                      <div className="flex justify-end text-[10px] font-extrabold text-blue-600 mb-1">
-                        {user ? `${avg}%` : 'Entra'}
+                      <div className="flex justify-end text-[10px] font-extrabold text-blue-600 mb-1 tabular-nums">
+                        {user ? `${pct}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${user ? avg : 0}%` }}
+                          style={{ width: `${user ? pct : 0}%` }}
                         />
                       </div>
                     </div>
@@ -372,9 +402,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'bg-emerald-100 text-emerald-800'
-                          : avg > 0
+                          : pct > 0
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       }`}
@@ -383,9 +413,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!user
                           ? 'Entrar na Conta'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'Concluído'
-                          : avg > 0
+                          : pct > 0
                           ? 'Em progresso'
                           : 'Explorar Mundo 1'}
                       </span>
@@ -398,7 +428,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 2: Detetive Digital */}
             {(() => {
               const w2 = worlds.find((w) => w.id === 2);
-              const avg = Math.round(w2?.average || 0);
+              const pct = getWorldRoutePercent(w2, 5);
+              const isDone = Boolean(w2?.isCompleted);
               return (
                 <div
                   id="world-island-2"
@@ -432,13 +463,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="my-2">
-                      <div className="flex justify-end text-[10px] font-extrabold text-sky-600 mb-1">
-                        {user ? `${avg}%` : 'Entra'}
+                      <div className="flex justify-end text-[10px] font-extrabold text-sky-600 mb-1 tabular-nums">
+                        {user ? `${pct}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-sky-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${user ? avg : 0}%` }}
+                          style={{ width: `${user ? pct : 0}%` }}
                         />
                       </div>
                     </div>
@@ -447,9 +478,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'bg-emerald-100 text-emerald-800'
-                          : avg > 0
+                          : pct > 0
                           ? 'bg-sky-100 text-sky-800'
                           : 'bg-sky-50 text-sky-700 border border-sky-200'
                       }`}
@@ -458,9 +489,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!user
                           ? 'Entrar na Conta'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'Concluído'
-                          : avg > 0
+                          : pct > 0
                           ? 'Em progresso'
                           : 'Explorar Mundo 2'}
                       </span>
@@ -473,7 +504,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 3: Criador Digital */}
             {(() => {
               const w3 = worlds.find((w) => w.id === 3);
-              const avg = Math.round(w3?.average || 0);
+              const pct = getWorldRoutePercent(w3, 6);
+              const isDone = Boolean(w3?.isCompleted);
               return (
                 <div
                   id="world-island-3"
@@ -507,13 +539,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="my-2">
-                      <div className="flex justify-end text-[10px] font-bold text-purple-600 mb-1">
-                        {user ? `${avg}%` : 'Entra'}
+                      <div className="flex justify-end text-[10px] font-bold text-purple-600 mb-1 tabular-nums">
+                        {user ? `${pct}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-purple-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${user ? avg : 0}%` }}
+                          style={{ width: `${user ? pct : 0}%` }}
                         />
                       </div>
                     </div>
@@ -522,9 +554,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'bg-emerald-100 text-emerald-800'
-                          : avg > 0
+                          : pct > 0
                           ? 'bg-purple-100 text-purple-800'
                           : 'bg-purple-50 text-purple-700 border border-purple-200'
                       }`}
@@ -533,9 +565,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!user
                           ? 'Entrar na Conta'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'Concluído'
-                          : avg > 0
+                          : pct > 0
                           ? 'Em progresso'
                           : 'Explorar Mundo 3'}
                       </span>
@@ -548,7 +580,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 4: Engenheiro Digital */}
             {(() => {
               const w4 = worlds.find((w) => w.id === 4);
-              const avg = Math.round(w4?.average || 0);
+              const pct = getWorldRoutePercent(w4, 6);
+              const isDone = Boolean(w4?.isCompleted);
               return (
                 <div
                   id="world-island-4"
@@ -582,13 +615,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="my-2">
-                      <div className="flex justify-end text-[10px] font-bold text-amber-600 mb-1">
-                        {user ? `${avg}%` : 'Entra'}
+                      <div className="flex justify-end text-[10px] font-bold text-amber-600 mb-1 tabular-nums">
+                        {user ? `${pct}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-amber-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${user ? avg : 0}%` }}
+                          style={{ width: `${user ? pct : 0}%` }}
                         />
                       </div>
                     </div>
@@ -597,9 +630,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'bg-emerald-100 text-emerald-800'
-                          : avg > 0
+                          : pct > 0
                           ? 'bg-amber-100 text-amber-800'
                           : 'bg-amber-50 text-amber-700 border border-amber-200'
                       }`}
@@ -608,9 +641,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!user
                           ? 'Entrar na Conta'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'Concluído'
-                          : avg > 0
+                          : pct > 0
                           ? 'Em progresso'
                           : 'Explorar Mundo 4'}
                       </span>
@@ -623,7 +656,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Island 5: Explorador da IA */}
             {(() => {
               const w5 = worlds.find((w) => w.id === 5);
-              const avg = Math.round(w5?.average || 0);
+              const pct = getWorldRoutePercent(w5, 6);
+              const isDone = Boolean(w5?.isCompleted);
               return (
                 <div
                   id="world-island-5"
@@ -657,13 +691,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="my-2">
-                      <div className="flex justify-end text-[10px] font-bold text-indigo-600 mb-1">
-                        {user ? `${avg}%` : 'Entra'}
+                      <div className="flex justify-end text-[10px] font-bold text-indigo-600 mb-1 tabular-nums">
+                        {user ? `${pct}%` : 'Entra'}
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-indigo-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${user ? avg : 0}%` }}
+                          style={{ width: `${user ? pct : 0}%` }}
                         />
                       </div>
                     </div>
@@ -672,9 +706,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`w-full py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 ${
                         !user
                           ? 'bg-amber-50 text-amber-800 border border-amber-200/80'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'bg-emerald-100 text-emerald-800'
-                          : avg > 0
+                          : pct > 0
                           ? 'bg-indigo-100 text-indigo-800'
                           : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                       }`}
@@ -683,9 +717,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>
                         {!user
                           ? 'Entrar na Conta'
-                          : avg >= PROGRESSION_CONFIG.PASSING_THRESHOLD
+                          : isDone
                           ? 'Concluído'
-                          : avg > 0
+                          : pct > 0
                           ? 'Em progresso'
                           : 'Explorar Mundo 5'}
                       </span>
