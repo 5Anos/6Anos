@@ -162,7 +162,7 @@ export const ProfileView: React.FC = () => {
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400 mt-1 block">
-                Este é o único nome que os teus colegas veem na tabela da turma e nos desafios.
+                Este é o único nome que os teus colegas veem no Ranking das Turmas e nos desafios.
               </span>
             </div>
 

@@ -10,7 +10,13 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { WorldSummary, RankingStudent, DailyTipData, WeeklyChallengeData } from '../types';
+import {
+  WorldSummary,
+  RankingStudent,
+  ClassLeaderboardEntry,
+  DailyTipData,
+  WeeklyChallengeData,
+} from '../types';
 import { apiRequest } from '../api';
 import { t } from '../i18n';
 import { PROGRESSION_CONFIG } from '../progressionConfig';
@@ -52,6 +58,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const { user, locale, refreshUser, badges = [] } = useAuth();
   const [worlds, setWorlds] = useState<WorldSummary[]>([]);
   const [ranking, setRanking] = useState<RankingStudent[]>([]);
+  const [classesRanking, setClassesRanking] = useState<ClassLeaderboardEntry[]>([]);
+  const [dashboardRankingTab, setDashboardRankingTab] = useState<'classes' | 'individual'>('classes');
   const [dailyTip, setDailyTip] = useState<DailyTipData | null>(null);
   const [weeklyChallenge, setWeeklyChallenge] = useState<WeeklyChallengeData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,14 +80,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const loadDashboardData = async () => {
     try {
-      const [worldsRes, rankingRes, tipRes, challengeRes] = await Promise.all([
+      const [worldsRes, rankingRes, classesRankRes, tipRes, challengeRes] = await Promise.all([
         apiRequest('/api/pedagogical/worlds'),
         apiRequest('/api/pedagogical/class-ranking'),
+        apiRequest('/api/pedagogical/classes-ranking').catch(() => ({ classesRanking: [] })),
         apiRequest('/api/pedagogical/daily-tip'),
         apiRequest('/api/pedagogical/weekly-challenge'),
       ]);
       setWorlds(worldsRes.worlds || []);
       setRanking(rankingRes.ranking || []);
+      setClassesRanking(classesRankRes.classesRanking || []);
       setDailyTip(tipRes);
       setWeeklyChallenge(challengeRes);
     } catch (err) {
@@ -982,133 +992,231 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Column 3: Ranking da Turma */}
+        {/* Column 3: Ranking de Turmas & Tabela Individual */}
         <div
           id="class-ranking-section"
           className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between"
         >
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-start justify-between gap-2 mb-3">
               <div>
-                <h3 className="text-lg font-black text-slate-900">
-                  {user?.role === 'teacher' ? 'Ranking dos Alunos' : 'Tabela da Turma'}
+                <h3 className="text-lg font-black text-slate-900 leading-tight">
+                  {dashboardRankingTab === 'classes'
+                    ? 'Ranking das Turmas'
+                    : user?.role === 'teacher'
+                    ? 'Ranking dos Alunos'
+                    : 'Ranking da Turma'}
                 </h3>
-                {user?.role === 'teacher' && (
-                  <span className="text-[10px] font-bold text-indigo-700 block">
-                    Vista de Professor (nomes reais visíveis)
-                  </span>
-                )}
+                <span className="text-[10px] font-bold text-slate-500 block mt-0.5">
+                  {dashboardRankingTab === 'classes'
+                    ? 'Desafios + todas as pontuações (só nicknames)'
+                    : user?.role === 'teacher'
+                    ? 'Vista de Professor (nomes reais visíveis)'
+                    : 'Só nicknames anónimos'}
+                </span>
               </div>
               <button
                 onClick={() => {
                   onSelectTab('challenges');
                 }}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer shrink-0 mt-0.5"
               >
                 <span>Ver todos</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Dynamic ranking from server/database */}
-            <div className="space-y-2.5">
-              {ranking.length === 0 ? (
-                <div className="text-center py-6 text-xs text-slate-500 font-medium">
-                  {user && user.role === 'student' ? (
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-base">⭐</span>
-                        <div className="text-left">
-                          <span className="text-xs font-black text-blue-800 block">
-                            {user.nickname} (Tu)
-                          </span>
-                          <span className="text-[10px] text-blue-600 font-semibold">
-                            {user.classId?.replace('class-', 'Turma ').toUpperCase() || '6.º A'}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-xs font-black text-blue-700 bg-white px-2.5 py-1 rounded-lg shadow-2xs">
-                        {user.xp || 0} XP
-                      </span>
-                    </div>
-                  ) : (
-                    'Ainda não existem alunos registados no ranking.'
-                  )}
-                </div>
-              ) : (
-                ranking.slice(0, 3).map((item, idx) => {
-                  const medal = idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉';
-                  const isCurrent = item.isCurrentUser || item.id === user?.id;
-                  const isTeacherView = user?.role === 'teacher';
-                  const safeNickname = item.nickname || 'Explorador_TIC';
-                  const primaryLabel =
-                    isTeacherView && item.realName ? item.realName : safeNickname;
-                  const levelNum =
-                    typeof item.level === 'object' && item.level !== null
-                      ? (item.level as any).level
-                      : item.level;
-                  const levelName =
-                    typeof item.level === 'object' && item.level !== null
-                      ? (item.level as any).name
-                      : item.levelName || 'Explorador';
+            {/* Compact Switcher: Turmas vs Individual */}
+            <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 mb-3.5">
+              <button
+                type="button"
+                onClick={() => setDashboardRankingTab('classes')}
+                className={`py-1.5 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
+                  dashboardRankingTab === 'classes'
+                    ? 'bg-white text-blue-700 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🏆 Turmas
+              </button>
+              <button
+                type="button"
+                onClick={() => setDashboardRankingTab('individual')}
+                className={`py-1.5 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
+                  dashboardRankingTab === 'individual'
+                    ? 'bg-white text-blue-700 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {user?.role === 'teacher' ? '👥 Alunos' : '⭐ Minha Turma'}
+              </button>
+            </div>
 
-                  return (
-                    <div
-                      key={item.id || idx}
-                      onClick={() => onSelectTab('challenges')}
-                      className={`flex items-center justify-between p-2.5 rounded-2xl border transition-colors cursor-pointer ${
-                        isCurrent
-                          ? 'bg-blue-50/90 border-blue-200'
-                          : 'bg-slate-50 border-slate-100 hover:bg-slate-100/80'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-base select-none shrink-0">{medal}</span>
-                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
-                          <AvatarRenderer avatar={item.avatar} size={32} />
-                        </div>
-                        <div className="min-w-0">
-                          <span
-                            className={`text-xs font-black block truncate ${
-                              isCurrent ? 'text-blue-700' : 'text-slate-800'
-                            }`}
-                          >
-                            {primaryLabel} {isCurrent && '(Tu)'}
-                          </span>
-                          <span className="text-[10px] text-slate-500 block font-medium truncate">
-                            {isTeacherView && item.realName ? (
-                              <>
-                                Nick: {safeNickname}
-                                {item.className || item.turma
-                                  ? ` • ${item.className || item.turma}`
-                                  : ''}
-                              </>
-                            ) : (
-                              <>Nível {levelNum} • {levelName}</>
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                      <span
-                        className={`text-xs font-black px-2.5 py-1 rounded-lg shrink-0 ml-2 ${
-                          isCurrent
-                            ? 'text-blue-700 bg-white border border-blue-200'
-                            : 'text-blue-700 bg-blue-50'
+            {dashboardRankingTab === 'classes' ? (
+              <div className="space-y-2.5">
+                {classesRanking.length === 0 ? (
+                  <div className="text-center py-6 text-xs text-slate-500 font-medium">
+                    Ainda não existem turmas pontuadas.
+                  </div>
+                ) : (
+                  classesRanking.slice(0, 3).map((cls, idx) => {
+                    const medal = idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉';
+                    const topNick = cls.topContributors[0]?.nickname;
+                    return (
+                      <div
+                        key={cls.classId}
+                        onClick={() => onSelectTab('challenges')}
+                        className={`flex items-center justify-between p-2.5 rounded-2xl border transition-colors cursor-pointer ${
+                          cls.isUserClass
+                            ? 'bg-blue-50/90 border-blue-200'
+                            : 'bg-slate-50 border-slate-100 hover:bg-slate-100/80'
                         }`}
                       >
-                        {item.xp} XP
-                      </span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-base select-none shrink-0">{medal}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`text-xs font-black truncate ${
+                                  cls.isUserClass ? 'text-blue-800' : 'text-slate-900'
+                                }`}
+                              >
+                                Turma {cls.className}
+                              </span>
+                              {cls.isUserClass && (
+                                <span className="text-[9px] font-black bg-blue-600 text-white px-1.5 py-0.5 rounded-full shrink-0">
+                                  Tua
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-slate-500 block font-medium truncate">
+                              {cls.weeklyChallengesCompleted} desafios • {cls.totalXp} XP total
+                              {topNick ? ` • Top: ${topNick}` : ''}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0 ml-2">
+                          <span
+                            className={`text-xs font-black px-2.5 py-1 rounded-lg block ${
+                              cls.isUserClass
+                                ? 'text-blue-700 bg-white border border-blue-200'
+                                : 'text-blue-700 bg-blue-50'
+                            }`}
+                          >
+                            {cls.averageXp} XP
+                          </span>
+                          <span className="text-[9px] font-bold text-slate-400 block mt-0.5">
+                            média/aluno
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            ) : (
+              /* Dynamic individual ranking from server/database */
+              <div className="space-y-2.5">
+                {ranking.length === 0 ? (
+                  <div className="text-center py-6 text-xs text-slate-500 font-medium">
+                    {user && user.role === 'student' ? (
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-base">⭐</span>
+                          <div className="text-left">
+                            <span className="text-xs font-black text-blue-800 block">
+                              {user.nickname} (Tu)
+                            </span>
+                            <span className="text-[10px] text-blue-600 font-semibold">
+                              {user.classId?.replace('class-', 'Turma ').toUpperCase() || '6.º A'}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-xs font-black text-blue-700 bg-white px-2.5 py-1 rounded-lg shadow-2xs">
+                          {user.xp || 0} XP
+                        </span>
+                      </div>
+                    ) : (
+                      'Ainda não existem alunos registados no ranking.'
+                    )}
+                  </div>
+                ) : (
+                  ranking.slice(0, 3).map((item, idx) => {
+                    const medal = idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉';
+                    const isCurrent = item.isCurrentUser || item.id === user?.id;
+                    const isTeacherView = user?.role === 'teacher';
+                    const safeNickname = item.nickname || 'Explorador_TIC';
+                    const primaryLabel =
+                      isTeacherView && item.realName ? item.realName : safeNickname;
+                    const levelNum =
+                      typeof item.level === 'object' && item.level !== null
+                        ? (item.level as any).level
+                        : item.level;
+                    const levelName =
+                      typeof item.level === 'object' && item.level !== null
+                        ? (item.level as any).name
+                        : item.levelName || 'Explorador';
+
+                    return (
+                      <div
+                        key={item.id || idx}
+                        onClick={() => onSelectTab('challenges')}
+                        className={`flex items-center justify-between p-2.5 rounded-2xl border transition-colors cursor-pointer ${
+                          isCurrent
+                            ? 'bg-blue-50/90 border-blue-200'
+                            : 'bg-slate-50 border-slate-100 hover:bg-slate-100/80'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm select-none shrink-0">{medal}</span>
+                          <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-2xs">
+                            <AvatarRenderer avatar={item.avatar} size={28} />
+                          </div>
+                          <div className="min-w-0">
+                            <span
+                              className={`text-xs font-black block truncate ${
+                                isCurrent ? 'text-blue-700' : 'text-slate-800'
+                              }`}
+                            >
+                              {primaryLabel} {isCurrent && '(Tu)'}
+                            </span>
+                            <span className="text-[10px] text-slate-500 block font-medium truncate">
+                              {isTeacherView && item.realName ? (
+                                <>
+                                  Nick: {safeNickname}
+                                  {item.className || item.turma
+                                    ? ` • ${item.className || item.turma}`
+                                    : ''}
+                                </>
+                              ) : (
+                                <>Nível {levelNum} • {levelName}</>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                        <span
+                          className={`text-[11px] font-black px-2 py-1 rounded-lg shrink-0 ml-1.5 ${
+                            isCurrent
+                              ? 'text-blue-700 bg-white border border-blue-200'
+                              : 'text-blue-700 bg-blue-50'
+                          }`}
+                        >
+                          {item.xp} XP
+                        </span>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-            {user?.role === 'teacher'
-              ? 'Clica em "Ver todos" para veres o ranking completo com nomes reais e filtro por turma.'
-              : 'Pratica missões e desafios para subires na tabela da turma!'}
+            {dashboardRankingTab === 'classes'
+              ? 'Cada desafio e atividade conta para levar a tua turma ao 1.º lugar!'
+              : user?.role === 'teacher'
+              ? 'Clica em "Ver todos" para veres o ranking completo e filtrar por turma.'
+              : 'Pratica missões e desafios para subires no Ranking das Turmas!'}
           </div>
         </div>
       </div>

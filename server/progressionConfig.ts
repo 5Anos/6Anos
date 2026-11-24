@@ -76,7 +76,7 @@ export const PROGRESSION_CONFIG = {
   // Badge unlock rules
   BADGES: {
     MIN_ACTIVITIES_FOR_WORLD_BADGE: 3,
-    CENTURION_XP_THRESHOLD: 1000,
+    CENTURION_XP_THRESHOLD: 3000,
   },
 } as const;
 

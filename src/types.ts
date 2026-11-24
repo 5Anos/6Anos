@@ -113,6 +113,39 @@ export interface RankingStudent {
   turma?: string;
 }
 
+export interface ClassLeaderboardMember {
+  id: string;
+  nickname: string;
+  avatar: string;
+  xp: number;
+  level: number;
+  levelName: string;
+  weeklyChallengesCount: number;
+  activitiesCompleted: number;
+  isCurrentUser: boolean;
+}
+
+export interface ClassLeaderboardEntry {
+  position: number;
+  classId: string;
+  className: string;
+  isUserClass: boolean;
+  studentCount: number;
+  activeStudentsCount: number;
+  totalXp: number;
+  averageXp: number;
+  weeklyChallengesCompleted: number;
+  currentWeekCompletedCount: number;
+  currentWeekParticipationPct: number;
+  activitiesCompleted: number;
+  quizzesCompleted: number;
+  missionsCompleted: number;
+  totalChallengesAndActivities: number;
+  averageScorePct: number;
+  topContributors: ClassLeaderboardMember[];
+  members: ClassLeaderboardMember[];
+}
+
 export interface AssessmentQuestion {
   id: string;
   number: number;

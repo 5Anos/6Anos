@@ -38,7 +38,7 @@ export const translations = {
     grande_missao_name: 'A Escola do Futuro',
     my_achievements: 'As minhas conquistas',
     next_mission: 'Próxima missão',
-    ranking_title: 'Tabela da Turma',
+    ranking_title: 'Ranking das Turmas',
     xp: 'XP',
     level: 'Nível',
     attempts: 'Tentativas',

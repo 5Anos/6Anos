@@ -27,6 +27,8 @@ import {
 } from '../data/catalog';
 import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 import { resolveStudentSafeNickname, isNicknameUnsafeOrMissing } from '../../shared/nicknames';
+import { computeClassesLeaderboard } from '../../shared/classLeaderboard';
+import { evaluateEarnedBadgeIds } from '../../shared/badgesCatalog';
 
 export interface ClientUser {
   id: string;
@@ -399,7 +401,35 @@ export async function clientGetCurrentUser() {
     }).catch(() => {});
   }
 
-  return { user: sanitizeClientUser(user) };
+  // Load user badges and classroom (matching server /api/auth/me shape)
+  let badgesList: any[] = [];
+  let classroom: any = null;
+  try {
+    const [badgesSnap, classSnap] = await Promise.all([
+      getDocs(query(collection(db, 'badges'), where('userId', '==', user.id))),
+      user.classId ? getDoc(doc(db, 'classes', user.classId)) : Promise.resolve(null),
+    ]);
+    badgesList = badgesSnap.docs.map((d) => d.data());
+    if (user.role === 'student' && badgesList.length === 0) {
+      await clientCheckBadges(user.id).catch(() => {});
+      const refreshedSnap = await getDocs(
+        query(collection(db, 'badges'), where('userId', '==', user.id))
+      );
+      badgesList = refreshedSnap.docs.map((d) => d.data());
+    }
+    if (classSnap && classSnap.exists()) {
+      const c = classSnap.data() as any;
+      classroom = { id: c.id, name: c.name, code: c.code || '' };
+    }
+  } catch {
+    // Non-fatal: still return authenticated user
+  }
+
+  return {
+    user: sanitizeClientUser(user),
+    badges: badgesList,
+    classroom,
+  };
 }
 
 export async function clientUpdateProfile(payload: { name?: string; avatar?: string; nickname?: string }) {
@@ -1131,6 +1161,83 @@ export async function clientGetClassRanking(requestedClassId?: string) {
   };
 }
 
+export async function clientGetClassesLeaderboard() {
+  const db = getClientFirestore();
+  const activeUserId = getActiveClientUserId();
+  const currentChallenge = getCurrentWeeklyChallenge();
+
+  const [
+    usersSnap,
+    classesSnap,
+    activitySnap,
+    assessmentSnap,
+    weeklySnap,
+    missionsSnap,
+    gmSnap,
+    activeUserSnap,
+  ] = await Promise.all([
+    getDocs(query(collection(db, 'users'), where('role', '==', 'student'))),
+    getDocs(collection(db, 'classes')),
+    getDocs(collection(db, 'activityProgress')),
+    getDocs(collection(db, 'assessmentAttempts')),
+    getDocs(collection(db, 'weeklyChallenges')),
+    getDocs(collection(db, 'missionSubmissions')),
+    getDocs(collection(db, 'grandeMissaoProgress')),
+    activeUserId ? getDoc(doc(db, 'users', activeUserId)) : Promise.resolve(null),
+  ]);
+
+  const activeUser =
+    activeUserSnap && activeUserSnap.exists() ? (activeUserSnap.data() as ClientUser) : null;
+  const isTeacher = activeUser?.role === 'teacher';
+
+  const classes = classesSnap.docs.map((d) => d.data() as any);
+  const students = usersSnap.docs.map((d) => d.data() as ClientUser);
+  const activityProgress = activitySnap.docs.map((d) => d.data() as any);
+  const assessmentAttempts = assessmentSnap.docs.map((d) => d.data() as any);
+  const weeklyChallenges = weeklySnap.docs.map((d) => d.data() as any);
+  const missionSubmissions = missionsSnap.docs.map((d) => d.data() as any);
+  const grandeMissaoProgress = gmSnap.docs.map((d) => d.data() as any);
+
+  const result = computeClassesLeaderboard({
+    classes,
+    students,
+    activityProgress,
+    assessmentAttempts,
+    weeklyChallenges,
+    missionSubmissions,
+    grandeMissaoProgress,
+    currentWeekChallengeId: currentChallenge.id,
+    currentWeekNumber: currentChallenge.weekNumber,
+    activeUserId,
+    activeUserClassId: activeUser?.classId || null,
+    calculateLevel,
+  });
+
+  // Backfill any missing/unsafe nicknames to Firestore silently
+  if (result.nicknameBackfills.length > 0) {
+    const now = new Date().toISOString();
+    const persistTargets = result.nicknameBackfills.filter(
+      (b) => isTeacher || b.userId === activeUserId
+    );
+    if (persistTargets.length > 0) {
+      await Promise.allSettled(
+        persistTargets.map((b) =>
+          updateDoc(doc(db, 'users', b.userId), {
+            nickname: b.nickname,
+            updatedAt: now,
+          }).catch(() => {})
+        )
+      );
+    }
+  }
+
+  return {
+    classesRanking: result.classesRanking,
+    summary: result.summary,
+    currentWeekNumber: currentChallenge.weekNumber,
+  };
+}
+
 export async function clientGetDailyTip() {
   const userId = getActiveClientUserId();
   const today = new Date().toISOString().split('T')[0];
@@ -1212,6 +1319,8 @@ export async function clientClaimDailyTip() {
       createdAt: now,
     });
   });
+
+  await clientCheckBadges(userId).catch(() => {});
 
   return {
     success: true,
@@ -1747,58 +1856,133 @@ export async function clientCompleteGrandeMissao() {
 // -------------------------------------------------------------
 // BADGE CHECKER (Matches server/routes/pedagogical.ts 100%)
 // -------------------------------------------------------------
+async function computeClientBadgeContext(userId: string, user: ClientUser) {
+  const db = getClientFirestore();
+
+  const [worldStatsList, assessSnap, weeklySnap, tipsSnap, gmSnap] = await Promise.all([
+    Promise.all([1, 2, 3, 4, 5].map((w) => clientComputeWorldStats(userId, w, user.role))),
+    getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'weeklyChallenges'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'dailyTipClaims'), where('userId', '==', userId))),
+    getDoc(doc(db, 'grandeMissaoProgress', userId)),
+  ]);
+
+  const completedWorldIds = worldStatsList
+    .filter((st) => st.isWorldCompleted)
+    .map((st) => st.worldId);
+
+  const perfectWorlds = new Set<number>();
+  assessSnap.docs.forEach((d) => {
+    const data = d.data() as any;
+    if (Math.round(Number(data.percentage) || 0) >= 100 && data.worldId) {
+      perfectWorlds.add(Number(data.worldId));
+    }
+  });
+
+  const weeklyIds = new Set<string>();
+  weeklySnap.docs.forEach((d) => {
+    const data = d.data() as any;
+    if (data.challengeId && data.status !== 'pending' && data.completed !== false) {
+      weeklyIds.add(String(data.challengeId));
+    }
+  });
+
+  const hasGrandeMissao = gmSnap.exists() && gmSnap.data().status === 'completed';
+
+  return evaluateEarnedBadgeIds({
+    xp: Number(user.xp) || 0,
+    completedWorldIds,
+    weeklyChallengesCount: weeklyIds.size,
+    dailyTipsCount: tipsSnap.docs.length,
+    perfectAssessmentWorldsCount: perfectWorlds.size,
+    hasGrandeMissao,
+  });
+}
+
 async function clientCheckBadges(userId: string) {
   const db = getClientFirestore();
   const userSnap = await getDoc(doc(db, 'users', userId));
-  if (!userSnap.exists()) return;
+  if (!userSnap.exists()) return null;
   const user = userSnap.data() as ClientUser;
 
-  const worldBadgeMap: Record<number, string> = {
-    1: 'guardiao-digital',
-    2: 'detetive-digital',
-    3: 'criador-digital',
-    4: 'engenheiro-digital',
-    5: 'explorador-da-ia',
-  };
+  const evaluation = await computeClientBadgeContext(userId, user);
 
-  let completedWorldsCount = 0;
-  for (let w = 1; w <= 5; w++) {
-    const stats = await clientComputeWorldStats(userId, w, user.role);
-    if (stats.isWorldCompleted) {
-      completedWorldsCount++;
-      const bId = worldBadgeMap[w];
-      if (bId) {
-        const bRef = doc(db, 'badges', `${userId}_${bId}`);
-        await setDoc(
-          bRef,
-          { id: `${userId}_${bId}`, userId, badgeId: bId, awardedAt: new Date().toISOString() },
-          { merge: true }
-        ).catch(() => {});
-      }
+  // Only create badges that do NOT exist yet (honors firestore.rules `allow update: if false;`)
+  const existingSnap = await getDocs(query(collection(db, 'badges'), where('userId', '==', userId)));
+  const existingBadgeIds = new Set<string>();
+  existingSnap.docs.forEach((d) => {
+    const data = d.data() as any;
+    if (data.badgeId) existingBadgeIds.add(String(data.badgeId));
+  });
+
+  const now = new Date().toISOString();
+  const creates: Promise<any>[] = [];
+  for (const badgeId of evaluation.earnedIds) {
+    if (!existingBadgeIds.has(badgeId)) {
+      const docId = `${userId}_${badgeId}`;
+      const bRef = doc(db, 'badges', docId);
+      creates.push(
+        getDoc(bRef)
+          .then((snap) => {
+            if (!snap.exists()) {
+              return setDoc(bRef, {
+                id: docId,
+                userId,
+                badgeId,
+                awardedAt: now,
+              });
+            }
+          })
+          .catch(() => {})
+      );
     }
   }
-
-  // Centurion: >= 1000 XP or 100% in an assessment
-  const assessSnap = await getDocs(query(collection(db, 'assessmentAttempts'), where('userId', '==', userId)));
-  const has100Assess = assessSnap.docs.some((d) => Number(d.data().percentage) === 100);
-  if ((Number(user.xp) || 0) >= PROGRESSION_CONFIG.BADGES.CENTURION_XP_THRESHOLD || has100Assess) {
-    const centRef = doc(db, 'badges', `${userId}_centuriao-digital`);
-    await setDoc(
-      centRef,
-      { id: `${userId}_centuriao-digital`, userId, badgeId: 'centuriao-digital', awardedAt: new Date().toISOString() },
-      { merge: true }
-    ).catch(() => {});
+  if (creates.length > 0) {
+    await Promise.allSettled(creates);
   }
 
-  // Master: Grande Missão completed + all 5 worlds completed
-  const gmSnap = await getDoc(doc(db, 'grandeMissaoProgress', userId));
-  const hasGM = gmSnap.exists() && gmSnap.data().status === 'completed';
-  if (hasGM && completedWorldsCount >= 5) {
-    const masterBadgeRef = doc(db, 'badges', `${userId}_mestre-da-missao-tic`);
-    await setDoc(
-      masterBadgeRef,
-      { id: `${userId}_mestre-da-missao-tic`, userId, badgeId: 'mestre-da-missao-tic', awardedAt: new Date().toISOString() },
-      { merge: true }
-    ).catch(() => {});
+  return evaluation;
+}
+
+export async function clientGetUserBadgesWithProgress() {
+  const userId = getActiveClientUserId();
+  if (!userId) {
+    return {
+      badges: BADGES_CATALOG.map((b) => ({
+        ...b,
+        badgeId: b.id,
+        unlocked: false,
+        unlockedAt: null,
+        awardedAt: null,
+        progress: null,
+      })),
+    };
   }
+
+  const db = getClientFirestore();
+  const evaluation = await clientCheckBadges(userId);
+  const existingSnap = await getDocs(query(collection(db, 'badges'), where('userId', '==', userId)));
+  const byBadgeId = new Map<string, any>();
+  existingSnap.docs.forEach((d) => {
+    const data = d.data() as any;
+    if (data.badgeId) byBadgeId.set(String(data.badgeId), data);
+  });
+
+  const earnedSet = new Set(evaluation?.earnedIds || []);
+
+  const badges = BADGES_CATALOG.map((b) => {
+    const record = byBadgeId.get(b.id);
+    const unlocked = Boolean(record) || earnedSet.has(b.id);
+    const awardedAt = record?.awardedAt || null;
+    return {
+      ...b,
+      badgeId: b.id,
+      unlocked,
+      unlockedAt: awardedAt,
+      awardedAt,
+      progress: evaluation?.progressByBadgeId?.[b.id] || null,
+    };
+  });
+
+  return { badges };
 }

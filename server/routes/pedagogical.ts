@@ -6,6 +6,7 @@ import {
   MissionSubmission,
   UserBadge,
   getActivityProgress,
+  getAllActivityProgress,
   getUserActivityProgress,
   saveActivityProgress,
   atomicRecordActivityProgress,
@@ -20,12 +21,15 @@ import {
   hasUserBadge,
   awardBadge,
   getDailyTipClaim,
+  getUserDailyTipClaims,
   claimDailyTipAtomic,
   getWeeklyChallengeProgress,
+  getAllWeeklyChallenges,
   getUserWeeklyChallenges,
   saveWeeklyChallengeProgress,
   atomicRecordWeeklyChallenge,
   getGrandeMissaoProgress,
+  getAllGrandeMissaoProgress,
   saveGrandeMissaoProgress,
   atomicRecordGrandeMissaoStage,
   atomicCompleteGrandeMissao,
@@ -52,6 +56,8 @@ import {
 import { PROGRESSION_CONFIG, getQualitativeMention } from '../progressionConfig';
 import { evaluateActivity } from '../activityEvaluator';
 import { resolveStudentSafeNickname, isNicknameUnsafeOrMissing } from '../../shared/nicknames';
+import { computeClassesLeaderboard } from '../../shared/classLeaderboard';
+import { evaluateEarnedBadgeIds } from '../../shared/badgesCatalog';
 
 const router = Router();
 
@@ -171,41 +177,53 @@ export async function computeWorldStats(
   };
 }
 
-// Check and award world badges or centurion badge in Cloud Firestore
+// Evaluate and award all 16 badges in Cloud Firestore (matches clientCheckBadges 100%)
 export async function evaluateBadges(userId: string) {
   const user = await getUserById(userId);
-  if (!user) return;
+  if (!user) return null;
 
-  const worldBadgeMap: Record<number, string> = {
-    1: 'guardiao-digital',
-    2: 'detetive-digital',
-    3: 'criador-digital',
-    4: 'engenheiro-digital',
-    5: 'explorador-da-ia',
-  };
+  const [allStats, assessments, weeklyList, tipClaims, gmProgress, userTx] = await Promise.all([
+    Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w, user.role))),
+    getAssessmentAttempts(userId),
+    getUserWeeklyChallenges(userId),
+    getUserDailyTipClaims(userId),
+    getGrandeMissaoProgress(userId),
+    getUserXPTransactions(userId),
+  ]);
 
-  for (let w = 1; w <= 5; w++) {
-    const stats = await computeWorldStats(userId, w, user.role);
-    if (stats.isWorldCompleted) {
-      await awardBadge(userId, worldBadgeMap[w]);
+  const completedWorldIds = allStats.filter((st) => st.isWorldCompleted).map((st) => st.worldId);
+
+  const perfectWorlds = new Set<number>();
+  assessments.forEach((a) => {
+    if (Math.round(Number(a.percentage) || 0) >= 100 && a.worldId) {
+      perfectWorlds.add(Number(a.worldId));
     }
+  });
+
+  const weeklyIds = new Set<string>();
+  weeklyList.forEach((wc) => {
+    if (wc.challengeId && wc.status !== 'pending' && (wc as any).completed !== false) {
+      weeklyIds.add(String(wc.challengeId));
+    }
+  });
+
+  const hasGrandeMissao =
+    gmProgress?.status === 'completed' || userTx.some((t) => t.sourceType === 'grande_missao');
+
+  const evaluation = evaluateEarnedBadgeIds({
+    xp: Number(user.xp) || 0,
+    completedWorldIds,
+    weeklyChallengesCount: weeklyIds.size,
+    dailyTipsCount: tipClaims.length,
+    perfectAssessmentWorldsCount: perfectWorlds.size,
+    hasGrandeMissao,
+  });
+
+  for (const badgeId of evaluation.earnedIds) {
+    await awardBadge(userId, badgeId).catch(() => {});
   }
 
-  // Centurion: >= 1000 XP or 100% in an assessment
-  const assessments = await getAssessmentAttempts(userId);
-  const has100Assess = assessments.some((a) => a.percentage === 100);
-  if (user.xp >= PROGRESSION_CONFIG.BADGES.CENTURION_XP_THRESHOLD || has100Assess) {
-    await awardBadge(userId, 'centuriao-digital');
-  }
-
-  // Master: Grande Missão completed + all 5 worlds completed
-  const userTx = await getUserXPTransactions(userId);
-  const hasGM = userTx.some((t) => t.sourceType === 'grande_missao');
-  const allStats = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(userId, w, user.role)));
-  const allCompleted = allStats.every((st) => st.isWorldCompleted);
-  if (hasGM && allCompleted) {
-    await awardBadge(userId, 'mestre-da-missao-tic');
-  }
+  return evaluation;
 }
 
 // GET all Worlds with student progression status
@@ -1158,18 +1176,82 @@ router.get('/class-ranking', async (req: AuthRequest, res) => {
   }
 });
 
-// GET Badges Catalog & User Badges
+// GET Inter-Class Leaderboard (Ranking de Turmas — ALL scores & challenges, STRICTLY nicknames only!)
+router.get('/classes-ranking', async (req: AuthRequest, res) => {
+  try {
+    const currentChallenge = getCurrentWeeklyChallenge();
+    const [
+      users,
+      allClasses,
+      activityProgress,
+      assessmentAttempts,
+      weeklyChallenges,
+      missionSubmissions,
+      grandeMissaoProgress,
+    ] = await Promise.all([
+      getAllUsers(),
+      getAllClasses(),
+      getAllActivityProgress(),
+      getAssessmentAttempts('all'),
+      getAllWeeklyChallenges(),
+      getMissionSubmissions(),
+      getAllGrandeMissaoProgress(),
+    ]);
+
+    const students = users.filter((u) => u.role === 'student' && !u.blocked);
+
+    const result = computeClassesLeaderboard({
+      classes: allClasses,
+      students,
+      activityProgress,
+      assessmentAttempts,
+      weeklyChallenges,
+      missionSubmissions,
+      grandeMissaoProgress,
+      currentWeekChallengeId: currentChallenge.id,
+      currentWeekNumber: currentChallenge.weekNumber,
+      activeUserId: req.user?.id || null,
+      activeUserClassId: req.user?.classId || null,
+      calculateLevel,
+    });
+
+    if (result.nicknameBackfills.length > 0) {
+      await Promise.allSettled(
+        result.nicknameBackfills.map((b) =>
+          updateUser(b.userId, { nickname: b.nickname }).catch(() => {})
+        )
+      );
+    }
+
+    return res.json({
+      classesRanking: result.classesRanking,
+      summary: result.summary,
+      currentWeekNumber: currentChallenge.weekNumber,
+    });
+  } catch (err) {
+    console.error('Error in /classes-ranking:', err);
+    return res.status(500).json({ error: 'Erro ao carregar o ranking de turmas.' });
+  }
+});
+
+// GET Badges Catalog & User Badges with Live Progress
 router.get('/badges', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
+    const evaluation = userId ? await evaluateBadges(userId) : null;
     const userBadges = userId ? await getUserBadges(userId) : [];
+    const earnedSet = new Set(evaluation?.earnedIds || []);
 
     const badges = BADGES_CATALOG.map((b) => {
       const earned = userBadges.find((ub) => ub.badgeId === b.id);
+      const unlocked = Boolean(earned) || earnedSet.has(b.id);
       return {
         ...b,
-        unlocked: !!earned,
+        badgeId: b.id,
+        unlocked,
         unlockedAt: earned?.awardedAt || null,
+        awardedAt: earned?.awardedAt || null,
+        progress: evaluation?.progressByBadgeId?.[b.id] || null,
       };
     });
 

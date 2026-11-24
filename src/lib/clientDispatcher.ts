@@ -10,6 +10,8 @@ import {
   clientGetAssessment,
   clientSubmitAssessment,
   clientGetClassRanking,
+  clientGetClassesLeaderboard,
+  clientGetUserBadgesWithProgress,
   clientGetDailyTip,
   clientClaimDailyTip,
   clientGetWeeklyChallenge,
@@ -137,6 +139,16 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   if (pathname === '/api/pedagogical/class-ranking') {
     const classIdParam = searchParams.get('classId') || undefined;
     const res = await clientGetClassRanking(classIdParam);
+    return res as any;
+  }
+
+  if (pathname === '/api/pedagogical/classes-ranking') {
+    const res = await clientGetClassesLeaderboard();
+    return res as any;
+  }
+
+  if (pathname === '/api/pedagogical/badges') {
+    const res = await clientGetUserBadgesWithProgress();
     return res as any;
   }
 

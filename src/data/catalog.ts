@@ -1,3 +1,11 @@
+import {
+  SHARED_LEVELS,
+  SHARED_BADGES_CATALOG,
+  BadgeCatalogDefinition,
+} from '../../shared/badgesCatalog';
+
+export type { BadgeCatalogDefinition };
+
 export interface WorldContent {
   id: number;
   title: string;
@@ -54,16 +62,7 @@ export interface LevelInfo {
   minXp: number;
 }
 
-export const LEVELS: LevelInfo[] = [
-  { level: 1, name: 'Novato Digital', minXp: 0 },
-  { level: 2, name: 'Explorador Digital', minXp: 200 },
-  { level: 3, name: 'Guardião Digital', minXp: 400 },
-  { level: 4, name: 'Detetive Digital', minXp: 700 },
-  { level: 5, name: 'Criador Digital', minXp: 1100 },
-  { level: 6, name: 'Engenheiro Digital', minXp: 1600 },
-  { level: 7, name: 'Explorador da IA', minXp: 2200 },
-  { level: 8, name: 'Mestre da Missão TIC', minXp: 2900 },
-];
+export const LEVELS: LevelInfo[] = SHARED_LEVELS;
 
 export function calculateLevel(xp: number): LevelInfo {
   for (let i = LEVELS.length - 1; i >= 0; i--) {
@@ -93,56 +92,7 @@ export function getNextLevelInfo(xp: number) {
   };
 }
 
-export const BADGES_CATALOG = [
-  {
-    id: 'primeiros-passos',
-    title: 'Primeiros Passos',
-    description: 'Criaste a tua conta e deste os primeiros passos na Missão TIC.',
-    icon: 'Footprints',
-  },
-  {
-    id: 'guardiao-digital',
-    title: 'Guardião Digital',
-    description: 'Completaste os desafios de segurança e privacidade do Mundo 1.',
-    icon: 'ShieldCheck',
-  },
-  {
-    id: 'detetive-digital',
-    title: 'Detetive Digital',
-    description: 'Aprendeste a pesquisar bem e a confirmar fontes no Mundo 2.',
-    icon: 'Search',
-  },
-  {
-    id: 'criador-digital',
-    title: 'Criador Digital',
-    description: 'Mostraste respeito pela netiqueta e pelos direitos de autor no Mundo 3.',
-    icon: 'Palette',
-  },
-  {
-    id: 'engenheiro-digital',
-    title: 'Engenheiro Digital',
-    description: 'Desvendaste algoritmos, repetições e programação no Mundo 4.',
-    icon: 'Code2',
-  },
-  {
-    id: 'explorador-da-ia',
-    title: 'Explorador da IA',
-    description: 'Aprendeste a usar a Inteligência Artificial com responsabilidade no Mundo 5.',
-    icon: 'Sparkles',
-  },
-  {
-    id: 'centuriao-digital',
-    title: 'Campeão Digital',
-    description: 'Chegaste a mais de 1000 XP ou tiveste 100% numa Avaliação Final!',
-    icon: 'Award',
-  },
-  {
-    id: 'mestre-da-missao-tic',
-    title: 'Mestre da Missão TIC',
-    description: 'Completaste a Grande Missão e brilhaste em todos os mundos!',
-    icon: 'Crown',
-  },
-];
+export const BADGES_CATALOG: BadgeCatalogDefinition[] = SHARED_BADGES_CATALOG;
 
 export const DAILY_TIPS = [
   {

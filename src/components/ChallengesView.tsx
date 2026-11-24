@@ -21,10 +21,16 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { AnnualWeeklyScheduleItem, RankingStudent, WeeklyChallengeData } from '../types';
+import {
+  AnnualWeeklyScheduleItem,
+  ClassLeaderboardEntry,
+  RankingStudent,
+  WeeklyChallengeData,
+} from '../types';
 import { t } from '../i18n';
 import { AvatarRenderer } from './avatar/AvatarRenderer';
 import { HighlightClues } from '../utils/textHighlight';
+import { ClassesRankingSection } from './ClassesRankingSection';
 
 interface ChallengesViewProps {
   onOpenSimulators?: () => void;
@@ -42,7 +48,11 @@ const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 
 export const ChallengesView: React.FC<ChallengesViewProps> = () => {
   const { user, locale, refreshUser } = useAuth();
+  const [rankingViewTab, setRankingViewTab] = useState<'classes' | 'individual'>('classes');
   const [ranking, setRanking] = useState<RankingStudent[]>([]);
+  const [classesRanking, setClassesRanking] = useState<ClassLeaderboardEntry[]>([]);
+  const [classesRankingWeek, setClassesRankingWeek] = useState<number | undefined>(undefined);
+  const [loadingClassesRanking, setLoadingClassesRanking] = useState(false);
   const [rankingClasses, setRankingClasses] = useState<{ id: string; name: string }[]>([]);
   const [selectedRankingClass, setSelectedRankingClass] = useState<string>('all');
   const [loadingRanking, setLoadingRanking] = useState(false);
@@ -88,6 +98,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
     async (weekOverride: number | null = null) => {
       if (!user) return;
       setLoadingWeek(true);
+      setLoadingClassesRanking(true);
       try {
         const challengeEndpoint =
           weekOverride !== null
@@ -97,19 +108,25 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
           isTeacher && selectedRankingClass !== 'all'
             ? `/api/pedagogical/class-ranking?classId=${encodeURIComponent(selectedRankingClass)}`
             : '/api/pedagogical/class-ranking';
-        const [rankRes, chalRes] = await Promise.all([
+        const [rankRes, classesRankRes, chalRes] = await Promise.all([
           apiRequest(rankUrl),
+          apiRequest('/api/pedagogical/classes-ranking').catch(() => ({ classesRanking: [] })),
           apiRequest(challengeEndpoint),
         ]);
         setRanking(rankRes.ranking || []);
         if (Array.isArray(rankRes.classes)) {
           setRankingClasses(rankRes.classes);
         }
+        setClassesRanking(classesRankRes.classesRanking || []);
+        if (classesRankRes.currentWeekNumber) {
+          setClassesRankingWeek(classesRankRes.currentWeekNumber);
+        }
         setWeeklyChallenge(chalRes);
       } catch (err) {
         console.error('Failed to load challenges data:', err);
       } finally {
         setLoadingWeek(false);
+        setLoadingClassesRanking(false);
       }
     },
     [user?.id, isTeacher, selectedRankingClass]
@@ -187,7 +204,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
           Entra na tua conta para jogar!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para participares nos 52 desafios semanais do ano e apareceres na tabela da tua turma, entra com a conta dada pela tua professora.
+          Para participares nos 52 desafios semanais do ano e apareceres no Ranking das Turmas, entra com a conta dada pela tua professora.
         </p>
       </div>
     );
@@ -600,79 +617,147 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
         </div>
       )}
 
-      {/* Class Ranking / Leaderboard Table */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-xs space-y-5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">
-                {isTeacher ? 'Ranking dos Alunos' : t('ranking_title', locale)}
-              </h3>
-              {isTeacher && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-black text-indigo-800 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-lg">
-                  <UserCheck className="w-3.5 h-3.5" />
-                  Vista de Professor
-                </span>
-              )}
+      {/* Rankings Hub: Ranking de Turmas + Ranking Individual */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-8 shadow-xs space-y-6">
+        {/* Top Ranking View Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <Trophy className="w-5 h-5" />
             </div>
-            <p className="text-xs text-slate-500 mt-1">
-              {isTeacher
-                ? 'Vês o nome real de cada aluno e o respetivo nome de jogo (nickname). Os alunos só conseguem ver o nickname automático.'
-                : 'Tabela da tua turma — todos os alunos usam um nome de jogo automático para proteger a privacidade!'}
-            </p>
+            <div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                {rankingViewTab === 'classes'
+                  ? 'Ranking das Turmas'
+                  : isTeacher
+                  ? 'Ranking Individual dos Alunos'
+                  : 'Ranking da Turma'}
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                {rankingViewTab === 'classes'
+                  ? 'Classificação entre todas as turmas com base nos desafios e todas as pontuações!'
+                  : isTeacher
+                  ? 'Vista individual com nome real e nickname automático.'
+                  : 'Classificação individual na tua turma com nicknames anónimos.'}
+              </p>
+            </div>
           </div>
 
-          {isTeacher ? (
-            <div className="flex flex-wrap items-center gap-2.5">
-              {rankingClasses.length > 0 && (
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                  <Users className="w-4 h-4 text-slate-500 shrink-0" />
-                  <select
-                    value={selectedRankingClass}
-                    onChange={(e) => handleRankingClassChange(e.target.value)}
-                    aria-label="Filtrar ranking por turma"
-                    className="bg-transparent text-xs font-extrabold text-slate-800 focus:outline-none cursor-pointer"
+          <div className="inline-flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 w-fit shrink-0">
+            <button
+              type="button"
+              onClick={() => setRankingViewTab('classes')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                rankingViewTab === 'classes'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              Ranking das Turmas
+              {classesRanking.length > 0 && (
+                <span
+                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                    rankingViewTab === 'classes'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {classesRanking.length}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRankingViewTab('individual')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                rankingViewTab === 'individual'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              {isTeacher ? 'Por Aluno' : 'A Minha Turma'}
+            </button>
+          </div>
+        </div>
+
+        {rankingViewTab === 'classes' ? (
+          <ClassesRankingSection
+            classesRanking={classesRanking}
+            loading={loadingClassesRanking}
+            currentWeekNumber={classesRankingWeek || challenge?.weekNumber}
+          />
+        ) : (
+          <div className="space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isTeacher && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-indigo-800 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-lg">
+                      <UserCheck className="w-3.5 h-3.5" />
+                      Vista de Professor
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  {isTeacher
+                    ? 'Vês o nome real de cada aluno e o respetivo nome de jogo (nickname). Os alunos só conseguem ver o nickname automático.'
+                    : 'Ranking da tua turma — todos os alunos usam um nome de jogo automático para proteger a privacidade!'}
+                </p>
+              </div>
+
+              {isTeacher ? (
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {rankingClasses.length > 0 && (
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                      <Users className="w-4 h-4 text-slate-500 shrink-0" />
+                      <select
+                        value={selectedRankingClass}
+                        onChange={(e) => handleRankingClassChange(e.target.value)}
+                        aria-label="Filtrar ranking por turma"
+                        className="bg-transparent text-xs font-extrabold text-slate-800 focus:outline-none cursor-pointer"
+                      >
+                        <option value="all">Todas as Turmas</option>
+                        {rankingClasses.map((cls) => (
+                          <option key={cls.id} value={cls.id}>
+                            Turma {cls.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setHideRealNamesForProjection((prev) => !prev)}
+                    className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${
+                      hideRealNamesForProjection
+                        ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                    title="Ocultar nomes reais para projetar o ranking no quadro da sala"
                   >
-                    <option value="all">Todas as Turmas</option>
-                    {rankingClasses.map((cls) => (
-                      <option key={cls.id} value={cls.id}>
-                        Turma {cls.name}
-                      </option>
-                    ))}
-                  </select>
+                    {hideRealNamesForProjection ? (
+                      <>
+                        <Eye className="w-3.5 h-3.5" />
+                        Mostrar nomes reais
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5" />
+                        Ocultar nomes (Projetar)
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 w-fit">
+                  <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>A tua privacidade está protegida</span>
                 </div>
               )}
-
-              <button
-                type="button"
-                onClick={() => setHideRealNamesForProjection((prev) => !prev)}
-                className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${
-                  hideRealNamesForProjection
-                    ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                }`}
-                title="Ocultar nomes reais para projetar o ranking no quadro da sala"
-              >
-                {hideRealNamesForProjection ? (
-                  <>
-                    <Eye className="w-3.5 h-3.5" />
-                    Mostrar nomes reais
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="w-3.5 h-3.5" />
-                    Ocultar nomes (Projetar)
-                  </>
-                )}
-              </button>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 w-fit">
-              <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>A tua privacidade está protegida</span>
-            </div>
-          )}
-        </div>
 
         {/* Teacher Student Detail Drawer/Card on Row Click */}
         {isTeacher && selectedRankingStudent && (
@@ -851,6 +936,8 @@ export const ChallengesView: React.FC<ChallengesViewProps> = () => {
             </tbody>
           </table>
         </div>
+      </div>
+        )}
       </div>
     </div>
   );
