@@ -84,7 +84,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
           Entra na tua conta para jogar!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para participares nos desafios semanais e apareceres na tabela da tua turma, entra com a conta dada pela Professora.
+          Para participares nos desafios semanais e apareceres na tabela da tua turma, entra com a conta dada pela tua professora.
         </p>
       </div>
     );
@@ -152,7 +152,7 @@ export const ChallengesView: React.FC<ChallengesViewProps> = ({ onOpenSimulators
             <strong className="font-black text-slate-950 bg-amber-200/90 px-1 py-0.5 rounded border-b-2 border-amber-400">
               em 24 horas
             </strong>
-            , clica no link abaixo e introduz o teu email e a tua{' '}
+            , carrega na ligação abaixo e introduz o teu e-mail e a tua{' '}
             <strong className="font-black text-rose-950 bg-rose-200/90 px-1 py-0.5 rounded border-b-2 border-rose-400">
               palavra-passe da escola
             </strong>

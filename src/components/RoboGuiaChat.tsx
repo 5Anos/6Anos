@@ -202,7 +202,7 @@ export const RoboGuiaChat: React.FC<RoboGuiaChatProps> = ({ visible = true }) =>
                 <p className="text-[11px] text-blue-100 truncate">
                   {activeContext
                     ? `A ajudar em: ${activeContext.simulatorTitle}`
-                    : 'Ajuda sem entregar a resposta'}
+                    : 'Ajuda sem dar a resposta'}
                 </p>
               </div>
             </div>

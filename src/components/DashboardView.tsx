@@ -213,7 +213,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ? locale === 'en'
                   ? dailyTip.tip.en
                   : dailyTip.tip.pt
-                : 'Antes de clicares num link recebido por mensagem, verifica para onde te leva.'}
+                : 'Antes de carregares numa ligação recebida por mensagem, verifica para onde te leva.'}
             </p>
 
             {tipSuccessMsg && (
@@ -776,7 +776,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </span>
                       </div>
                       <h4 className="text-xs font-black text-white leading-tight">
-                        A ESCOLA DO FUTURO
+                        A Escola do Futuro
                       </h4>
                       <p className="text-[10px] text-slate-300 font-semibold mt-1">
                         5 Mundos • 1 Missão
@@ -925,7 +925,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-            Completa os 5 Mundos para desbloquear a insígnia Mestre da Missão TIC!
+            Completa os 5 Mundos para ganhares a medalha Mestre da Missão TIC!
           </div>
         </div>
 
@@ -979,7 +979,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-black text-slate-900">
-                Ranking da Turma
+                Tabela da Turma
               </h3>
               <button
                 onClick={() => {
@@ -1065,7 +1065,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-            Pratica missões e desafios para subir no ranking da turma!
+            Pratica missões e desafios para subires na tabela da turma!
           </div>
         </div>
       </div>

@@ -59,11 +59,11 @@ export const SIMULATOR_CATALOG: Record<string, SimulatorMeta> = {
     id: 'sim-phishing',
     title: 'Caça ao Phishing',
     worldId: 1,
-    topic: 'Detetar mensagens fraudulentas (remetente, urgência, pedidos de palavra-passe e links estranhos)',
+    topic: 'Detetar mensagens fraudulentas (remetente, urgência, pedidos de palavra-passe e ligações estranhas)',
     clues: [
       'Olha sempre primeiro para o endereço de quem enviou o e-mail: o domínio oficial da escola termina de forma fiável.',
       'Desconfia de mensagens com pressa exagerada ("bloqueio hoje!", "30 minutos") ou prémios demasiado bons para ser verdade.',
-      'Nenhuma escola ou serviço seguro te pede a palavra-passe através de um link num e-mail.',
+      'Nenhuma escola ou serviço seguro te pede a palavra-passe através de uma ligação num e-mail.',
     ],
     guidingQuestion: 'Na mensagem que falhaste, qual foi o detalhe no remetente ou no pedido que devia ter acendido o alerta?',
   },
@@ -74,7 +74,7 @@ export const SIMULATOR_CATALOG: Record<string, SimulatorMeta> = {
     topic: 'Distinguir dados pessoais privados de informações seguras para partilhar',
     clues: [
       'Tudo o que ajuda um desconhecido a encontrar-te na vida real (morada, telemóvel, horários ou escola) deve ficar privado.',
-      'Gosto pessoais gerais, como um livro ou passatempo, não revelam onde estás nem quem és na vida real.',
+      'Gostos pessoais gerais, como um livro ou passatempo, não revelam onde estás nem quem és na vida real.',
     ],
     guidingQuestion: 'Se um desconhecido lesse essa informação, conseguiria contactar-te ou saber onde estás?',
   },
@@ -91,7 +91,7 @@ export const SIMULATOR_CATALOG: Record<string, SimulatorMeta> = {
   },
   'sim-digital-wellbeing': {
     id: 'sim-digital-wellbeing',
-    title: 'Super-Corpo & Ecrãs',
+    title: 'Supercorpo & Ecrãs',
     worldId: 1,
     topic: 'Hábitos saudáveis de tempo de ecrã, sono, postura e concentração',
     clues: [
@@ -210,9 +210,9 @@ export const SIMULATOR_CATALOG: Record<string, SimulatorMeta> = {
     topic: 'Respeitar os criadores de imagens, textos e músicas da Internet',
     clues: [
       'Estar disponível na Internet não significa que seja livre para copiar sem autorização.',
-      'Para usar obras de outras pessoas de forma justa, precisa de licença aberta (como Creative Commons), domínio público ou autorização, e indicar sempre o autor.',
+      'Para usares obras de outras pessoas de forma justa, precisas de uma licença aberta (como Creative Commons), domínio público ou autorização, e de indicar sempre o autor.',
     ],
-    guidingQuestion: 'Nessa situação, o autor deu permissão para usar a obra e recebeu o devido crédito?',
+    guidingQuestion: 'Nessa situação, o autor deu permissão para usar a obra e foi devidamente identificado?',
   },
   'sim-plagio-citacao': {
     id: 'sim-plagio-citacao',
@@ -231,7 +231,7 @@ export const SIMULATOR_CATALOG: Record<string, SimulatorMeta> = {
     worldId: 3,
     topic: 'Compreender símbolos Creative Commons (BY, NC, ND, SA)',
     clues: [
-      'Lembra-te das siglas: BY = dar crédito ao autor; NC = não comercial (sem vender); ND = sem alterações; SA = partilhar com a mesma licença.',
+      'Lembra-te das siglas: BY = indicar o autor; NC = não comercial (sem vender); ND = sem alterações; SA = partilhar com a mesma licença.',
       'Lê bem o que o aluno quer fazer (por exemplo, editar ou usar na escola) e compara com o que a licença permite.',
     ],
     guidingQuestion: 'Que regra específica está escondida nas letras da licença (BY, NC ou ND) desse caso?',
@@ -449,7 +449,7 @@ export function buildStaticSocraticHint(params: {
   if (params.userMessage) {
     const lower = params.userMessage.toLowerCase();
     if (lower.includes('resposta') || lower.includes('qual é') || lower.includes('diz-me')) {
-      return `Boa tentativa, mas o Robo-Guia não entrega a resposta — tu consegues descobrir sozinho! 💡 Pista: ${clue} ${meta.guidingQuestion}`;
+      return `Boa tentativa, mas o Robo-Guia não dá a resposta — tu consegues descobrir sozinho! 💡 Pista: ${clue} ${meta.guidingQuestion}`;
     }
     if (lower.includes('conceito') || lower.includes('explica')) {
       return `Claro! Em "${meta.title}", o mais importante é: ${meta.topic}. ${clue} Queres voltar a tentar agora?`;

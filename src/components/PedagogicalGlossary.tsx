@@ -27,7 +27,7 @@ export const GLOSSARY_DICTIONARY: Record<string, GlossaryDefinition> = {
   phishing: {
     title: 'Phishing',
     emoji: '🎣',
-    simpleDef: 'Uma armadilha digital criada por burlões que fingem ser bancos ou jogos para roubar senhas e dados.',
+    simpleDef: 'Uma armadilha digital criada por burlões que fingem ser bancos ou jogos para roubar palavras-passe e dados.',
     example: 'Uma mensagem a dizer: "Ganhaste Robux grátis! Clica aqui e escreve a tua palavra-passe!".',
     tip: 'Desconfia sempre de ofertas boas demais e mensagens com urgência súbita.',
   },
@@ -43,7 +43,7 @@ export const GLOSSARY_DICTIONARY: Record<string, GlossaryDefinition> = {
     emoji: '🔑',
     simpleDef: 'Os termos mais específicos e importantes sobre o tema que procuras num motor de busca.',
     example: 'Em vez de "animais que vão desaparecer", pesquisa "lince-ibérico perigo extinção Portugal".',
-    tip: 'Palavras precisas trazem respostas confiáveis e evitam páginas de anúncios.',
+    tip: 'Palavras precisas trazem respostas de confiança e evitam páginas de anúncios.',
   },
   'alucinação de IA': {
     title: 'Alucinação de IA',
@@ -70,7 +70,7 @@ export const GLOSSARY_DICTIONARY: Record<string, GlossaryDefinition> = {
     title: 'Netiqueta',
     emoji: '🤝',
     simpleDef: 'As regras de boa educação, respeito e empatia para falar e conviver no mundo digital.',
-    example: 'Não escrever em MAIÚSCULAS (porque parece que estás a gritar) e nunca partilhar prints privados.',
+    example: 'Não escrever em MAIÚSCULAS (porque parece que estás a gritar) e nunca partilhar capturas de ecrã privadas.',
     tip: 'Do outro lado do ecrã está uma pessoa real com sentimentos reais.',
   },
   'dados pessoais': {

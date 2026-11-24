@@ -100,13 +100,13 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     {
       sender: 'seguranca@**conta-escola-verificacao.com**',
       subject: 'A tua conta da escola **será bloqueada hoje**!',
-      body: 'Olá. Detetámos um problema grave na tua conta escolar. Para evitar que seja **eliminada permanentemente**, confirma os teus dados e **palavra-passe** através do seguinte link **nos próximos 15 minutos**: **http://conta-escola-verificacao.com/login**',
+      body: 'Olá. Detetámos um problema grave na tua conta escolar. Para evitar que seja **eliminada permanentemente**, confirma os teus dados e **palavra-passe** através da seguinte ligação **nos próximos 15 minutos**: **http://conta-escola-verificacao.com/login**',
       isPhishing: true,
       explanation:
-        'Existem vários sinais clássicos de phishing: a mensagem cria urgência forçada ("nos próximos 15 minutos"), usa um endereço de email falso (.com em vez de .edu.pt ou .gov.pt) e pede que introduzas a tua palavra-passe através de um link desconhecido.',
+        'Existem vários sinais clássicos de phishing: a mensagem cria urgência forçada ("nos próximos 15 minutos"), usa um endereço de e-mail falso (.com em vez de .edu.pt ou .gov.pt) e pede que introduzas a tua palavra-passe através de uma ligação desconhecida.',
       signals: [
         'Urgência com prazo curto para assustar ("15 minutos")',
-        'Pedido de dados e palavra-passe através de um link',
+        'Pedido de dados e palavra-passe através de uma ligação',
         'Ameaça de bloqueio ou encerramento imediato da conta',
         'Remetente não oficial (@conta-escola-verificacao.com)',
       ],
@@ -121,22 +121,22 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
       signals: [
         'Contexto conhecido e transparente de sala de aula',
         'Canal e domínio oficial da escola (.edu.pt)',
-        'Ausência de pedidos de palavra-passe ou links suspeitos',
+        'Ausência de pedidos de palavra-passe ou ligações suspeitas',
         'Possibilidade de confirmação presencial com o professor',
       ],
     },
     {
       sender: 'premios@**jogos-super-moedas.net**',
       subject: '🎁 Parabéns! Ganhaste **10.000 moedas e skins grátis**!',
-      body: 'Parabéns jogador! Foste sorteado num passatempo especial. Para receberes as tuas **10.000 moedas e skins lendárias** no teu jogo favorito, basta responderes a este email com o teu nome de utilizador e a tua **palavra-passe secreta**.',
+      body: 'Parabéns jogador! Foste sorteado num passatempo especial. Para receberes as tuas **10.000 moedas e skins lendárias** no teu jogo favorito, basta responderes a este e-mail com o teu nome de utilizador e a tua **palavra-passe secreta**.',
       isPhishing: true,
       explanation:
-        'Cuidado com ofertas milagrosas! O pedido da tua palavra-passe é um sinal inequívoco de roubo de conta. Nenhuma plataforma ou jogo oficial alguma vez pede a tua palavra-passe para te atribuir prémios ou recompensas.',
+        'Cuidado com ofertas milagrosas! O pedido da tua palavra-passe é um sinal claro de tentativa de roubo de conta. Nenhuma plataforma ou jogo oficial pede a tua palavra-passe para te dar prémios ou recompensas.',
       signals: [
-        'Promessa de prémios e vantagens gratuitas fantásticas',
+        'Promessa de prémios e vantagens gratuitas demasiado fáceis',
         'Pedido explícito da tua palavra-passe secreta',
-        'Endereço de email não oficial e desconhecido',
-        'Isco típico de engenharia social para roubar contas',
+        'Endereço de e-mail não oficial e desconhecido',
+        'Truque de engano típico para roubar contas',
       ],
     },
   ];
@@ -254,9 +254,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
   const wellbeingHabits = [
     {
       id: 'wb-1',
-      label: 'Regra dos 20-20-20: A cada 20 minutos de ecrã, olhar 20 segundos para um objeto a 6 metros.',
+      label: 'Regra dos 20-20-20: De 20 em 20 minutos de ecrã, olhar durante 20 segundos para um objeto a 6 metros.',
       correct: 'saudavel',
-      explanation: 'Relaxa os músculos oculares e evita a fadiga visual, miopia e dores de cabeça!',
+      explanation: 'Relaxa os músculos dos olhos e evita o cansaço visual e as dores de cabeça!',
     },
     {
       id: 'wb-2',
@@ -349,8 +349,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
     { id: 'w1-t2', stepLabel: 'Missão 2/6', title: 'Caça ao Phishing', icon: Mail, iconBgClass: 'bg-blue-50 text-blue-600', simId: 'sim-phishing' },
     { id: 'w1-t3', stepLabel: 'Missão 3/6', title: 'Escudo de Privacidade', icon: ShieldCheck, iconBgClass: 'bg-emerald-50 text-emerald-600', simId: 'sim-privacy' },
     { id: 'w1-t4', stepLabel: 'Missão 4/6', title: 'O Rasto Digital', icon: Footprints, iconBgClass: 'bg-purple-50 text-purple-600', simId: 'sim-digital-footprint' },
-    { id: 'w1-t5', stepLabel: 'Missão 5/6', title: 'Super-Corpo & Ecrãs', icon: Heart, iconBgClass: 'bg-rose-50 text-rose-600', simId: 'sim-digital-wellbeing' },
-    { id: 'avaliacao', stepLabel: 'Missão 6/6', title: 'Quiz do Guardião', icon: Award, iconBgClass: 'bg-amber-50 text-amber-600', simId: 'assessment' },
+    { id: 'w1-t5', stepLabel: 'Missão 5/6', title: 'Supercorpo & Ecrãs', icon: Heart, iconBgClass: 'bg-rose-50 text-rose-600', simId: 'sim-digital-wellbeing' },
+    { id: 'avaliacao', stepLabel: 'Missão 6/6', title: 'Avaliação do Guardião', icon: Award, iconBgClass: 'bg-amber-50 text-amber-600', simId: 'assessment' },
   ];
 
   return (
@@ -528,7 +528,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     🎯 MISSÃO 1/6
                   </span>
                   <AudioReaderButton
-                    textToRead="Missão 1: O Cofre das Palavras-Passe. A tua palavra-passe é a chave que protege as tuas contas de jogos e da escola. Usa palavras divertidas com números e símbolos para ficar forte, como Gato Ninja Comeu 9 Pizzas! A tua senha é pessoal e nunca deve ser partilhada."
+                    textToRead="Missão 1: O Cofre das Palavras-Passe. A tua palavra-passe é a chave que protege as tuas contas de jogos e da escola. Usa palavras divertidas com números e símbolos para ficar forte, como Gato Ninja Comeu 9 Pizzas! A tua palavra-passe é pessoal e nunca deve ser partilhada."
                     label="Ouvir Missão ✨"
                   />
                 </div>
@@ -648,7 +648,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Digita uma palavra-passe de <strong>teste</strong> (nunca uses uma real!) e carrega em <strong>Testar Força</strong> para ver a pontuação e os critérios do escudo digital.
+              Escreve uma palavra-passe de <strong>teste</strong> (nunca uses uma real!) e carrega em <strong>Testar Força</strong> para veres a pontuação e os critérios do escudo digital.
             </p>
 
             <div className="space-y-4 max-w-2xl">
@@ -775,9 +775,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             themeColor="emerald"
             mascotName="Guardião Digital"
             clues={[
-              'Usa pelo menos 10 caracteres para que os robôs hackers demorem séculos a adivinhar!',
-              'Nunca uses sequências simples tipo "123456" nem nomes de familiares ou datas de nascimento.',
-              'A tua palavra-passe é secreta: se alguém te pedir a senha da escola para oferecer presentes, recusa sempre!',
+              'Usa pelo menos 8 caracteres para que ninguém consiga adivinhar a tua palavra-passe!',
+              'Nunca uses sequências simples como "123456" nem nomes de familiares ou datas de nascimento.',
+              'A tua palavra-passe é secreta: se alguém te pedir a palavra-passe da escola para oferecer presentes, recusa sempre!',
             ]}
           />
 
@@ -823,7 +823,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   Caça ao Phishing 🎣
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Aprende a detetar armadilhas cibernéticas e engenharia social antes de clicares!
+                  Aprende a detetar mensagens falsas e truques de engano antes de carregares!
                 </p>
               </div>
             </div>
@@ -877,7 +877,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     <div className="text-2xl">🎣</div>
                     <h5 className="font-black text-rose-950 text-sm">O Isco das Moedas Grátis</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      Promessas milagrosas de Robux, V-Bucks ou prémios fáceis servem apenas para pedir o teu email e a tua senha.
+                      Promessas milagrosas de Robux, V-Bucks ou prémios fáceis servem apenas para pedir o teu e-mail e a tua palavra-passe.
                     </p>
                   </div>
 
@@ -1038,9 +1038,9 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             themeColor="emerald"
             mascotName="Guardião Digital"
             clues={[
-              'Nenhuma escola nem empresa legítima te vai pedir a palavra-passe por email para te dar prémios.',
-              'Antes de clicares num link, analisa as letras do endereço: "sorteios-rapid0s.xyz" não é oficial!',
-              'Em caso de dúvida na escola, pergunta sempre ao teu professor de TIC antes de colocar dados.',
+              'Nenhuma escola nem empresa legítima te vai pedir a palavra-passe por e-mail para te dar prémios.',
+              'Antes de carregares numa ligação, observa bem as letras do endereço: "sorteios-rapid0s.xyz" não é oficial!',
+              'Em caso de dúvida na escola, pergunta sempre ao teu professor de TIC antes de escreveres dados.',
             ]}
           />
 
@@ -1272,8 +1272,8 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             themeColor="emerald"
             mascotName="Guardião Digital"
             clues={[
-              'Antes de publicares fotos com colegas, pergunta a cada um: "Autorizas a partilha?".',
-              'O consentimento e o respeito pela imagem alheia são as regras de ouro da cidadania digital.',
+              'Antes de publicares fotos com colegas, pergunta a cada um: "Posso partilhar esta foto?".',
+              'Pedir autorização e respeitar a imagem dos outros são regras de ouro na Internet.',
               'Mantém as tuas contas de jogos e redes em modo privado para pessoas desconhecidas.',
             ]}
           />
@@ -1319,7 +1319,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   O Rasto Digital 👣
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  A tua pegada indelével na rede: constrói um registo exemplar de futuro herói!
+                  As marcas que deixas na Internet ficam guardadas: constrói um rasto positivo de futuro herói!
                 </p>
               </div>
             </div>
@@ -1524,7 +1524,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               onClick={() => onNavigateTopic('w1-t5')}
               className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
-              <span>Próxima Missão: 5. Super-Corpo & Bem-Estar 🕹️</span>
+              <span>Próxima Missão: 5. Supercorpo &amp; Bem-Estar 🕹️</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1550,15 +1550,15 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     🎯 MISSÃO 5/6
                   </span>
                   <AudioReaderButton
-                    textToRead="Missão 5: Super-Corpo e Bem-Estar. Um bom jogador cuida da postura, dos olhos e do sono para ter energia máxima! Postura de astronauta: costas direitas e ecrã à distância de um braço. Regra dos 20-20-20: a cada 20 minutos, descansa os olhos 20 segundos olhando ao longe."
+                    textToRead="Missão 5: Supercorpo e Bem-Estar. Um bom jogador cuida da postura, dos olhos e do sono para ter energia máxima! Postura de astronauta: costas direitas e ecrã à distância de um braço. Regra dos 20-20-20: de 20 em 20 minutos, descansa os olhos durante 20 segundos a olhar para longe."
                     label="Ouvir Missão ✨"
                   />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
-                  Super-Corpo & Bem-Estar 🕹️
+                  Supercorpo &amp; Bem-Estar 🕹️
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Ergonomia de campeão: reflexos rápidos, costas direitas e energia ao máximo!
+                  Hábitos de campeão: reflexos rápidos, costas direitas e energia ao máximo!
                 </p>
               </div>
             </div>
@@ -1604,7 +1604,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                     <div className="text-2xl">👀</div>
                     <h5 className="font-black text-emerald-950 text-sm">Regra dos 20-20-20</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      A cada 20 minutos de ecrã, olha 20 segundos para algo a 6 metros de distância para relaxar a visão.
+                      De 20 em 20 minutos de ecrã, olha durante 20 segundos para algo a 6 metros de distância para descansar os olhos.
                     </p>
                   </div>
 
@@ -1660,7 +1660,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-rose-700">
                     <Sparkles className="w-5 h-5 text-rose-600" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Testa os teus conhecimentos: Super-Corpo & Ecrãs
+                      🎮 2. Testa os teus conhecimentos: Supercorpo &amp; Ecrãs
                     </h4>
                   </div>
               <span className="text-xs font-bold text-slate-500">
@@ -1760,7 +1760,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             clues={[
               'Faz pelo menos 1 hora de brincadeiras ao ar livre ou desporto por dia.',
               'Lembra-te: o telemóvel não deve dormir debaixo da almofada nem na tua cama.',
-              'Levantar e esticar os braços a cada hora de estudo rejuvenesce a concentração.',
+              'Levantar e esticar os braços de hora a hora renova a tua concentração.',
             ]}
           />
 
@@ -1771,7 +1771,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
               onClick={() => onNavigateTopic('avaliacao')}
               className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
-              <span>Próxima Missão: 6. Quiz do Guardião 🏆</span>
+              <span>Próxima Missão: 6. Avaliação do Guardião 🏆</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1807,7 +1807,7 @@ export const World1ThematicView: React.FC<World1ThematicViewProps> = ({
             className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all cursor-pointer inline-flex items-center gap-2 transform active:scale-95"
           >
             <Sparkles className="w-5 h-5" />
-            <span>Iniciar o Quiz de Avaliação Oficial</span>
+            <span>Iniciar a Avaliação Final</span>
             <ArrowRight className="w-5 h-5 ml-1" />
           </button>
         </div>

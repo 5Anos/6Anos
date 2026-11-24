@@ -301,7 +301,7 @@ export async function clientRegister(params: {
   const qEmail = query(collection(db, 'users'), where('email', '==', cleanEmail));
   const snapEmail = await getDocs(qEmail);
   if (!snapEmail.empty) {
-    throw new Error('Já existe uma conta associada a este email.');
+    throw new Error('Já existe uma conta associada a este e-mail.');
   }
 
   // Check nickname privacy
@@ -309,14 +309,14 @@ export async function clientRegister(params: {
   const lowerName = name.trim().toLowerCase();
   const emailPrefix = cleanEmail.split('@')[0];
   if (lowerNick.includes(lowerName) || lowerNick.includes(emailPrefix) || lowerNick.includes('@')) {
-    throw new Error('O teu nickname não deve conter o teu nome real ou email para proteger a tua privacidade!');
+    throw new Error('O teu nome de jogo não deve conter o teu nome real nem o teu e-mail para proteger a tua privacidade!');
   }
 
   // Check nickname uniqueness
   const qNick = query(collection(db, 'users'), where('nickname', '==', cleanNick));
   const snapNick = await getDocs(qNick);
   if (!snapNick.empty) {
-    throw new Error('Este nickname já está em uso. Por favor escolhe outro.');
+    throw new Error('Este nome de jogo já está a ser utilizado. Por favor, escolhe outro.');
   }
 
   const { hash, salt } = await hashPasswordClient(password);
@@ -758,7 +758,7 @@ export async function clientGetAssessment(worldId: number) {
       const cData = cSnap.exists() ? cSnap.data() : null;
       if (cData?.visibility?.quizzes && cData.visibility.quizzes[worldId] === false) {
         throw new Error(
-          `O Teste de Avaliação do Mundo ${worldId} está temporariamente reservado pela tua Professora para a próxima aula.`
+          `A Avaliação Final do Mundo ${worldId} está temporariamente reservada pela tua professora para a próxima aula.`
         );
       }
     }

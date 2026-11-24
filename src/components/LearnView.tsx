@@ -229,7 +229,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
             'Obrigado a todos! Têm dúvidas? 🐬',
           ],
           bulletsOverloaded: [
-            'Acabámos o nosso trabalho e achamos que os golfinhos são muito giros e devemos apanhar o lixo da praia sempre que vamos a banhos no Verão.',
+            'Acabámos o nosso trabalho e achamos que os golfinhos são muito giros e devemos apanhar o lixo da praia sempre que vamos a banhos no verão.',
           ],
         },
       ],
@@ -553,7 +553,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
             </div>
 
             <p className="text-sm text-slate-700 leading-relaxed font-normal">
-              Um diapositivo (slide) no PowerPoint é uma tela projetada na parede da sala de aula para apoiar a tua apresentação. Mas atenção ao maior segredo de todos:
+              Um diapositivo (também chamado slide) no PowerPoint é uma imagem projetada na parede da sala de aula para apoiar a tua apresentação. Mas atenção ao maior segredo de todos:
             </p>
 
             {/* DESTAQUE PRINCIPAL */}
@@ -594,7 +594,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                   Ritmo & Concentração
                 </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Passar de slide de 1 em 1 minuto mantém a atenção da turma acordada e cheia de curiosidade para saber o que vem a seguir.
+                  Passar de diapositivo de minuto em minuto mantém a atenção da turma acordada e cheia de curiosidade para saber o que vem a seguir.
                 </p>
               </div>
             </div>
@@ -610,7 +610,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
             </div>
 
             <p className="text-sm text-slate-700 leading-relaxed">
-              Na escola, todos os alunos têm acesso ao Microsoft 365 através do email da escola. Podes criar as tuas apresentações diretamente no navegador sem precisar de instalar nada!
+              Na escola, todos os alunos têm acesso ao Microsoft 365 através do e-mail da escola. Podes criar as tuas apresentações diretamente no navegador sem precisares de instalar nada!
             </p>
 
             {/* OS 5 PASSOS DO OUTLOOK */}
@@ -621,7 +621,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigateTab }) => {
                 </div>
                 <h4 className="text-xs font-black text-indigo-950 uppercase">Abre o Outlook</h4>
                 <p className="text-[11px] text-slate-700 leading-relaxed">
-                  Entra no teu email escolar no computador ou tablet com o teu login e palavra-passe da escola.
+                  Entra no teu e-mail escolar no computador ou tablet com o teu utilizador e palavra-passe da escola.
                 </p>
               </div>
 

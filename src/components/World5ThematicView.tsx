@@ -82,7 +82,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
   const conceptItems = [
     {
       id: 'c1',
-      situation: 'Um semáforo muda de cor a cada 60 segundos porque foi programado com um temporizador fixo.',
+      situation: 'Um semáforo muda de cor de 60 em 60 segundos porque foi programado com um temporizador fixo.',
       correct: 'regra',
       explanation: 'Sistema baseado em regras e programação fixa: segue sempre as mesmas instruções temporizadas sem precisar de IA.',
     },
@@ -261,7 +261,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
       id: 'h3',
       text: 'A IA afirma que o navegador Vasco da Gama chegou à Índia num navio a vapor em 1498.',
       correct: 'alucinacao',
-      explanation: 'Erro e alucinação da IA: em 1498 as viagens eram feitas em caravelas e naus a velas, pois os motores a vapor só surgiram séculos mais tarde.',
+      explanation: 'Erro e alucinação da IA: em 1498 as viagens eram feitas em caravelas e naus à vela, pois os motores a vapor só surgiram séculos mais tarde.',
     },
     {
       id: 'h4',
@@ -333,7 +333,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
     },
     {
       id: 'r3',
-      title: 'Situação 3: Vídeo sensacionalista com muitas visualizações',
+      title: 'Situação 3: Vídeo com título exagerado e muitas visualizações',
       description: 'Um vídeo tem um título chocante e muitas visualizações a garantir uma notícia inacreditável.',
       options: [
         { id: 'r3-a', label: 'Não confiar apenas no número de visualizações e verificar a notícia em fontes credíveis.', isCorrect: true },
@@ -827,7 +827,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
                     🎯 MISSÃO 1/6
                   </span>
                   <AudioReaderButton
-                    textToRead="Missão 1: O que é a Inteligência Artificial? Descobre como os computadores aprendem com dados estatísticos e onde a IA é realmente usada. Lembra-te de que a IA é uma ferramenta sem consciência própria!"
+                    textToRead="Missão 1: O que é a Inteligência Artificial? Descobre como os computadores aprendem a partir de muitos exemplos e onde a IA é usada. Lembra-te de que a IA é uma ferramenta sem sentimentos nem vontade própria!"
                     label="Ouvir Missão"
                   />
                 </div>
@@ -1042,7 +1042,7 @@ export const World5ThematicView: React.FC<World5ThematicViewProps> = ({
 
             {conceptScore !== null && (
               <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-950 font-medium">
-                A tua pontuação: <strong>{conceptScore}/100</strong>. A IA é uma ferramenta informática baseada em dados e modelos de treino, enquanto sistemas deterministas seguem regras fixas e a consciência pertence apenas aos seres humanos!
+                A tua pontuação: <strong>{conceptScore}/100</strong>. A IA é um programa que aprende com muitos exemplos, enquanto os programas normais seguem sempre as mesmas regras fixas — e só os seres humanos pensam e sentem de verdade!
               </div>
             )}
           </div>

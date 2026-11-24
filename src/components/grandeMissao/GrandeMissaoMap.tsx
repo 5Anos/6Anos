@@ -99,13 +99,13 @@ export const GrandeMissaoMap: React.FC<GrandeMissaoMapProps> = ({
                 <Crown className="w-3.5 h-3.5" /> Grande Missão Final
               </span>
               <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-black px-2.5 py-0.5 rounded-md">
-                Ano 2040 • Escape Room Digital
+                Ano 2040 • Sala de Fuga Digital
               </span>
               <span className="text-xs font-black text-amber-300">+150 XP</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
-              A ESCOLA DO FUTURO
+              A Escola do Futuro
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">

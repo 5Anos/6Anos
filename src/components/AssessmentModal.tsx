@@ -175,7 +175,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
         <div className="p-6 sm:p-8">
           {loading ? (
             <div className="py-16 text-center text-slate-500 font-semibold">
-              A preparar o teu quiz...
+              A preparar o teu questionário...
             </div>
           ) : error && !result ? (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-sm font-semibold flex items-center gap-3">
@@ -225,7 +225,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
                   </div>
                   <div className="text-xs font-semibold text-slate-600">
                     {result.passed
-                      ? 'Parabéns! Passaste no quiz do mundo!'
+                      ? 'Parabéns! Passaste na avaliação do mundo!'
                       : 'Ainda não passaste desta vez. Podes voltar a treinar para melhorar!'}
                   </div>
                 </div>
@@ -364,7 +364,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
 
                 <p className="text-xs font-medium text-slate-600 mt-3 max-w-lg mx-auto">
                   {result.isFirstAttempt
-                    ? 'A tua Avaliação - Primeira tentativa fica guardada na pauta da Professora.'
+                    ? 'A tua Avaliação - Primeira tentativa fica guardada na pauta da professora.'
                     : `A tua Avaliação - Primeira tentativa continua guardada (${result.officialMention || 'registada'}). Esta tentativa serviu para treinares e aprenderes ainda mais!`}
                 </p>
               </div>

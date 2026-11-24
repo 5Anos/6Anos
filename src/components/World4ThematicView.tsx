@@ -589,7 +589,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                 </div>
                 <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w4-t4' ? 'text-amber-100' : 'text-slate-400'}`}>Missão 4/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate block">Super-Ciclos (Loops)</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Superciclos (Loops)</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -1447,7 +1447,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               onClick={() => onNavigateTopic('w4-t4')}
               className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>👉 Próxima Missão: 4. Super-Ciclos 🔁</span>
+              <span>👉 Próxima Missão: 4. Superciclos 🔁</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1471,7 +1471,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
                   🎯 MISSÃO 4/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  Super-Ciclos 🔁
+                  Superciclos 🔁
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
                   Hoje vais descobrir como poupar trabalho repetindo comandos com ciclos!
@@ -2049,13 +2049,13 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              O robô de entrega da biblioteca escolar aproxima o braço robótico do livro, mas não o agarra antes de avançar. Analisa os passos do algoritmo abaixo, deteta o passo com o erro lógico e seleciona a instrução de correção adequada!
+              O robô de entrega da biblioteca escolar aproxima o braço do livro, mas não o agarra antes de avançar. Lê os passos abaixo, descobre onde está o erro e escolhe a correção certa!
             </p>
 
             {/* Step 1: Detect the Buggy Step */}
             <div className="space-y-3">
               <label className="text-xs font-black uppercase tracking-wider text-slate-800 block">
-                Passo 1: Qual dos passos programados contém o erro lógico?
+                Passo 1: Qual dos passos programados tem o erro?
               </label>
               <div className="space-y-2">
                 {debugAlgorithmSteps.map((step) => {
@@ -2140,7 +2140,7 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               onClick={() => onNavigateTopic('avaliacao')}
               className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>🏆 Ir para a Avaliação Final: Quiz do Engenheiro</span>
+              <span>🏆 Ir para a Avaliação Final do Engenheiro</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -2163,10 +2163,10 @@ export const World4ThematicView: React.FC<World4ThematicViewProps> = ({
               🏆 MISSÃO 7/7 · O DESAFIO FINAL
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Quiz do Engenheiro do Código 🤖
+              Avaliação Final do Engenheiro Digital 🤖
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Comprova a tua destreza em algoritmos, condições, ciclos, dados e depuração para desbloquear o Mundo 5!
+              Mostra o que aprendeste sobre algoritmos, condições, ciclos, dados e depuração para desbloqueares o Mundo 5!
             </p>
           </div>
 

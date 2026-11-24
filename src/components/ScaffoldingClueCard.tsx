@@ -97,7 +97,7 @@ export const ScaffoldingClueCard: React.FC<ScaffoldingClueCardProps> = ({
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs shadow-xs transition-transform active:scale-95 cursor-pointer ${btnColor}`}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Tentar de Novo (2.ª Chance)</span>
+            <span>Tentar de Novo (2.ª Tentativa)</span>
           </button>
         )}
       </div>

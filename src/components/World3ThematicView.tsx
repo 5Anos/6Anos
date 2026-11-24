@@ -490,7 +490,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 my-2 relative z-10">
           <div className="max-w-xl space-y-0.5">
             <h1 className="text-base sm:text-lg lg:text-xl font-black text-slate-950 tracking-tight leading-tight">
-              A Força da Criação: Comunicação Fixe, Direitos de Autor e Super-Equipas Online!
+              A Força da Criação: Comunicação Simpática, Direitos de Autor e Superequipas Online!
             </h1>
             <p className="text-[11px] sm:text-xs text-slate-700 font-medium leading-normal max-w-lg">
               A tua missão de criador: partilhar ideias geniais com respeito, caçar plágio e usar licenças livres com orgulho! ✨
@@ -608,7 +608,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 </div>
                 <div className="text-left min-w-0">
                   <span className={`text-[10px] font-bold block ${activeTopicId === 'w3-t3' ? 'text-purple-100' : 'text-slate-400'}`}>Missão 3/7</span>
-                  <span className="text-xs sm:text-sm font-black truncate block">Super-Equipas</span>
+                  <span className="text-xs sm:text-sm font-black truncate block">Superequipas</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -1226,13 +1226,13 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
           <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-600 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-500 fill-current" />
-              <span>Parabéns pelas boas maneiras! Vamos formar uma super-equipa online!</span>
+              <span>Parabéns pelas boas maneiras! Vamos formar uma superequipa online!</span>
             </div>
             <button
               onClick={() => onNavigateTopic('w3-t3')}
               className="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>👉 Próxima Missão: 3. Super-Equipa Online 🤝</span>
+              <span>👉 Próxima Missão: 3. Superequipa Online 🤝</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1256,7 +1256,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                   🎯 MISSÃO 3/7
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  Super-Equipa Online 🤝
+                  Superequipa Online 🤝
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
                   Hoje vais descobrir como trabalhar em equipa e vencer desafios juntos!
@@ -1305,7 +1305,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
                 <div className="text-xl">🧩</div>
                 <h5 className="text-xs font-black text-purple-900">Tarefas Divididas</h5>
                 <p className="text-xs text-slate-600 leading-snug">
-                  Numa super-equipa ninguém faz tudo sozinho e ninguém fica sem fazer nada. Dividem-se tarefas justas e cumprem-se prazos!
+                  Numa superequipa ninguém faz tudo sozinho e ninguém fica sem fazer nada. Dividem-se tarefas justas e cumprem-se prazos!
                 </p>
               </div>
 
@@ -2023,7 +2023,7 @@ export const World3ThematicView: React.FC<World3ThematicViewProps> = ({
               🏆 MISSÃO 7/7 · O DESAFIO FINAL
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Quiz do Criador Digital 🎨
+              Avaliação Final do Criador Digital 🎨
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
               Mostra que dominas a comunicação online, a netiqueta, o trabalho em equipa e o respeito pelos direitos de autor!

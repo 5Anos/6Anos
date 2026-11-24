@@ -109,19 +109,19 @@ export const BADGES_CATALOG = [
   {
     id: 'detetive-digital',
     title: 'Detetive Digital',
-    description: 'Dominaste a pesquisa crítica e verificação de fontes no Mundo 2.',
+    description: 'Aprendeste a pesquisar bem e a confirmar fontes no Mundo 2.',
     icon: 'Search',
   },
   {
     id: 'criador-digital',
     title: 'Criador Digital',
-    description: 'Mostraste respeito pela netiqueta e direitos de autor no Mundo 3.',
+    description: 'Mostraste respeito pela netiqueta e pelos direitos de autor no Mundo 3.',
     icon: 'Palette',
   },
   {
     id: 'engenheiro-digital',
     title: 'Engenheiro Digital',
-    description: 'Desvendaste algoritmos, ciclos e pensamento computacional no Mundo 4.',
+    description: 'Desvendaste algoritmos, repetições e programação no Mundo 4.',
     icon: 'Code2',
   },
   {
@@ -132,8 +132,8 @@ export const BADGES_CATALOG = [
   },
   {
     id: 'centuriao-digital',
-    title: 'Centurião Digital',
-    description: 'Chegaste a mais de 1000 XP ou tiveste 100% num Quiz Final!',
+    title: 'Campeão Digital',
+    description: 'Chegaste a mais de 1000 XP ou tiveste 100% numa Avaliação Final!',
     icon: 'Award',
   },
   {
@@ -147,12 +147,12 @@ export const BADGES_CATALOG = [
 export const DAILY_TIPS = [
   {
     id: 'tip-1',
-    pt: 'Antes de clicares num link recebido por mensagem, verifica sempre para onde ele realmente te leva.',
+    pt: 'Antes de carregares numa ligação recebida por mensagem, verifica sempre para onde ela te leva.',
     en: 'Before clicking a link received via message, always verify where it actually leads.',
-    statement: 'Devemos clicar imediatamente em qualquer link recebido se a mensagem disser que é urgente.',
+    statement: 'Devemos carregar imediatamente em qualquer ligação recebida se a mensagem disser que é urgente.',
     isTrue: false,
-    feedbackCorrect: 'Exatamente! As mensagens que criam urgência para clicar costumam ser armadilhas de phishing.',
-    feedbackIncorrect: 'Cuidado! A pressa é a tática preferida dos criminosos para te impedir de pensar com calma.',
+    feedbackCorrect: 'Exatamente! As mensagens que criam urgência para carregar depressa costumam ser armadilhas de phishing.',
+    feedbackIncorrect: 'Cuidado! A pressa é o truque preferido dos burlões para te impedir de pensar com calma.',
   },
   {
     id: 'tip-2',
@@ -161,7 +161,7 @@ export const DAILY_TIPS = [
     statement: 'A tua palavra-passe é pessoal e não deves partilhá-la com amigos ou colegas da turma.',
     isTrue: true,
     feedbackCorrect: 'Exatamente! A tua palavra-passe protege as tuas coisas e deve manter-se sempre em segredo.',
-    feedbackIncorrect: 'Atenção! Mesmo o teu melhor amigo não deve saber a tua senha pessoal.',
+    feedbackIncorrect: 'Atenção! Mesmo o teu melhor amigo não deve saber a tua palavra-passe pessoal.',
   },
   {
     id: 'tip-3',
@@ -179,16 +179,16 @@ export const DAILY_TIPS = [
     statement: 'Se uma resposta da Inteligência Artificial estiver escrita com um tom muito seguro, é garantido que é verdade.',
     isTrue: false,
     feedbackCorrect: 'Correto! A IA pode alucinar e inventar informações falsas com um ar muito convincente.',
-    feedbackIncorrect: 'Cuidado! Uma IA pode errar mesmo parecendo muito segura. Confirma sempre em fontes fiáveis.',
+    feedbackIncorrect: 'Cuidado! Uma IA pode errar mesmo parecendo muito segura. Confirma sempre em fontes de confiança.',
   },
   {
     id: 'tip-5',
     pt: 'Fazer pausas ajuda os olhos a descansar e pode diminuir o cansaço provocado pelos ecrãs.',
     en: 'Taking regular breaks helps rest your eyes and reduces screen fatigue.',
-    statement: 'Aplicar a regra dos 20-20-20 (olhar a 20 metros por 20 segundos a cada 20 minutos) ajuda a descansar a vista.',
+    statement: 'Aplicar a regra dos 20-20-20 (olhar a 6 metros durante 20 segundos de 20 em 20 minutos) ajuda a descansar a vista.',
     isTrue: true,
     feedbackCorrect: 'Excelente! Pequenas pausas regulares mantêm a visão descansada e a energia no máximo.',
-    feedbackIncorrect: 'Incorreto! Olhar para longe a cada 20 minutos é um hábito de ouro para quem usa ecrãs.',
+    feedbackIncorrect: 'Incorreto! Olhar para longe de 20 em 20 minutos é um hábito de ouro para quem usa ecrãs.',
   },
 ];
 
@@ -196,7 +196,7 @@ export const WORLDS_DATA: WorldContent[] = [
   {
     id: 1,
     title: 'MUNDO 1 — GUARDIÃO DIGITAL 🛡️',
-    subtitle: 'O Teu Escudo de Segurança, Privacidade e Super-Poderes Digitais!',
+    subtitle: 'O Teu Escudo de Segurança, Privacidade e Superpoderes Digitais!',
     icon: 'Shield',
     color: 'emerald',
     intro: {
@@ -204,7 +204,7 @@ export const WORLDS_DATA: WorldContent[] = [
       description: [
         'Adoramos usar a Internet para jogar com amigos, ver vídeos divertidos e aprender coisas incríveis!',
         'Mas, tal como quando andamos na rua, no mundo digital também precisamos de saber proteger o nosso castelo.',
-        'Neste Mundo vais ganhar super-poderes: criar palavras-passe invencíveis, desmascarar truques e armadilhas falsas, guardar os teus segredos a sete chaves e manter o teu corpo cheio de energia para jogar!',
+        'Neste Mundo vais ganhar superpoderes: criar palavras-passe invencíveis, desmascarar truques e armadilhas falsas, guardar os teus segredos a sete chaves e manter o teu corpo cheio de energia para jogar!',
       ],
       mission: 'A tua missão secreta: Parar, Pensar e Proteger! 🛡️✨',
     },
@@ -226,14 +226,13 @@ export const WORLDS_DATA: WorldContent[] = [
         title: 'Caça ao Phishing 🎣',
         paragraphs: [
           'Phishing são mensagens falsas que tentam roubar a tua palavra-passe ou conta.',
-          'Desconfia de promessas de moedas grátis (como Robux) ou avisos a dizer "Clica em 5 minutos!".',
-          'Regra do Detetive: Se parece bom demais para ser verdade, é uma armadilha!',
+          'Desconfia de promessas de moedas grátis (como Robux) ou avisos a dizer "Carrega em 5 minutos!".',
         ],
         bulletPoints: [
           'Promessas de moedas ou prémios grátis;',
           'Avisos com pressa para te assustar;',
-          'Links estranhos com letras trocadas;',
-          'Pedidos para introduzires a tua senha.',
+          'Ligações estranhas com letras trocadas;',
+          'Pedidos para introduzires a tua palavra-passe.',
         ],
         takeaway: 'Regra do Detetive: Se parece bom demais para ser verdade, é uma armadilha! 🛑',
       },
@@ -266,11 +265,11 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'w1-t5',
         number: 5,
-        title: 'Super-Corpo & Bem-Estar 🕹️',
+        title: 'Supercorpo & Bem-Estar 🕹️',
         paragraphs: [
           'Um bom jogador cuida da postura, dos olhos e do sono para ter energia máxima!',
           'Postura de astronauta: costas direitas e ecrã à distância de um braço.',
-          'Regra dos 20-20-20: a cada 20 minutos, descansa os olhos 20 segundos olhando ao longe.',
+          'Regra dos 20-20-20: de 20 em 20 minutos, descansa os olhos durante 20 segundos a olhar para longe.',
         ],
         bulletPoints: [
           'Postura de astronauta (costas direitas);',
@@ -285,7 +284,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-password',
         name: 'Laboratório de Palavras-Passe',
-        description: 'Experimenta criar senhas invencíveis com a técnica da frase maluca e testa o teu escudo!',
+        description: 'Experimenta criar palavras-passe invencíveis com a técnica da frase maluca e testa o teu escudo!',
         xpReward: 100,
       },
       {
@@ -309,26 +308,26 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-digital-wellbeing',
         name: 'Simulador de Bem-estar Digital',
-        description: 'Treina a postura de astronauta e hábitos saudáveis para teres super-energia gamer!',
+        description: 'Treina a postura de astronauta e hábitos saudáveis para teres energia de campeão!',
         xpReward: 100,
       },
     ],
     challenge: {
       id: 'ch-guarda-digital',
-      title: 'TORNA-TE UM GUARDIÃO',
-      description: 'Desafio Integrador do Mundo 1: Mostra que dominas senhas, caça ao phishing, privacidade, pegada digital e postura de campeão!',
+      title: 'Torna-te um Guardião',
+      description: 'Grande Desafio do Mundo 1: Mostra que dominas palavras-passe, caça ao phishing, privacidade, pegada digital e postura de campeão!',
       xpReward: 100,
     },
     mission: {
       id: 'mis-guia-seguranca',
-      title: 'O MEU GUIA DE SEGURANÇA',
+      title: 'O Meu Guia de Segurança',
       description: 'Cria o teu Guia de Guardião com as 5 regras de ouro para navegar e jogar em segurança na Internet.',
       instructions: [
-        '1. Regra 1 (Palavras-passe): Escreve a tua dica secreta para criar uma senha comprida e invencível.',
+        '1. Regra 1 (Palavras-passe): Escreve a tua dica secreta para criar uma palavra-passe comprida e invencível.',
         '2. Regra 2 (Phishing): Explica os 3 passos para não morder o isco de mensagens falsas.',
         '3. Regra 3 (Dados Pessoais): Indica que informações guardas a sete chaves no teu cofre.',
         '4. Regra 4 (Pegada Digital): Dá uma dica para espalhar energia positiva e ser um bom amigo online.',
-        '5. Regra 5 (Super-Corpo): Explica a postura de astronauta e a regra dos 20-20-20.',
+        '5. Regra 5 (Supercorpo): Explica a postura de astronauta e a regra dos 20-20-20.',
       ],
       xpReward: 100,
     },
@@ -340,7 +339,7 @@ export const WORLDS_DATA: WorldContent[] = [
     icon: 'Search',
     color: 'blue',
     intro: {
-      greeting: 'Olá, Super-Detetive da Informação! 🕵️‍♂️',
+      greeting: 'Olá, Superdetetive da Informação! 🕵️‍♂️',
       description: [
         'Na Internet encontramos milhares de páginas, vídeos e mensagens todos os dias, mas nem tudo o que brilha é verdade!',
         'Neste Mundo vais ganhar a Lupa Mágica do Detetive: aprender a encontrar respostas certeiras, descobrir quem é o autor, verificar as datas e caçar boatos antes de carregar em partilhar!',
@@ -360,7 +359,7 @@ export const WORLDS_DATA: WorldContent[] = [
         bulletPoints: [
           'Usa palavras-chave precisas e específicas;',
           'Combina o tema com o país ou a data que procuras;',
-          'Não cliques logo no primeiro link: lê o pequeno resumo;',
+          'Não carregues logo na primeira ligação: lê o pequeno resumo;',
           'Se não encontrares à primeira, experimenta outras palavras.',
         ],
         takeaway: 'Regra de Ouro do Detetive: Palavras precisas encontram respostas certas! 🎯',
@@ -402,7 +401,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'w2-t4',
         number: 4,
-        title: 'O Super-Poder de Comparar Fontes 📑',
+        title: 'O Superpoder de Comparar Fontes 📑',
         paragraphs: [
           'Encontraste uma informação incrível e surpreendente num site? Excelente pista! Mas um bom detetive nunca confia numa única testemunha!',
           'Abre outro site de confiança e vê se diz o mesmo. Se dois ou três especialistas independentes confirmam a história, então tens uma prova sólida!',
@@ -414,7 +413,7 @@ export const WORLDS_DATA: WorldContent[] = [
           'Vê se as fontes citam as mesmas provas e estudos;',
           'Quanto mais incrível for a novidade, mais provas deves exigir.',
         ],
-        takeaway: 'Regra de Ouro: Uma fonte é uma pista; três fontes concordantes são uma certeza! 🏆',
+        takeaway: 'Regra de Ouro: Uma fonte é uma pista; três fontes que dizem o mesmo são uma certeza! 🏆',
       },
       {
         id: 'w2-t5',
@@ -451,7 +450,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-date-verifier',
         name: 'Máquina do Tempo das Datas ⏳',
-        description: 'Avalia a frescura da informação e aprende quando uma notícia antiga se torna numa armadilha.',
+        description: 'Verifica se a informação ainda é atual e aprende quando uma notícia antiga se torna numa armadilha.',
         xpReward: 100,
       },
       {
@@ -469,7 +468,7 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     challenge: {
       id: 'ch-operacao-detetive',
-      title: 'OPERAÇÃO DETETIVE: O BOATO DA ESCOLA 🚨',
+      title: 'Operação Detetive: O Boato da Escola 🚨',
       description: 'O Tiago recebeu uma mensagem urgente a dizer que amanhã não há aulas! Ajuda-o a investigar antes de espalhar o pânico!',
       instructions: [
         '🚨 CASO URGENTE: O Tiago recebe no telemóvel: “URGENTE! Amanhã não há aulas! O diretor confirmou. Partilha já com todos!”',
@@ -483,7 +482,7 @@ export const WORLDS_DATA: WorldContent[] = [
     },
     mission: {
       id: 'mis-kit-detetive',
-      title: 'O MEU KIT DE DETETIVE DIGITAL 🎒',
+      title: 'O Meu Kit de Detetive Digital 🎒',
       description: 'Cria o teu Guia Prático com 5 passos infalíveis para desmascarar boatos e pesquisar como um verdadeiro cientista.',
       instructions: [
         '1. Regra 1 (Palavras-Chave): Escreve como transformas uma pesquisa vaga numa pesquisa de especialista.',
@@ -498,16 +497,16 @@ export const WORLDS_DATA: WorldContent[] = [
   {
     id: 3,
     title: 'MUNDO 3 — CRIADOR DIGITAL 🎨',
-    subtitle: 'Super-Poderes de Criação: Respeito, Netiqueta e Licenças Fixes!',
+    subtitle: 'Superpoderes de Criação: Respeito, Netiqueta e Licenças Fixes!',
     icon: 'Palette',
     color: 'purple',
     intro: {
       greeting: 'Olá, Criador de Conteúdos Digitais! 🎨✨',
       description: [
         'Criar na Internet é uma aventura fantástica: podemos desenhar, programar jogos, editar vídeos, escrever histórias e colaborar com amigos de todo o lado!',
-        'Mas um verdadeiro criador também sabe que a liberdade digital vem acompanhada de super-responsabilidades: respeitar os colegas, falar com simpatia e não roubar o trabalho dos outros!',
+        'Mas um verdadeiro criador também sabe que a liberdade digital vem acompanhada de grandes responsabilidades: respeitar os colegas, falar com simpatia e não copiar o trabalho dos outros!',
       ],
-      mission: 'A tua missão criativa: espalhar ideias geniais com respeito, empatia e dando sempre os créditos a quem merece! 🤝',
+      mission: 'A tua missão criativa: espalhar ideias geniais com respeito, empatia e indicando sempre os autores! 🤝',
     },
     topics: [
       {
@@ -547,7 +546,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'w3-t3',
         number: 3,
-        title: 'Super-Equipa Online: Colaborar e Vencer 🤝',
+        title: 'Superequipa Online: Colaborar e Vencer 🤝',
         paragraphs: [
           'Trabalhar num documento ou apresentação partilhada com os teus colegas de turma pode ser muito divertido e rápido!',
           'Numa boa equipa, ninguém manda sozinho e ninguém fica a olhar sem fazer nada. Dividem-se as tarefas de forma justa e combinam-se prazos que todos conseguem cumprir.',
@@ -572,7 +571,7 @@ export const WORLDS_DATA: WorldContent[] = [
         ],
         bulletPoints: [
           'Tudo o que está na Internet tem um autor que trabalhou para o criar;',
-          'Pede autorização antes de utilizar trabalhos alheios;',
+          'Pede autorização antes de utilizar trabalhos de outras pessoas;',
           'Procura bancos de imagens e músicas livres para estudantes;',
           'Respeita a arte e o esforço de todos os criadores.',
         ],
@@ -581,9 +580,9 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'w3-t5',
         number: 5,
-        title: 'Caça ao Plágio & Dar Crédito com Orgulho 📜',
+        title: 'Caça ao Plágio & Indicar o Autor com Orgulho 📜',
         paragraphs: [
-          'O que é "plágio"? É a palavra feia que usamos quando alguém faz "copiar e colar" do trabalho de outra pessoa e finge que a ideia foi sua!',
+          'O que é "plágio"? É a palavra que usamos quando alguém faz "copiar e colar" do trabalho de outra pessoa e finge que a ideia foi sua!',
           'Pesquisar e ler coisas incríveis é ótimo! Mas quando usas uma frase ou informação especial, deves sempre dizer onde a encontraste: "Segundo o livro tal..." ou "De acordo com o cientista fulano...".',
           'Colocar o nome do autor e a fonte no teu trabalho escolar não tira valor ao teu esforço — pelo contrário, mostra que és um estudante sério e inteligente!',
         ],
@@ -602,7 +601,7 @@ export const WORLDS_DATA: WorldContent[] = [
         paragraphs: [
           'Muitos artistas, fotógrafos e cientistas adoram partilhar as suas obras com o mundo e usam as licenças especiais chamadas "Creative Commons"!',
           'Estas licenças têm símbolos fáceis de reconhecer que explicam logo o que podes ou não podes fazer:',
-          '• BY (Pessoa): Tens de dar os créditos ao autor original.',
+          '• BY (Pessoa): Tens de indicar quem é o autor original.',
           '• NC (Moeda riscada): Podes usar para estudar, mas NÃO podes vender nem ter lucro.',
           '• ND (Sinal de igual): Tens de manter a obra original sem cortes nem filtros.',
           '• SA (Seta em círculo): Se fizeres algo novo a partir desta obra, tens de partilhar com a mesma licença.',
@@ -611,7 +610,7 @@ export const WORLDS_DATA: WorldContent[] = [
           'Símbolo BY = Diz quem é o autor original;',
           'Símbolo NC = Não comercial (proibido vender);',
           'Símbolo ND = Sem alterações ou filtros;',
-          'Símbolo SA = Partilha nos mesmos moldes.',
+          'Símbolo SA = Partilha com a mesma licença.',
         ],
         takeaway: 'Regra de Ouro: Segue os símbolos das licenças para partilhar arte em segurança! 🎨',
       },
@@ -631,7 +630,7 @@ export const WORLDS_DATA: WorldContent[] = [
       },
       {
         id: 'sim-colaboracao',
-        name: 'Super-Equipa Online 🤝',
+        name: 'Superequipa Online 🤝',
         description: 'Distribui tarefas de forma justa, cumpre prazos e cria apresentações nota máxima em equipa!',
         xpReward: 100,
       },
@@ -644,7 +643,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-plagio-citacao',
         name: 'Caça ao Plágio & Citações 📜',
-        description: 'Transforma cópias preguiçosas em trabalhos brilhantes com citações corretas e créditos completos!',
+        description: 'Transforma cópias preguiçosas em trabalhos brilhantes com citações corretas e o nome dos autores!',
         xpReward: 100,
       },
       {
@@ -662,22 +661,22 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     challenge: {
       id: 'ch-corrige-mensagem',
-      title: 'OPERAÇÃO MENSAGEM FIXE 💬',
+      title: 'Operação Mensagem Fixe 💬',
       description: 'O Tomás enviou uma mensagem a gritar em maiúsculas! Ajuda-o a transformá-la numa mensagem educada e amigável.',
       xpReward: 100,
     },
     mission: {
       id: 'mis-codigo-comunicacao',
-      title: 'O CÓDIGO DE OURO DA TURMA 🏆',
+      title: 'O Código de Ouro da Turma 🏆',
       description: 'Cria as 7 Regras de Ouro da Tua Turma para conversas e trabalhos de grupo online sem conflitos.',
       instructions: [
         '1. Regra 1 (Tom e Respeito): Escreve a regra para evitar frases que pareçam agressivas.',
-        '2. Regra 2 (Maiúsculas): Explica porque não se deve escrever tudo em MAIÚSCULAS.',
+        '2. Regra 2 (Maiúsculas): Explica por que razão não se deve escrever tudo em MAIÚSCULAS.',
         '3. Regra 3 (Trabalho de Equipa): Define como a turma deve dividir as tarefas de forma justa.',
-        '4. Regra 4 (Discordâncias): O que fazer quando dois colegas têm ideias diferentes?',
+        '4. Regra 4 (Quando Não Concordam): O que fazer quando dois colegas têm ideias diferentes?',
         '5. Regra 5 (Horários): Até que horas é aceitável mandar mensagens no grupo de trabalho?',
-        '6. Regra 6 (Créditos): Como garantir que ninguém copia o trabalho de outros sem autorização.',
-        '7. Regra 7 (Apoio Mútuo): O que fazer se alguém da turma estiver a sofrer com comentários ofensivos.',
+        '6. Regra 6 (Indicar os Autores): Como garantir que ninguém copia o trabalho de outros sem autorização.',
+        '7. Regra 7 (Ajudar os Colegas): O que fazer se alguém da turma estiver a sofrer com comentários ofensivos.',
       ],
       xpReward: 100,
     },
@@ -689,7 +688,7 @@ export const WORLDS_DATA: WorldContent[] = [
     icon: 'Terminal',
     color: 'amber',
     intro: {
-      greeting: 'Olá, Super-Engenheiro de Robôs & Código! 🤖💻',
+      greeting: 'Olá, Superengenheiro de Robôs & Código! 🤖💻',
       description: [
         'Sabias que os computadores e os robôs mais potentes do mundo não conseguem pensar sozinhos? Eles só fazem exatamente aquilo que nós lhes mandamos!',
         'Neste Mundo vais aprender a linguagem dos computadores: partir missões gigantes em pedacinhos fáceis, dar ordens passo a passo com algoritmos, usar ciclos mágicos para não repetir trabalho e caçar os "bugs" (erros) como um mestre da programação!',
@@ -724,7 +723,7 @@ export const WORLDS_DATA: WorldContent[] = [
           'A ordem das instruções é super importante! Se tentares bochechar antes de pôr a pasta, o resultado vai ser uma grande confusão!',
         ],
         bulletPoints: [
-          'Um algoritmo é uma lista de ordens organizadas por ordem estrita;',
+          'Um algoritmo é uma lista de ordens organizadas na ordem exata;',
           'O computador segue as ordens exatamente como tu as escreveste;',
           'A ordem certa é o segredo para o sucesso do programa;',
           'Instruções claras evitam que as máquinas fiquem confusas.',
@@ -751,7 +750,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'w4-t4',
         number: 4,
-        title: 'Super-Ciclos: Repetir Sem Cansar 🔁',
+        title: 'Superciclos: Repetir Sem Cansar 🔁',
         paragraphs: [
           'Imagina que precisas de mandar o robô andar 100 passos em frente. Irias escrever "Avançar, Avançar, Avançar..." cem vezes? Que trabalheira!',
           'Os programadores espertos usam "Ciclos" (ou Loops): basta escrever "REPETIR 100 VEZES: Avançar!".',
@@ -780,7 +779,7 @@ export const WORLDS_DATA: WorldContent[] = [
           'Gráficos transformam números em desenhos fáceis de compreender;',
           'Analisar dados ajuda a tomar decisões com base na verdade.',
         ],
-        takeaway: 'Regra de Ouro dos Dados: Organizar a informação dá super-visão sobre o mundo! 📈🔍',
+        takeaway: 'Regra de Ouro dos Dados: Organizar a informação dá-te visão de águia sobre o mundo! 📈🔍',
       },
       {
         id: 'w4-t6',
@@ -810,7 +809,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-block-coding',
         name: 'Oficina de Blocos de Código 🤖',
-        description: 'Encaixa blocos de movimento e programa o robô para navegar no labirinto com precisão cirúrgica.',
+        description: 'Encaixa blocos de movimento e programa o robô para navegar no labirinto com muito cuidado.',
         xpReward: 100,
       },
       {
@@ -821,8 +820,8 @@ export const WORLDS_DATA: WorldContent[] = [
       },
       {
         id: 'sim-ciclos',
-        name: 'A Roda dos Super-Ciclos 🔁',
-        description: 'Substitui listas longas e repetitivas por ciclos mágicos e poupa linhas de comando preciosas.',
+        name: 'A Roda dos Superciclos 🔁',
+        description: 'Substitui listas longas e repetitivas por ciclos mágicos e poupa trabalho e linhas de código.',
         xpReward: 100,
       },
       {
@@ -834,23 +833,23 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-debugging',
         name: 'Caçador de Bugs Misteriosos 🐞',
-        description: 'Testa programas com erros lógicos, encontra o comando defeituoso e conserta o robô avariado!',
+        description: 'Testa programas com erros no código, encontra o comando errado e conserta o robô avariado!',
         xpReward: 100,
       },
     ],
     challenge: {
       id: 'ch-robo-perdido',
-      title: 'OPERAÇÃO ROBÔ NO LABIRINTO 🤖',
+      title: 'Operação Robô no Labirinto 🤖',
       description: 'O Robô Explorador precisa de chegar à estação de recarga! Encaixa os blocos certos e usa ciclos para poupar energia.',
       xpReward: 100,
     },
     mission: {
       id: 'mis-pensar-engenheiro',
-      title: 'O MEU PRIMEIRO ALGORITMO DE MESTRE 📜',
+      title: 'O Meu Primeiro Algoritmo de Mestre 📜',
       description: 'Escolhe uma tarefa do teu dia a dia e desenha um algoritmo infalível com 5 a 8 passos e pelo menos uma decisão com SE.',
       instructions: [
         '1. Escolhe uma tarefa real (ex.: fazer o saco de desporto, preparar um lanche saudável ou montar um jogo de tabuleiro).',
-        '2. Escreve entre 5 e 8 passos por ordem estrita de execução.',
+        '2. Escreve entre 5 e 8 passos na ordem exata.',
         '3. Inclui pelo menos uma regra com "SE ... SENÃO" (ex.: "SE estiver frio, pôr o casaco; SENÃO, levar camisola").',
         '4. Testa o teu algoritmo pedindo a um colega para o executar exatamente como está escrito.',
         '5. Se ele encontrar um erro, faz o teu próprio debugging!',
@@ -868,7 +867,7 @@ export const WORLDS_DATA: WorldContent[] = [
       greeting: 'Olá, Explorador do Futuro e da IA! 🧠🚀',
       description: [
         'A Inteligência Artificial (IA) parece magia, mas é pura ciência da computação! Já está nos telemóveis, nos filtros das fotos, nos tradutores e nos assistentes inteligentes!',
-        'Neste Mundo vais aprender os super-poderes da IA: como escrever prompts mágicos para ela te ajudar a estudar, por que razão ela às vezes inventa disparates com ar sério (as famosas "alucinações") e como proteger os teus dados privados para seres sempre tu quem tem o comando da tua vida!',
+        'Neste Mundo vais aprender os superpoderes da IA: como escrever prompts mágicos para ela te ajudar a estudar, por que razão ela às vezes inventa disparates com ar sério (as famosas "alucinações") e como proteger os teus dados privados para seres sempre tu quem tem o comando da tua vida!',
       ],
       mission: 'A tua missão de explorador: usar a IA como uma ferramenta fantástica sem nunca deixar de pensar com a tua própria cabeça! 💡🛡️',
     },
@@ -971,7 +970,7 @@ export const WORLDS_DATA: WorldContent[] = [
           'A IA é um assistente, não o dono do teu cérebro;',
           'Lê, pensa, corrige e dá sempre o teu toque pessoal ao trabalho;',
           'Tu és o responsável final por tudo o que apresentas;',
-          'Pensar pela própria cabeça é o maior super-poder que existe!',
+          'Pensar pela própria cabeça é o maior superpoder que existe!',
         ],
         takeaway: 'Regra de Ouro do Futuro: A tecnologia é fantástica, mas a inteligência humana está sempre no comando! 🌟👑',
       },
@@ -1016,20 +1015,20 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     challenge: {
       id: 'ch-detetive-ia',
-      title: 'OPERAÇÃO DETETIVE DA IA 🕵️‍♂️',
-      description: 'Auditoria em 4 etapas: encontra os erros da IA, identifica fontes fiáveis e escreve um super-prompt!',
+      title: 'Operação Detetive da IA 🕵️‍♂️',
+      description: 'Missão de Investigação em 4 passos: encontra os erros da IA, identifica fontes de confiança e escreve um superprompt!',
       xpReward: 100,
     },
     mission: {
       id: 'mis-audita-assistente',
-      title: 'O MEU GUIA DO EXPLORADOR DA IA 📜',
+      title: 'O Meu Guia do Explorador da IA 📜',
       description: 'Cria o teu Guia de Sobrevivência e Inteligência Artificial com as 5 regras de ouro do futuro digital.',
       instructions: [
         '1. Regra 1 (O que é IA): Explica aos teus pais ou amigos o que a IA consegue fazer e o que não consegue.',
         '2. Regra 2 (Prompts): Dá a tua fórmula secreta para escrever um prompt nota máxima.',
         '3. Regra 3 (Alucinações): Explica por que razão nunca se deve confiar a 100% numa resposta bonita.',
         '4. Regra 4 (Privacidade): Lista 3 informações que nunca na vida deves escrever num chat de IA.',
-        '5. Regra 5 (Super-Cérebro): Explica porque é que o ser humano tem de ser sempre o comandante final.',
+        '5. Regra 5 (Supercérebro): Explica porque é que o ser humano tem de ser sempre o comandante final.',
       ],
       xpReward: 100,
     },
@@ -1059,16 +1058,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w1-q2',
-        text: 'Recebes uma mensagem que diz que ganhaste um prémio e que tens apenas alguns minutos para clicar num link e confirmar os teus dados. O que deves fazer?',
+        text: 'Recebes uma mensagem que diz que ganhaste um prémio e que tens apenas alguns minutos para carregar numa ligação e confirmar os teus dados. O que deves fazer?',
         options: [
-          'Não clicar no link, desconfiar da mensagem e pedir ajuda a um adulto de confiança.',
-          'Clicar rapidamente para não perder o prémio.',
+          'Não carregar na ligação, desconfiar da mensagem e pedir ajuda a um adulto de confiança.',
+          'Carregar rapidamente para não perder o prémio.',
           'Reencaminhar a mensagem para os teus colegas para saber se eles também receberam.',
           'Introduzir apenas o nome, porque os restantes dados são privados.',
         ],
         correctIndex: 0,
         explanation:
-          'Uma mensagem que promete um prémio, cria urgência e pede dados pode ser uma tentativa de phishing. O mais seguro é não clicar e pedir ajuda a um adulto de confiança.',
+          'Uma mensagem que promete um prémio, cria urgência e pede dados pode ser uma tentativa de phishing. O mais seguro é não carregar e pedir ajuda a um adulto de confiança.',
       },
       {
         id: 'w1-q3',
@@ -1137,42 +1136,42 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w1-q8',
-        text: 'Recebes uma mensagem de alguém que não conheces. A mensagem contém um link e pede-te para introduzires os dados da tua conta escolar. Qual é a atitude que melhor aplica a regra “Parar, pensar e proteger”?',
+        text: 'Recebes uma mensagem de alguém que não conheces. A mensagem contém uma ligação e pede-te para introduzires os dados da tua conta escolar. Qual é a atitude que melhor aplica a regra “Parar, pensar e proteger”?',
         options: [
-          'Abrir o link primeiro e decidir depois se parece seguro.',
-          'Pedir a um colega para abrir o link por ti.',
-          'Parar antes de clicar, pensar se o pedido é legítimo e não fornecer os dados sem verificar a situação.',
+          'Abrir a ligação primeiro e decidir depois se parece segura.',
+          'Pedir a um colega para abrir a ligação por ti.',
+          'Parar antes de carregar, pensar se o pedido é legítimo e não fornecer os dados sem verificar a situação.',
           'Responder à mensagem com a tua palavra-passe para descobrir o que acontece.',
         ],
         correctIndex: 2,
         explanation:
-          '“Parar, pensar e proteger” significa não agir impulsivamente. Devemos analisar a situação antes de clicar ou partilhar informações.',
+          '“Parar, pensar e proteger” significa não agir por impulso. Devemos analisar a situação antes de carregar ou partilhar informações.',
       },
       {
         id: 'w1-q9',
         text: 'Um jogo online pede a tua localização, fotografia e palavra-passe para te dar um fato grátis. O que deves fazer?',
         options: [
           'Recusar partilhar esses dados privados e pedir conselho a um adulto.',
-          'Dar apenas a localização e a senha para desbloquear o fato rápido.',
+          'Dar apenas a localização e a palavra-passe para desbloquear o fato rápido.',
           'Inventar dados falsos de um colega da turma para conseguir o fato.',
           'Aceitar partilhar tudo porque os jogos online são sempre seguros.',
         ],
         correctIndex: 0,
         explanation:
-          'Nenhum brinde de jogo justifica entregar dados privados ou senhas. Deves proteger a tua privacidade e falar com um adulto.',
+          'Nenhum brinde de jogo justifica entregar dados privados ou palavras-passe. Deves proteger a tua privacidade e falar com um adulto.',
       },
       {
         id: 'w1-q10',
-        text: 'Recebes esta mensagem:\n\n“AVISO: a tua conta escolar será bloqueada hoje! Para evitar o bloqueio, clica neste link e confirma imediatamente a tua palavra-passe, morada e número de telefone.”\n\nQual é a atitude mais segura?',
+        text: 'Recebes esta mensagem:\n\n“AVISO: a tua conta escolar será bloqueada hoje! Para evitar o bloqueio, carrega nesta ligação e confirma imediatamente a tua palavra-passe, morada e número de telefone.”\n\nQual é a atitude mais segura?',
         options: [
-          'Clicar imediatamente no link, porque a mensagem diz que a conta será bloqueada.',
-          'Não clicar no link, desconfiar do pedido e confirmar a situação através de um canal oficial ou junto de um adulto de confiança.',
+          'Carregar imediatamente na ligação, porque a mensagem diz que a conta será bloqueada.',
+          'Não carregar na ligação, desconfiar do pedido e confirmar a situação através de um canal oficial ou junto de um adulto de confiança.',
           'Introduzir apenas a palavra-passe e deixar os restantes dados em branco.',
           'Reencaminhar a mensagem para os colegas para perceber se também receberam o aviso.',
         ],
         correctIndex: 1,
         explanation:
-          'A mensagem apresenta vários sinais de alerta: cria urgência, pede informações pessoais e utiliza um link. Não deves clicar nem fornecer os dados. Deves verificar a situação através de uma fonte oficial ou pedir ajuda a um adulto de confiança.',
+          'A mensagem apresenta vários sinais de alerta: cria urgência, pede informações pessoais e utiliza uma ligação suspeita. Não deves carregar nem fornecer os dados. Deves verificar a situação através de uma fonte oficial ou pedir ajuda a um adulto de confiança.',
       },
     ],
   },
@@ -1196,7 +1195,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w2-q2',
-        text: 'Precisas de dados sobre o clima para um trabalho de Ciências. Onde encontras a informação mais confiável?',
+        text: 'Precisas de dados sobre o clima para um trabalho de Ciências. Onde encontras a informação mais de confiança?',
         options: [
           'Num vídeo curto sem autor num perfil anónimo.',
           'No site oficial do Instituto de Meteorologia ou de uma instituição científica.',
@@ -1222,7 +1221,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w2-q4',
-        text: 'Queres consultar o calendário dos torneios de futebol escolar deste ano. Porque é importante verificar a data da publicação?',
+        text: 'Queres consultar o calendário dos torneios de futebol escolar deste ano. Porque é que é importante verificar a data da publicação?',
         options: [
           'Porque calendários e notícias mudam com o tempo e precisamos de informação atual para o que procuramos.',
           'Porque qualquer publicação com mais de uma semana é mentira.',
@@ -1352,7 +1351,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
           'É correta se o João enviar um e-mail ao professor a pedir desculpa antecipadamente.',
         ],
         correctIndex: 1,
-        explanation: 'Apresentar uma criação de outra pessoa como se fosse nossa é plágio. Devemos respeitar os direitos de autor, confirmar a licença e dar crédito a quem criou a obra.',
+        explanation: 'Apresentar uma criação de outra pessoa como se fosse nossa é plágio. Devemos respeitar os direitos de autor, confirmar a licença e indicar quem criou a obra.',
       },
       {
         id: 'w3-q4',
@@ -1373,10 +1372,10 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
           'Pagar 10 euros ao autor antes de utilizar a foto.',
           'Não fazer qualquer alteração e usá-la apenas em computadores portáteis.',
           'Não utilizar a fotografia se o blogue for lido por mais de 100 pessoas.',
-          'Dar crédito (atribuição), ou seja, indicar quem é o autor original da fotografia.',
+          'Indicar claramente quem é o autor original da fotografia.',
         ],
         correctIndex: 3,
-        explanation: 'A sigla BY (Atribuição) nas licenças Creative Commons pede para identificar e dar crédito a quem criou a obra.',
+        explanation: 'A sigla BY (Atribuição) nas licenças Creative Commons pede para identificar e indicar quem criou a obra.',
       },
       {
         id: 'w3-q6',
@@ -1563,7 +1562,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
           'Impede qualquer erro automaticamente.',
         ],
         correctIndex: 2,
-        explanation: 'Organizar dados em tabelas ou categorias estruturadas permite consultar, cruzar e retirar conclusões de forma rápida e rigorosa.',
+        explanation: 'Organizar dados em tabelas ajuda a ler, comparar e tirar conclusões mais depressa.',
       },
     ],
   },
@@ -1606,7 +1605,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
           '"Explica a um aluno do 6.º ano porque é importante reciclar. Apresenta 3 exemplos de materiais recicláveis e escreve a explicação em linguagem simples."',
         ],
         correctIndex: 3,
-        explanation: 'O prompt D indica o objetivo, o público, o conteúdo pretendido e o estilo da resposta.',
+        explanation: 'O prompt mais completo indica o objetivo, o público, o conteúdo pretendido e o estilo da resposta.',
       },
       {
         id: 'w5-q4',
@@ -1699,7 +1698,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
 // Grande Missão: A ESCOLA DO FUTURO (6 zonas, 5 códigos, 150 XP)
 export const GRANDE_MISSAO = {
   id: 'grande-missao-escola-futuro',
-  title: 'A ESCOLA DO FUTURO',
+  title: 'A Escola do Futuro',
   totalXp: 150,
   narrativa: 'Em 5 zonas da escola vais recuperar os cinco códigos de segurança. Depois, no Núcleo Central, vais introduzir os cinco códigos e enfrentar o desafio final para reativar a Escola do Futuro.',
   stages: [
@@ -1711,7 +1710,7 @@ export const GRANDE_MISSAO = {
       task: 'Escolhe as melhores regras de segurança para as contas dos alunos e ganha o Código 1.',
       options: [
         'Contas partilhadas com uma palavra-passe fácil para todos.',
-        'Contas individuais com palavras-passe fortes (pelo menos 10 carateres) e acesso seguro.',
+        'Contas individuais com palavras-passe fortes (pelo menos 8 caracteres) e acesso seguro.',
         'Deixar os computadores sempre ligados sem palavra-passe para poupar tempo.',
       ],
       correctOption: 1,
@@ -1724,7 +1723,7 @@ export const GRANDE_MISSAO = {
       scenario: 'No arquivo digital, os alunos precisam de pesquisar fontes de confiança para os trabalhos de Ciências e História.',
       task: 'O que devem os alunos verificar antes de acreditar numa notícia para ganhar o Código 2?',
       options: [
-        'Acreditar no primeiro link que aparecer no topo dos resultados.',
+        'Acreditar na primeira ligação que aparecer no topo dos resultados.',
         'Aplicar o Kit do Detetive: ver quem escreveu, a data, a fonte oficial e comparar com outros sites de confiança.',
         'Usar apenas imagens das redes sociais sem confirmar o texto.',
       ],
@@ -1739,7 +1738,7 @@ export const GRANDE_MISSAO = {
       task: 'Qual é a regra essencial para conviver bem online na escola e ganhar o Código 3?',
       options: [
         'Proibido discordar do colega de equipa.',
-        'Tratar todos com respeito, não escrever tudo em MAIÚSCULAS e dar crédito aos autores dos materiais.',
+        'Tratar todos com respeito, não escrever tudo em MAIÚSCULAS e indicar os autores dos materiais.',
         'Partilhar capturas de ecrã privadas das conversas noutras redes.',
       ],
       correctOption: 1,
@@ -1800,12 +1799,12 @@ export const WEEKLY_CHALLENGE = {
   task: 'Encontra os sinais suspeitos e escolhe a resposta certa.',
   options: [
     {
-      text: 'É verdadeira: como fala da escola e é urgente, devo clicar já no link antes dos 15 minutos.',
+      text: 'É verdadeira: como fala da escola e é urgente, devo carregar já na ligação antes dos 15 minutos.',
       isCorrect: false,
       explanation: 'Incorreto! A pressa e a pressão do tempo são truques para te impedir de pensar com calma.',
     },
     {
-      text: 'É phishing: usa ameaças de tempo curto, um link estranho e pede dados de acesso.',
+      text: 'É phishing: usa ameaças de tempo curto, uma ligação estranha e pede dados de acesso.',
       isCorrect: true,
       explanation: 'Correto! Mesmo que uma mensagem pareça ser da escola, confirma sempre num canal oficial ou com um adulto.',
     },

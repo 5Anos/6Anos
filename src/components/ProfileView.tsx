@@ -47,7 +47,7 @@ export const ProfileView: React.FC = () => {
           Entra na tua conta para veres o teu perfil!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para criares o teu avatar e escolheres o teu nome de jogo, entra com a conta dada pela tua Professora.
+          Para criares o teu avatar e escolheres o teu nome de jogo, entra com a conta dada pela tua professora.
         </p>
       </div>
     );
@@ -169,7 +169,7 @@ export const ProfileView: React.FC = () => {
             {/* Email (Read only for safety) */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Email Escolar Registado:
+                E-mail Escolar Registado:
               </label>
               <input
                 type="text"

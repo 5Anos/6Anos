@@ -112,7 +112,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
             Entra na Tua Conta!
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-md mx-auto">
-            Para jogares a Grande Missão Final (A ESCOLA DO FUTURO), inicia sessão com a tua conta da escola.
+            Para jogares a Grande Missão Final (A Escola do Futuro), inicia sessão com a tua conta da escola.
           </p>
         </div>
         <button
@@ -217,7 +217,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
           Grande Missão Final Bloqueada
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          A Grande Missão Final (A ESCOLA DO FUTURO) desbloqueia quando conseguires uma média superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> em todos os 5 Mundos. Continua a praticar!
+          A Grande Missão Final (A Escola do Futuro) desbloqueia quando conseguires uma média superior a <strong>{PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> em todos os 5 Mundos. Continua a praticar!
         </p>
         <button
           onClick={onBack}
@@ -254,7 +254,7 @@ export const GrandeMissaoView: React.FC<GrandeMissaoViewProps> = ({ onBack }) =>
 
         {activeZoneId !== null && (
           <span className="text-xs font-black text-indigo-600 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-xl">
-            Escape Room Digital • Setor {activeZoneId}
+            Sala de Fuga Digital • Setor {activeZoneId}
           </span>
         )}
       </div>

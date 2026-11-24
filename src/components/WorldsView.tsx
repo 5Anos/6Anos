@@ -178,7 +178,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
               Modo Docente / Teste
             </span>
             <span className="font-semibold">
-              Todos os 5 Mundos, simuladores e quizzes estão desbloqueados para experimentação e validação pedagógica. Não existe acumulação de pontos nem XP no perfil de professor.
+              Todos os 5 Mundos, simuladores e avaliações estão desbloqueados para experimentação e validação pedagógica. Não existe acumulação de pontos nem XP no perfil de professor.
             </span>
           </div>
         </div>
@@ -270,15 +270,15 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
           <span className={`text-xs font-black uppercase tracking-wider block mb-1 ${
             currentWorld.isTeacherLocked ? 'text-rose-700' : 'text-amber-700'
           }`}>
-            {currentWorld.isTeacherLocked ? 'Mundo guardado pela Professora' : 'Mundo Bloqueado'}
+            {currentWorld.isTeacherLocked ? 'Mundo guardado pela professora' : 'Mundo Bloqueado'}
           </span>
           <h3 className="text-2xl font-black text-slate-900 mb-2">
             {currentWorld.title} {currentWorld.isTeacherLocked ? '— Aguarda pela aula' : 'Bloqueado'}
           </h3>
           <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
             {currentWorld.isTeacherLocked
-              ? 'A tua Professora guardou este Mundo para a próxima aula. Fica atento às indicações na sala de aula!'
-              : `Para desbloqueares o Mundo ${currentWorld.id}, completa todas as missões e o Quiz do Mundo ${currentWorld.id - 1} com média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%!`}
+              ? 'A tua professora guardou este Mundo para a próxima aula. Fica atento às indicações na sala de aula!'
+              : `Para desbloqueares o Mundo ${currentWorld.id}, completa todas as missões e a Avaliação Final do Mundo ${currentWorld.id - 1} com média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}%!`}
           </p>
           {currentWorld.id > 1 && (
             <button
@@ -339,11 +339,11 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                     </div>
                     <div className="text-xs opacity-90 mt-0.5">
                       {isNextWorldUnlocked
-                        ? `Parabéns! Completaste as ${totalSims} missões e o Quiz do Mundo ${currentWorld.id} com média de ${currentAvg}%. Já podes entrar no Mundo ${currentWorld.id + 1}!`
+                        ? `Parabéns! Completaste as ${totalSims} missões e a Avaliação Final do Mundo ${currentWorld.id} com média de ${currentAvg}%. Já podes entrar no Mundo ${currentWorld.id + 1}!`
                         : !allSimsDone
-                        ? `Completa todas as missões (${completedSimsCount}/${totalSims} feitas) e faz o Quiz Final com média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para abrir o Mundo ${currentWorld.id + 1}!`
+                        ? `Completa todas as missões (${completedSimsCount}/${totalSims} feitas) e faz a Avaliação Final com média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para abrir o Mundo ${currentWorld.id + 1}!`
                         : !hasPassedQuiz
-                        ? `Boa! Já fizeste as ${totalSims} missões! Agora faz o Quiz Final para conseguires média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% e abrir o Mundo ${currentWorld.id + 1}.`
+                        ? `Boa! Já fizeste as ${totalSims} missões! Agora faz a Avaliação Final para conseguires média acima de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% e abrir o Mundo ${currentWorld.id + 1}.`
                         : `A tua média está em ${currentAvg}%. Precisas de mais de ${PROGRESSION_CONFIG.PASSING_THRESHOLD}% para abrir o Mundo ${currentWorld.id + 1}!`}
                     </div>
                   </div>
@@ -358,7 +358,7 @@ export const WorldsView: React.FC<WorldsViewProps> = ({
                   >
                     {isNextWorldUnlocked
                       ? `Média: ${currentAvg}%`
-                      : `Missões: ${completedSimsCount}/${totalSims} • Quiz: ${hasPassedQuiz ? 'Feito' : 'Pendente'}`}
+                      : `Missões: ${completedSimsCount}/${totalSims} • Avaliação: ${hasPassedQuiz ? 'Feita' : 'Pendente'}`}
                   </span>
                 </div>
               </div>

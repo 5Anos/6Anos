@@ -108,19 +108,19 @@ export const BADGES_CATALOG = [
   {
     id: 'detetive-digital',
     title: 'Detetive Digital',
-    description: 'Dominaste a pesquisa crítica e verificação de fontes no Mundo 2.',
+    description: 'Aprendeste a pesquisar bem e a confirmar fontes no Mundo 2.',
     icon: 'Search',
   },
   {
     id: 'criador-digital',
     title: 'Criador Digital',
-    description: 'Mostraste respeito pela netiqueta e direitos de autor no Mundo 3.',
+    description: 'Mostraste respeito pela netiqueta e pelos direitos de autor no Mundo 3.',
     icon: 'Palette',
   },
   {
     id: 'engenheiro-digital',
     title: 'Engenheiro Digital',
-    description: 'Desvendaste algoritmos, ciclos e pensamento computacional no Mundo 4.',
+    description: 'Desvendaste algoritmos, repetições e programação no Mundo 4.',
     icon: 'Code2',
   },
   {
@@ -131,8 +131,8 @@ export const BADGES_CATALOG = [
   },
   {
     id: 'centuriao-digital',
-    title: 'Centurião Digital',
-    description: 'Chegaste a mais de 1000 XP ou tiveste 100% num Quiz Final!',
+    title: 'Campeão Digital',
+    description: 'Chegaste a mais de 1000 XP ou tiveste 100% numa Avaliação Final!',
     icon: 'Award',
   },
   {
@@ -146,13 +146,13 @@ export const BADGES_CATALOG = [
 export const DAILY_TIPS = [
   {
     id: 'tip-1',
-    pt: 'Antes de clicares num link recebido por mensagem, verifica sempre para onde ele realmente te leva.',
+    pt: 'Antes de carregares numa ligação recebida por mensagem, verifica sempre para onde ela te leva.',
     en: 'Before clicking a link received via message, always verify where it actually leads.',
   },
   {
     id: 'tip-2',
-    pt: 'Uma palavra-passe forte deve ter pelo menos 10 caracteres, combinando letras, números e símbolos.',
-    en: 'A strong password should be at least 10 characters long, combining letters, numbers, and symbols.',
+    pt: 'Uma palavra-passe forte deve ter pelo menos 8 caracteres, combinando letras, números e símbolos.',
+    en: 'A strong password should be at least 8 characters long, combining letters, numbers, and symbols.',
   },
   {
     id: 'tip-3',
@@ -175,7 +175,7 @@ export const WORLDS_DATA: WorldContent[] = [
   {
     id: 1,
     title: 'MUNDO 1 — GUARDIÃO DIGITAL 🛡️',
-    subtitle: 'O Teu Escudo de Segurança, Privacidade e Super-Poderes Digitais!',
+    subtitle: 'O Teu Escudo de Segurança, Privacidade e Superpoderes Digitais!',
     icon: 'Shield',
     color: 'emerald',
     intro: {
@@ -183,7 +183,7 @@ export const WORLDS_DATA: WorldContent[] = [
       description: [
         'Adoramos usar a Internet para jogar com amigos, ver vídeos divertidos e aprender coisas incríveis!',
         'Mas, tal como quando andamos na rua, no mundo digital também precisamos de saber proteger o nosso castelo.',
-        'Neste Mundo vais ganhar super-poderes: criar palavras-passe invencíveis, desmascarar truques e armadilhas falsas, guardar os teus segredos a sete chaves e manter o teu corpo cheio de energia para jogar!',
+        'Neste Mundo vais ganhar superpoderes: criar palavras-passe invencíveis, desmascarar truques e armadilhas falsas, guardar os teus segredos a sete chaves e manter o teu corpo cheio de energia para jogar!',
       ],
       mission: 'A tua missão secreta: Parar, Pensar e Proteger! 🛡️✨',
     },
@@ -212,8 +212,8 @@ export const WORLDS_DATA: WorldContent[] = [
         bulletPoints: [
           'Promessas de moedas ou prémios grátis;',
           'Avisos com pressa para te assustar;',
-          'Links estranhos com letras trocadas;',
-          'Pedidos para introduzires a tua senha.',
+          'Ligações estranhas com letras trocadas;',
+          'Pedidos para introduzires a tua palavra-passe.',
         ],
         takeaway: 'Regra do Detetive: Se parece bom demais para ser verdade, é uma armadilha! 🛑',
       },
@@ -245,11 +245,11 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'w1-t5',
         number: 5,
-        title: 'Super-Corpo & Bem-Estar 🕹️',
+        title: 'Supercorpo & Bem-Estar 🕹️',
         paragraphs: [
           'Um verdadeiro campeão dos videojogos cuida da sua postura, dos olhos e do sono!',
           'Senta-te com postura de astronauta: costas direitas e apoiadas, pés no chão e ecrã à distância de um braço.',
-          'Aplica a regra dos 20-20-20: a cada 20 minutos, olha pela janela 20 segundos para os teus olhos descansarem.',
+          'Aplica a regra dos 20-20-20: de 20 em 20 minutos, olha pela janela durante 20 segundos para os teus olhos descansarem.',
           'Desliga os ecrãs antes de ir para a cama: nada de modo morcego no escuro para acordares cheio de energia!',
         ],
         bulletPoints: [
@@ -265,7 +265,7 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-password',
         name: 'Laboratório de Palavras-Passe',
-        description: 'Experimenta criar senhas invencíveis com a técnica da frase maluca e testa o teu escudo!',
+        description: 'Experimenta criar palavras-passe invencíveis com a técnica da frase maluca e testa o teu escudo!',
         xpReward: 100,
       },
       {
@@ -283,32 +283,32 @@ export const WORLDS_DATA: WorldContent[] = [
       {
         id: 'sim-digital-footprint',
         name: 'Simulador de Pegada Digital',
-        description: 'Avalia situações do dia a dia e aprende a deixar um rasto brilhante no ciberespaço.',
+        description: 'Avalia situações do dia a dia e aprende a deixar um rasto positivo na Internet.',
         xpReward: 100,
       },
       {
         id: 'sim-digital-wellbeing',
         name: 'Simulador de Bem-estar Digital',
-        description: 'Treina a postura de astronauta e hábitos saudáveis para teres super-energia gamer!',
+        description: 'Treina a postura de astronauta e hábitos saudáveis para teres energia de campeão!',
         xpReward: 100,
       },
     ],
     challenge: {
       id: 'ch-guarda-digital',
-      title: 'TORNA-TE UM GUARDIÃO',
-      description: 'Desafio Integrador do Mundo 1: Mostra que dominas senhas, caça ao phishing, privacidade, pegada digital e postura de campeão!',
+      title: 'Torna-te um Guardião',
+      description: 'Grande Desafio do Mundo 1: Mostra que dominas palavras-passe, caça ao phishing, privacidade, pegada digital e postura de campeão!',
       xpReward: 100,
     },
     mission: {
       id: 'mis-guia-seguranca',
-      title: 'O MEU GUIA DE SEGURANÇA',
+      title: 'O Meu Guia de Segurança',
       description: 'Cria o teu Guia de Guardião com as 5 regras de ouro para navegar e jogar em segurança na Internet.',
       instructions: [
-        '1. Regra 1 (Palavras-passe): Escreve a tua dica secreta para criar uma senha comprida e invencível.',
+        '1. Regra 1 (Palavras-passe): Escreve a tua dica secreta para criar uma palavra-passe comprida e invencível.',
         '2. Regra 2 (Phishing): Explica os 3 passos para não morder o isco de mensagens falsas.',
         '3. Regra 3 (Dados Pessoais): Indica que informações guardas a sete chaves no teu cofre.',
         '4. Regra 4 (Pegada Digital): Dá uma dica para espalhar energia positiva e ser um bom amigo online.',
-        '5. Regra 5 (Super-Corpo): Explica a postura de astronauta e a regra dos 20-20-20.',
+        '5. Regra 5 (Supercorpo): Explica a postura de astronauta e a regra dos 20-20-20.',
       ],
       xpReward: 100,
     },
@@ -422,15 +422,15 @@ export const WORLDS_DATA: WorldContent[] = [
       },
       {
         id: 'sim-news-detective',
-        name: 'DETETIVE DE NOTÍCIAS',
-        description: 'Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura evidências e compara outras fontes.',
+        name: 'Detetive de Notícias',
+        description: 'Analisa uma informação antes de a partilhar. Procura o autor, verifica a data, procura provas e compara outras fontes.',
         xpReward: 100,
       },
     ],
     challenge: {
       id: 'ch-operacao-detetive',
-      title: 'OPERAÇÃO DETETIVE',
-      description: '🚨 CASO DETETIVE: O Tiago recebe uma mensagem urgente sobre cancelamento de aulas. Investiga antes de partilhar!',
+      title: 'Operação Detetive',
+      description: '🚨 Caso Detetive: O Tiago recebe uma mensagem urgente sobre cancelamento de aulas. Investiga antes de partilhar!',
       instructions: [
         '🚨 CASO DETETIVE: O Tiago recebe esta mensagem num grupo: “URGENTE! Amanhã não há aulas! O diretor da escola confirmou. Partilha já com todos!”',
         'Antes de partilhar, tens de investigar:',
@@ -445,7 +445,7 @@ export const WORLDS_DATA: WorldContent[] = [
     },
     mission: {
       id: 'mis-kit-detetive',
-      title: 'KIT DO DETETIVE',
+      title: 'Kit do Detetive',
       description: 'Aplica o Kit do Detetive: analisa uma publicação viral sobre a semana de aulas de quatro dias antes de acreditar ou partilhar.',
       instructions: [
         'MISSÃO — KIT DO DETETIVE',
@@ -603,26 +603,26 @@ export const WORLDS_DATA: WorldContent[] = [
       },
       {
         id: 'sim-avatar-challenge',
-        name: 'Avatar Challenge',
+        name: 'Desafio do Avatar',
         description: 'Cria a tua identidade visual digital única e original sem expor fotos reais ou dados pessoais.',
         xpReward: 100,
       },
     ],
     challenge: {
       id: 'ch-corrige-mensagem',
-      title: 'CORRIGE A MENSAGEM',
+      title: 'Corrige a Mensagem',
       description: 'O teu grupo está a preparar um trabalho. Um colega ainda não enviou a sua parte e o prazo está a aproximar-se. Escreve uma mensagem que resolva a situação sem criar conflito.',
       xpReward: 100,
     },
     mission: {
       id: 'mis-codigo-comunicacao',
-      title: 'CÓDIGO DE COMUNICAÇÃO DA TURMA',
+      title: 'Código de Comunicação da Turma',
       description: 'Criar um pequeno Código de Comunicação da Turma com regras e exemplos de convivência e autoria digital.',
       instructions: [
         'Cria um pequeno Código de Comunicação da Turma com regras claras e exemplos práticos.',
         'Inclui orientações sobre comunicação online e netiqueta (sem gritar em maiúsculas nem excluir colegas).',
         'Descreve boas práticas de colaboração em equipa (divisão justa e entreajuda).',
-        'Explica como respeitar os direitos de autor (dar crédito e não copiar sem autorização).',
+        'Explica como respeitar os direitos de autor (indicar quem criou e não copiar sem autorização).',
       ],
       xpReward: 100,
     },
@@ -786,13 +786,13 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     challenge: {
       id: 'ch-robo-perdido',
-      title: 'ROBÔ PERDIDO',
+      title: 'Robô Perdido',
       description: 'Planeia um algoritmo com as quatro direções para levar o robô até ao destino sem bater nos obstáculos.',
       xpReward: 100,
     },
     mission: {
       id: 'mis-pensar-engenheiro',
-      title: 'PENSA COMO UM ENGENHEIRO',
+      title: 'Pensa Como um Engenheiro',
       description: 'Escolher uma tarefa do dia a dia e escrever um algoritmo com passos claros e ordenados.',
       instructions: [
         'Escolhe uma tarefa simples do dia a dia (ex.: preparar a mochila para a escola, organizar a secretária, regar uma planta, preparar o material para uma aula).',
@@ -827,7 +827,7 @@ export const WORLDS_DATA: WorldContent[] = [
         paragraphs: [
           'Inteligência Artificial (IA) é uma tecnologia que permite aos computadores realizar tarefas que normalmente precisam de capacidades humanas, como reconhecer padrões, compreender texto, analisar imagens ou fazer previsões.',
           'Por exemplo, a IA pode ser usada para identificar animais numa fotografia, traduzir frases entre línguas ou sugerir músicas com base no que costumamos ouvir.',
-          'Nem todos os programas de computador usam IA. Uma calculadora que faz uma soma ou um semáforo que muda de cor a cada minuto seguem apenas regras e instruções fixas programadas.',
+          'Nem todos os programas de computador usam IA. Uma calculadora que faz uma soma ou um semáforo que muda de cor de minuto a minuto seguem apenas regras e instruções fixas programadas.',
           'Uma ferramenta de IA não é uma pessoa: não pensa exatamente como uma pessoa, não tem sentimentos, não tem consciência, não sabe tudo e não tem sempre razão.',
           'A IA pode cometer erros. Por isso, devemos usá-la como um apoio e nunca acreditar cegamente em tudo o que ela apresenta.',
         ],
@@ -939,13 +939,13 @@ export const WORLDS_DATA: WorldContent[] = [
     ],
     challenge: {
       id: 'ch-detetive-ia',
-      title: 'DETETIVE DA IA',
+      title: 'Detetive da IA',
       description: 'Analisa uma situação concreta: deteta informações que precisam de confirmação, melhora um prompt e protege dados pessoais.',
       xpReward: 100,
     },
     mission: {
       id: 'mis-audita-assistente',
-      title: 'AUDITA UM ASSISTENTE DE IA',
+      title: 'Investiga um Assistente de IA',
       description: 'Analisa uma resposta dada por um assistente de IA, identifica possíveis erros e explica como verificar a informação.',
       instructions: [
         '1. Lê a resposta da IA e identifica afirmações que parecem corretas.',
@@ -982,16 +982,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w1-q2',
-        text: 'Recebes uma mensagem que diz que ganhaste um prémio e que tens apenas alguns minutos para clicar num link e confirmar os teus dados. O que deves fazer?',
+        text: 'Recebes uma mensagem que diz que ganhaste um prémio e que tens apenas alguns minutos para carregar numa ligação e confirmar os teus dados. O que deves fazer?',
         options: [
-          'Não clicar no link, desconfiar da mensagem e pedir ajuda a um adulto de confiança.',
-          'Clicar rapidamente para não perder o prémio.',
+          'Não carregar na ligação, desconfiar da mensagem e pedir ajuda a um adulto de confiança.',
+          'Carregar rapidamente para não perder o prémio.',
           'Reencaminhar a mensagem para os teus colegas para saber se eles também receberam.',
           'Introduzir apenas o nome, porque os restantes dados são privados.',
         ],
         correctIndex: 0,
         explanation:
-          'Uma mensagem que promete um prémio, cria urgência e pede dados pode ser uma tentativa de phishing. O mais seguro é não clicar e pedir ajuda a um adulto de confiança.',
+          'Uma mensagem que promete um prémio, cria urgência e pede dados pode ser uma tentativa de phishing. O mais seguro é não carregar e pedir ajuda a um adulto de confiança.',
       },
       {
         id: 'w1-q3',
@@ -1060,16 +1060,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w1-q8',
-        text: 'Recebes uma mensagem de alguém que não conheces. A mensagem contém um link e pede-te para introduzires os dados da tua conta escolar. Qual é a atitude que melhor aplica a regra “Parar, pensar e proteger”?',
+        text: 'Recebes uma mensagem de alguém que não conheces. A mensagem contém uma ligação e pede-te para introduzires os dados da tua conta escolar. Qual é a atitude que melhor aplica a regra “Parar, pensar e proteger”?',
         options: [
-          'Abrir o link primeiro e decidir depois se parece seguro.',
-          'Pedir a um colega para abrir o link por ti.',
-          'Parar antes de clicar, pensar se o pedido é legítimo e não fornecer os dados sem verificar a situação.',
+          'Abrir a ligação primeiro e decidir depois se parece segura.',
+          'Pedir a um colega para abrir a ligação por ti.',
+          'Parar antes de carregar, pensar se o pedido é legítimo e não fornecer os dados sem verificar a situação.',
           'Responder à mensagem com a tua palavra-passe para descobrir o que acontece.',
         ],
         correctIndex: 2,
         explanation:
-          '“Parar, pensar e proteger” significa não agir impulsivamente. Devemos analisar a situação antes de clicar ou partilhar informações.',
+          '“Parar, pensar e proteger” significa não agir por impulso. Devemos analisar a situação antes de carregar ou partilhar informações.',
       },
       {
         id: 'w1-q9',
@@ -1086,16 +1086,16 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w1-q10',
-        text: 'Recebes esta mensagem:\n\n“AVISO: a tua conta escolar será bloqueada hoje! Para evitar o bloqueio, clica neste link e confirma imediatamente a tua palavra-passe, morada e número de telefone.”\n\nQual é a atitude mais segura?',
+        text: 'Recebes esta mensagem:\n\n“AVISO: a tua conta escolar será bloqueada hoje! Para evitar o bloqueio, carrega nesta ligação e confirma imediatamente a tua palavra-passe, morada e número de telefone.”\n\nQual é a atitude mais segura?',
         options: [
-          'Clicar imediatamente no link, porque a mensagem diz que a conta será bloqueada.',
-          'Não clicar no link, desconfiar do pedido e confirmar a situação através de um canal oficial ou junto de um adulto de confiança.',
+          'Carregar imediatamente na ligação, porque a mensagem diz que a conta será bloqueada.',
+          'Não carregar na ligação, desconfiar do pedido e confirmar a situação através de um canal oficial ou junto de um adulto de confiança.',
           'Introduzir apenas a palavra-passe e deixar os restantes dados em branco.',
           'Reencaminhar a mensagem para os colegas para perceber se também receberam o aviso.',
         ],
         correctIndex: 1,
         explanation:
-          'A mensagem apresenta vários sinais de alerta: cria urgência, pede informações pessoais e utiliza um link. Não deves clicar nem fornecer os dados. Deves verificar a situação através de uma fonte oficial ou pedir ajuda a um adulto de confiança.',
+          'A mensagem apresenta vários sinais de alerta: cria urgência, pede informações pessoais e utiliza uma ligação suspeita. Não deves carregar nem fornecer os dados. Deves verificar a situação através de uma fonte oficial ou pedir ajuda a um adulto de confiança.',
       },
     ],
   },
@@ -1119,7 +1119,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w2-q2',
-        text: 'Precisas de dados sobre o clima para um trabalho de Ciências. Onde encontras a informação mais confiável?',
+        text: 'Precisas de dados sobre o clima para um trabalho de Ciências. Onde encontras a informação mais de confiança?',
         options: [
           'Num vídeo curto sem autor num perfil anónimo.',
           'No site oficial do Instituto de Meteorologia ou de uma instituição científica.',
@@ -1145,7 +1145,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
       },
       {
         id: 'w2-q4',
-        text: 'Queres consultar o calendário dos torneios de futebol escolar deste ano. Porque é importante verificar a data da publicação?',
+        text: 'Queres consultar o calendário dos torneios de futebol escolar deste ano. Porque é que é importante verificar a data da publicação?',
         options: [
           'Porque calendários e notícias mudam com o tempo e precisamos de informação atual para o que procuramos.',
           'Porque qualquer publicação com mais de uma semana é mentira.',
@@ -1585,7 +1585,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
         options: [
           'Indicar o nome completo, a morada e o telefone do colega.',
           'Enviar uma fotografia do cartão de estudante do colega.',
-          'Publicar a palavra-passe do email da escola do colega.',
+          'Publicar a palavra-passe do e-mail da escola do colega.',
           'Descrever a situação sem colocar o nome nem dados pessoais do colega.',
         ],
         correctIndex: 3,
@@ -1622,7 +1622,7 @@ export const FINAL_ASSESSMENTS: Record<number, { id: string; worldId: number; ti
 // Grande Missão: A ESCOLA DO FUTURO (6 zonas, 150 XP)
 export const GRANDE_MISSAO = {
   id: 'grande-missao-escola-futuro',
-  title: 'A ESCOLA DO FUTURO',
+  title: 'A Escola do Futuro',
   totalXp: 150,
   narrativa: 'Ano 2040. O sistema da Escola do Futuro ficou bloqueado. Para o reativar, tens de recuperar 5 códigos de segurança resolvendo os desafios nas 5 primeiras zonas da escola e depois introduzi-los no Núcleo Central para reativar todos os sistemas!',
   stages: [
@@ -1634,7 +1634,7 @@ export const GRANDE_MISSAO = {
       task: 'Escolhe as melhores regras de segurança para as contas dos alunos e ganha o Código 1.',
       options: [
         'Contas partilhadas com uma palavra-passe fácil para todos.',
-        'Contas individuais com palavras-passe fortes (pelo menos 10 carateres) e acesso seguro.',
+        'Contas individuais com palavras-passe fortes (pelo menos 8 caracteres) e acesso seguro.',
         'Deixar os computadores sempre ligados sem palavra-passe para poupar tempo.',
       ],
       correctOption: 1,
@@ -1647,7 +1647,7 @@ export const GRANDE_MISSAO = {
       scenario: 'No arquivo digital, os alunos precisam de pesquisar fontes de confiança para os trabalhos de Ciências e História.',
       task: 'O que devem os alunos verificar antes de acreditar numa notícia para ganhar o Código 2?',
       options: [
-        'Acreditar no primeiro link que aparecer no topo dos resultados.',
+        'Acreditar na primeira ligação que aparecer no topo dos resultados.',
         'Aplicar o Kit do Detetive: ver quem escreveu, a data, a fonte oficial e comparar com outros sites de confiança.',
         'Usar apenas imagens das redes sociais sem confirmar o texto.',
       ],
@@ -1662,7 +1662,7 @@ export const GRANDE_MISSAO = {
       task: 'Qual é a regra essencial para conviver bem online na escola e ganhar o Código 3?',
       options: [
         'Proibido discordar do colega de equipa.',
-        'Tratar todos com respeito, não escrever tudo em MAIÚSCULAS e dar crédito aos autores dos materiais.',
+        'Tratar todos com respeito, não escrever tudo em MAIÚSCULAS e indicar os autores dos materiais.',
         'Partilhar capturas de ecrã privadas das conversas noutras redes.',
       ],
       correctOption: 1,
@@ -1723,12 +1723,12 @@ export const WEEKLY_CHALLENGE = {
   task: 'Encontra os sinais suspeitos e escolhe a resposta certa.',
   options: [
     {
-      text: 'É verdadeira: como fala da escola e é urgente, devo clicar já no link antes dos 15 minutos.',
+      text: 'É verdadeira: como fala da escola e é urgente, devo carregar já na ligação antes dos 15 minutos.',
       isCorrect: false,
       explanation: 'Incorreto! A pressa e a pressão do tempo são truques para te impedir de pensar com calma.',
     },
     {
-      text: 'É phishing: usa ameaças de tempo curto, um link estranho e pede dados de acesso.',
+      text: 'É phishing: usa ameaças de tempo curto, uma ligação estranha e pede dados de acesso.',
       isCorrect: true,
       explanation: 'Correto! Mesmo que uma mensagem pareça ser da escola, confirma sempre num canal oficial ou com um adulto.',
     },

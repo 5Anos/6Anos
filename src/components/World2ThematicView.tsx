@@ -212,7 +212,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     {
       id: 'aut-4',
       title: 'Cura Milagrosa com Sumo de Limão',
-      meta: 'Página de Instagram com link para loja • "**Coach de Saúde Natural**"',
+      meta: 'Página de Instagram com ligação para loja • "**Especialista em Saúde Natural**"',
       body: 'Alegações de que beber 2 litros de limão cura qualquer constipação, com botão "**Compre o nosso ebook por 19€**".',
       correct: 'suspeito',
       explanation: 'Alerta! Conteúdo comercial que usa conselhos de saúde falsos para vender produtos e sem validação médica.',
@@ -317,7 +317,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
     });
     const score = Math.round((correct / sourceScenarios.length) * 100);
     setSourceScore(score);
-    reportCompletion('sim-source-compare', 'Triangulação e Comparação de Fontes', { answers: sourceChoices }, score);
+    reportCompletion('sim-source-compare', 'Confirmar em Várias Fontes', { answers: sourceChoices }, score);
   };
 
   // -------------------------------------------------------------
@@ -706,7 +706,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                   <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
                     <div className="text-2xl">✨</div>
-                    <h5 className="font-black text-amber-950 text-sm">O Super-Poder das Aspas (" ")</h5>
+                    <h5 className="font-black text-amber-950 text-sm">O Superpoder das Aspas (" ")</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
                       Coloca expressões entre aspas (ex.: <em>"lince ibérico"</em>) para procurar o termo exato sem dispersão.
                     </p>
@@ -1435,7 +1435,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                   {dateScore !== null && (
                     <div className="text-xs font-black text-amber-900 bg-amber-100 px-4 py-2 rounded-xl border border-amber-200">
-                      Pontuação: {dateScore}% • {dateScore >= 70 ? '⏳ Olho de Lince Temporal!' : '⚠️ Cuidado com datas antigas!'}
+                      Pontuação: {dateScore}% • {dateScore >= 70 ? '⏳ Mestre das Datas!' : '⚠️ Cuidado com datas antigas!'}
                     </div>
                   )}
                 </div>
@@ -1484,7 +1484,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     🎯 MISSÃO 4/6
                   </span>
                   <AudioReaderButton
-                    textToRead="Missão 4: Triangulação e Comparação de Fontes. Nunca fiques apenas com o primeiro link encontrado. Comparar pelo menos duas a três fontes independentes é o segredo para confirmar a verdade!"
+                    textToRead="Missão 4: Confirmar em Várias Fontes. Nunca fiques apenas com a primeira ligação que encontras. Comparar duas ou três fontes independentes é o segredo para confirmar a verdade!"
                     label="Ouvir Missão ✨"
                   />
                 </div>
@@ -1722,15 +1722,15 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                     🎯 MISSÃO 5/6
                   </span>
                   <AudioReaderButton
-                    textToRead="Missão 5: Caça a Boatos e Desinformação. Títulos sensacionalistas foram desenhados para despertar medo ou surpresa e obrigar a partilhas rápidas. O detetive digital trava o clique, analisa as provas e desmascara fake news!"
+                    textToRead="Missão 5: Caça a Boatos e Notícias Falsas. Títulos exagerados servem para assustar ou surpreender e fazer-te partilhar sem pensar. O detetive digital para antes de carregar, analisa as provas e descobre o que é falso!"
                     label="Ouvir Missão ✨"
                   />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
-                  Caça a Boatos & Desinformação 🚨
+                  Caça a Boatos &amp; Desinformação 🚨
                 </h3>
                 <p className="text-xs text-slate-500 font-bold mt-0.5">
-                  Identifica táticas de <GlossaryTerm term="desinformação">desinformação</GlossaryTerm>, clickbait e aplica técnicas de fact-checking.
+                  Identifica truques de <GlossaryTerm term="desinformação">desinformação</GlossaryTerm>, títulos de isco e aprende a verificar os factos.
                 </p>
               </div>
             </div>
@@ -1790,7 +1790,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                   <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
                     <div className="text-2xl">🔎</div>
-                    <h5 className="font-black text-emerald-950 text-sm">Fact-Checking Oficial</h5>
+                    <h5 className="font-black text-emerald-950 text-sm">Verificação Oficial de Factos</h5>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
                       Plataformas como o Polígrafo analisam boatos virais e mostram aos leitores se a história é verdadeira ou falsa.
                     </p>
@@ -1844,7 +1844,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                   <div className="flex items-center gap-2.5 text-rose-700">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <h4 className="text-base font-black uppercase tracking-wide">
-                      🎮 2. Testa os teus conhecimentos: Caçador de Fake News
+                      🎮 2. Testa os teus conhecimentos: Caçador de Notícias Falsas
                     </h4>
                   </div>
                   <span className="text-xs font-bold text-slate-500">
@@ -1921,7 +1921,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
 
                   {newsScore !== null && (
                     <div className="text-xs font-black text-rose-900 bg-rose-100 px-4 py-2 rounded-xl border border-rose-200">
-                      Pontuação: {newsScore}% • {newsScore >= 70 ? '🛡️ Super-Escudo Anti-Fake News!' : '⚠️ Analisa com mais calma!'}
+                      Pontuação: {newsScore}% • {newsScore >= 70 ? '🛡️ Superescudo Contra Boatos!' : '⚠️ Analisa com mais calma!'}
                     </div>
                   )}
                 </div>
@@ -1961,7 +1961,7 @@ export const World2ThematicView: React.FC<World2ThematicViewProps> = ({
                 Desafio Final de Validação do Mundo 2
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                Chegaste ao fim da investigação! Responde ao Quiz Oficial de 10 perguntas para testar os teus conhecimentos sobre pesquisa, autoria, datas, triangulação e combate a boatos.
+                Chegaste ao fim da investigação! Responde à Avaliação Final de 10 perguntas para testar o que aprendeste sobre pesquisa, autoria, datas, comparação de fontes e combate a boatos.
               </p>
               <p className="text-xs text-slate-500 font-bold">
                 Precisas de <strong>mais de {PROGRESSION_CONFIG.PASSING_THRESHOLD}%</strong> para concluir o Mundo 2 e desbloquear o Mundo 3!

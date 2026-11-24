@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Key,
   ShieldAlert,
@@ -68,6 +68,9 @@ import {
   Info,
   Lightbulb,
   Bug,
+  User,
+  Layout,
+  Wrench,
 } from 'lucide-react';
 import { TOPIC_VISUALS_DATA } from '../data/topicIllustrationsData';
 
@@ -145,12 +148,17 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Brain,
   Info,
   Bug,
+  User,
+  Layout,
+  Tool: Wrench,
+  Wrench,
 };
 
 export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
   topicId,
   className = '',
 }) => {
+  const [imgFailed, setImgFailed] = useState(false);
   const data = TOPIC_VISUALS_DATA[topicId];
 
   if (!data) {
@@ -163,6 +171,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
       border: 'border-blue-300',
       badgeBg: 'bg-blue-600 text-white',
       cardBg: 'bg-white',
+      fallbackBg: 'bg-gradient-to-br from-blue-500 to-sky-600',
       iconBox: 'bg-blue-50 text-blue-600 border border-blue-200/60',
       tipBox: 'bg-blue-50/40 border-blue-300 text-slate-800',
       tipIcon: 'text-blue-600',
@@ -172,6 +181,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
       border: 'border-amber-300',
       badgeBg: 'bg-amber-500 text-white',
       cardBg: 'bg-white',
+      fallbackBg: 'bg-gradient-to-br from-amber-500 to-orange-600',
       iconBox: 'bg-amber-50 text-amber-600 border border-amber-200/60',
       tipBox: 'bg-amber-50/40 border-amber-300 text-slate-800',
       tipIcon: 'text-amber-500',
@@ -181,6 +191,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
       border: 'border-purple-300',
       badgeBg: 'bg-purple-600 text-white',
       cardBg: 'bg-white',
+      fallbackBg: 'bg-gradient-to-br from-purple-500 to-fuchsia-600',
       iconBox: 'bg-purple-50 text-purple-600 border border-purple-200/60',
       tipBox: 'bg-purple-50/40 border-purple-300 text-slate-800',
       tipIcon: 'text-purple-600',
@@ -190,6 +201,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
       border: 'border-emerald-300',
       badgeBg: 'bg-emerald-600 text-white',
       cardBg: 'bg-white',
+      fallbackBg: 'bg-gradient-to-br from-emerald-500 to-teal-600',
       iconBox: 'bg-emerald-50 text-emerald-600 border border-emerald-200/60',
       tipBox: 'bg-emerald-50/40 border-emerald-300 text-slate-800',
       tipIcon: 'text-emerald-600',
@@ -199,6 +211,7 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
       border: 'border-indigo-300',
       badgeBg: 'bg-indigo-600 text-white',
       cardBg: 'bg-white',
+      fallbackBg: 'bg-gradient-to-br from-indigo-500 to-violet-600',
       iconBox: 'bg-indigo-50 text-indigo-600 border border-indigo-200/60',
       tipBox: 'bg-indigo-50/40 border-indigo-300 text-slate-800',
       tipIcon: 'text-indigo-600',
@@ -206,28 +219,38 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
     },
   }[data.colorTheme];
 
+  const LeadIcon = ICON_MAP[data.visualHighlights[0]?.iconName || 'Sparkles'] || Sparkles;
+
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start w-full ${className}`}>
-      {/* 🖼️ Coluna Esquerda: Cartão da Imagem com moldura temática e legenda */}
+      {/* Coluna Esquerda: Cartão da Imagem com moldura temática e legenda */}
       <div
         className={`rounded-2xl border ${themeStyles.border} ${themeStyles.cardBg} p-4 sm:p-5 shadow-xs flex flex-col space-y-3.5`}
       >
         <div className="relative rounded-xl overflow-hidden shadow-xs border border-slate-200/80 aspect-video group">
-          <img
-            src={data.imageUrl}
-            alt={data.imageAlt}
-            referrerPolicy="no-referrer"
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/75 via-slate-900/20 to-transparent pointer-events-none" />
+          {!imgFailed ? (
+            <img
+              src={data.imageUrl}
+              alt={data.imageAlt}
+              referrerPolicy="no-referrer"
+              loading="lazy"
+              onError={() => setImgFailed(true)}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className={`w-full h-full flex flex-col items-center justify-center gap-2 text-white ${themeStyles.fallbackBg}`}>
+              <LeadIcon className="w-10 h-10 opacity-90" />
+              <span className="text-sm font-black px-4 text-center">{data.title}</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent pointer-events-none" />
 
-          {/* Floating Category Badge */}
-          <div className="absolute top-3 left-3">
+          {/* Floating Category Label */}
+          <div className="absolute top-3 left-3 flex items-center gap-2">
             <span
-              className={`px-3 py-1 rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-wider shadow-sm flex items-center gap-1.5 ${themeStyles.badgeBg}`}
+              className={`px-3 py-1 rounded-lg text-[10px] sm:text-[11px] font-black tracking-wide shadow-sm flex items-center gap-1.5 ${themeStyles.badgeBg}`}
             >
-              <Sparkles className="w-3 h-3" />
+              <LeadIcon className="w-3.5 h-3.5" />
               <span>{data.badge}</span>
             </span>
           </div>
@@ -246,11 +269,11 @@ export const TopicIllustrationCard: React.FC<TopicIllustrationCardProps> = ({
         </p>
       </div>
 
-      {/* 📌 Coluna Direita: Pontos Visuais Para Fixar + Caixa de Dica Prática */}
+      {/* Coluna Direita: Pontos Principais Para Fixar + Caixa de Dica Prática */}
       <div className="space-y-3.5 flex flex-col justify-between">
         <div className="space-y-2.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 block">
-            PONTOS VISUAIS PARA FIXAR:
+          <span className="text-xs font-extrabold tracking-wide text-slate-700 block">
+            Pontos principais para fixar:
           </span>
           <div className="grid grid-cols-1 gap-2.5">
             {data.visualHighlights.map((vh, idx) => {

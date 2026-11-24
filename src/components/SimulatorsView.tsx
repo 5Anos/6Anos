@@ -143,13 +143,13 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
     {
       sender: 'seguranca@**conta-escola-verificacao.com**',
       subject: 'A tua conta **será bloqueada hoje**!',
-      body: 'Olá. Detetámos um problema na tua conta. Para evitar que seja bloqueada, confirma os teus dados através do seguinte link **nas próximas 30 minutos** e **introduz a tua palavra-passe**.',
+      body: 'Olá. Detetámos um problema na tua conta. Para evitar que seja bloqueada, confirma os teus dados através da seguinte ligação **nas próximas 30 minutos** e **introduz a tua palavra-passe**.',
       isPhishing: true,
       explanation:
-        'Existem vários sinais de alerta: a mensagem cria urgência com erro gramatical ("nas próximas 30 minutos"), pede a confirmação de palavra-passe por link e usa um domínio suspeito (@conta-escola-verificacao.com).',
+        'Existem vários sinais de alerta: a mensagem cria urgência com erro gramatical ("nas próximas 30 minutos"), pede a confirmação de palavra-passe por uma ligação e usa um domínio suspeito (@conta-escola-verificacao.com).',
       signals: [
         'Urgência com prazo curto e erro de português ("nas próximas 30 minutos")',
-        'Pedido de dados e confirmação de palavra-passe através de link',
+        'Pedido de dados e confirmação de palavra-passe através de uma ligação',
         'Ameaça de bloqueio imediato da conta',
         'Remetente não oficial (@conta-escola-verificacao.com)',
       ],
@@ -160,11 +160,11 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
       body: 'Olá. Relembramos que o trabalho de TIC deve ser entregue **até sexta-feira** através da **plataforma oficial indicada na aula**. Se tiveres dúvidas, fala com o professor.',
       isPhishing: false,
       explanation:
-        'Neste exemplo não existe um pedido de palavra-passe nem um link suspeito. O remetente é o domínio oficial da escola (.edu.pt) e refere o canal habitual da turma.',
+        'Neste exemplo não existe um pedido de palavra-passe nem uma ligação suspeita. O remetente é o domínio oficial da escola (.edu.pt) e refere o canal habitual da turma.',
       signals: [
         'Contexto conhecido de aula',
         'Canal e domínio oficial da escola (.edu.pt)',
-        'Ausência de pedido de palavra-passe ou link estranho',
+        'Ausência de pedido de palavra-passe ou ligação estranha',
         'Possibilidade de confirmação presencial com o professor',
       ],
     },
@@ -352,7 +352,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
           Simuladores Bloqueados — Início de Sessão Obrigatório
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Os simuladores práticos da Missão TIC requerem início de sessão com a conta disponibilizada pela tua Professora para gravar o teu progresso e conquistas.
+          Os simuladores práticos da Missão TIC precisam de início de sessão com a conta dada pela tua professora para guardar o teu progresso e as tuas conquistas.
         </p>
         <button
           onClick={onBack}
@@ -590,7 +590,7 @@ export const SimulatorsView: React.FC<SimulatorsViewProps> = ({
               </div>
             </div>
             <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200">
-              Engenharia Social
+              Mensagens Falsas e Armadilhas
             </span>
           </div>
 

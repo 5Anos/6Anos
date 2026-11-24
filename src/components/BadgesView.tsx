@@ -52,7 +52,7 @@ export const BadgesView: React.FC = () => {
           Entra na tua conta para veres as medalhas!
         </h2>
         <p className="text-sm text-slate-600 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-          Para colecionares medalhas e pontos XP, entra com o cartão de acesso dado pela tua Professora.
+          Para colecionares medalhas e pontos XP, entra com o cartão de acesso dado pela tua professora.
         </p>
       </div>
     );

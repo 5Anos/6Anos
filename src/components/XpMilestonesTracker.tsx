@@ -47,7 +47,7 @@ const MILESTONE_META: Record<
   2: {
     icon: Rocket,
     encouragement: 'Já dominaste os primeiros passos. Continua a testar os teus conhecimentos!',
-    rewardHint: 'Alcançável com 2 atividades ou desafios rápidos.',
+    rewardHint: 'Consegues lá chegar com 2 atividades ou desafios rápidos!',
   },
   3: {
     icon: Shield,
@@ -71,12 +71,12 @@ const MILESTONE_META: Record<
   },
   7: {
     icon: Bot,
-    encouragement: 'Compreendes como funciona a Inteligência Artificial e usas com responsabilidade.',
-    rewardHint: 'Completa as missões do Mundo 5 para dominar a IA.',
+    encouragement: 'Compreendes como funciona a Inteligência Artificial e sabes usá-la com responsabilidade.',
+    rewardHint: 'Completa as missões do Mundo 5 para aprenderes os segredos da IA.',
   },
   8: {
     icon: Crown,
-    encouragement: 'O topo da Missão TIC! Um verdadeiro exemplo de cidadania digital.',
+    encouragement: 'O topo da Missão TIC! Um verdadeiro exemplo de respeito e segurança online.',
     rewardHint: 'Completa os 5 Mundos e a Grande Missão Final (+150 XP).',
   },
 };
