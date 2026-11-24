@@ -51,6 +51,7 @@ import {
   generateKidUsername,
   generateKidPassword,
   normalizeTurmaTag,
+  normalizeTurmaName,
 } from '../utils/kidCredentials';
 import { hashPasswordClient } from './clientAuthUtils';
 import { buildStaticSocraticHint } from './simulatorHints';
@@ -205,11 +206,15 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     const qUsers = query(collection(db, 'users'));
     const userSnap = await getDocs(qUsers);
     const allUsers = userSnap.docs.map((d) => d.data() as ClientUser);
-    let students = allUsers.filter((u) => u.role === 'student');
+    const allStudents = allUsers.filter((u) => u.role === 'student');
+    const totalStudentsAll = allStudents.length;
+    let students = allStudents;
     if (classId && classId !== 'all') {
       students = students.filter((s) => s.classId === classId);
     }
-    const classes = await clientGetClasses();
+    const classes = (await clientGetClasses()).sort((a: any, b: any) =>
+      (a.name || '').localeCompare(b.name || '', 'pt', { numeric: true, sensitivity: 'base' })
+    );
 
     const [assessSnap, progSnap] = await Promise.all([
       getDocs(collection(db, 'assessmentAttempts')),
@@ -301,6 +306,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
 
     return {
       totalStudents,
+      totalStudentsAll,
       activeStudents,
       totalClasses: classes.length,
       classes,
@@ -429,7 +435,9 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
   }
 
   if (pathname === '/api/teacher/classes' && method === 'GET') {
-    const classes = await clientGetClasses();
+    const classes = (await clientGetClasses()).sort((a: any, b: any) =>
+      (a.name || '').localeCompare(b.name || '', 'pt', { numeric: true, sensitivity: 'base' })
+    );
     return { classes } as any;
   }
 
@@ -1220,6 +1228,13 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
     if (!rawName) {
       throw new Error('O nome da turma é obrigatório.');
     }
+    const existingClasses = await clientGetClasses();
+    const duplicate = existingClasses.find(
+      (c: any) => (c.name || '').trim().toLowerCase() === rawName.toLowerCase()
+    );
+    if (duplicate) {
+      throw new Error(`Já existe uma turma com o nome "${duplicate.name}".`);
+    }
     const cleanCode = typeof body.code === 'string' ? body.code.trim().toUpperCase().slice(0, 50) : '';
     const tag = normalizeTurmaTag(rawName).slice(0, 40) || 'turma';
     const classId = `class-${tag}-${Date.now().toString(36)}`;
@@ -1257,6 +1272,17 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
         updates.visibility = body.visibility;
       }
       await updateDoc(doc(db, 'classes', cId), updates);
+      if (updates.name) {
+        const studentSnap = await getDocs(
+          query(collection(db, 'users'), where('classId', '==', cId))
+        );
+        for (const sDoc of studentSnap.docs) {
+          await updateDoc(doc(db, 'users', sDoc.id), {
+            turma: updates.name,
+            updatedAt: new Date().toISOString(),
+          }).catch(() => {});
+        }
+      }
       return { success: true } as any;
     }
     if (method === 'DELETE') {
@@ -1266,6 +1292,7 @@ export async function clientDispatch<T = any>(endpoint: string, options: Request
       for (const sDoc of studentSnap.docs) {
         await updateDoc(doc(db, 'users', sDoc.id), {
           classId: '',
+          turma: '',
           updatedAt: new Date().toISOString(),
         }).catch(() => {});
       }
@@ -1735,14 +1762,49 @@ async function resetStudentProgressData(db: any, sId: string) {
     if (method === 'PUT') {
       const updates: any = { updatedAt: new Date().toISOString() };
       if (body.nickname) updates.nickname = body.nickname;
-      if (body.username) updates.username = body.username;
+      if (body.username) {
+        updates.username = body.username;
+        updates.nickname = body.username;
+      }
       if (body.fullName) {
         updates.fullName = body.fullName;
-        if (!body.name) updates.name = body.fullName.trim().split(' ')[0];
+        if (!body.name) updates.name = extractShortName(body.fullName).displayName;
       }
       if (body.name) updates.name = body.name;
-      if (body.classId) updates.classId = body.classId;
-      if (body.turma) updates.turma = body.turma;
+      if (body.classId !== undefined) {
+        const cleanClassId = typeof body.classId === 'string' ? body.classId.trim() : '';
+        updates.classId = cleanClassId;
+        if (cleanClassId === '') {
+          updates.turma = '';
+        } else {
+          const cSnap = await getDoc(doc(db, 'classes', cleanClassId));
+          if (cSnap.exists()) {
+            updates.turma = cSnap.data().name;
+          } else if (body.turma) {
+            updates.turma = normalizeTurmaName(body.turma);
+          }
+        }
+      } else if (body.turma !== undefined) {
+        const cleanTurma = typeof body.turma === 'string' ? body.turma.trim() : '';
+        if (!cleanTurma) {
+          updates.turma = '';
+          updates.classId = '';
+        } else {
+          const normalizedTurma = normalizeTurmaName(cleanTurma);
+          const allClasses = await clientGetClasses();
+          const matchedClass = allClasses.find(
+            (c: any) =>
+              (c.name || '').trim().toLowerCase() === cleanTurma.toLowerCase() ||
+              normalizeTurmaName(c.name || '').toLowerCase() === normalizedTurma.toLowerCase()
+          );
+          if (matchedClass) {
+            updates.classId = matchedClass.id;
+            updates.turma = matchedClass.name;
+          } else {
+            updates.turma = normalizedTurma;
+          }
+        }
+      }
       if (body.studentNumber) updates.studentNumber = Number(body.studentNumber);
       if (typeof body.blocked === 'boolean') updates.blocked = body.blocked;
       if (typeof body.mustChangePassword === 'boolean') updates.mustChangePassword = body.mustChangePassword;

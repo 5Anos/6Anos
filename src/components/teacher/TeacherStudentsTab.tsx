@@ -99,9 +99,14 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
   const [editingStudent, setEditingStudent] = useState<any | null>(null);
   const [editFullName, setEditFullName] = useState('');
   const [editStudentNumber, setEditStudentNumber] = useState<number>(1);
+  const [editClassId, setEditClassId] = useState('');
   const [editTurma, setEditTurma] = useState('');
   const [editUsername, setEditUsername] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const [tabError, setTabError] = useState<string | null>(null);
+  const [copiedQuickPwd, setCopiedQuickPwd] = useState(false);
 
   // Sorting state
   const [sortBy, setSortBy] = useState<'number' | 'name' | 'turma' | 'xp' | 'average'>('number');
@@ -174,9 +179,10 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
 
   const handleBulkMoveSubmit = () => {
     if (!targetClassId) {
-      alert('Seleciona a turma de destino.');
+      setMoveError('Seleciona a turma de destino.');
       return;
     }
+    setMoveError(null);
     onBulkMoveClass(selectedIds, targetClassId);
     setShowMoveModal(false);
     setSelectedIds([]);
@@ -198,11 +204,13 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
 
   // 1-Click Quick Password Reset
   const handleQuickResetPassword = async (student: any) => {
+    setTabError(null);
     try {
       const res = await apiRequest(`/api/teacher/students/${student.id}/quick-reset-password`, {
         method: 'POST',
       });
       if (res && res.newPassword) {
+        setCopiedQuickPwd(false);
         setQuickResetResult({
           studentName: student.fullName || student.name,
           username: student.username || student.nickname,
@@ -211,16 +219,21 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
         if (onRefresh) onRefresh();
       }
     } catch (err: any) {
-      alert(err.message || 'Erro ao redefinir palavra-passe');
+      setTabError(err.message || 'Erro ao redefinir palavra-passe.');
     }
   };
 
   // Open Edit Modal
   const handleOpenEdit = (student: any) => {
+    setEditError(null);
     setEditingStudent(student);
     setEditFullName(student.fullName || student.name || '');
     setEditStudentNumber(student.studentNumber || 1);
-    setEditTurma(student.turma || student.className || '6.º A');
+    const matchedClass = classes.find(
+      (c) => c.id === student.classId || c.name === (student.turma || student.className)
+    );
+    setEditClassId(matchedClass ? matchedClass.id : student.classId || '');
+    setEditTurma(matchedClass ? matchedClass.name : student.turma || student.className || '');
     setEditUsername(student.username || student.nickname || '');
   };
 
@@ -228,21 +241,24 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingStudent) return;
+    setEditError(null);
     try {
       setIsSavingEdit(true);
+      const matchedClass = classes.find((c) => c.id === editClassId);
       await apiRequest(`/api/teacher/students/${editingStudent.id}`, {
         method: 'PUT',
         body: JSON.stringify({
           fullName: editFullName.trim(),
           studentNumber: editStudentNumber,
-          turma: editTurma,
+          classId: editClassId,
+          turma: matchedClass ? matchedClass.name : editTurma,
           username: editUsername.trim(),
         }),
       });
       setEditingStudent(null);
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      alert(err.message || 'Erro ao atualizar aluno');
+      setEditError(err.message || 'Erro ao atualizar dados do aluno.');
     } finally {
       setIsSavingEdit(false);
     }
@@ -306,6 +322,22 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
           )}
         </div>
       </div>
+
+      {tabError && (
+        <div className="px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            {tabError}
+          </span>
+          <button
+            type="button"
+            onClick={() => setTabError(null)}
+            className="opacity-70 hover:opacity-100 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center shadow-xs">
@@ -774,12 +806,22 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                 type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(quickResetResult.newPassword);
-                  alert('Palavra-passe copiada para a área de transferência!');
+                  setCopiedQuickPwd(true);
+                  setTimeout(() => setCopiedQuickPwd(false), 2500);
                 }}
                 className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-200"
               >
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copiar</span>
+                {copiedQuickPwd ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-emerald-700">Copiada!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copiar</span>
+                  </>
+                )}
               </button>
 
               <button
@@ -813,6 +855,13 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
             </div>
 
             <form onSubmit={handleSaveEdit} className="space-y-4">
+              {editError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{editError}</span>
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700">Nome Completo Oficial:</label>
                 <input
@@ -840,20 +889,21 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700">Turma:</label>
                   <select
-                    value={editTurma}
-                    onChange={(e) => setEditTurma(e.target.value)}
+                    value={editClassId}
+                    onChange={(e) => {
+                      const nextId = e.target.value;
+                      setEditClassId(nextId);
+                      const matched = classes.find((c) => c.id === nextId);
+                      setEditTurma(matched ? matched.name : '');
+                    }}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-blue-500"
                   >
+                    <option value="">Sem Turma</option>
                     {classes.map((c) => (
-                      <option key={c.id} value={c.name}>
+                      <option key={c.id} value={c.id}>
                         {c.name}
                       </option>
                     ))}
-                    <option value="6.º A">6.º A</option>
-                    <option value="6.º B">6.º B</option>
-                    <option value="6.º C">6.º C</option>
-                    <option value="6.º D">6.º D</option>
-                    <option value="6.º E">6.º E</option>
                   </select>
                 </div>
               </div>
@@ -907,7 +957,10 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
               <label className="text-xs font-semibold text-slate-700">Seleciona a Turma de Destino:</label>
               <select
                 value={targetClassId}
-                onChange={(e) => setTargetClassId(e.target.value)}
+                onChange={(e) => {
+                  setTargetClassId(e.target.value);
+                  setMoveError(null);
+                }}
                 aria-label="Selecionar turma de destino"
                 className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
               >
@@ -918,12 +971,18 @@ export const TeacherStudentsTab: React.FC<TeacherStudentsTabProps> = ({
                   </option>
                 ))}
               </select>
+              {moveError && (
+                <p className="text-xs text-rose-600 font-semibold pt-1">{moveError}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => setShowMoveModal(false)}
+                onClick={() => {
+                  setShowMoveModal(false);
+                  setMoveError(null);
+                }}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 cursor-pointer"
               >
                 Cancelar

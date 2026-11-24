@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Upload,
@@ -61,10 +61,13 @@ export const StudentImportModal: React.FC<StudentImportModalProps> = ({
 
   // Manual Form State
   const [manualFullName, setManualFullName] = useState('');
-  const [manualTurma, setManualTurma] = useState(
-    classes.length > 0 ? classes[0].name : '6.º A'
-  );
   const [manualNumber, setManualNumber] = useState<number>(1);
+
+  useEffect(() => {
+    if (classes.length > 0 && !classes.some((c) => c.name === defaultTurma)) {
+      setDefaultTurma(classes[0].name);
+    }
+  }, [classes, isOpen]);
 
   if (!isOpen) return null;
 
@@ -274,7 +277,7 @@ export const StudentImportModal: React.FC<StudentImportModalProps> = ({
     const existingUsernames = new Set<string>(parsedStudents.map((s) => s.username));
     const cleanName = manualFullName.trim();
     const { displayName } = extractShortName(cleanName);
-    const targetTurma = normalizeTurmaName(manualTurma);
+    const targetTurma = normalizeTurmaName(defaultTurma);
     const username = generateKidUsername(cleanName, targetTurma, existingUsernames);
     const initialPassword = generateKidPassword();
     const email = `${username}@escola.local`;
@@ -486,16 +489,21 @@ export const StudentImportModal: React.FC<StudentImportModalProps> = ({
                   onChange={(e) => setDefaultTurma(e.target.value)}
                   className="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
                 >
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))}
-                  <option value="6.º A">6.º A</option>
-                  <option value="6.º B">6.º B</option>
-                  <option value="6.º C">6.º C</option>
-                  <option value="6.º D">6.º D</option>
-                  <option value="6.º E">6.º E</option>
+                  {classes.length > 0 ? (
+                    classes.map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="6.º A">6.º A</option>
+                      <option value="6.º B">6.º B</option>
+                      <option value="6.º C">6.º C</option>
+                      <option value="6.º D">6.º D</option>
+                      <option value="6.º E">6.º E</option>
+                    </>
+                  )}
                 </select>
                 <span className="text-[11px] text-slate-500">
                   (O sistema também reconhece a turma indicada no ficheiro se existir coluna "Turma")

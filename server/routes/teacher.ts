@@ -87,20 +87,100 @@ async function logTeacherAction(
   await addAuditLog(log);
 }
 
+// Fast in-memory world stats calculation (avoids N+1 Firestore queries)
+function buildStudentWorldAveragesInMemory(
+  studentId: string,
+  progressByUser: Map<string, any[]>,
+  assessmentsByUser: Map<string, any[]>
+) {
+  const userProg = progressByUser.get(studentId) || [];
+  const userAssess = assessmentsByUser.get(studentId) || [];
+
+  let prevUnlocked = true;
+  let prevPassed = true;
+
+  return WORLDS_DATA.map((w) => {
+    const scores: number[] = [];
+    let completedSimulatorsCount = 0;
+
+    for (const sim of w.simulators) {
+      const prog = userProg.find((p) => p.activityId === sim.id);
+      if (prog && (prog.completed || (typeof prog.bestScore === 'number' && prog.bestScore > 0))) {
+        completedSimulatorsCount++;
+        scores.push(Number(prog.bestScore) || 0);
+      }
+    }
+
+    const wAttempts = userAssess.filter((a) => a.worldId === w.id);
+    const hasAssessment = wAttempts.length > 0;
+    const bestAssess = hasAssessment
+      ? Math.max(...wAttempts.map((a) => Number(a.percentage) || 0))
+      : null;
+
+    if (bestAssess !== null) {
+      scores.push(bestAssess);
+    }
+
+    const average =
+      scores.length > 0
+        ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1))
+        : 0;
+
+    const allSimsDone = completedSimulatorsCount >= w.simulators.length;
+    const isCompleted =
+      allSimsDone && hasAssessment && average > PROGRESSION_CONFIG.PASSING_THRESHOLD;
+    const isUnlocked = w.id === 1 ? true : prevUnlocked && prevPassed;
+
+    prevUnlocked = isUnlocked;
+    prevPassed = isCompleted;
+
+    return {
+      worldId: w.id,
+      average,
+      completedCount: scores.length,
+      totalComponents: w.simulators.length + 1,
+      isUnlocked,
+      isCompleted,
+      hasAssessmentPassed:
+        bestAssess !== null && bestAssess >= PROGRESSION_CONFIG.QUIZ_PASSING_THRESHOLD,
+    };
+  });
+}
+
+function indexByUserId<T extends { userId: string }>(items: T[]): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  for (const item of items) {
+    const list = map.get(item.userId);
+    if (list) list.push(item);
+    else map.set(item.userId, [item]);
+  }
+  return map;
+}
+
+function sortClassesByName<T extends { name: string }>(classes: T[]): T[] {
+  return [...classes].sort((a, b) =>
+    (a.name || '').localeCompare(b.name || '', 'pt', { numeric: true, sensitivity: 'base' })
+  );
+}
+
 // -------------------------------------------------------------
 // 1. DASHBOARD STATS
 // -------------------------------------------------------------
 router.get('/dashboard-stats', async (req: AuthRequest, res) => {
   try {
     const classId = typeof req.query.classId === 'string' ? req.query.classId : 'all';
-    const [allUsers, classes, allAssessments, allProgress] = await Promise.all([
+    const [allUsers, rawClasses, allAssessments, allProgress] = await Promise.all([
       getAllUsers(),
       getAllClasses(),
       getAssessmentAttempts('all'),
       getAllActivityProgress(),
     ]);
 
-    let students = allUsers.filter((u) => u.role === 'student');
+    const classes = sortClassesByName(rawClasses);
+    const allStudents = allUsers.filter((u) => u.role === 'student');
+    const totalStudentsAll = allStudents.length;
+
+    let students = allStudents;
     if (classId && classId !== 'all') {
       students = students.filter((s) => s.classId === classId);
     }
@@ -115,6 +195,9 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
     ).length;
     const totalQuizzesAttempted = allAssessments.filter((a) => studentIds.has(a.userId)).length;
 
+    const progressByUser = indexByUserId(allProgress);
+    const assessmentsByUser = indexByUserId(allAssessments);
+
     const studentWorldAvgsMap = new Map<string, number[]>();
     const lowWorldStudentIds = new Set<string>();
 
@@ -125,10 +208,12 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
 
       for (const s of students) {
         const worldSims = w.simulators;
-        const studentSims = allProgress.filter(
-          (p) => p.userId === s.id && worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
+        const userProg = progressByUser.get(s.id) || [];
+        const userAssess = assessmentsByUser.get(s.id) || [];
+        const studentSims = userProg.filter(
+          (p) => worldSims.some((sim) => sim.id === p.activityId) && (p.completed || (p.bestScore && p.bestScore > 0))
         );
-        const attempts = allAssessments.filter((a) => a.userId === s.id && a.worldId === w.id);
+        const attempts = userAssess.filter((a) => a.worldId === w.id);
 
         const canonicalScores: number[] = studentSims.map((p) => p.bestScore || 0);
         if (attempts.length > 0) {
@@ -182,12 +267,13 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
       totalStudents > 0 ? Math.round(classGlobalSum / totalStudents) : 0;
 
     const studentsNeedingHelp = students.filter((s) => {
-      const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
+      const failedAttempts = (assessmentsByUser.get(s.id) || []).filter((a) => a.percentage < 50).length;
       return failedAttempts >= 2 || lowWorldStudentIds.has(s.id);
     }).length;
 
     return res.json({
       totalStudents,
+      totalStudentsAll,
       activeStudents,
       totalClasses: classes.length,
       classes,
@@ -211,11 +297,12 @@ router.get('/dashboard-stats', async (req: AuthRequest, res) => {
 router.get('/students', async (req: AuthRequest, res) => {
   try {
     const { classId, search } = req.query;
-    const [allUsers, classes, allAssessments, allMissions] = await Promise.all([
+    const [allUsers, classes, allAssessments, allMissions, allProgress] = await Promise.all([
       getAllUsers(),
       getAllClasses(),
       getAssessmentAttempts('all'),
       getMissionSubmissions(),
+      getAllActivityProgress(),
     ]);
 
     let students = allUsers.filter((u) => u.role === 'student');
@@ -229,94 +316,88 @@ router.get('/students', async (req: AuthRequest, res) => {
       students = students.filter(
         (s) =>
           s.name.toLowerCase().includes(q) ||
+          (s.fullName || '').toLowerCase().includes(q) ||
           s.nickname.toLowerCase().includes(q) ||
           s.email.toLowerCase().includes(q)
       );
     }
 
-    const result = await Promise.all(
-      students.map(async (s) => {
-        const levelInfo = calculateLevel(s.xp);
-        const classroom = classes.find((c) => c.id === s.classId);
+    const progressByUser = indexByUserId(allProgress);
+    const assessmentsByUser = indexByUserId(allAssessments);
+    const missionsByUser = indexByUserId(allMissions);
+    const classById = new Map(classes.map((c) => [c.id, c]));
 
-        // Calculate world averages strictly with centralized progression policy
-        const worldAverages = await Promise.all(
-          [1, 2, 3, 4, 5].map(async (wId) => {
-            const st = await computeWorldStats(s.id, wId);
-            return {
-              worldId: wId,
-              average: st.average,
-              completedCount: st.completedCount,
-              totalComponents: st.totalComponents,
-              isUnlocked: st.isUnlocked,
-              isCompleted: st.isWorldCompleted,
-              hasAssessmentPassed: st.hasAssessmentPassed,
-            };
-          })
-        );
+    const result = students.map((s) => {
+      const levelInfo = calculateLevel(s.xp || 0);
+      const classroom = s.classId ? classById.get(s.classId) : undefined;
 
-        // Compute global average across unlocked worlds with data
-        const completedWorlds = worldAverages.filter((w) => w.completedCount > 0);
-        const globalAverage =
-          completedWorlds.length > 0
-            ? Number(
-                (
-                  completedWorlds.reduce((acc, curr) => acc + curr.average, 0) /
-                  completedWorlds.length
-                ).toFixed(1)
-              )
-            : 0;
+      // Calculate world averages strictly with centralized progression policy (in-memory)
+      const worldAverages = buildStudentWorldAveragesInMemory(
+        s.id,
+        progressByUser,
+        assessmentsByUser
+      );
 
-        // Number of unlocked worlds
-        const unlockedWorldsCount = worldAverages.filter((w) => w.isUnlocked).length;
+      // Compute global average across worlds with data
+      const completedWorlds = worldAverages.filter((w) => w.completedCount > 0);
+      const globalAverage =
+        completedWorlds.length > 0
+          ? Number(
+              (
+                completedWorlds.reduce((acc, curr) => acc + curr.average, 0) /
+                completedWorlds.length
+              ).toFixed(1)
+            )
+          : 0;
 
-        // Pending missions for this student
-        const pendingMissionsCount = allMissions.filter(
-          (m) => m.userId === s.id && m.status === 'pending'
-        ).length;
+      const unlockedWorldsCount = worldAverages.filter((w) => w.isUnlocked).length;
 
-        // Check if needs help (average < 50 on any unlocked world or 2+ failed assessment attempts)
-        const failedAttempts = allAssessments.filter(
-          (a) => a.userId === s.id && a.percentage < 50
-        ).length;
-        const lowWorldAvg = worldAverages.some((w) => w.isUnlocked && w.completedCount > 0 && w.average < 50);
-        const needsHelp = failedAttempts >= 2 || lowWorldAvg;
+      const pendingMissionsCount = (missionsByUser.get(s.id) || []).filter(
+        (m) => m.status === 'pending'
+      ).length;
 
-        const turmaDisplay = s.turma || (classroom ? classroom.name : 'Sem Turma');
-        return {
-          id: s.id,
-          name: s.name,
-          fullName: s.fullName || s.name,
-          turma: turmaDisplay,
-          studentNumber: s.studentNumber ?? null,
-          username: s.username || s.nickname,
-          initialPassword: s.initialPassword || '',
-          email: s.email,
-          nickname: s.nickname,
-          avatar: s.avatar,
-          classId: s.classId,
-          className: turmaDisplay,
-          locale: s.locale,
-          xp: s.xp,
-          level: levelInfo.level,
-          levelName: levelInfo.name,
-          blocked: s.blocked,
-          mustChangePassword: s.mustChangePassword || false,
-          createdAt: s.createdAt,
-          lastLoginAt: s.lastLoginAt,
-          needsHelp,
-          helpReason: needsHelp
-            ? failedAttempts >= 2
-              ? `${failedAttempts} tentativas em avaliações com nota < 50%`
-              : 'Média em Mundo desbloqueado inferior a 50%'
-            : undefined,
-          worldAverages,
-          globalAverage,
-          unlockedWorldsCount,
-          pendingMissionsCount,
-        };
-      })
-    );
+      const failedAttempts = (assessmentsByUser.get(s.id) || []).filter(
+        (a) => a.percentage < 50
+      ).length;
+      const lowWorldAvg = worldAverages.some(
+        (w) => w.isUnlocked && w.completedCount > 0 && w.average < 50
+      );
+      const needsHelp = failedAttempts >= 2 || lowWorldAvg;
+
+      const turmaDisplay = classroom ? classroom.name : s.turma || 'Sem Turma';
+      return {
+        id: s.id,
+        name: s.name,
+        fullName: s.fullName || s.name,
+        turma: turmaDisplay,
+        studentNumber: s.studentNumber ?? null,
+        username: s.username || s.nickname,
+        initialPassword: s.initialPassword || '',
+        email: s.email,
+        nickname: s.nickname,
+        avatar: s.avatar,
+        classId: s.classId || '',
+        className: turmaDisplay,
+        locale: s.locale,
+        xp: s.xp || 0,
+        level: levelInfo.level,
+        levelName: levelInfo.name,
+        blocked: s.blocked,
+        mustChangePassword: s.mustChangePassword || false,
+        createdAt: s.createdAt,
+        lastLoginAt: s.lastLoginAt,
+        needsHelp,
+        helpReason: needsHelp
+          ? failedAttempts >= 2
+            ? `${failedAttempts} tentativas em avaliações com nota < 50%`
+            : 'Média em Mundo desbloqueado inferior a 50%'
+          : undefined,
+        worldAverages,
+        globalAverage,
+        unlockedWorldsCount,
+        pendingMissionsCount,
+      };
+    });
 
     // Sort by Turma and studentNumber
     result.sort((a, b) => {
@@ -824,10 +905,14 @@ router.put('/students/:studentId', async (req: AuthRequest, res) => {
 
     const updates: Partial<User> = {};
     if (name) updates.name = name.trim();
-    if (fullName) updates.fullName = fullName.trim();
-    if (turma) updates.turma = normalizeTurmaName(turma);
+    if (fullName) {
+      updates.fullName = fullName.trim();
+      if (!name) {
+        updates.name = extractShortName(fullName.trim()).displayName;
+      }
+    }
     if (studentNumber !== undefined) {
-      updates.studentNumber = typeof studentNumber === 'number' ? studentNumber : parseInt(studentNumber, 10) || null as any;
+      updates.studentNumber = typeof studentNumber === 'number' ? studentNumber : parseInt(studentNumber, 10) || (null as any);
     }
     if (username) {
       updates.username = cleanString(username);
@@ -836,7 +921,43 @@ router.put('/students/:studentId', async (req: AuthRequest, res) => {
       updates.nickname = nickname.trim();
     }
     if (avatar) updates.avatar = avatar;
-    if (classId) updates.classId = classId;
+
+    // Synchronize classId <-> turma reliably (including unassigning with '')
+    if (classId !== undefined) {
+      const cleanClassId = typeof classId === 'string' ? classId.trim() : '';
+      updates.classId = cleanClassId;
+      if (cleanClassId === '') {
+        updates.turma = '';
+      } else {
+        const targetClass = await getClassById(cleanClassId);
+        if (targetClass) {
+          updates.turma = targetClass.name;
+        } else if (turma) {
+          updates.turma = normalizeTurmaName(turma);
+        }
+      }
+    } else if (turma !== undefined) {
+      const cleanTurma = typeof turma === 'string' ? turma.trim() : '';
+      if (!cleanTurma) {
+        updates.turma = '';
+        updates.classId = '';
+      } else {
+        const normalizedTurma = normalizeTurmaName(cleanTurma);
+        const allClasses = await getAllClasses();
+        const matchedClass = allClasses.find(
+          (c) =>
+            c.name.trim().toLowerCase() === cleanTurma.toLowerCase() ||
+            normalizeTurmaName(c.name).toLowerCase() === normalizedTurma.toLowerCase()
+        );
+        if (matchedClass) {
+          updates.classId = matchedClass.id;
+          updates.turma = matchedClass.name;
+        } else {
+          updates.turma = normalizedTurma;
+        }
+      }
+    }
+
     if (locale) updates.locale = locale;
     if (typeof mustChangePassword === 'boolean') updates.mustChangePassword = mustChangePassword;
 
@@ -1001,62 +1122,81 @@ router.delete('/students/:studentId', async (req: AuthRequest, res) => {
 // -------------------------------------------------------------
 router.get('/classes', async (req: AuthRequest, res) => {
   try {
-    const [classes, allUsers, allMissions] = await Promise.all([
+    const [rawClasses, allUsers, allMissions, allProgress, allAssessments] = await Promise.all([
       getAllClasses(),
       getAllUsers(),
       getMissionSubmissions(),
+      getAllActivityProgress(),
+      getAssessmentAttempts('all'),
     ]);
 
+    const classes = sortClassesByName(rawClasses);
     const students = allUsers.filter((u) => u.role === 'student');
+    const progressByUser = indexByUserId(allProgress);
+    const assessmentsByUser = indexByUserId(allAssessments);
 
-    const result = await Promise.all(
-      classes.map(async (c) => {
-        const classStudents = students.filter((s) => s.classId === c.id);
-        const totalCount = classStudents.length;
-        const activeCount = classStudents.filter((s) => !s.blocked).length;
-        const totalXP = classStudents.reduce((acc, s) => acc + s.xp, 0);
-        const avgXP = totalCount > 0 ? Math.round(totalXP / totalCount) : 0;
+    // Pre-compute each student's world averages once in memory
+    const studentWorldsMap = new Map<string, ReturnType<typeof buildStudentWorldAveragesInMemory>>();
+    for (const s of students) {
+      studentWorldsMap.set(
+        s.id,
+        buildStudentWorldAveragesInMemory(s.id, progressByUser, assessmentsByUser)
+      );
+    }
 
-        // Class averages per world
-        const worldAverages = await Promise.all(
-          [1, 2, 3, 4, 5].map(async (wId) => {
-            let sum = 0;
-            let count = 0;
-            for (const s of classStudents) {
-              const st = await computeWorldStats(s.id, wId);
-              if (st.completedCount > 0) {
-                sum += st.average;
-                count++;
-              }
-            }
-            return {
-              worldId: wId,
-              average: count > 0 ? Number((sum / count).toFixed(1)) : 0,
-              studentsActive: count,
-            };
-          })
-        );
+    const result = classes.map((c) => {
+      const classStudents = students.filter((s) => s.classId === c.id);
+      const totalCount = classStudents.length;
+      const activeCount = classStudents.filter((s) => !s.blocked).length;
+      const totalXP = classStudents.reduce((acc, s) => acc + (s.xp || 0), 0);
+      const avgXP = totalCount > 0 ? Math.round(totalXP / totalCount) : 0;
 
-        const pendingMissions = allMissions.filter(
-          (m) => m.classId === c.id && m.status === 'pending'
-        ).length;
-
-        const studentsNeedingHelp = classStudents.filter((s) => s.needsHelp).length;
-
+      // Class-wide averages per world (students without activity count 0%)
+      const worldAverages = [1, 2, 3, 4, 5].map((wId) => {
+        let sum = 0;
+        let activeWorldStudents = 0;
+        for (const s of classStudents) {
+          const wStat = studentWorldsMap.get(s.id)?.find((w) => w.worldId === wId);
+          if (wStat && wStat.completedCount > 0) {
+            sum += wStat.average;
+            activeWorldStudents++;
+          }
+        }
         return {
-          id: c.id,
-          name: c.name,
-          code: c.code,
-          createdAt: c.createdAt,
-          totalStudents: totalCount,
-          activeStudents: activeCount,
-          avgXP,
-          worldAverages,
-          pendingMissions,
-          studentsNeedingHelp,
+          worldId: wId,
+          average: totalCount > 0 ? Number((sum / totalCount).toFixed(1)) : 0,
+          studentsActive: activeWorldStudents,
         };
-      })
-    );
+      });
+
+      const pendingMissions = allMissions.filter(
+        (m) => m.classId === c.id && m.status === 'pending'
+      ).length;
+
+      const studentsNeedingHelp = classStudents.filter((s) => {
+        const failedAttempts = (assessmentsByUser.get(s.id) || []).filter(
+          (a) => a.percentage < 50
+        ).length;
+        const wAvgs = studentWorldsMap.get(s.id) || [];
+        const lowWorldAvg = wAvgs.some(
+          (w) => w.isUnlocked && w.completedCount > 0 && w.average < 50
+        );
+        return failedAttempts >= 2 || lowWorldAvg;
+      }).length;
+
+      return {
+        id: c.id,
+        name: c.name,
+        code: c.code,
+        createdAt: c.createdAt,
+        totalStudents: totalCount,
+        activeStudents: activeCount,
+        avgXP,
+        worldAverages,
+        pendingMissions,
+        studentsNeedingHelp,
+      };
+    });
 
     return res.json({ classes: result });
   } catch (err) {
@@ -1068,15 +1208,24 @@ router.get('/classes', async (req: AuthRequest, res) => {
 router.post('/classes', async (req: AuthRequest, res) => {
   try {
     const { name, code } = req.body;
-    if (!name) {
+    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    if (!trimmedName) {
       return res.status(400).json({ error: 'Nome da turma é obrigatório.' });
     }
 
-    const cleanCode = code ? code.trim().toUpperCase() : '';
+    const existingClasses = await getAllClasses();
+    const duplicate = existingClasses.find(
+      (c) => c.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (duplicate) {
+      return res.status(409).json({ error: `Já existe uma turma com o nome "${duplicate.name}".` });
+    }
+
+    const cleanCode = typeof code === 'string' ? code.trim().toUpperCase() : '';
 
     const newClass: ClassRoom = {
       id: `class-${crypto.randomUUID().slice(0, 8)}`,
-      name: name.trim(),
+      name: trimmedName,
       code: cleanCode,
       createdAt: new Date().toISOString(),
     };
@@ -1104,7 +1253,7 @@ router.put('/classes/:classId', async (req: AuthRequest, res) => {
     if (!existing) return res.status(404).json({ error: 'Turma não encontrada' });
 
     const updates: Partial<ClassRoom> = {};
-    if (name) updates.name = name.trim();
+    if (typeof name === 'string' && name.trim()) updates.name = name.trim();
     if (typeof code === 'string') {
       updates.code = code.trim().toUpperCase();
     }
@@ -1119,6 +1268,16 @@ router.put('/classes/:classId', async (req: AuthRequest, res) => {
     }
 
     await updateClass(classId, updates);
+
+    // Sync student turma field if class was renamed
+    if (updates.name && updates.name !== existing.name) {
+      const allUsers = await getAllUsers();
+      const classStudents = allUsers.filter((u) => u.classId === classId);
+      await Promise.all(
+        classStudents.map((s) => updateUser(s.id, { turma: updates.name! }))
+      );
+    }
+
     await logTeacherAction(req, 'Edição de turma', undefined, undefined, { classId, ...updates });
 
     return res.json({ success: true, class: { ...existing, ...updates } });
@@ -1186,9 +1345,9 @@ router.delete('/classes/:classId', async (req: AuthRequest, res) => {
     // Unassign students from this class
     const allUsers = await getAllUsers();
     const studentsInClass = allUsers.filter((u) => u.classId === classId);
-    for (const s of studentsInClass) {
-      await updateUser(s.id, { classId: '' });
-    }
+    await Promise.all(
+      studentsInClass.map((s) => updateUser(s.id, { classId: '', turma: '' }))
+    );
 
     await deleteClass(classId);
     await logTeacherAction(req, 'Eliminação de turma', undefined, undefined, {
@@ -1217,9 +1376,11 @@ router.post('/bulk/move-class', async (req: AuthRequest, res) => {
     const targetClass = await getClassById(targetClassId);
     if (!targetClass) return res.status(404).json({ error: 'Turma de destino não encontrada.' });
 
-    for (const sId of studentIds) {
-      await updateUser(sId, { classId: targetClassId });
-    }
+    await Promise.all(
+      studentIds.map((sId: string) =>
+        updateUser(sId, { classId: targetClassId, turma: targetClass.name })
+      )
+    );
 
     await logTeacherAction(req, 'Mudança de turma em massa', undefined, undefined, {
       studentCount: studentIds.length,
@@ -2092,12 +2253,15 @@ router.get('/pauta', async (req: AuthRequest, res: Response) => {
 router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: Response) => {
   try {
     const { type, classId } = req.query;
-    const [allUsers, classes, allAssessments, allMissions] = await Promise.all([
+    const [allUsers, classes, allAssessments, allProgress] = await Promise.all([
       getAllUsers(),
       getAllClasses(),
       getAssessmentAttempts('all'),
-      getMissionSubmissions(),
+      getAllActivityProgress(),
     ]);
+
+    const progressByUser = indexByUserId(allProgress);
+    const assessmentsByUser = indexByUserId(allAssessments);
 
     let students = allUsers.filter((u) => u.role === 'student');
     if (classId && classId !== 'all') {
@@ -2108,9 +2272,13 @@ router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: R
       'Nickname,Nome Completo,Email,Turma,Nivel,XP Total,Media M1 (%),Media M2 (%),Media M3 (%),Media M4 (%),Media M5 (%),Media Global (%),Desbloqueados,Apoio Necessario,Data Registo\n';
 
     for (const s of students) {
-      const levelInfo = calculateLevel(s.xp);
+      const levelInfo = calculateLevel(s.xp || 0);
       const classroom = classes.find((c) => c.id === s.classId);
-      const worldStatsList = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(s.id, w)));
+      const worldStatsList = buildStudentWorldAveragesInMemory(
+        s.id,
+        progressByUser,
+        assessmentsByUser
+      );
       const [m1, m2, m3, m4, m5] = worldStatsList.map((st) => st.average);
 
       const completed = worldStatsList.filter((st) => st.completedCount > 0).map((st) => st.average);
@@ -2121,17 +2289,17 @@ router.get(['/export/csv', '/export/pauta-csv'], async (req: AuthRequest, res: R
 
       const unlockedCount = worldStatsList.filter((st) => st.isUnlocked).length;
 
-      const failedAttempts = allAssessments.filter((a) => a.userId === s.id && a.percentage < 50).length;
+      const failedAttempts = (assessmentsByUser.get(s.id) || []).filter((a) => a.percentage < 50).length;
       const lowWorld = worldStatsList.some((st) => st.isUnlocked && st.completedCount > 0 && st.average < 50);
       const needsHelp = failedAttempts >= 2 || lowWorld ? 'SIM' : 'NAO';
 
       const row = [
         `"${s.nickname.replace(/"/g, '""')}"`,
-        `"${s.name.replace(/"/g, '""')}"`,
+        `"${(s.fullName || s.name).replace(/"/g, '""')}"`,
         `"${s.email.replace(/"/g, '""')}"`,
-        `"${classroom ? classroom.name : ''}"`,
+        `"${classroom ? classroom.name : s.turma || ''}"`,
         `"${levelInfo.level} - ${levelInfo.name}"`,
-        s.xp,
+        s.xp || 0,
         m1,
         m2,
         m3,
@@ -2182,6 +2350,9 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
       getAllXPTransactions(),
     ]);
 
+    const progressByUser = indexByUserId(allProgress);
+    const assessmentsByUser = indexByUserId(allAssessments);
+
     let students = allUsers.filter((u) => u.role === 'student');
     if (classId && classId !== 'all') {
       students = students.filter((s) => s.classId === classId);
@@ -2192,9 +2363,13 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
     // Sheet 1: Pauta Geral
     const pautaRows = [];
     for (const s of students) {
-      const levelInfo = calculateLevel(s.xp);
+      const levelInfo = calculateLevel(s.xp || 0);
       const classroom = classes.find((c) => c.id === s.classId);
-      const worldStatsList = await Promise.all([1, 2, 3, 4, 5].map((w) => computeWorldStats(s.id, w)));
+      const worldStatsList = buildStudentWorldAveragesInMemory(
+        s.id,
+        progressByUser,
+        assessmentsByUser
+      );
       const [m1, m2, m3, m4, m5] = worldStatsList.map((st) => st.average);
       const completed = worldStatsList.filter((st) => st.completedCount > 0).map((st) => st.average);
       const globalAvg =
@@ -2206,11 +2381,11 @@ router.get('/export/xlsx', async (req: AuthRequest, res: Response) => {
 
       pautaRows.push({
         'Nickname': s.nickname,
-        'Nome Completo': s.name,
+        'Nome Completo': s.fullName || s.name,
         'Email': s.email,
-        'Turma': classroom ? classroom.name : 'Sem Turma',
+        'Turma': classroom ? classroom.name : s.turma || 'Sem Turma',
         'Nível': `${levelInfo.level} - ${levelInfo.name}`,
-        'XP Total': s.xp,
+        'XP Total': s.xp || 0,
         'Média Mundo 1 (%)': m1,
         'Média Mundo 2 (%)': m2,
         'Média Mundo 3 (%)': m3,

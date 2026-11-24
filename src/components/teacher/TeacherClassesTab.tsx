@@ -224,7 +224,9 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
           </div>
         ) : (
           classList.map((c) => {
-            const classStudents = studentList.filter((s) => s.classId === c.id);
+            const classStudents = studentList.filter(
+              (s) => s.classId === c.id || (!s.classId && s.turma === c.name)
+            );
             const totalXP = classStudents.reduce((acc, s) => acc + (s.xp || 0), 0);
             const avgXP = classStudents.length > 0 ? Math.round(totalXP / classStudents.length) : 0;
             const activeClassStudents = classStudents.filter((s) =>
@@ -232,12 +234,13 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                 ? s.worldAverages.some((w: any) => (w.completedCount || 0) > 0)
                 : (s.globalAverage || 0) > 0
             );
+            // Média da turma: calculada sobre todos os alunos da turma (alunos sem atividade contam 0%)
             const avgPass =
-              activeClassStudents.length > 0
+              classStudents.length > 0
                 ? Number(
                     (
-                      activeClassStudents.reduce((acc, s) => acc + (s.globalAverage || 0), 0) /
-                      activeClassStudents.length
+                      classStudents.reduce((acc, s) => acc + (s.globalAverage || 0), 0) /
+                      classStudents.length
                     ).toFixed(1)
                   )
                 : null;
@@ -469,15 +472,23 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Alunos nesta Turma (
-                    {students.filter((s) => s.classId === selectedClassForDetails.id).length}
+                    {studentList.filter(
+                      (s) =>
+                        s.classId === selectedClassForDetails.id ||
+                        (!s.classId && s.turma === selectedClassForDetails.name)
+                    ).length}
                     )
                   </h4>
                 </div>
 
                 <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
                   <div className="divide-y divide-slate-100">
-                    {students
-                      .filter((s) => s.classId === selectedClassForDetails.id)
+                    {studentList
+                      .filter(
+                        (s) =>
+                          s.classId === selectedClassForDetails.id ||
+                          (!s.classId && s.turma === selectedClassForDetails.name)
+                      )
                       .map((st) => (
                         <div
                           key={st.id}
@@ -518,7 +529,11 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
                         </div>
                       ))}
 
-                    {students.filter((s) => s.classId === selectedClassForDetails.id).length === 0 && (
+                    {studentList.filter(
+                      (s) =>
+                        s.classId === selectedClassForDetails.id ||
+                        (!s.classId && s.turma === selectedClassForDetails.name)
+                    ).length === 0 && (
                       <div className="p-6 text-center text-slate-400 text-xs">
                         Não existem alunos associados a esta turma.
                       </div>
@@ -553,7 +568,7 @@ export const TeacherClassesTab: React.FC<TeacherClassesTabProps> = ({
               <option value="none">Sem Turma (Remover da turma atual)</option>
               {classes.map((c) => (
                 <option key={c.id} value={c.id}>
-                  Turma {c.name} ({c.code})
+                  Turma {c.name}{c.code ? ` (${c.code})` : ''}
                 </option>
               ))}
             </select>

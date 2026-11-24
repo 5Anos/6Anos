@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Layers,
   Flame,
+  AlertTriangle,
 } from 'lucide-react';
 import { apiRequest } from '../../api';
 
@@ -19,6 +20,7 @@ interface ModuleVisibilityModalProps {
   isOpen: boolean;
   onClose: () => void;
   classes: any[];
+  initialClassId?: string;
   onSuccess?: () => void;
 }
 
@@ -34,14 +36,16 @@ export const ModuleVisibilityModal: React.FC<ModuleVisibilityModalProps> = ({
   isOpen,
   onClose,
   classes = [],
+  initialClassId,
   onSuccess,
 }) => {
   const [selectedClassId, setSelectedClassId] = useState<string>(
-    classes.length > 0 ? classes[0].id : ''
+    initialClassId || (classes.length > 0 ? classes[0].id : '')
   );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Visibility state
   const [worldsVisibility, setWorldsVisibility] = useState<Record<number, boolean>>({
@@ -62,10 +66,19 @@ export const ModuleVisibilityModal: React.FC<ModuleVisibilityModalProps> = ({
   const [weeklyChallengeVisible, setWeeklyChallengeVisible] = useState(true);
 
   useEffect(() => {
-    if (selectedClassId) {
+    if (!isOpen) return;
+    if (initialClassId && classes.some((c) => c.id === initialClassId)) {
+      setSelectedClassId(initialClassId);
+    } else if (classes.length > 0 && !classes.some((c) => c.id === selectedClassId)) {
+      setSelectedClassId(classes[0].id);
+    }
+  }, [isOpen, classes, initialClassId]);
+
+  useEffect(() => {
+    if (isOpen && selectedClassId) {
       loadClassVisibility(selectedClassId);
     }
-  }, [selectedClassId]);
+  }, [isOpen, selectedClassId]);
 
   const loadClassVisibility = async (classId: string) => {
     try {
@@ -112,6 +125,7 @@ export const ModuleVisibilityModal: React.FC<ModuleVisibilityModalProps> = ({
 
   const handleSave = async () => {
     if (!selectedClassId) return;
+    setErrorMessage(null);
     try {
       setSaving(true);
       await apiRequest(`/api/teacher/classes/${selectedClassId}/visibility`, {
@@ -130,7 +144,7 @@ export const ModuleVisibilityModal: React.FC<ModuleVisibilityModalProps> = ({
       setTimeout(() => setSuccessMessage(null), 3000);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      alert(err.message || 'Erro ao guardar configurações de visibilidade.');
+      setErrorMessage(err.message || 'Erro ao guardar configurações de visibilidade.');
     } finally {
       setSaving(false);
     }
@@ -191,6 +205,13 @@ export const ModuleVisibilityModal: React.FC<ModuleVisibilityModalProps> = ({
             <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{successMessage}</span>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{errorMessage}</span>
             </div>
           )}
 

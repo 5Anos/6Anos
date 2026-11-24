@@ -28,6 +28,7 @@ import {
   Scissors,
   UserPlus,
   Sliders,
+  X,
 } from 'lucide-react';
 import { apiRequest, downloadFile } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -73,12 +74,21 @@ export const TeacherArea: React.FC = () => {
   const [resetPwdStudent, setResetPwdStudent] = useState<any | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [requireChangeOnNextLogin, setRequireChangeOnNextLogin] = useState(true);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [resetPwdError, setResetPwdError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    mode: 'single' | 'bulk';
+    studentIds: string[];
+    title: string;
+    description: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // New Modals for requested features
   const [showImportModal, setShowImportModal] = useState(false);
   const [showLoginCardsModal, setShowLoginCardsModal] = useState(false);
   const [showVisibilityModal, setShowVisibilityModal] = useState(false);
+  const [visibilityTargetClassId, setVisibilityTargetClassId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     loadAllData();
@@ -89,7 +99,7 @@ export const TeacherArea: React.FC = () => {
       setLoading(true);
       const results = await Promise.allSettled([
         apiRequest(`/api/teacher/dashboard-stats?classId=${selectedClass}`),
-        apiRequest(`/api/teacher/students?classId=${selectedClass}`),
+        apiRequest('/api/teacher/students?classId=all'),
         apiRequest('/api/teacher/classes'),
         apiRequest(`/api/teacher/pauta?classId=${selectedClass}`),
         apiRequest('/api/teacher/activities-summary'),
@@ -107,7 +117,15 @@ export const TeacherArea: React.FC = () => {
 
       if (statsRes.status === 'fulfilled') setDashboardStats(statsRes.value);
       if (studentsRes.status === 'fulfilled') setStudents(studentsRes.value.students || []);
-      if (classesRes.status === 'fulfilled') setClasses(classesRes.value.classes || []);
+      if (classesRes.status === 'fulfilled') {
+        const loadedClasses = classesRes.value.classes || [];
+        setClasses(loadedClasses);
+        if (selectedClass !== 'all' && !loadedClasses.some((c: any) => c.id === selectedClass)) {
+          setSelectedClass('all');
+        }
+      } else if (statsRes.status === 'fulfilled' && Array.isArray(statsRes.value?.classes)) {
+        setClasses(statsRes.value.classes);
+      }
       if (pautaRes.status === 'fulfilled') setPautaData(pautaRes.value);
       if (actRes.status === 'fulfilled') setActivitiesData(actRes.value.worldsActivities || []);
       if (auditRes.status === 'fulfilled') setAuditLogs(auditRes.value.auditLogs || []);
@@ -119,9 +137,9 @@ export const TeacherArea: React.FC = () => {
     }
   };
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4500);
   };
 
   const handleToggleBlock = async (studentId: string) => {
@@ -132,15 +150,16 @@ export const TeacherArea: React.FC = () => {
       showToast(res.blocked ? 'Aluno bloqueado.' : 'Aluno desbloqueado.');
       await loadAllData();
     } catch (err: any) {
-      alert(err.message || 'Erro ao alterar bloqueio');
+      showToast(err.message || 'Erro ao alterar bloqueio.', 'error');
     }
   };
 
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetPwdStudent) return;
+    setResetPwdError(null);
     if (!newPassword || newPassword.length < 6) {
-      alert('A palavra-passe deve ter no mínimo 6 caracteres.');
+      setResetPwdError('A palavra-passe deve ter no mínimo 6 caracteres.');
       return;
     }
     try {
@@ -154,8 +173,9 @@ export const TeacherArea: React.FC = () => {
       showToast(`Palavra-passe de ${resetPwdStudent.name} redefinida com sucesso.`);
       setResetPwdStudent(null);
       setNewPassword('');
+      setResetPwdError(null);
     } catch (err: any) {
-      alert(err.message || 'Erro ao redefinir palavra-passe');
+      setResetPwdError(err.message || 'Erro ao redefinir palavra-passe.');
     }
   };
 
@@ -168,7 +188,7 @@ export const TeacherArea: React.FC = () => {
       showToast('Alunos transferidos com sucesso.');
       await loadAllData();
     } catch (err: any) {
-      alert(err.message || 'Erro ao transferir alunos');
+      showToast(err.message || 'Erro ao transferir alunos.', 'error');
     }
   };
 
@@ -181,7 +201,7 @@ export const TeacherArea: React.FC = () => {
       showToast(`${studentIds.length} alunos bloqueados.`);
       await loadAllData();
     } catch (err: any) {
-      alert(err.message || 'Erro ao bloquear alunos');
+      showToast(err.message || 'Erro ao bloquear alunos.', 'error');
     }
   };
 
@@ -194,48 +214,58 @@ export const TeacherArea: React.FC = () => {
       showToast(`${studentIds.length} alunos desbloqueados.`);
       await loadAllData();
     } catch (err: any) {
-      alert(err.message || 'Erro ao desbloquear alunos');
+      showToast(err.message || 'Erro ao desbloquear alunos.', 'error');
     }
   };
 
-  const handleDeleteStudent = async (studentId: string) => {
+  const handleDeleteStudent = (studentId: string) => {
     const student = students.find((s) => s.id === studentId);
-    const name = student?.name || 'o aluno';
-    if (
-      !confirm(
-        `Tens a certeza que desejas eliminar permanentemente a conta de "${name}"? Todos os seus dados de progresso e avaliações serão removidos da nuvem.`
-      )
-    ) {
-      return;
-    }
-    try {
-      await apiRequest(`/api/teacher/students/${studentId}`, {
-        method: 'DELETE',
-      });
-      showToast(`Conta de "${name}" eliminada com sucesso.`);
-      await loadAllData();
-    } catch (err: any) {
-      alert(err.message || 'Erro ao eliminar aluno');
-    }
+    const name = student?.fullName || student?.name || 'o aluno';
+    setDeleteConfirm({
+      mode: 'single',
+      studentIds: [studentId],
+      title: `Eliminar conta de "${name}"?`,
+      description:
+        'Esta ação é irreversível. Todos os dados de progresso, pontuações e avaliações deste aluno serão removidos da base de dados.',
+    });
   };
 
-  const handleBulkDelete = async (studentIds: string[]) => {
-    if (
-      !confirm(
-        `Tens a certeza que desejas eliminar permanentemente ${studentIds.length} aluno(s)? Esta ação é irreversível e remove todos os seus dados da base de dados.`
-      )
-    ) {
-      return;
-    }
+  const handleBulkDelete = (studentIds: string[]) => {
+    if (!studentIds.length) return;
+    setDeleteConfirm({
+      mode: 'bulk',
+      studentIds,
+      title: `Eliminar ${studentIds.length} aluno(s)?`,
+      description:
+        'Esta ação é irreversível e remove permanentemente as contas selecionadas e todos os respetivos dados da base de dados.',
+    });
+  };
+
+  const executeConfirmedDelete = async () => {
+    if (!deleteConfirm) return;
     try {
-      await apiRequest('/api/teacher/bulk/delete', {
-        method: 'POST',
-        body: JSON.stringify({ studentIds }),
-      });
-      showToast(`${studentIds.length} aluno(s) eliminado(s) com sucesso.`);
+      setIsDeleting(true);
+      if (deleteConfirm.mode === 'single') {
+        const targetId = deleteConfirm.studentIds[0];
+        const student = students.find((s) => s.id === targetId);
+        const name = student?.fullName || student?.name || 'o aluno';
+        await apiRequest(`/api/teacher/students/${targetId}`, {
+          method: 'DELETE',
+        });
+        showToast(`Conta de "${name}" eliminada com sucesso.`);
+      } else {
+        await apiRequest('/api/teacher/bulk/delete', {
+          method: 'POST',
+          body: JSON.stringify({ studentIds: deleteConfirm.studentIds }),
+        });
+        showToast(`${deleteConfirm.studentIds.length} aluno(s) eliminado(s) com sucesso.`);
+      }
+      setDeleteConfirm(null);
       await loadAllData();
     } catch (err: any) {
-      alert(err.message || 'Erro ao eliminar alunos');
+      showToast(err.message || 'Erro ao eliminar aluno(s).', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -244,7 +274,7 @@ export const TeacherArea: React.FC = () => {
       await downloadFile(`/api/teacher/export/pauta-csv?classId=${selectedClass}`, `missao_tic_pauta_${selectedClass}.csv`);
       showToast('Pauta CSV descarregada com sucesso.');
     } catch (err: any) {
-      alert(err.message || 'Erro ao exportar CSV');
+      showToast(err.message || 'Erro ao exportar CSV.', 'error');
     }
   };
 
@@ -253,7 +283,7 @@ export const TeacherArea: React.FC = () => {
       await downloadFile(`/api/teacher/export/xlsx?classId=${selectedClass}`, 'missao_tic_relatorio_completo.xlsx');
       showToast('Relatório Excel (.xlsx) descarregado com sucesso.');
     } catch (err: any) {
-      alert(err.message || 'Erro ao exportar Excel');
+      showToast(err.message || 'Erro ao exportar Excel.', 'error');
     }
   };
 
@@ -265,17 +295,36 @@ export const TeacherArea: React.FC = () => {
       );
       showToast('Pauta de credenciais descarregada com sucesso em Excel (.xlsx).');
     } catch (err: any) {
-      alert(err.message || 'Erro ao exportar credenciais');
+      showToast(err.message || 'Erro ao exportar credenciais.', 'error');
     }
   };
+
+  const selectedClassObj = classes.find((c: any) => c.id === selectedClass);
+  const totalStudentsGlobal = dashboardStats?.totalStudentsAll ?? students.length;
+  const totalClassesCount = classes.length || dashboardStats?.totalClasses || 0;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-24">
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{toastMessage}</span>
+      {toast && (
+        <div
+          className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200 ${
+            toast.type === 'error' ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+          }`}
+        >
+          {toast.type === 'error' ? (
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          )}
+          <span>{toast.message}</span>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            className="ml-1 opacity-80 hover:opacity-100 cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
@@ -343,14 +392,20 @@ export const TeacherArea: React.FC = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                <span>Alunos Registados</span>
+                <span>
+                  {selectedClass === 'all'
+                    ? 'Alunos Registados'
+                    : `Alunos (${selectedClassObj?.name || 'Turma'})`}
+                </span>
                 <Users className="w-4 h-4 text-amber-600" />
               </div>
               <div className="text-2xl font-black text-slate-900 font-mono mt-2">
-                {dashboardStats.totalStudents}
+                {selectedClass === 'all' ? totalStudentsGlobal : dashboardStats.totalStudents}
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                Distribuídos por {dashboardStats.totalClasses} turmas
+                {selectedClass === 'all'
+                  ? `Distribuídos por ${totalClassesCount} ${totalClassesCount === 1 ? 'turma' : 'turmas'}`
+                  : `de ${totalStudentsGlobal} alunos em ${totalClassesCount} ${totalClassesCount === 1 ? 'turma' : 'turmas'}`}
               </div>
             </div>
 
@@ -360,29 +415,41 @@ export const TeacherArea: React.FC = () => {
                 <GraduationCap className="w-4 h-4 text-amber-600" />
               </div>
               <div className="text-2xl font-black text-slate-900 font-mono mt-2">
-                {dashboardStats.totalClasses}
+                {totalClassesCount}
               </div>
               <div className="text-[11px] text-amber-700 font-medium mt-1">
-                6.º Ano de Escolaridade
+                {selectedClass === 'all'
+                  ? '6.º Ano de Escolaridade'
+                  : `Filtro ativo: ${selectedClassObj?.name || 'Turma'}`}
               </div>
             </div>
 
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                <span>Simuladores Concluídos</span>
+                <span>
+                  {selectedClass === 'all'
+                    ? 'Simuladores Concluídos'
+                    : `Simuladores (${selectedClassObj?.name || 'Turma'})`}
+                </span>
                 <Layers className="w-4 h-4 text-blue-600" />
               </div>
               <div className="text-2xl font-black text-blue-600 font-mono mt-2">
                 {dashboardStats.totalSimulatorsCompleted ?? 0}
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                {dashboardStats.totalQuizzesAttempted ? `${dashboardStats.totalQuizzesAttempted} testes de avaliação realizados` : 'Atividades e desafios práticos'}
+                {dashboardStats.totalQuizzesAttempted
+                  ? `${dashboardStats.totalQuizzesAttempted} testes de avaliação realizados`
+                  : 'Atividades e desafios práticos'}
               </div>
             </div>
 
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                <span>{selectedClass === 'all' ? 'Média Global das Turmas' : 'Média Global da Turma'}</span>
+                <span>
+                  {selectedClass === 'all'
+                    ? 'Média Global das Turmas'
+                    : `Média Global (${selectedClassObj?.name || 'Turma'})`}
+                </span>
                 <Flame className="w-4 h-4 text-emerald-600" />
               </div>
               <div className="text-2xl font-black text-emerald-600 font-mono mt-2">
@@ -663,7 +730,7 @@ export const TeacherArea: React.FC = () => {
               onRefresh={loadAllData}
               onOpenStudent={(s) => setSelectedStudentForDossier(s)}
               onOpenVisibility={(classId) => {
-                if (classId) setSelectedClass(classId);
+                setVisibilityTargetClassId(classId);
                 setShowVisibilityModal(true);
               }}
             />
@@ -711,13 +778,52 @@ export const TeacherArea: React.FC = () => {
       {/* Module and Quiz Visibility Modal */}
       <ModuleVisibilityModal
         isOpen={showVisibilityModal}
-        onClose={() => setShowVisibilityModal(false)}
+        onClose={() => {
+          setShowVisibilityModal(false);
+          setVisibilityTargetClassId(undefined);
+        }}
         classes={classes}
+        initialClassId={visibilityTargetClassId || (selectedClass !== 'all' ? selectedClass : undefined)}
         onSuccess={() => {
           loadAllData();
           showToast('Visibilidade de módulos e testes atualizada.');
         }}
       />
+
+      {/* Inline Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-900">{deleteConfirm.title}</h3>
+                <p className="text-xs text-slate-600 mt-1">{deleteConfirm.description}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={executeConfirmedDelete}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-60"
+              >
+                {isDeleting ? 'A eliminar...' : 'Sim, Eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reset Password Modal (Single Student) */}
       {resetPwdStudent && (
@@ -732,6 +838,13 @@ export const TeacherArea: React.FC = () => {
             </p>
 
             <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+              {resetPwdError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{resetPwdError}</span>
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-700">Nova Palavra-passe:</label>
                 <input
@@ -760,14 +873,17 @@ export const TeacherArea: React.FC = () => {
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setResetPwdStudent(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl"
+                  onClick={() => {
+                    setResetPwdStudent(null);
+                    setResetPwdError(null);
+                  }}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold rounded-xl shadow-xs"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
                 >
                   Confirmar Palavra-passe
                 </button>
