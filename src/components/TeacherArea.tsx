@@ -581,101 +581,55 @@ export const TeacherArea: React.FC = () => {
                 onOpenStudent={(s) => setSelectedStudentForDossier(s)}
               />
 
-              {/* Quick Actions & Recent Activity */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Quick Shortcuts */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
-                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                    Ações Rápidas de Gestão
-                  </h3>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setActiveTab('students')}
-                      className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between text-xs font-bold text-slate-800 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-amber-600" />
-                        Ver Todos os Alunos & Boletins
-                      </span>
-                      <span className="text-slate-400">→</span>
-                    </button>
+              {/* Quick Actions */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Ações Rápidas de Gestão
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <button
+                    onClick={() => setActiveTab('students')}
+                    className="w-full p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between gap-2 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Ver Todos os Alunos & Boletins</span>
+                    </span>
+                    <span className="text-slate-400 shrink-0">→</span>
+                  </button>
 
-                    <button
-                      onClick={() => setActiveTab('activities')}
-                      className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between text-xs font-bold text-slate-800 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Layers className="w-4 h-4 text-amber-600" />
-                        Progresso dos Simuladores Curriculares
-                      </span>
-                      <span className="text-slate-400">→</span>
-                    </button>
+                  <button
+                    onClick={() => setActiveTab('activities')}
+                    className="w-full p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between gap-2 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Simuladores Curriculares</span>
+                    </span>
+                    <span className="text-slate-400 shrink-0">→</span>
+                  </button>
 
-                    <button
-                      onClick={() => setActiveTab('pautas')}
-                      className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between text-xs font-bold text-slate-800 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <FileSpreadsheet className="w-4 h-4 text-amber-600" />
-                        Consultar e Exportar Pautas Oficiais
-                      </span>
-                      <span className="text-slate-400">→</span>
-                    </button>
+                  <button
+                    onClick={() => setActiveTab('pautas')}
+                    className="w-full p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between gap-2 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <FileSpreadsheet className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Pautas Oficiais & Exportação</span>
+                    </span>
+                    <span className="text-slate-400 shrink-0">→</span>
+                  </button>
 
-                    <button
-                      onClick={() => setActiveTab('classes')}
-                      className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between text-xs font-bold text-slate-800 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4 text-amber-600" />
-                        Gerir Turmas e Transferências
-                      </span>
-                      <span className="text-slate-400">→</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Audit summary */}
-                <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <History className="w-4 h-4 text-amber-600" />
-                      Últimos Registos de Auditoria
-                    </h3>
-                    <button
-                      onClick={() => setActiveTab('cleanup')}
-                      className="text-xs text-amber-600 font-bold hover:underline"
-                    >
-                      Ver todos ({auditLogs?.length || 0})
-                    </button>
-                  </div>
-
-                  <div className="space-y-2">
-                    {auditLogs.slice(0, 5).map((log) => (
-                      <div
-                        key={log.id}
-                        className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs"
-                      >
-                        <div>
-                          <div className="font-bold text-slate-800">{log.action}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {new Date(log.timestamp || log.createdAt).toLocaleString('pt-PT')}
-                          </div>
-                        </div>
-                        {log.targetUserName && (
-                          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono text-[11px]">
-                            {log.targetUserName}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-
-                    {auditLogs.length === 0 && (
-                      <div className="text-center py-6 text-slate-400 text-xs">
-                        Nenhum registo de auditoria recente.
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => setActiveTab('classes')}
+                    className="w-full p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left flex items-center justify-between gap-2 text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Gerir Turmas e Transferências</span>
+                    </span>
+                    <span className="text-slate-400 shrink-0">→</span>
+                  </button>
                 </div>
               </div>
             </div>

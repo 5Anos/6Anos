@@ -518,32 +518,59 @@ export const TeacherStudentsWorldBarChart: React.FC<TeacherStudentsWorldBarChart
           </p>
         </div>
 
-        {/* View Mode Segmented Switcher */}
-        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 self-start lg:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => setViewMode('all_students')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
-              viewMode === 'all_students'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Comparar Alunos</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('single_student')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
-              viewMode === 'single_student'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Detalhe de 1 Aluno</span>
-          </button>
+        {/* Right Controls: Turma Selector + View Mode Switcher */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto shrink-0">
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+            <label htmlFor="chart-class-filter" className="text-xs font-semibold text-slate-500 whitespace-nowrap">
+              Turma:
+            </label>
+            <select
+              id="chart-class-filter"
+              value={selectedClass}
+              onChange={(e) => onSelectClass(e.target.value)}
+              aria-label="Selecionar turma no gráfico de progresso por aluno"
+              className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="all">Todas as Turmas ({students.length})</option>
+              {classes.map((c: any) => {
+                const count = students.filter(
+                  (s) => s.classId === c.id || s.turma === c.name || s.className === c.name
+                ).length;
+                return (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({count})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('all_students')}
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
+                viewMode === 'all_students'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Comparar Alunos</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('single_student')}
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
+                viewMode === 'single_student'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Detalhe de 1 Aluno</span>
+            </button>
+          </div>
         </div>
       </div>
 
